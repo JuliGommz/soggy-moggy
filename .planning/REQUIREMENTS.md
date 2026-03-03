@@ -97,46 +97,44 @@
 
 ## Traceability
 
-*Populated during roadmap creation.*
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LOOP-01 | — | Pending |
-| LOOP-02 | — | Pending |
-| LOOP-03 | — | Pending |
-| LOOP-04 | — | Pending |
-| LOOP-05 | — | Pending |
-| LOOP-06 | — | Pending |
-| LOOP-07 | — | Pending |
-| SCRN-01 | — | Pending |
-| SCRN-02 | — | Pending |
-| SCRN-03 | — | Pending |
-| FLOOD-01 | — | Pending |
-| FLOOD-02 | — | Pending |
-| FLOOD-03 | — | Pending |
-| FLOOD-04 | — | Pending |
-| LIFE-01 | — | Pending |
-| LIFE-02 | — | Pending |
-| LIFE-03 | — | Pending |
-| THROW-01 | — | Pending |
-| THROW-02 | — | Pending |
-| THROW-03 | — | Pending |
-| PLAT-01 | — | Pending |
-| PLAT-02 | — | Pending |
-| PLAT-03 | — | Pending |
-| VIS-01 | — | Pending |
-| VIS-02 | — | Pending |
-| VIS-03 | — | Pending |
-| VIS-04 | — | Pending |
-| VIS-05 | — | Pending |
-| HOST-01 | — | Pending |
-| HOST-02 | — | Pending |
+| LOOP-01 | Phase 2 | Pending |
+| LOOP-02 | Phase 2 | Pending |
+| LOOP-03 | Phase 3 | Pending |
+| LOOP-04 | Phase 2 | Pending |
+| LOOP-05 | Phase 2 | Pending |
+| LOOP-06 | Phase 3 | Pending |
+| LOOP-07 | Phase 3 | Pending |
+| SCRN-01 | Phase 3 | Pending |
+| SCRN-02 | Phase 3 | Pending |
+| SCRN-03 | Phase 3 | Pending |
+| FLOOD-01 | Phase 4 | Pending |
+| FLOOD-02 | Phase 4 | Pending |
+| FLOOD-03 | Phase 4 | Pending |
+| FLOOD-04 | Phase 4 | Pending |
+| LIFE-01 | Phase 4 | Pending |
+| LIFE-02 | Phase 4 | Pending |
+| LIFE-03 | Phase 4 | Pending |
+| THROW-01 | Phase 5 | Pending |
+| THROW-02 | Phase 5 | Pending |
+| THROW-03 | Phase 5 | Pending |
+| PLAT-01 | Phase 3 | Pending |
+| PLAT-02 | Phase 3 | Pending |
+| PLAT-03 | Phase 3 | Pending |
+| VIS-01 | Phase 5 | Pending |
+| VIS-02 | Phase 5 | Pending |
+| VIS-03 | Phase 5 | Pending |
+| VIS-04 | Phase 5 | Pending |
+| VIS-05 | Phase 5 | Pending |
+| HOST-01 | Phase 6 | Pending |
+| HOST-02 | Phase 6 | Pending |
 
 **Coverage:**
 - v1 requirements: 30 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 30 ⚠️
+- Mapped to phases: 30
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-03*
-*Last updated: 2026-03-03 after initial definition*
+*Last updated: 2026-03-03 after roadmap creation — traceability populated*
