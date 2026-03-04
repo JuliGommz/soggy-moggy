@@ -12,8 +12,15 @@
 - [ ] **LOOP-03**: Platforms are procedurally generated as the player climbs higher
 - [ ] **LOOP-04**: Camera scrolls upward with the player and never scrolls back down
 - [ ] **LOOP-05**: Player falling below the bottom edge of the camera costs 1 life
-- [ ] **LOOP-06**: Player score equals the maximum height reached during the run
+- [ ] **LOOP-06**: Player score equals the maximum height reached within the current level
 - [ ] **LOOP-07**: Score is displayed in real-time on the HUD during gameplay
+
+### Level Structure
+
+- [ ] **LEVEL-01**: Each level has a defined height goal — reaching it completes the level (not a game over)
+- [ ] **LEVEL-02**: Level-complete screen displays the score for that level and transitions to the next level
+- [ ] **LEVEL-03**: Platforms are procedurally generated within each level's bounded height range (not infinite)
+- [ ] **LEVEL-04**: Flood speed resets or adjusts per level to create escalating difficulty across levels
 
 ### Screens & Flow
 
@@ -106,6 +113,10 @@
 | LOOP-05 | Phase 2 | Pending |
 | LOOP-06 | Phase 3 | Pending |
 | LOOP-07 | Phase 3 | Pending |
+| LEVEL-01 | Phase 3 | Pending |
+| LEVEL-02 | Phase 3 | Pending |
+| LEVEL-03 | Phase 3 | Pending |
+| LEVEL-04 | Phase 4 | Pending |
 | SCRN-01 | Phase 3 | Pending |
 | SCRN-02 | Phase 3 | Pending |
 | SCRN-03 | Phase 3 | Pending |
@@ -131,10 +142,10 @@
 | HOST-02 | Phase 6 | Pending |
 
 **Coverage:**
-- v1 requirements: 30 total
-- Mapped to phases: 30
+- v1 requirements: 34 total
+- Mapped to phases: 34
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-03*
-*Last updated: 2026-03-03 after roadmap creation — traceability populated*
+*Last updated: 2026-03-04 — corrected endless framing, added LEVEL-01 to LEVEL-04, updated LOOP-06, total now 34*

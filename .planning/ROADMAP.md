@@ -11,7 +11,7 @@
 
 - [ ] **Phase 1: Foundation** - Running canvas, game loop with delta time, keyboard input, state machine scaffold
 - [ ] **Phase 2: Core Mechanics** - Cat physics, one-way platform collision, camera scroll, fall-off-bottom death
-- [ ] **Phase 3: Game World** - Procedural platforms (normal + crumbling), screens (start/game over), score system, LocalStorage high score
+- [ ] **Phase 3: Game World** - Procedural platforms (normal + crumbling), level structure (height goal + level-complete screen + progression), screens (start/game over), score system, LocalStorage high score
 - [ ] **Phase 4: Flood + Lives** - Rising water with escalating speed, lives system (3 hearts), damage feedback, animated wave
 - [ ] **Phase 5: Throw + Audio** - Throw mechanic with downward projectile, cat sprite, all sound effects, background music
 - [ ] **Phase 6: Hosting** - GitHub Pages deployment, shareable URL, final browser smoke test
@@ -57,15 +57,16 @@
 **Plans:** TBD
 
 ### Phase 3: Game World
-**Goal:** A full run from start screen to game over screen is completable with score, reachable procedural platforms in both types, and a persisted high score.
+**Goal:** A complete level cycle is playable — start screen, level with height goal, level-complete screen with score, progression to next level, and game over screen when lives are exhausted. Procedural platforms in both types are reachable, and a persisted high score survives browser close.
 **Depends on:** Phase 2
-**Requirements:** LOOP-03, LOOP-06, LOOP-07, SCRN-01, SCRN-02, SCRN-03, PLAT-01, PLAT-02, PLAT-03
+**Requirements:** LOOP-03, LOOP-06, LOOP-07, LEVEL-01, LEVEL-02, LEVEL-03, SCRN-01, SCRN-02, SCRN-03, PLAT-01, PLAT-02, PLAT-03
 **Success Criteria** (what must be TRUE when this phase is done):
   1. Start screen is displayed on load with the game title, a controls explanation, and a start button — game does not begin until the button is pressed
-  2. Three minutes of continuous play never produces a gap too wide to reach — the cat can always jump to the next platform
-  3. Crumbling platforms crack visually on first landing and disappear before the next jump attempt
-  4. Score (height reached) increments in real-time on the HUD as the cat climbs and is displayed on the game over screen
-  5. Closing the browser and reopening shows the same high score on the game over screen (LocalStorage persists)
+  2. Each level has a visible height goal marker — when the cat reaches it, a level-complete screen appears (not a game over) showing the level score, then the next level begins
+  3. Platform gaps within a level never exceed what the cat can jump — the cat can always reach the next platform within the bounded level height
+  4. Crumbling platforms crack visually on first landing and disappear before the next jump attempt
+  5. Score (height reached in the level) increments in real-time on the HUD and is displayed on both the level-complete screen and the game over screen
+  6. Closing the browser and reopening shows the same all-time high score on the game over screen (LocalStorage persists)
 **Plans:** TBD
 
 ### Phase 4: Flood + Lives
@@ -114,6 +115,10 @@
 | LOOP-05 | Phase 2 |
 | LOOP-06 | Phase 3 |
 | LOOP-07 | Phase 3 |
+| LEVEL-01 | Phase 3 |
+| LEVEL-02 | Phase 3 |
+| LEVEL-03 | Phase 3 |
+| LEVEL-04 | Phase 4 |
 | SCRN-01 | Phase 3 |
 | SCRN-02 | Phase 3 |
 | SCRN-03 | Phase 3 |
@@ -138,8 +143,8 @@
 | HOST-01 | Phase 6 |
 | HOST-02 | Phase 6 |
 
-**Coverage: 30/30 v1 requirements mapped**
+**Coverage: 34/34 v1 requirements mapped**
 
 ---
 *Roadmap created: 2026-03-03*
-*Last updated: 2026-03-03 after initial creation*
+*Last updated: 2026-03-04 — corrected Phase 3 to reflect level-based structure, added LEVEL-01 to LEVEL-04 to coverage map, total 34 requirements*

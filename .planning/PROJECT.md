@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A JavaScript browser-based vertical platformer in the style of Doodle Jump. The player controls a cat that jumps upward across platforms, escaping a rising flood. The cat can throw objects downward for interactions. Built as a school Abschlussprojekt submission — hosted online and accessible via a shared link.
+A JavaScript browser-based vertical platformer with a level-based structure. The player controls a cat that automatically jumps upward across procedurally generated platforms, escaping a rising flood. Each level has a specific height goal — reaching it completes the level, shows a score screen, and advances to the next level. The cat can throw objects downward for interactions. Built as a school Abschlussprojekt submission — hosted online and accessible via a shared link.
 
 ## Core Value
 
@@ -17,12 +17,14 @@ A playable, complete gameplay loop: cat jumps up, water rises below, tension bui
 ### Active
 
 - [ ] Player-controlled cat character that auto-jumps on platform contact
-- [ ] Procedurally generated platforms scrolling upward as player rises
-- [ ] Rising water/flood level that chases the player from below
+- [ ] Each level has a defined height goal — reaching it completes the level
+- [ ] Level-complete screen shows score summary before advancing to next level
+- [ ] Procedurally generated platforms within each level's height range (not infinite)
+- [ ] Rising water/flood level that chases the player from below within the level
 - [ ] Lives / HP system — touching water deals damage, not instant death
 - [ ] Throw mechanic — cat throws objects downward with a gameplay or visual effect
-- [ ] Score system based on height reached
-- [ ] Game over screen with score display
+- [ ] Score system based on height reached per level
+- [ ] Game over screen with score display and all-time high score
 - [ ] Start screen / title screen
 - [ ] Hosted and accessible via a shareable URL
 
@@ -49,16 +51,16 @@ A playable, complete gameplay loop: cat jumps up, water rises below, tension bui
 - **Tech Stack**: Vanilla JavaScript + HTML Canvas — no Unity, no framework — runs in any modern browser without install
 - **Delivery**: Must be hostable as a static site (no server-side runtime)
 - **Scope**: Functional prototype — polish is secondary to a complete loop
-- **Timeline**: School submission deadline (exact date TBD)
+- **Timeline**: 04.03.2026 – 22.04.2026 (school submission deadline)
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Doodle Jump-style vertical scroller | Clear, proven gameplay loop; achievable scope for solo submission | — Pending |
+| Level-based vertical platformer | Clear progression structure; each level is a self-contained challenge with a height goal | — Pending |
 | Rising water as chase mechanic | Adds urgency and uniqueness vs. pure height challenge | — Pending |
 | Lives system over instant death | More forgiving; makes the throw mechanic feel more meaningful | — Pending |
 | Vanilla JS + Canvas | Runs anywhere, no build tooling, easy to host as static files | — Pending |
 
 ---
-*Last updated: 2026-03-03 after initialization*
+*Last updated: 2026-03-04 — corrected endless/Doodle Jump framing to level-based structure*
