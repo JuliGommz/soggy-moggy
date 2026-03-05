@@ -1,14 +1,58 @@
-# School example files — not part of the game
+# ─── School examples (teacher reference files, not game code) ───────────────
 Beipielarbeiten_U-Erkert/
-Dokumente_Schule/
 
-# Claude Code local settings
+# School documents — keep the requirement handout (Anforderungen/), ignore the rest
+Dokumente_Schule/Einreichung/
+Dokumente_Schule/Vorlagen/
+
+# ─── GSD planning (private — not for public repo) ───────────────────────────
+.planning/
+
+# ─── Claude Code local settings ─────────────────────────────────────────────
 .claude/settings.local.json
 
-# OS noise
+# ─── Raw / uncompressed audio (too large for git — convert to MP3/OGG first) ─
+# NOTE: .mp3 and .ogg ARE committed — the game needs them for GitHub Pages
+*.wav
+*.aif
+*.aiff
+*.flac
+
+# ─── Video files (too large for git) ─────────────────────────────────────────
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+
+# ─── Asset source / raw files (exports get committed, sources do not) ─────────
+# Aseprite source files
+*.aseprite
+*.ase
+
+# Audio project files (DAW sources)
+*.aup
+*.aup3
+*.flp
+*.ptx
+*.logic
+
+# Photoshop / GIMP sources
+*.psd
+*.xcf
+
+# Temp / scratch folders
+temp/
+tmp/
+scratch/
+*.tmp
+
+# ─── OS noise ────────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# Editor
+# ─── Editor ──────────────────────────────────────────────────────────────────
 .vscode/
 *.swp
+*~
