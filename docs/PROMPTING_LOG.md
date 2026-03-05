@@ -56,4 +56,6 @@
 - "We need a visual concept phase: style, color, mood, contrasts — done with expert agents. Place it where expert deems fitting."
 - Expert placement decision: **between Phase 4 and Phase 5** — after MVP is mechanically proven, before sprite implementation begins
 
+- Git workflow decision: **branch-per-phase** (not per-feature) — recommended as sinnvoll for solo school project; phase branches merge into master via PR when GSD verify-work passes
+
 <!-- New phase entries will be appended here by Claude after each phase milestone -->
