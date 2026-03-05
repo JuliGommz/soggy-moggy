@@ -24,6 +24,8 @@
 - Preferred format for prompting strategy: **capture now, analyze + present at project end**
 - Tracking effort preference: **minimal — mostly automatic**
 
+- "Player character is a stuffed cat (not a real/live cat)"
+
 ### What Julian Changed or Rejected
 - Rejected per-session manual journaling (too high effort)
 - Rejected committing to a fixed presentation format before seeing what was captured
@@ -50,5 +52,8 @@
 | Basic throw (box downward) | Cat sprite, throw VFX, sound |
 
 ---
+
+- "We need a visual concept phase: style, color, mood, contrasts — done with expert agents. Place it where expert deems fitting."
+- Expert placement decision: **between Phase 4 and Phase 5** — after MVP is mechanically proven, before sprite implementation begins
 
 <!-- New phase entries will be appended here by Claude after each phase milestone -->

@@ -1,0 +1,14 @@
+# School example files — not part of the game
+Beipielarbeiten_U-Erkert/
+Dokumente_Schule/
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp

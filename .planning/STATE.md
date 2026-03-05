@@ -65,6 +65,16 @@ Progress: [ ][ ][ ][ ][ ][ ]  0/6 phases complete
 | World coordinates for all entities | Camera transform (`ctx.translate`) applied once in render; HUD drawn after `ctx.restore()` | Phase 2 |
 | Throw effect on water: TBD | Decide after water mechanic is working in Phase 4; playtesting informs the design | Phase 5 |
 | Lives system over instant death | More forgiving; makes the throw mechanic feel more meaningful | Phase 4 |
+| Working title: Soggy Moggy | Renamed from "Cat Flood Jumper" | — |
+| Player = Stuffed Cat | Not a real/live cat — specific visual character with floppy limbs, button eyes, stitched seams | Phase 04.1 |
+| Placeholders until sprites | Colored rectangles used through Phase 4; real sprites produced after Phase 04.1 | Phase 1–4 |
+| MVP-first approach | Core loop must work before polish; clear MVP boundary established | All phases |
+| Visual Concept phase (04.1) | Expert-agent-driven art direction before Phase 5 sprite work; placed after MVP is proven | Phase 04.1 |
+| Prompting strategy documentation | Two-stage system: auto-maintained log throughout + analysis at project end | All phases |
+
+### Roadmap Evolution
+
+- Phase 04.1 "Visual Concept" inserted after Phase 4: art style, color palette, mood, contrast rules, asset list — produced by expert agents before sprite implementation in Phase 5
 
 ### Critical Pitfalls (from research)
 

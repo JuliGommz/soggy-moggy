@@ -81,6 +81,23 @@
   5. The wave surface shows a sine-wave ripple animation — not a flat rectangle
 **Plans:** TBD
 
+### Phase 04.1: Visual Concept (INSERTED)
+
+**Goal:** A complete visual language is defined for Soggy Moggy — art style, color palette, mood, contrast rules, and a key asset list — so that all sprite and UI work in Phase 5 has a clear, consistent reference to build from. Produced by expert agents with Julian's input.
+**Requirements**: VIS-01, VIS-02, VIS-03, VIS-04, VIS-05 (visual prep)
+**Depends on:** Phase 4 (game is mechanically proven before art direction is locked)
+**Plans:** 0 plans
+
+**Success Criteria:**
+  1. An art style is chosen (e.g. pixel art, hand-drawn, flat) with a written rationale
+  2. A color palette is defined: primary, secondary, accent, background, flood color — with contrast rules
+  3. A mood/atmosphere statement exists: what the game should feel like visually and emotionally
+  4. A key asset list is produced: every sprite and UI element that needs to be drawn in Phase 5
+  5. A visual reference sheet (mood board or style card) is committed to the repo
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 04.1 to break down)
+
 ### Phase 5: Throw + Audio
 **Goal:** The cat looks like a cat, sounds accompany all key actions, and the throw mechanic fires a visible projectile downward.
 **Depends on:** Phase 4
