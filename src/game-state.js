@@ -22,5 +22,5 @@ function resetGame() {
   GameState.lives            = 3;
   GameState.cameraY          = 0;
   GameState.maxHeightReached = 0;
-  // Later phases will reset their own entities here (player, platforms, water)
+  resetPlayer(); // reset position — defined in player.js (loaded after game-state.js)
 }
