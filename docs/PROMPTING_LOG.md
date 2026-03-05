@@ -59,3 +59,36 @@
 - Git workflow decision: **branch-per-phase** (not per-feature) — recommended as sinnvoll for solo school project; phase branches merge into master via PR when GSD verify-work passes
 
 <!-- New phase entries will be appended here by Claude after each phase milestone -->
+
+---
+
+## Phase 1 — Foundation
+
+**Date:** 2026-03-05
+**Branch:** `phase-1-foundation`
+**Status:** ✓ Complete (human-verified)
+
+### Commands Used (in order)
+- `/gsd:plan-phase 1` — spawned research + planner + checker agents; 2 plans created and verified
+- `/gsd:execute-phase 1` — spawned executor agents per wave; all 5 source files created
+
+### Key Directions Julian Gave
+- *(No overrides — fully autonomous execution approved)*
+
+### What Julian Changed or Rejected
+- No mid-execution changes; approved human verification checkpoint without issues
+
+### What GSD Produced
+- **Wave 1 (01-01):** `index.html`, `src/game-state.js`, `src/input.js` — HTML shell, frozen GamePhase enum, input key-state set
+- **Wave 2 (01-02):** `src/player.js`, `src/main.js` — placeholder player rect, delta-time game loop, render pass with camera translate
+- All files use classic `<script>` tags (no ES6 modules) — works on `file://` without a dev server
+- Commit pattern: one atomic commit per task (total 5 source files, 5 commits)
+
+### Interesting Decisions Made
+- `lastTime = performance.now()` before first `requestAnimationFrame` — prevents first-frame spike where dt = several seconds
+- `Math.floor()` on player position in `renderPlayer` — prevents sub-pixel blur on integer canvas
+- `GameState.phase = 'gameover'` via console is the only PLAYING→GAMEOVER path in Phase 1; keyboard-driven transition deferred to Phase 2
+
+### Verification Result
+- 4/4 must-haves: ✓ passed automated checks
+- Human items verified: canvas renders, player moves left/right, game loop runs smoothly
