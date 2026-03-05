@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Soggy Moggy</title>
+  <style>
+    body { margin: 0; background: #1a1a2e; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    /* NO width/height rules on canvas — sizing is done exclusively in JS (see src/main.js) */
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Classic script tags — load order matters: dependencies before dependents -->
+  <!-- game-state.js must be FIRST: defines GamePhase and GameState used by all other scripts -->
+  <script src="src/game-state.js"></script>
+  <!-- input.js second: registers keyboard listeners, exposes keys map to main.js -->
+  <script src="src/input.js"></script>
+  <!-- player.js third: uses GameState; placeholder rectangle until Phase 5 sprites -->
+  <script src="src/player.js"></script>
+  <!-- main.js last: orchestrates canvas init, game loop, update + render dispatch -->
+  <script src="src/main.js"></script>
+</body>
+</html>
