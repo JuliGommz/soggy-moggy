@@ -54,6 +54,8 @@ function updatePlayer(dt) {
 }
 
 function renderPlayer(ctx) {
+  // Blink during invincibility frames: 5Hz alternation, starts hidden on first tick (hit feedback)
+  if (water.iframeTimer > 0 && Math.floor(water.iframeTimer * 5) % 2 === 1) return;
   ctx.fillStyle = '#e74c3c'; // red rectangle — stuffed cat placeholder
   ctx.fillRect(Math.floor(player.x), Math.floor(player.y), player.w, player.h);
 }

@@ -54,13 +54,14 @@ function update(dt) {
         GameState.phase = GamePhase.LEVEL_COMPLETE;
       }
 
-      // Fall-off-bottom: Phase 4 will replace with lives-- + respawn
-      if (player.y > GameState.cameraY + canvas.height) {
-        saveHighScore(GameState.score);
-        GameState.phase = GamePhase.GAMEOVER;
+      // Fall-off-bottom: costs one life, respawns at camera top
+      if (player.y > GameState.cameraY + canvas.height && water.iframeTimer <= 0) {
+        takeDamage();
+        player.y  = GameState.cameraY + 60; // respawn near top of camera view
+        player.vy = JUMP_VELOCITY;           // auto-bounce on respawn
       }
 
-      // Phase 4 will add: updateWater(dt)
+      updateWater(dt);
       break;
 
     case GamePhase.LEVEL_COMPLETE:
@@ -106,7 +107,10 @@ function render() {
       ctx.setLineDash([]); // reset dash to avoid affecting other renders
     }
   }
-  // Phase 4 will add: renderWater(ctx)
+  // Water renders after player — water appears in front, covering flooded platforms
+  if (GameState.phase === GamePhase.PLAYING || GameState.phase === GamePhase.LEVEL_COMPLETE) {
+    renderWater(ctx);
+  }
 
   // 4. Exit world space
   ctx.restore();
@@ -116,13 +120,30 @@ function render() {
 }
 
 function renderHUD() {
+  // ── Damage flash overlay — drawn first so it sits behind HUD text ──────────
+  if (water.flashTimer > 0) {
+    const alpha = (water.flashTimer / FLASH_DURATION) * 0.5; // 0.5 at peak, fades to 0
+    ctx.fillStyle = 'rgba(220, 30, 30, ' + alpha.toFixed(3) + ')';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
   // ── PLAYING: real-time score in top-left ─────────────────────────────────
   if (GameState.phase === GamePhase.PLAYING) {
+    // Score and level — top-left
     ctx.fillStyle = '#ffffff';
     ctx.font      = '16px monospace';
     ctx.textAlign = 'left';
     ctx.fillText('Score: ' + GameState.score + ' px', 8, 20);
     ctx.fillText('Level: ' + GameState.level, 8, 42);
+
+    // Hearts — top-right, rendered right-to-left so heart 1 is rightmost
+    ctx.font      = '18px monospace';
+    ctx.textAlign = 'right';
+    for (let i = 0; i < 3; i++) {
+      ctx.fillStyle = i < GameState.lives ? '#e74c3c' : '#444444'; // red = full, grey = empty
+      ctx.fillText('\u2665', (canvas.width - 8) - i * 22, 20);
+    }
+    ctx.textAlign = 'left'; // always reset after right-aligned text
   }
 
   // ── START screen ─────────────────────────────────────────────────────────
