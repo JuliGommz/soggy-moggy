@@ -24,7 +24,7 @@
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete | 2026-03-05 |
 | 2. Core Mechanics | 2/2 | Complete | 2026-03-06 |
-| 3. Game World | 1/3 | In Progress | - |
+| 3. Game World | 2/3 | In Progress | - |
 | 4. Flood + Lives | 0/? | Not started | - |
 | 5. Throw + Audio | 0/? | Not started | - |
 | 6. Hosting | 0/? | Not started | - |
@@ -79,7 +79,7 @@ Plans:
 
 Plans:
 - [x] 03-01-PLAN.md — GameState Foundation: LEVEL_COMPLETE phase, startNextLevel(), LocalStorage high score (Wave 1) — DONE 2026-03-06
-- [ ] 03-02-PLAN.md — Procedural Platforms: generateLevelPlatforms(), crumble state machine (Wave 1)
+- [x] 03-02-PLAN.md — Procedural Platforms: generateLevelPlatforms(), crumble state machine (Wave 1) — DONE 2026-03-06
 - [ ] 03-03-PLAN.md — Wiring: screens, HUD, Enter key, goal line detection (Wave 2)
 
 ### Phase 4: Flood + Lives
@@ -177,4 +177,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-03-03*
-*Last updated: 2026-03-06 — 03-01 executed: GameState foundation (LEVEL_COMPLETE, level/highScore/levelGoalY, startNextLevel, localStorage high score). Phase 3: 1/3 plans done.*
+*Last updated: 2026-03-06 — 03-02 executed: Procedural platforms (17 platforms level 1, GAP_PX=120, crumble state machine, levelGoalY=-1472). Phase 3: 2/3 plans done.*

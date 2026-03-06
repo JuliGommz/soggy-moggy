@@ -9,7 +9,7 @@
 
 - [x] **LOOP-01**: Player's cat auto-jumps upward when landing on any platform (no manual jump input)
 - [x] **LOOP-02**: Player can move cat left and right using arrow keys or A/D keys
-- [ ] **LOOP-03**: Platforms are procedurally generated as the player climbs higher
+- [x] **LOOP-03**: Platforms are procedurally generated as the player climbs higher
 - [ ] **LOOP-04**: Camera scrolls upward with the player and never scrolls back down
 - [ ] **LOOP-05**: Player falling below the bottom edge of the camera costs 1 life
 - [ ] **LOOP-06**: Player score equals the maximum height reached within the current level
@@ -19,7 +19,7 @@
 
 - [ ] **LEVEL-01**: Each level has a defined height goal — reaching it completes the level (not a game over)
 - [ ] **LEVEL-02**: Level-complete screen displays the score for that level and transitions to the next level
-- [ ] **LEVEL-03**: Platforms are procedurally generated within each level's bounded height range (not infinite)
+- [x] **LEVEL-03**: Platforms are procedurally generated within each level's bounded height range (not infinite)
 - [ ] **LEVEL-04**: Flood speed resets or adjusts per level to create escalating difficulty across levels
 
 ### Screens & Flow
@@ -49,9 +49,9 @@
 
 ### Platforms
 
-- [ ] **PLAT-01**: Normal platforms allow unlimited jumps and are visually distinct from background
-- [ ] **PLAT-02**: Crumbling platforms break after one landing (visual crack then disappear)
-- [ ] **PLAT-03**: Platform gap sizing ensures the cat can always reach the next platform
+- [x] **PLAT-01**: Normal platforms allow unlimited jumps and are visually distinct from background
+- [x] **PLAT-02**: Crumbling platforms break after one landing (visual crack then disappear)
+- [x] **PLAT-03**: Platform gap sizing ensures the cat can always reach the next platform
 
 ### Visual & Audio
 
@@ -108,14 +108,14 @@
 |-------------|-------|--------|
 | LOOP-01 | Phase 2 | Complete (02-01) |
 | LOOP-02 | Phase 2 | Complete (02-01) |
-| LOOP-03 | Phase 3 | Pending |
+| LOOP-03 | Phase 3 | Complete |
 | LOOP-04 | Phase 2 | Pending |
 | LOOP-05 | Phase 2 | Pending |
 | LOOP-06 | Phase 3 | Pending |
 | LOOP-07 | Phase 3 | Pending |
 | LEVEL-01 | Phase 3 | Pending |
 | LEVEL-02 | Phase 3 | Pending |
-| LEVEL-03 | Phase 3 | Pending |
+| LEVEL-03 | Phase 3 | Complete |
 | LEVEL-04 | Phase 4 | Pending |
 | SCRN-01 | Phase 3 | Pending |
 | SCRN-02 | Phase 3 | Pending |
@@ -130,9 +130,9 @@
 | THROW-01 | Phase 5 | Pending |
 | THROW-02 | Phase 5 | Pending |
 | THROW-03 | Phase 5 | Pending |
-| PLAT-01 | Phase 3 | Pending |
-| PLAT-02 | Phase 3 | Pending |
-| PLAT-03 | Phase 3 | Pending |
+| PLAT-01 | Phase 3 | Complete |
+| PLAT-02 | Phase 3 | Complete |
+| PLAT-03 | Phase 3 | Complete |
 | VIS-01 | Phase 5 | Pending |
 | VIS-02 | Phase 5 | Pending |
 | VIS-03 | Phase 5 | Pending |
