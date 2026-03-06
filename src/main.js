@@ -82,8 +82,16 @@ function renderHUD() {
   ctx.fillStyle = '#000000';
   ctx.font      = '16px monospace';
 
-  // Phase indicator — visible state machine debug info
+  // Phase indicator (debug — always visible)
   ctx.fillText('Phase: ' + GameState.phase, 8, 20);
+
+  if (GameState.phase === GamePhase.PLAYING) {
+    // Debug: height display — shows how high the player has climbed
+    // Phase 3 will replace with proper score formatting
+    const heightPx = Math.max(0, 528 - GameState.maxHeightReached); // pixels above start
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('Height: ' + heightPx + ' px', 8, 42);
+  }
 
   if (GameState.phase === GamePhase.START) {
     ctx.fillStyle = '#ffffff';
