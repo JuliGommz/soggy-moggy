@@ -35,6 +35,13 @@ function update(dt) {
       break;
 
     case GamePhase.PLAYING:
+      // ⚠ CALL ORDER IS LOAD-BEARING — do not reorder:
+      // 1. updatePlayer(dt)         — applies gravity + movement, saves prevY
+      // 2. updatePlatforms(dt)      — advances crumble timers
+      // 3. checkPlatformCollisions()— reads prevY for one-way check; reads keys.jump for
+      //                              combo (first landing) and manual jump (second landing)
+      // 4. updateCamera()           — follows player after physics settle
+      // The combo mechanic depends on keys.jump being set BEFORE checkPlatformCollisions runs.
       updatePlayer(dt);
       updatePlatforms(dt);
       checkPlatformCollisions();
