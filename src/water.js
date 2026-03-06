@@ -4,13 +4,13 @@
 // ---------------------------------------------------------------------------
 // SECTION 1 — Constants (tune-friendly, one declaration per line)
 // ---------------------------------------------------------------------------
-const FLOOD_BASE_SPEED  = 30;    // px/s at level 1 — tune during playtesting
+const FLOOD_BASE_SPEED  = 60;    // px/s at level 1 — tune during playtesting
 const FLOOD_ACCEL       = 1.5;   // px/s per second — linear speed increase within a level
 const FLOOD_LEVEL_SCALE = 0.4;   // each level multiplies base by (1 + (level-1) * scale)
 const WAVE_AMPLITUDE    = 10;    // px — sine crest height
 const WAVE_FREQUENCY    = 0.04;  // radians per pixel — controls wave width
 const WAVE_SPEED        = 2.5;   // radians per second — controls animation pace
-const IFRAME_DURATION   = 1.8;   // seconds of invincibility after damage hit
+const IFRAME_DURATION   = 1.0;   // seconds of invincibility after damage hit
 const FLASH_DURATION    = 0.4;   // seconds the red overlay is visible
 
 // ---------------------------------------------------------------------------
@@ -28,7 +28,7 @@ const water = {
 // SECTION 3 — resetWater(level)
 // ---------------------------------------------------------------------------
 function resetWater(level) {
-  water.waterY      = 700;
+  water.waterY      = player.y + 120; // starts 120px below player spawn — just off screen bottom
   water.floodSpeed  = FLOOD_BASE_SPEED * (1 + (level - 1) * FLOOD_LEVEL_SCALE);
   water.waveTime    = 0;
   water.iframeTimer = 0;
