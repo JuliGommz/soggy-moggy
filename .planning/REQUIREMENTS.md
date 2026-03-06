@@ -12,21 +12,21 @@
 - [x] **LOOP-03**: Platforms are procedurally generated as the player climbs higher
 - [ ] **LOOP-04**: Camera scrolls upward with the player and never scrolls back down
 - [ ] **LOOP-05**: Player falling below the bottom edge of the camera costs 1 life
-- [ ] **LOOP-06**: Player score equals the maximum height reached within the current level
-- [ ] **LOOP-07**: Score is displayed in real-time on the HUD during gameplay
+- [x] **LOOP-06**: Player score equals the maximum height reached within the current level
+- [x] **LOOP-07**: Score is displayed in real-time on the HUD during gameplay
 
 ### Level Structure
 
-- [ ] **LEVEL-01**: Each level has a defined height goal — reaching it completes the level (not a game over)
-- [ ] **LEVEL-02**: Level-complete screen displays the score for that level and transitions to the next level
+- [x] **LEVEL-01**: Each level has a defined height goal — reaching it completes the level (not a game over)
+- [x] **LEVEL-02**: Level-complete screen displays the score for that level and transitions to the next level
 - [x] **LEVEL-03**: Platforms are procedurally generated within each level's bounded height range (not infinite)
 - [ ] **LEVEL-04**: Flood speed resets or adjusts per level to create escalating difficulty across levels
 
 ### Screens & Flow
 
-- [ ] **SCRN-01**: Start screen displays game title, controls explanation, and a start button
-- [ ] **SCRN-02**: Game over screen displays final score, all-time high score, and a restart button
-- [ ] **SCRN-03**: High score is stored in LocalStorage and survives browser close/reopen
+- [x] **SCRN-01**: Start screen displays game title, controls explanation, and a start button
+- [x] **SCRN-02**: Game over screen displays final score, all-time high score, and a restart button
+- [x] **SCRN-03**: High score is stored in LocalStorage and survives browser close/reopen
 
 ### Flood Mechanic
 
@@ -111,15 +111,15 @@
 | LOOP-03 | Phase 3 | Complete |
 | LOOP-04 | Phase 2 | Pending |
 | LOOP-05 | Phase 2 | Pending |
-| LOOP-06 | Phase 3 | Pending |
-| LOOP-07 | Phase 3 | Pending |
-| LEVEL-01 | Phase 3 | Pending |
-| LEVEL-02 | Phase 3 | Pending |
+| LOOP-06 | Phase 3 | Complete (03-03) |
+| LOOP-07 | Phase 3 | Complete (03-03) |
+| LEVEL-01 | Phase 3 | Complete (03-03) |
+| LEVEL-02 | Phase 3 | Complete (03-03) |
 | LEVEL-03 | Phase 3 | Complete |
 | LEVEL-04 | Phase 4 | Pending |
-| SCRN-01 | Phase 3 | Pending |
-| SCRN-02 | Phase 3 | Pending |
-| SCRN-03 | Phase 3 | Pending |
+| SCRN-01 | Phase 3 | Complete (03-03) |
+| SCRN-02 | Phase 3 | Complete (03-03) |
+| SCRN-03 | Phase 3 | Complete (03-01) |
 | FLOOD-01 | Phase 4 | Pending |
 | FLOOD-02 | Phase 4 | Pending |
 | FLOOD-03 | Phase 4 | Pending |

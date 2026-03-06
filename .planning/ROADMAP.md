@@ -11,7 +11,7 @@
 
 - [x] **Phase 1: Foundation** - Running canvas, game loop with delta time, keyboard input, state machine scaffold
 - [x] **Phase 2: Core Mechanics** - Cat physics, one-way platform collision, camera scroll, fall-off-bottom death
-- [ ] **Phase 3: Game World** - Procedural platforms (normal + crumbling), level structure (height goal + level-complete screen + progression), screens (start/game over), score system, LocalStorage high score
+- [x] **Phase 3: Game World** - Procedural platforms (normal + crumbling), level structure (height goal + level-complete screen + progression), screens (start/game over), score system, LocalStorage high score
 - [ ] **Phase 4: Flood + Lives** - Rising water with escalating speed, lives system (3 hearts), damage feedback, animated wave
 - [ ] **Phase 5: Throw + Audio** - Throw mechanic with downward projectile, cat sprite, all sound effects, background music
 - [ ] **Phase 6: Hosting** - GitHub Pages deployment, shareable URL, final browser smoke test
@@ -24,7 +24,7 @@
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete | 2026-03-05 |
 | 2. Core Mechanics | 2/2 | Complete | 2026-03-06 |
-| 3. Game World | 2/3 | In Progress | - |
+| 3. Game World | 3/3 | Complete | 2026-03-06 |
 | 4. Flood + Lives | 0/? | Not started | - |
 | 5. Throw + Audio | 0/? | Not started | - |
 | 6. Hosting | 0/? | Not started | - |
@@ -80,7 +80,7 @@ Plans:
 Plans:
 - [x] 03-01-PLAN.md — GameState Foundation: LEVEL_COMPLETE phase, startNextLevel(), LocalStorage high score (Wave 1) — DONE 2026-03-06
 - [x] 03-02-PLAN.md — Procedural Platforms: generateLevelPlatforms(), crumble state machine (Wave 1) — DONE 2026-03-06
-- [ ] 03-03-PLAN.md — Wiring: screens, HUD, Enter key, goal line detection (Wave 2)
+- [x] 03-03-PLAN.md — Wiring: screens, HUD, Enter key, goal line detection (Wave 2) — DONE 2026-03-06
 
 ### Phase 4: Flood + Lives
 **Goal:** The defining Cat Flood Jumper experience exists — rising water chases the player, the threat escalates, and lives drain on contact.
@@ -177,4 +177,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-03-03*
-*Last updated: 2026-03-06 — 03-02 executed: Procedural platforms (17 platforms level 1, GAP_PX=120, crumble state machine, levelGoalY=-1472). Phase 3: 2/3 plans done.*
+*Last updated: 2026-03-06 — 03-03 executed: Screen wiring complete (Enter key, LEVEL_COMPLETE case, HUD overlays, goal line). Phase 3: 3/3 plans done — COMPLETE.*

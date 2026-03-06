@@ -14,7 +14,7 @@ progress:
 # State: Cat Flood Jumper
 
 **Last updated:** 2026-03-06
-**Updated by:** Plan 03-02 execution complete
+**Updated by:** Plan 03-03 execution complete
 
 ---
 
@@ -30,12 +30,12 @@ progress:
 
 ## Current Position
 
-**Active Phase:** 3 — Game World
-**Active Plan:** 03 (Plan 03-02 complete)
-**Phase Status:** Phase 3 in progress — 2/3 plans complete
+**Active Phase:** 3 — Game World (COMPLETE)
+**Active Plan:** Phase 3 all plans done — ready for Phase 4
+**Phase Status:** Phase 3 complete — 3/3 plans done
 
 ```
-Progress: [x][x][~][ ][ ][ ]  2/6 phases complete (Phase 3: 2/3 plans done)
+Progress: [x][x][x][ ][ ][ ]  3/6 phases complete
            P1  P2  P3  P4  P5  P6
 ```
 
@@ -47,7 +47,7 @@ Progress: [x][x][~][ ][ ][ ]  2/6 phases complete (Phase 3: 2/3 plans done)
 |-------|------|--------|------------|
 | 1 | Foundation | Complete | 2/2 |
 | 2 | Core Mechanics | Complete | 2/2 |
-| 3 | Game World | In Progress | 2/3 |
+| 3 | Game World | Complete | 3/3 |
 | 4 | Flood + Lives | Not started | 0/? |
 | 5 | Throw + Audio | Not started | 0/? |
 | 6 | Hosting | Not started | 0/? |
@@ -58,7 +58,7 @@ Progress: [x][x][~][ ][ ][ ]  2/6 phases complete (Phase 3: 2/3 plans done)
 
 - Requirements defined: 30
 - Requirements mapped: 30 (100%)
-- Phases complete: 2/6
+- Phases complete: 3/6
 - Plans complete: 6/?
 - v1 features shipped: 0/30
 
@@ -70,6 +70,7 @@ Progress: [x][x][~][ ][ ][ ]  2/6 phases complete (Phase 3: 2/3 plans done)
 | 02 | 02 | 76 | 3 | 1 |
 | 03 | 01 | 97 | 2 | 1 |
 | 03 | 02 | 133 | 2 | 1 |
+| 03 | 03 | 174 | 2 | 2 |
 
 ---
 
@@ -114,6 +115,9 @@ Progress: [x][x][~][ ][ ][ ]  2/6 phases complete (Phase 3: 2/3 plans done)
 | Level height = LEVEL_BASE_HEIGHT + (level-1)*500 | Level 1=~16 platforms, Level 2=~20; natural ramp without touching flood speed (Phase 4) | Phase 3 |
 | keys.shoot included in Phase 1 | Avoids retrofitting input.js when Phase 5 throw mechanic is implemented | Phase 1 |
 | e.code over e.key/e.keyCode | Layout-independent (QWERTY/QWERTZ/AZERTY); e.keyCode is deprecated | Phase 1 |
+| One-shot Enter key: keys.enter = false immediately after consuming | Prevents screen-skip bug when Enter is held across a phase transition (START, LEVEL_COMPLETE, GAMEOVER) | Phase 3 |
+| Score computation moved from renderHUD() into PLAYING update case | GameState.score is always current for both HUD display and level-goal/gameover transitions on the same frame | Phase 3 |
+| World objects render during LEVEL_COMPLETE | Player and platforms stay visible behind the level-complete overlay; goal line also visible | Phase 3 |
 
 ### Roadmap Evolution
 
@@ -159,8 +163,8 @@ None.
 
 **Repository:** `C:/Users/Teilnehmer/Desktop/Schule/PRG/Abschlussprojekt_SRH_26`
 **Planning files:** `.planning/`
-**Last session:** 2026-03-06 — Executed 03-02: Procedural platform generation complete. ~17 platforms for level 1 (GAP_PX=120, +500px per level), crumbling state machine (intact/cracked/removed via dt-accumulator splice), type-aware rendering (green/red/orange), GameState.levelGoalY=-1472 for level 1.
-**Next action:** Execute Plan 03-03 — screen wiring (start/gameover/level-complete screens, goal line, Enter key)
+**Last session:** 2026-03-06 — Executed 03-03: Phase 3 complete. Enter key wired (one-shot pattern), LEVEL_COMPLETE case added, score computed in update(), goal line in world space, full HUD overlays for all four phases.
+**Next action:** Execute Phase 4 — Flood + Lives (/gsd:plan-phase 4 or /gsd:execute-phase 4)
 
 ---
 *State initialized: 2026-03-03 after roadmap creation*
