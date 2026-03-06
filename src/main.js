@@ -85,9 +85,21 @@ function render() {
   ctx.translate(0, -GameState.cameraY); // cameraY is 0 in Phase 1; camera added in Phase 2
 
   // 3. Draw world-space objects
-  if (GameState.phase === GamePhase.PLAYING) {
+  if (GameState.phase === GamePhase.PLAYING || GameState.phase === GamePhase.LEVEL_COMPLETE) {
     renderPlatforms(ctx);  // draw platforms before player (player renders on top)
     renderPlayer(ctx);
+
+    // Goal line: dashed yellow horizontal line at the level goal world Y
+    if (GameState.levelGoalY !== undefined) {
+      ctx.strokeStyle = '#f1c40f';
+      ctx.lineWidth   = 3;
+      ctx.setLineDash([10, 6]);
+      ctx.beginPath();
+      ctx.moveTo(0,            GameState.levelGoalY);
+      ctx.lineTo(canvas.width, GameState.levelGoalY);
+      ctx.stroke();
+      ctx.setLineDash([]); // reset dash to avoid affecting other renders
+    }
   }
   // Phase 4 will add: renderWater(ctx)
 
@@ -99,34 +111,83 @@ function render() {
 }
 
 function renderHUD() {
-  ctx.fillStyle = '#000000';
-  ctx.font      = '16px monospace';
-
-  // Phase indicator (debug — always visible)
-  ctx.fillText('Phase: ' + GameState.phase, 8, 20);
-
+  // ── PLAYING: real-time score in top-left ─────────────────────────────────
   if (GameState.phase === GamePhase.PLAYING) {
-    // Debug: height display — shows how high the player has climbed
-    // Phase 3 will replace with proper score formatting
-    const heightPx = Math.max(0, 528 - GameState.maxHeightReached); // pixels above start
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('Height: ' + heightPx + ' px', 8, 42);
+    ctx.font      = '16px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('Score: ' + GameState.score + ' px', 8, 20);
+    ctx.fillText('Level: ' + GameState.level, 8, 42);
   }
 
+  // ── START screen ─────────────────────────────────────────────────────────
   if (GameState.phase === GamePhase.START) {
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.textAlign = 'center';
+
     ctx.fillStyle = '#ffffff';
-    ctx.font      = '20px monospace';
-    ctx.fillText('SOGGY MOGGY', 160, 300);
-    ctx.font = '14px monospace';
-    ctx.fillText('Press Arrow / A-D to start', 110, 340);
+    ctx.font      = '36px monospace';
+    ctx.fillText('SOGGY MOGGY', canvas.width / 2, 220);
+
+    ctx.font = '16px monospace';
+    ctx.fillStyle = '#cccccc';
+    ctx.fillText('Arrow keys or A / D to move', canvas.width / 2, 300);
+    ctx.fillText('Reach the goal line to clear each level', canvas.width / 2, 325);
+    ctx.fillText('Platforms bounce you — no jump key needed', canvas.width / 2, 350);
+
+    ctx.font = '20px monospace';
+    ctx.fillStyle = '#f1c40f';
+    ctx.fillText('Press ENTER to start', canvas.width / 2, 420);
+
+    ctx.textAlign = 'left'; // always reset after centered rendering
   }
 
-  if (GameState.phase === GamePhase.GAMEOVER) {
+  // ── LEVEL COMPLETE screen ─────────────────────────────────────────────────
+  if (GameState.phase === GamePhase.LEVEL_COMPLETE) {
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.textAlign = 'center';
+
+    ctx.fillStyle = '#2ecc71';
+    ctx.font      = '32px monospace';
+    ctx.fillText('LEVEL ' + GameState.level + ' CLEAR!', canvas.width / 2, 220);
+
     ctx.fillStyle = '#ffffff';
     ctx.font      = '20px monospace';
-    ctx.fillText('GAME OVER', 170, 300);
-    ctx.font = '14px monospace';
-    ctx.fillText('Press Arrow / A-D to restart', 105, 340);
+    ctx.fillText('Score: ' + GameState.score + ' px', canvas.width / 2, 290);
+    ctx.fillText('Best:  ' + GameState.highScore + ' px', canvas.width / 2, 320);
+
+    ctx.font = '16px monospace';
+    ctx.fillStyle = '#f1c40f';
+    ctx.fillText('Press ENTER to continue', canvas.width / 2, 400);
+
+    ctx.textAlign = 'left';
+  }
+
+  // ── GAME OVER screen ──────────────────────────────────────────────────────
+  if (GameState.phase === GamePhase.GAMEOVER) {
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.textAlign = 'center';
+
+    ctx.fillStyle = '#e74c3c';
+    ctx.font      = '32px monospace';
+    ctx.fillText('GAME OVER', canvas.width / 2, 220);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font      = '20px monospace';
+    ctx.fillText('Score: ' + GameState.score + ' px', canvas.width / 2, 290);
+    ctx.fillText('Best:  ' + GameState.highScore + ' px', canvas.width / 2, 320);
+
+    ctx.font = '16px monospace';
+    ctx.fillStyle = '#f1c40f';
+    ctx.fillText('Press ENTER to return to start', canvas.width / 2, 400);
+
+    ctx.textAlign = 'left';
   }
 }
 
