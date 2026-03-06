@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-03-06T12:02:19Z"
+last_updated: "2026-03-06T12:06:49Z"
 progress:
   total_phases: 6
-  completed_phases: 3
-  total_plans: 8
-  completed_plans: 7
+  completed_phases: 4
+  total_plans: 9
+  completed_plans: 9
 ---
 
 # State: Cat Flood Jumper
 
 **Last updated:** 2026-03-06
-**Updated by:** Plan 04-01 execution complete
+**Updated by:** Plan 04-02 execution complete
 
 ---
 
@@ -22,7 +22,7 @@ progress:
 
 **Core Value:** A playable, complete gameplay loop: cat jumps up, water rises below, tension builds — the game feels real from first play.
 
-**Current Focus:** Phase 4 — Flood + Lives
+**Current Focus:** Phase 4 complete — ready for Phase 04.1 (Visual Concept) or Phase 5 (Throw + Audio)
 
 **Stack:** Vanilla JavaScript ES2022+ + HTML Canvas 2D (480x640) + Web Audio API + GitHub Pages
 
@@ -30,12 +30,12 @@ progress:
 
 ## Current Position
 
-**Active Phase:** 4 — Flood + Lives (IN PROGRESS)
-**Active Plan:** Phase 4 Plan 01 done — ready for Plan 02
-**Phase Status:** Phase 4 in progress — 1/? plans done
+**Active Phase:** 4 — Flood + Lives (COMPLETE)
+**Active Plan:** Phase 4 Plan 02 done — Phase 4 complete
+**Phase Status:** Phase 4 complete — 2/2 plans done
 
 ```
-Progress: [x][x][x][~][ ][ ]  3/6 phases complete (phase 4 in progress)
+Progress: [x][x][x][x][ ][ ]  4/6 phases complete
            P1  P2  P3  P4  P5  P6
 ```
 
@@ -48,7 +48,7 @@ Progress: [x][x][x][~][ ][ ]  3/6 phases complete (phase 4 in progress)
 | 1 | Foundation | Complete | 2/2 |
 | 2 | Core Mechanics | Complete | 2/2 |
 | 3 | Game World | Complete | 3/3 |
-| 4 | Flood + Lives | In progress | 1/? |
+| 4 | Flood + Lives | Complete | 2/2 |
 | 5 | Throw + Audio | Not started | 0/? |
 | 6 | Hosting | Not started | 0/? |
 
@@ -58,8 +58,8 @@ Progress: [x][x][x][~][ ][ ]  3/6 phases complete (phase 4 in progress)
 
 - Requirements defined: 30
 - Requirements mapped: 30 (100%)
-- Phases complete: 3/6
-- Plans complete: 7/?
+- Phases complete: 4/6
+- Plans complete: 9/?
 - v1 features shipped: 0/30
 
 | Phase | Plan | Duration (s) | Tasks | Files |
@@ -72,6 +72,7 @@ Progress: [x][x][x][~][ ][ ]  3/6 phases complete (phase 4 in progress)
 | 03 | 02 | 133 | 2 | 1 |
 | 03 | 03 | 174 | 2 | 2 |
 | 04 | 01 | 76 | 2 | 2 |
+| 04 | 02 | 118 | 2 | 2 |
 
 ---
 
@@ -121,7 +122,10 @@ Progress: [x][x][x][~][ ][ ]  3/6 phases complete (phase 4 in progress)
 | World objects render during LEVEL_COMPLETE | Player and platforms stay visible behind the level-complete overlay; goal line also visible | Phase 3 |
 | takeDamage() does not check iframeTimer — caller owns the guard | Separation of concerns: updateWater() is the collision detector and owns the guard; takeDamage() is a pure "apply damage" function | Phase 4 |
 | Water collision at waterY - WAVE_AMPLITUDE | Player hits the visible wave crest, not the invisible mean line — matches what the eye sees | Phase 4 |
-| floodSpeed scaled in resetWater(), not per-frame | One-time cost per level start rather than 60× per second | Phase 4 |
+| floodSpeed scaled in resetWater(), not per-frame | One-time cost per level start rather than 60x per second | Phase 4 |
+| Flash overlay uses inline rgba() not ctx.globalAlpha | Prevents globalAlpha state leak that would make HUD text semi-transparent after damage | Phase 4 |
+| Fall-off-bottom respawns at cameraY+60 with JUMP_VELOCITY | Consistent auto-bounce feel on respawn; guarded by iframeTimer to prevent double-damage in same window | Phase 4 |
+| renderWater() has its own PLAYING/LEVEL_COMPLETE guard (flat, not nested) | Structurally symmetrical with how renderPlatforms/renderPlayer are guarded; easier to read | Phase 4 |
 
 ### Roadmap Evolution
 
@@ -139,8 +143,7 @@ Progress: [x][x][x][~][ ][ ]  3/6 phases complete (phase 4 in progress)
 
 | Question | When to Decide |
 |----------|----------------|
-| What does the throw do to the water? (freeze / slow / visual only) | After water mechanic works in Phase 4 |
-| Water rise speed curve shape (linear / exponential / step-function) | During Phase 4; calibrate via playtesting |
+| What does the throw do to the water? (freeze / slow / visual only) | Now — Phase 4 is complete, playtesting is possible |
 | Throw cooldown duration | Phase 5 default recommendation: 1-2 seconds |
 | Does the project need a pause key? | Phase 5 only if time permits |
 | Max jump height in pixels (needed for gap constraint formula) | Measure in Phase 2 before Phase 3 starts |
@@ -148,7 +151,7 @@ Progress: [x][x][x][~][ ][ ]  3/6 phases complete (phase 4 in progress)
 ### Todos
 
 - [ ] Measure actual max jump height (pixels) after Phase 2 physics are implemented — required for PLAT-03 gap constraint
-- [ ] Decide throw mechanic water interaction after Phase 4 playtesting
+- [ ] Decide throw mechanic water interaction after Phase 4 playtesting — Phase 4 is now complete, decision can be made
 - [ ] Confirm GitHub Pages is enabled on the repository before Phase 6
 
 ### Blockers
@@ -167,9 +170,9 @@ None.
 
 **Repository:** `C:/Users/Teilnehmer/Desktop/Schule/PRG/Abschlussprojekt_SRH_26`
 **Planning files:** `.planning/`
-**Last session:** 2026-03-06 — Executed 04-01: Created src/water.js (all 6 sections: constants, water object, resetWater, takeDamage, updateWater, renderWater) and added water.js script tag to index.html.
-**Next action:** Execute Phase 4 Plan 02 — wire water into main.js (resetWater calls, updateWater in PLAYING loop, renderWater in world space, red flash overlay in HUD)
+**Last session:** 2026-03-06 — Executed 04-02: Wired water into main.js (updateWater call, renderWater in world space, fall respawn with lives, flash overlay + hearts in HUD) and wired resetWater into game-state.js (resetGame + startNextLevel). Phase 4 complete.
+**Next action:** Phase 04.1 (Visual Concept) or Phase 5 (Throw + Audio) — Phase 4 MVP is playable and complete.
 
 ---
 *State initialized: 2026-03-03 after roadmap creation*
-*Updated: 2026-03-06 after 04-01-PLAN.md execution*
+*Updated: 2026-03-06 after 04-02-PLAN.md execution*
