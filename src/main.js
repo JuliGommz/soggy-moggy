@@ -18,9 +18,6 @@ function gameLoop(timestamp) {
   const dt = Math.min((timestamp - lastTime) / 1000, 0.05); // seconds
   lastTime = timestamp;
 
-  // Debug: log dt to console once per second (remove in Phase 2)
-  if (Math.random() < 0.017) console.log('dt:', dt.toFixed(4), 's');
-
   update(dt);
   render();
 
