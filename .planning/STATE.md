@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-03-06T12:06:49Z"
+last_updated: "2026-03-06T14:00:00Z"
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 4
-  total_plans: 9
+  total_plans: 11
   completed_plans: 9
 ---
 
 # State: Cat Flood Jumper
 
 **Last updated:** 2026-03-06
-**Updated by:** Plan 04-02 execution complete
+**Updated by:** Phase 04.1 planned — 2 plans created (04.1-01 style guide + code fixes, 04.1-02 sprite export + asset list)
 
 ---
 
@@ -22,7 +22,7 @@ progress:
 
 **Core Value:** A playable, complete gameplay loop: cat jumps up, water rises below, tension builds — the game feels real from first play.
 
-**Current Focus:** Phase 4 complete — ready for Phase 04.1 (Visual Concept) or Phase 5 (Throw + Audio)
+**Current Focus:** Phase 04.1 (Visual Concept) — planned, ready to execute
 
 **Stack:** Vanilla JavaScript ES2022+ + HTML Canvas 2D (480x640) + Web Audio API + GitHub Pages
 
@@ -30,13 +30,14 @@ progress:
 
 ## Current Position
 
-**Active Phase:** 4 — Flood + Lives (COMPLETE)
-**Active Plan:** Phase 4 Plan 02 done — Phase 4 complete
-**Phase Status:** Phase 4 complete — 2/2 plans done
+**Active Phase:** 04.1 — Visual Concept (PLANNED, not started)
+**Active Plan:** 04.1-01 is next — style guide, palette file, imageSmoothingEnabled, platform color update
+**Phase Status:** Phase 04.1 planned — 0/2 plans done
 
 ```
-Progress: [x][x][x][x][ ][ ]  4/6 phases complete
+Progress: [x][x][x][x][ ][ ]  4/6 main phases complete
            P1  P2  P3  P4  P5  P6
+           Phase 04.1 (visual concept) in progress
 ```
 
 ---
@@ -49,6 +50,7 @@ Progress: [x][x][x][x][ ][ ]  4/6 phases complete
 | 2 | Core Mechanics | Complete | 2/2 |
 | 3 | Game World | Complete | 3/3 |
 | 4 | Flood + Lives | Complete | 2/2 |
+| 04.1 | Visual Concept | Planned | 0/2 |
 | 5 | Throw + Audio | Not started | 0/? |
 | 6 | Hosting | Not started | 0/? |
 
@@ -170,8 +172,8 @@ None.
 
 **Repository:** `C:/Users/Teilnehmer/Desktop/Schule/PRG/Abschlussprojekt_SRH_26`
 **Planning files:** `.planning/`
-**Last session:** 2026-03-06 — Executed 04-02: Wired water into main.js (updateWater call, renderWater in world space, fall respawn with lives, flash overlay + hearts in HUD) and wired resetWater into game-state.js (resetGame + startNextLevel). Phase 4 complete.
-**Next action:** Phase 04.1 (Visual Concept) or Phase 5 (Throw + Audio) — Phase 4 MVP is playable and complete.
+**Last session:** 2026-03-06 — Planned Phase 04.1 Visual Concept: spawned researcher (inspected existing .pxo sprites and PixelArt/Paralax/Layer1 assets), created 16-color palette from Cat1_beishe colors, produced 04.1-01-PLAN.md and 04.1-02-PLAN.md (verified PASS). Phase 04.1 is planned and ready to execute.
+**Next action:** Run `/gsd:execute-phase 04.1` — Wave 1 (04.1-01) is fully autonomous. Wave 2 (04.1-02) requires Pixelorama sprite export at the human checkpoint.
 
 ---
 *State initialized: 2026-03-03 after roadmap creation*
