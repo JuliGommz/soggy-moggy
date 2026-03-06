@@ -31,6 +31,7 @@ function resetGame() {
   // levelGoalY is NOT reset here — it is set by generateLevelPlatforms() inside resetPlatforms()
   resetPlayer();
   resetPlatforms(); // Phase 2: defined in platforms.js (loaded after game-state.js — safe at runtime)
+  resetWater(1);    // Phase 4: level 1 flood speed on full game reset — defined in water.js
 }
 
 function startNextLevel() {
@@ -42,6 +43,7 @@ function startNextLevel() {
   // GameState.lives is intentionally NOT reset — lives persist across levels
   resetPlayer();
   resetPlatforms(); // also sets GameState.levelGoalY for the new level
+  resetWater(GameState.level); // Phase 4: reset water position; higher level = faster starting speed
 }
 
 const HS_KEY = 'soggymoggy_highscore';
