@@ -10,7 +10,7 @@
 ## Phases
 
 - [x] **Phase 1: Foundation** - Running canvas, game loop with delta time, keyboard input, state machine scaffold
-- [ ] **Phase 2: Core Mechanics** - Cat physics, one-way platform collision, camera scroll, fall-off-bottom death
+- [x] **Phase 2: Core Mechanics** - Cat physics, one-way platform collision, camera scroll, fall-off-bottom death
 - [ ] **Phase 3: Game World** - Procedural platforms (normal + crumbling), level structure (height goal + level-complete screen + progression), screens (start/game over), score system, LocalStorage high score
 - [ ] **Phase 4: Flood + Lives** - Rising water with escalating speed, lives system (3 hearts), damage feedback, animated wave
 - [ ] **Phase 5: Throw + Audio** - Throw mechanic with downward projectile, cat sprite, all sound effects, background music
@@ -23,7 +23,7 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete | 2026-03-05 |
-| 2. Core Mechanics | 1/2 | In Progress | - |
+| 2. Core Mechanics | 2/2 | Complete | 2026-03-06 |
 | 3. Game World | 0/? | Not started | - |
 | 4. Flood + Lives | 0/? | Not started | - |
 | 5. Throw + Audio | 0/? | Not started | - |
@@ -62,7 +62,7 @@ Plans:
 
 Plans:
 - [x] 02-01-PLAN.md — Physics + Platform Collision: gravity, one-way collision, auto-bounce (Wave 1) — DONE 2026-03-06
-- [ ] 02-02-PLAN.md — Camera Scroll + Fall Detection: cameraY tracking, GAMEOVER on fall (Wave 2)
+- [x] 02-02-PLAN.md — Camera Scroll + Fall Detection: cameraY tracking, GAMEOVER on fall (Wave 2) — DONE 2026-03-06
 
 ### Phase 3: Game World
 **Goal:** A complete level cycle is playable — start screen, level with height goal, level-complete screen with score, progression to next level, and game over screen when lives are exhausted. Procedural platforms in both types are reachable, and a persisted high score survives browser close.
@@ -172,4 +172,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-03-03*
-*Last updated: 2026-03-06 — 02-01 executed: physics, one-way AABB collision, auto-bounce. Ready for 02-02.*
+*Last updated: 2026-03-06 — 02-02 executed: camera scroll, fall detection, height HUD. Phase 2 complete. Ready for Phase 3.*

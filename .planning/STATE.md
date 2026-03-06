@@ -5,16 +5,16 @@ milestone_name: milestone
 status: unknown
 last_updated: "2026-03-05T14:44:46.092Z"
 progress:
-  total_phases: 2
-  completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_phases: 6
+  completed_phases: 2
+  total_plans: 4
+  completed_plans: 4
 ---
 
 # State: Cat Flood Jumper
 
 **Last updated:** 2026-03-06
-**Updated by:** 02-01-PLAN.md execution
+**Updated by:** 02-02-PLAN.md execution
 
 ---
 
@@ -30,12 +30,12 @@ progress:
 
 ## Current Position
 
-**Active Phase:** 2 — Core Mechanics
-**Active Plan:** 02 (Plan 02-01 complete)
-**Phase Status:** Phase 2 in progress — 1/2 plans complete
+**Active Phase:** 3 — Game World
+**Active Plan:** 01 (Phase 2 complete)
+**Phase Status:** Phase 3 not yet started — 0/? plans complete
 
 ```
-Progress: [x][ ][ ][ ][ ][ ]  1/6 phases complete
+Progress: [x][x][ ][ ][ ][ ]  2/6 phases complete
            P1  P2  P3  P4  P5  P6
 ```
 
@@ -46,7 +46,7 @@ Progress: [x][ ][ ][ ][ ][ ]  1/6 phases complete
 | Phase | Name | Status | Plans Done |
 |-------|------|--------|------------|
 | 1 | Foundation | Complete | 2/2 |
-| 2 | Core Mechanics | In Progress | 1/2 |
+| 2 | Core Mechanics | Complete | 2/2 |
 | 3 | Game World | Not started | 0/? |
 | 4 | Flood + Lives | Not started | 0/? |
 | 5 | Throw + Audio | Not started | 0/? |
@@ -58,8 +58,8 @@ Progress: [x][ ][ ][ ][ ][ ]  1/6 phases complete
 
 - Requirements defined: 30
 - Requirements mapped: 30 (100%)
-- Phases complete: 1/6
-- Plans complete: 2/?
+- Phases complete: 2/6
+- Plans complete: 4/?
 - v1 features shipped: 0/30
 
 | Phase | Plan | Duration (s) | Tasks | Files |
@@ -67,6 +67,7 @@ Progress: [x][ ][ ][ ][ ][ ]  1/6 phases complete
 | 01 | 01 | 99 | 3 | 3 |
 | 01 | 02 | 110 | 2 | 3 |
 | 02 | 01 | 900 | 4 | 5 |
+| 02 | 02 | 76 | 3 | 1 |
 
 ---
 
@@ -82,6 +83,9 @@ Progress: [x][ ][ ][ ][ ][ ]  1/6 phases complete
 | State machine first (`start` / `playing` / `gameover`) | Restart without page reload; gates all loop logic; hardest to retrofit | Phase 1 |
 | One-way AABB collision | Four-condition check: overlapX + wasAbove(prevBottom) + nowBelow(currBottom) + movingDown(vy>0) | Phase 2 |
 | World coordinates for all entities | Camera transform (`ctx.translate`) applied once in render; HUD drawn after `ctx.restore()` | Phase 2 |
+| Camera one-way gate: if (newCameraY < cameraY) | cameraY can only decrease — when player falls, newCameraY increases, condition fails, camera holds | Phase 2 |
+| Fall detection after updateCamera() | Fall check uses cameraY + canvas.height; must use current frame cameraY, not stale value | Phase 2 |
+| Height formula: 528 - maxHeightReached | 528 = player start world Y; maxHeightReached stores minimum Y seen; result = pixels climbed | Phase 2 |
 | Throw effect on water: TBD | Decide after water mechanic is working in Phase 4; playtesting informs the design | Phase 5 |
 | Lives system over instant death | More forgiving; makes the throw mechanic feel more meaningful | Phase 4 |
 | Working title: Soggy Moggy | Renamed from "Cat Flood Jumper" | — |
@@ -144,8 +148,8 @@ None.
 
 **Repository:** `C:/Users/Teilnehmer/Desktop/Schule/PRG/Abschlussprojekt_SRH_26`
 **Planning files:** `.planning/`
-**Last session:** 2026-03-06 — 02-01 executed: gravity physics, one-way AABB collision, starter platform, auto-bounce wired.
-**Next action:** Execute Plan 02-02 — camera scroll + fall detection
+**Last session:** 2026-03-06 — 02-02 executed: camera scroll (one-way, peak-tracking), fall-off-bottom GAMEOVER, height debug HUD. Phase 2 complete.
+**Next action:** Plan Phase 3 — procedural platforms, level structure, score, LocalStorage
 
 ---
 *State initialized: 2026-03-03 after roadmap creation*
