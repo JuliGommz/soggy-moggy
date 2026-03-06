@@ -13,6 +13,7 @@
 - [x] **Phase 2: Core Mechanics** - Cat physics, one-way platform collision, camera scroll, fall-off-bottom death
 - [x] **Phase 3: Game World** - Procedural platforms (normal + crumbling), level structure (height goal + level-complete screen + progression), screens (start/game over), score system, LocalStorage high score
 - [ ] **Phase 4: Flood + Lives** - Rising water with escalating speed, lives system (3 hearts), damage feedback, animated wave
+- [ ] **Phase 04.1: Visual Concept** - Art style, color palette, style guide, asset list, sprite exports
 - [ ] **Phase 5: Throw + Audio** - Throw mechanic with downward projectile, cat sprite, all sound effects, background music
 - [ ] **Phase 6: Hosting** - GitHub Pages deployment, shareable URL, final browser smoke test
 
@@ -26,6 +27,7 @@
 | 2. Core Mechanics | 2/2 | Complete | 2026-03-06 |
 | 3. Game World | 3/3 | Complete | 2026-03-06 |
 | 4. Flood + Lives | 0/2 | Not started | - |
+| 04.1 Visual Concept | 0/2 | Not started | - |
 | 5. Throw + Audio | 0/? | Not started | - |
 | 6. Hosting | 0/? | Not started | - |
 
@@ -100,20 +102,21 @@ Plans:
 
 ### Phase 04.1: Visual Concept (INSERTED)
 
-**Goal:** A complete visual language is defined for Soggy Moggy — art style, color palette, mood, contrast rules, and a key asset list — so that all sprite and UI work in Phase 5 has a clear, consistent reference to build from. Produced by expert agents with Julian's input.
-**Requirements**: VIS-01, VIS-02, VIS-03, VIS-04, VIS-05 (visual prep)
+**Goal:** A complete visual language is defined for Soggy Moggy — art style, color palette, mood, contrast rules, and a key asset list — so that all sprite and UI work in Phase 5 has a clear, consistent reference to build from.
+**Requirements:** VIS-01, VIS-02, VIS-03, VIS-04, VIS-05
 **Depends on:** Phase 4 (game is mechanically proven before art direction is locked)
-**Plans:** 0 plans
+**Plans:** 2 plans
 
 **Success Criteria:**
-  1. An art style is chosen (e.g. pixel art, hand-drawn, flat) with a written rationale
-  2. A color palette is defined: primary, secondary, accent, background, flood color — with contrast rules
-  3. A mood/atmosphere statement exists: what the game should feel like visually and emotionally
-  4. A key asset list is produced: every sprite and UI element that needs to be drawn in Phase 5
-  5. A visual reference sheet (mood board or style card) is committed to the repo
+  1. An art style is chosen (pixel art) with a written rationale — DONE by research
+  2. A color palette is defined: primary, secondary, accent, background, flood color with contrast rules — DONE by research
+  3. A mood/atmosphere statement exists — DONE by research
+  4. A key asset list is produced: every sprite and UI element needed in Phase 5 — produced in ASSET_LIST.md
+  5. A visual reference sheet (style card) is committed to the repo as docs/STYLE_GUIDE.md
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 04.1 to break down)
+- [ ] 04.1-01-PLAN.md — Style guide, palette file, placeholder color updates (Wave 1)
+- [ ] 04.1-02-PLAN.md — Sprite exports, background asset verification, ASSET_LIST.md (Wave 2)
 
 ### Phase 5: Throw + Audio
 **Goal:** The cat looks like a cat, sounds accompany all key actions, and the throw mechanic fires a visible projectile downward.
@@ -169,11 +172,11 @@ Plans:
 | PLAT-01 | Phase 3 |
 | PLAT-02 | Phase 3 |
 | PLAT-03 | Phase 3 |
-| VIS-01 | Phase 5 |
-| VIS-02 | Phase 5 |
-| VIS-03 | Phase 5 |
-| VIS-04 | Phase 5 |
-| VIS-05 | Phase 5 |
+| VIS-01 | Phase 04.1 + Phase 5 |
+| VIS-02 | Phase 04.1 + Phase 5 |
+| VIS-03 | Phase 04.1 + Phase 5 |
+| VIS-04 | Phase 04.1 + Phase 5 |
+| VIS-05 | Phase 04.1 + Phase 5 |
 | HOST-01 | Phase 6 |
 | HOST-02 | Phase 6 |
 
@@ -181,4 +184,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-03-03*
-*Last updated: 2026-03-06 — Phase 4 planned: 2 plans created (04-01 water module, 04-02 wiring).*
+*Last updated: 2026-03-06 — Phase 04.1 planned: 2 plans created (04.1-01 style guide + palette, 04.1-02 sprite exports + asset list).*
