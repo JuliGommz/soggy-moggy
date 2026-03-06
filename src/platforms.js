@@ -34,7 +34,6 @@ function generateLevelPlatforms(level) {
     type:         'normal',
     state:        'intact',
     crumbleTimer: 0,
-    bounced:      false,
   });
 
   // Store the level goal world Y in GameState so main.js can check and draw it
@@ -56,7 +55,6 @@ function generateLevelPlatforms(level) {
       type,
       state:        'intact',
       crumbleTimer: 0,
-      bounced:      false,
     });
   }
 }
@@ -74,41 +72,14 @@ function checkPlatformCollisions() {
     const movingDown = player.vy > 0;
 
     if (overlapX && wasAbove && nowBelow && movingDown) {
-      player.y = p.y - player.h;  // snap to surface — always, regardless of bounce state
+      player.y            = p.y - player.h;  // snap to surface
+      player.vy           = JUMP_VELOCITY;   // always auto-bounce — consistent feel
+      player.airBoostUsed = false;           // reset mid-air boost for the next jump
 
-      if (!p.bounced) {
-        // First landing: auto-bounce
-        p.bounced = true;
-
-        if (keys.jump) {
-          // Combo: Space pressed at bounce moment → amplified jump
-          player.vy  = BOUNCE_COMBO_VELOCITY;
-          keys.jump  = false;  // consume key — prevent manual jump re-fire this frame
-        } else {
-          player.vy = JUMP_VELOCITY;  // standard auto-bounce
-        }
-
-        // Crumble: intact → cracked on first landing
-        if (p.type === 'crumble' && p.state === 'intact') {
-          p.state        = 'cracked';
-          p.crumbleTimer = 0;
-        }
-
-      } else {
-        // Second landing: no auto-bounce — player stands
-        player.vy = 0;
-
-        // Manual jump: Space to escape
-        if (keys.jump) {
-          player.vy = JUMP_ALONE_VELOCITY;
-          keys.jump = false;  // consume key
-        }
-
-        // Crumble: cracked → crumbling (start hold timer)
-        if (p.type === 'crumble' && p.state === 'cracked') {
-          p.state        = 'crumbling';
-          p.crumbleTimer = 0;  // reset timer for the hold window
-        }
+      // Crumble state machine: each landing advances the state one step
+      if (p.type === 'crumble') {
+        if      (p.state === 'intact')  { p.state = 'cracked';   p.crumbleTimer = 0; }
+        else if (p.state === 'cracked') { p.state = 'crumbling'; p.crumbleTimer = 0; }
       }
     }
   }

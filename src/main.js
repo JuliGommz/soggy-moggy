@@ -36,12 +36,10 @@ function update(dt) {
 
     case GamePhase.PLAYING:
       // ⚠ CALL ORDER IS LOAD-BEARING — do not reorder:
-      // 1. updatePlayer(dt)         — applies gravity + movement, saves prevY
-      // 2. updatePlatforms(dt)      — advances crumble timers
-      // 3. checkPlatformCollisions()— reads prevY for one-way check; reads keys.jump for
-      //                              combo (first landing) and manual jump (second landing)
-      // 4. updateCamera()           — follows player after physics settle
-      // The combo mechanic depends on keys.jump being set BEFORE checkPlatformCollisions runs.
+      // 1. updatePlayer(dt)          — gravity, mid-air boost (Space), movement; saves prevY
+      // 2. updatePlatforms(dt)       — advances crumble timers
+      // 3. checkPlatformCollisions() — reads prevY for one-way check; resets airBoostUsed on landing
+      // 4. updateCamera()            — follows player after physics settle
       updatePlayer(dt);
       updatePlatforms(dt);
       checkPlatformCollisions();
@@ -142,7 +140,7 @@ function renderHUD() {
     ctx.fillStyle = '#cccccc';
     ctx.fillText('Arrow keys or A / D to move', canvas.width / 2, 300);
     ctx.fillText('Reach the goal line to clear each level', canvas.width / 2, 325);
-    ctx.fillText('Platforms bounce you — no jump key needed', canvas.width / 2, 350);
+    ctx.fillText('Space mid-air for a boost — once per jump', canvas.width / 2, 350);
 
     ctx.font = '20px monospace';
     ctx.fillStyle = '#f1c40f';

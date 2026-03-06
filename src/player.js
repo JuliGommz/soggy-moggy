@@ -5,8 +5,8 @@
 const PLAYER_SPEED  = 300;  // pixels per second — multiplied by dt, not per-frame
 const GRAVITY       = 980;  // px/s² — downward acceleration (Y increases downward in Canvas)
 const JUMP_VELOCITY = -700; // px/s — upward bounce velocity (negative = upward)
-const JUMP_ALONE_VELOCITY   = -530;  // px/s — manual jump alone: ~143px height (57% of auto-bounce)
-const BOUNCE_COMBO_VELOCITY = -808;  // px/s — bounce + Space at landing: ~333px height (1.33× the standard bounce of 250px)
+const BOOST_IMPULSE = 300;   // px/s upward impulse applied by mid-air boost (Space while airborne)
+const BOOST_CAP_VY  = -808;  // px/s — max upward speed after boost: ~333px height (cap prevents extreme values)
 
 const player = {
   x:     224, // (480 - 32) / 2 — horizontally centered
@@ -15,7 +15,8 @@ const player = {
   h:      32,
   vx:      0,
   vy:      0,
-  prevY: 528, // y position before this frame's physics — used by one-way collision
+  prevY:        528,  // y position before this frame's physics — used by one-way collision
+  airBoostUsed: false, // true once mid-air boost (Space) fires this jump; reset on landing
 };
 
 function resetPlayer() {
@@ -23,13 +24,22 @@ function resetPlayer() {
   player.y     = 528;
   player.vx    = 0;
   player.vy    = 0;
-  player.prevY = 528;
+  player.prevY        = 528;
+  player.airBoostUsed = false;
 }
 
 function updatePlayer(dt) {
   // ── Vertical physics ────────────────────────────────────────────────────
   player.prevY  = player.y;           // save position BEFORE physics (used by collision)
   player.vy    += GRAVITY * dt;       // gravity: accelerate downward each frame
+
+  // Mid-air boost: Space while airborne (once per jump — airBoostUsed reset on any landing)
+  if (keys.jump && !player.airBoostUsed) {
+    player.vy           = Math.max(player.vy - BOOST_IMPULSE, BOOST_CAP_VY);
+    player.airBoostUsed = true;
+    keys.jump           = false;  // consume key — prevent re-trigger this frame
+  }
+
   player.y     += player.vy * dt;     // apply vertical displacement
 
   // ── Horizontal movement ──────────────────────────────────────────────────
