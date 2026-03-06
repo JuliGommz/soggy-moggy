@@ -25,7 +25,7 @@
 | 1. Foundation | 2/2 | Complete | 2026-03-05 |
 | 2. Core Mechanics | 2/2 | Complete | 2026-03-06 |
 | 3. Game World | 3/3 | Complete | 2026-03-06 |
-| 4. Flood + Lives | 0/? | Not started | - |
+| 4. Flood + Lives | 0/2 | Not started | - |
 | 5. Throw + Audio | 0/? | Not started | - |
 | 6. Hosting | 0/? | Not started | - |
 
@@ -85,14 +85,18 @@ Plans:
 ### Phase 4: Flood + Lives
 **Goal:** The defining Cat Flood Jumper experience exists — rising water chases the player, the threat escalates, and lives drain on contact.
 **Depends on:** Phase 3
-**Requirements:** FLOOD-01, FLOOD-02, FLOOD-03, FLOOD-04, LIFE-01, LIFE-02, LIFE-03
+**Requirements:** FLOOD-01, FLOOD-02, FLOOD-03, FLOOD-04, LIFE-01, LIFE-02, LIFE-03, LEVEL-04
 **Success Criteria** (what must be TRUE when this phase is done):
   1. A visible animated wave rises from the bottom of the screen throughout gameplay, accelerating noticeably at higher scores
   2. Touching the water causes the HUD heart count to drop by one — not instant death — and a visible screen flash confirms the damage hit
   3. After three water contacts the game over screen appears — not a freeze or silent loop restart
   4. Three heart icons are visible on the HUD from the start of a run and decrement one by one as damage is taken
   5. The wave surface shows a sine-wave ripple animation — not a flat rectangle
-**Plans:** TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Water module: src/water.js + index.html script tag (Wave 1)
+- [ ] 04-02-PLAN.md — Wiring: main.js + game-state.js integration, fall stub, HUD hearts + flash (Wave 2)
 
 ### Phase 04.1: Visual Concept (INSERTED)
 
@@ -177,4 +181,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-03-03*
-*Last updated: 2026-03-06 — 03-03 executed: Screen wiring complete (Enter key, LEVEL_COMPLETE case, HUD overlays, goal line). Phase 3: 3/3 plans done — COMPLETE.*
+*Last updated: 2026-03-06 — Phase 4 planned: 2 plans created (04-01 water module, 04-02 wiring).*
