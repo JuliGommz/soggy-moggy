@@ -28,8 +28,10 @@ function gameLoop(timestamp) {
 function update(dt) {
   switch (GameState.phase) {
     case GamePhase.START:
-      // Any directional key starts the game
-      if (keys.left || keys.right) resetGame();
+      if (keys.enter) {
+        keys.enter = false; // one-shot: prevent instant pass-through on next frame
+        resetGame();
+      }
       break;
 
     case GamePhase.PLAYING:
@@ -38,18 +40,36 @@ function update(dt) {
       checkPlatformCollisions();
       updateCamera();
 
-      // Fall-off-bottom detection: player below visible area → game over
-      // Phase 4 replaces this with: lives-- + respawn mechanic
+      // Score: height climbed this level (pixels above spawn point)
+      GameState.score = Math.max(0, 528 - GameState.maxHeightReached);
+
+      // Level goal reached?
+      if (GameState.levelGoalY !== undefined && player.y <= GameState.levelGoalY) {
+        saveHighScore(GameState.score);
+        GameState.phase = GamePhase.LEVEL_COMPLETE;
+      }
+
+      // Fall-off-bottom: Phase 4 will replace with lives-- + respawn
       if (player.y > GameState.cameraY + canvas.height) {
+        saveHighScore(GameState.score);
         GameState.phase = GamePhase.GAMEOVER;
       }
 
       // Phase 4 will add: updateWater(dt)
       break;
 
+    case GamePhase.LEVEL_COMPLETE:
+      if (keys.enter) {
+        keys.enter = false; // one-shot
+        startNextLevel();
+      }
+      break;
+
     case GamePhase.GAMEOVER:
-      // Any directional key returns to start screen
-      if (keys.left || keys.right) GameState.phase = GamePhase.START;
+      if (keys.enter) {
+        keys.enter = false; // one-shot
+        GameState.phase = GamePhase.START;
+      }
       break;
   }
 }
