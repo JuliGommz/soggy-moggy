@@ -6,7 +6,7 @@ const PLAYER_SPEED  = 300;  // pixels per second — multiplied by dt, not per-f
 const GRAVITY       = 980;  // px/s² — downward acceleration (Y increases downward in Canvas)
 const JUMP_VELOCITY = -700; // px/s — upward bounce velocity (negative = upward)
 const JUMP_ALONE_VELOCITY   = -530;  // px/s — manual jump alone: ~143px height (57% of auto-bounce)
-const BOUNCE_COMBO_VELOCITY = -808;  // px/s — bounce + Space at landing: ~333px height (1.33× auto-bounce)
+const BOUNCE_COMBO_VELOCITY = -808;  // px/s — bounce + Space at landing: ~333px height (1.33× the standard bounce of 250px)
 
 const player = {
   x:     224, // (480 - 32) / 2 — horizontally centered
