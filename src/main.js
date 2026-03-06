@@ -95,6 +95,22 @@ function renderHUD() {
   }
 }
 
+// ── Camera ───────────────────────────────────────────────────────────────────
+function updateCamera() {
+  const SCROLL_THRESHOLD = canvas.height * 0.4; // 256px — player held at 40% from top
+
+  // Scroll up: only update if player has climbed above the threshold (cameraY can only decrease)
+  const newCameraY = player.y - SCROLL_THRESHOLD;
+  if (newCameraY < GameState.cameraY) {
+    GameState.cameraY = newCameraY;
+  }
+
+  // Track maximum height reached (lower Y = higher in world — stores minimum Y value)
+  if (player.y < GameState.maxHeightReached) {
+    GameState.maxHeightReached = player.y;
+  }
+}
+
 // ── Start ────────────────────────────────────────────────────────────────────
 window.addEventListener('load', () => {
   requestAnimationFrame(gameLoop);
