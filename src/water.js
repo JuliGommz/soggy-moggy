@@ -50,7 +50,31 @@ function takeDamage() {
 }
 
 // ---------------------------------------------------------------------------
-// SECTION 5 — updateWater(dt)
+// SECTION 5 — respawnAboveWater()
+// Teleports player onto the lowest intact platform still above the wave line.
+// Falls back to near camera top if every platform is submerged.
+// ---------------------------------------------------------------------------
+function respawnAboveWater() {
+  const waterLine = water.waterY - WAVE_AMPLITUDE;
+  let best = null;
+  for (const p of platforms) {
+    if (p.state === 'crumbling') continue;        // skip platforms mid-collapse
+    if (p.y >= waterLine) continue;               // platform is at or below water surface
+    if (best === null || p.y > best.y) best = p;  // keep lowest platform still above water
+  }
+  if (best) {
+    player.x = best.x + Math.floor(best.w / 2) - Math.floor(player.w / 2);
+    player.y = best.y - player.h;
+  } else {
+    player.x = Math.floor(canvas.width / 2) - Math.floor(player.w / 2);
+    player.y = GameState.cameraY + 80;
+  }
+  player.vy = JUMP_VELOCITY;
+  player.vx = 0;
+}
+
+// ---------------------------------------------------------------------------
+// SECTION 6 — updateWater(dt)
 // dt is time in seconds (already divided by 1000 in main.js game loop).
 // ---------------------------------------------------------------------------
 function updateWater(dt) {
@@ -72,11 +96,14 @@ function updateWater(dt) {
   const collisionY   = water.waterY - WAVE_AMPLITUDE;
   if (playerBottom >= collisionY && water.iframeTimer <= 0) {
     takeDamage();
+    if (GameState.phase === GamePhase.PLAYING) {
+      respawnAboveWater(); // teleport to nearest safe platform above wave
+    }
   }
 }
 
 // ---------------------------------------------------------------------------
-// SECTION 6 — renderWater(ctx)
+// SECTION 7 — renderWater(ctx)
 // Must be called inside the world-space ctx.save/translate block — ctx is
 // already translated by cameraY when this function runs.
 // ---------------------------------------------------------------------------
