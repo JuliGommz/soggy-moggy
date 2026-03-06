@@ -34,9 +34,16 @@ function update(dt) {
 
     case GamePhase.PLAYING:
       updatePlayer(dt);
-      updatePlatforms(dt);          // Phase 2: update platform state (no-op in Phase 2)
-      checkPlatformCollisions();    // Phase 2: one-way landing detection + auto-bounce
-      // updateCamera();            // Added in Plan 02-02
+      updatePlatforms(dt);
+      checkPlatformCollisions();
+      updateCamera();
+
+      // Fall-off-bottom detection: player below visible area → game over
+      // Phase 4 replaces this with: lives-- + respawn mechanic
+      if (player.y > GameState.cameraY + canvas.height) {
+        GameState.phase = GamePhase.GAMEOVER;
+      }
+
       // Phase 4 will add: updateWater(dt)
       break;
 
