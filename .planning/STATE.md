@@ -13,8 +13,8 @@ progress:
 
 # State: Cat Flood Jumper
 
-**Last updated:** 2026-03-05
-**Updated by:** 01-02-PLAN.md execution
+**Last updated:** 2026-03-06
+**Updated by:** 02-01-PLAN.md execution
 
 ---
 
@@ -31,8 +31,8 @@ progress:
 ## Current Position
 
 **Active Phase:** 2 — Core Mechanics
-**Active Plan:** 01 (Phase 1 complete)
-**Phase Status:** Phase 1 complete — Phase 2 not started
+**Active Plan:** 02 (Plan 02-01 complete)
+**Phase Status:** Phase 2 in progress — 1/2 plans complete
 
 ```
 Progress: [x][ ][ ][ ][ ][ ]  1/6 phases complete
@@ -46,7 +46,7 @@ Progress: [x][ ][ ][ ][ ][ ]  1/6 phases complete
 | Phase | Name | Status | Plans Done |
 |-------|------|--------|------------|
 | 1 | Foundation | Complete | 2/2 |
-| 2 | Core Mechanics | Planned | 0/2 |
+| 2 | Core Mechanics | In Progress | 1/2 |
 | 3 | Game World | Not started | 0/? |
 | 4 | Flood + Lives | Not started | 0/? |
 | 5 | Throw + Audio | Not started | 0/? |
@@ -66,6 +66,7 @@ Progress: [x][ ][ ][ ][ ][ ]  1/6 phases complete
 |-------|------|-------------|-------|-------|
 | 01 | 01 | 99 | 3 | 3 |
 | 01 | 02 | 110 | 2 | 3 |
+| 02 | 01 | 900 | 4 | 5 |
 
 ---
 
@@ -79,7 +80,7 @@ Progress: [x][ ][ ][ ][ ][ ]  1/6 phases complete
 | 480x640 canvas (portrait) | Matches Doodle Jump proportions; set via JS attributes, never CSS | Phase 1 |
 | Semi-fixed timestep with 50 ms delta cap | Prevents physics explosion on tab switch or 120 Hz monitor | Phase 1 |
 | State machine first (`start` / `playing` / `gameover`) | Restart without page reload; gates all loop logic; hardest to retrofit | Phase 1 |
-| One-way AABB collision | Three-condition check: horizontal overlap + was above + moving downward | Phase 2 |
+| One-way AABB collision | Four-condition check: overlapX + wasAbove(prevBottom) + nowBelow(currBottom) + movingDown(vy>0) | Phase 2 |
 | World coordinates for all entities | Camera transform (`ctx.translate`) applied once in render; HUD drawn after `ctx.restore()` | Phase 2 |
 | Throw effect on water: TBD | Decide after water mechanic is working in Phase 4; playtesting informs the design | Phase 5 |
 | Lives system over instant death | More forgiving; makes the throw mechanic feel more meaningful | Phase 4 |
@@ -143,8 +144,8 @@ None.
 
 **Repository:** `C:/Users/Teilnehmer/Desktop/Schule/PRG/Abschlussprojekt_SRH_26`
 **Planning files:** `.planning/`
-**Last session:** 2026-03-05 — Phase 2 plans written and verified (02-01: physics + collision, 02-02: camera + fall detection). Ready to execute.
-**Next action:** Execute Phase 2 — /gsd:execute-phase 2
+**Last session:** 2026-03-06 — 02-01 executed: gravity physics, one-way AABB collision, starter platform, auto-bounce wired.
+**Next action:** Execute Plan 02-02 — camera scroll + fall detection
 
 ---
 *State initialized: 2026-03-03 after roadmap creation*

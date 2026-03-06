@@ -23,7 +23,7 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete | 2026-03-05 |
-| 2. Core Mechanics | 0/2 | Planned | - |
+| 2. Core Mechanics | 1/2 | In Progress | - |
 | 3. Game World | 0/? | Not started | - |
 | 4. Flood + Lives | 0/? | Not started | - |
 | 5. Throw + Audio | 0/? | Not started | - |
@@ -61,7 +61,7 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Physics + Platform Collision: gravity, one-way collision, auto-bounce (Wave 1)
+- [x] 02-01-PLAN.md — Physics + Platform Collision: gravity, one-way collision, auto-bounce (Wave 1) — DONE 2026-03-06
 - [ ] 02-02-PLAN.md — Camera Scroll + Fall Detection: cameraY tracking, GAMEOVER on fall (Wave 2)
 
 ### Phase 3: Game World
@@ -172,4 +172,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-03-03*
-*Last updated: 2026-03-05 — Phase 2 plans written (02-01, 02-02). Ready for /gsd:execute-phase 2.*
+*Last updated: 2026-03-06 — 02-01 executed: physics, one-way AABB collision, auto-bounce. Ready for 02-02.*
