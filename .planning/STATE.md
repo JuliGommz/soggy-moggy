@@ -46,7 +46,7 @@ Progress: [x][ ][ ][ ][ ][ ]  1/6 phases complete
 | Phase | Name | Status | Plans Done |
 |-------|------|--------|------------|
 | 1 | Foundation | Complete | 2/2 |
-| 2 | Core Mechanics | Not started | 0/? |
+| 2 | Core Mechanics | Planned | 0/2 |
 | 3 | Game World | Not started | 0/? |
 | 4 | Flood + Lives | Not started | 0/? |
 | 5 | Throw + Audio | Not started | 0/? |
@@ -143,8 +143,8 @@ None.
 
 **Repository:** `C:/Users/Teilnehmer/Desktop/Schule/PRG/Abschlussprojekt_SRH_26`
 **Planning files:** `.planning/`
-**Last session:** 2026-03-05 — Completed 01-02-PLAN.md (game loop, player stub, canvas init, render pass). Phase 1 Foundation complete.
-**Next action:** Execute Phase 2 — /gsd:plan-phase 2 then /gsd:execute-phase 2
+**Last session:** 2026-03-05 — Phase 2 plans written and verified (02-01: physics + collision, 02-02: camera + fall detection). Ready to execute.
+**Next action:** Execute Phase 2 — /gsd:execute-phase 2
 
 ---
 *State initialized: 2026-03-03 after roadmap creation*
