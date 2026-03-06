@@ -17,8 +17,10 @@
   <script src="src/game-state.js"></script>
   <!-- input.js second: registers keyboard listeners, exposes keys map to main.js -->
   <script src="src/input.js"></script>
-  <!-- player.js third: uses GameState; placeholder rectangle until Phase 5 sprites -->
+  <!-- player.js: uses GameState; placeholder rectangle until Phase 5 sprites -->
   <script src="src/player.js"></script>
+  <!-- platforms.js: reads player + JUMP_VELOCITY from player.js — must load after player.js -->
+  <script src="src/platforms.js"></script>
   <!-- main.js last: orchestrates canvas init, game loop, update + render dispatch -->
   <script src="src/main.js"></script>
 </body>
