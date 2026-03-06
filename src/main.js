@@ -34,11 +34,10 @@ function update(dt) {
 
     case GamePhase.PLAYING:
       updatePlayer(dt);
-      // Phase 2 will add: updatePlatforms(dt), updateCamera(dt)
+      updatePlatforms(dt);          // Phase 2: update platform state (no-op in Phase 2)
+      checkPlatformCollisions();    // Phase 2: one-way landing detection + auto-bounce
+      // updateCamera();            // Added in Plan 02-02
       // Phase 4 will add: updateWater(dt)
-
-      // Temporary: ArrowDown / KeyS transitions to GAMEOVER for testing
-      // Remove this when real game-over conditions are added in Phase 2+
       break;
 
     case GamePhase.GAMEOVER:
@@ -60,9 +59,9 @@ function render() {
 
   // 3. Draw world-space objects
   if (GameState.phase === GamePhase.PLAYING) {
+    renderPlatforms(ctx);  // draw platforms before player (player renders on top)
     renderPlayer(ctx);
   }
-  // Phase 2 will add: renderPlatforms(ctx)
   // Phase 4 will add: renderWater(ctx)
 
   // 4. Exit world space

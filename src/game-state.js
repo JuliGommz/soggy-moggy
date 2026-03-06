@@ -21,6 +21,7 @@ function resetGame() {
   GameState.score            = 0;
   GameState.lives            = 3;
   GameState.cameraY          = 0;
-  GameState.maxHeightReached = 0;
-  resetPlayer(); // reset position — defined in player.js (loaded after game-state.js)
+  GameState.maxHeightReached = 9999; // sentinel: first frame will capture actual player.y
+  resetPlayer();
+  resetPlatforms(); // Phase 2: defined in platforms.js (loaded after game-state.js — safe at runtime)
 }
