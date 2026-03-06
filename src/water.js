@@ -85,6 +85,10 @@ function updateWater(dt) {
   // Rise
   water.waterY -= water.floodSpeed * dt;
 
+  // Visibility clamp: water can never fall more than 10px below the screen bottom.
+  // Prevents the wave from lagging off-screen when the camera scrolls up faster than the flood rises.
+  water.waterY = Math.min(water.waterY, GameState.cameraY + canvas.height + 10);
+
   // Accelerate
   water.floodSpeed += FLOOD_ACCEL * dt;
 
