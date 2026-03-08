@@ -75,6 +75,7 @@ function checkPlatformCollisions() {
       player.y            = p.y - player.h;  // snap to surface
       player.vy           = JUMP_VELOCITY;   // always auto-bounce — consistent feel
       player.airBoostUsed = false;           // reset mid-air boost for the next jump
+      player.bounceTimer  = 0.24;            // 240ms total: 40ms down + 200ms middle-out (pre-landing via vy threshold)
 
       // Crumble state machine: each landing advances the state one step
       if (p.type === 'crumble') {

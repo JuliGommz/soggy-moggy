@@ -49,11 +49,11 @@ function update(dt) {
       // Score: height climbed this level (pixels above spawn point)
       GameState.score = Math.max(0, 528 - GameState.maxHeightReached);
 
-      // Level goal reached?
-      if (GameState.levelGoalY !== undefined && player.y <= GameState.levelGoalY) {
-        saveHighScore(GameState.score);
-        GameState.phase = GamePhase.LEVEL_COMPLETE;
-      }
+      // [TEST] Level goal disabled — endless play
+      // if (GameState.levelGoalY !== undefined && player.y <= GameState.levelGoalY) {
+      //   saveHighScore(GameState.score);
+      //   GameState.phase = GamePhase.LEVEL_COMPLETE;
+      // }
 
       // Fall-off-bottom: costs one life, respawns at camera top
       if (player.y > GameState.cameraY + canvas.height && water.iframeTimer <= 0) {
@@ -62,7 +62,8 @@ function update(dt) {
         player.vy = JUMP_VELOCITY;           // auto-bounce on respawn
       }
 
-      updateWater(dt);
+      // [TEST] Water disabled
+      // updateWater(dt);
       break;
 
     case GamePhase.LEVEL_COMPLETE:
@@ -108,10 +109,10 @@ function render() {
       ctx.setLineDash([]); // reset dash to avoid affecting other renders
     }
   }
-  // Water renders after player — water appears in front, covering flooded platforms
-  if (GameState.phase === GamePhase.PLAYING || GameState.phase === GamePhase.LEVEL_COMPLETE) {
-    renderWater(ctx);
-  }
+  // [TEST] Water render disabled
+  // if (GameState.phase === GamePhase.PLAYING || GameState.phase === GamePhase.LEVEL_COMPLETE) {
+  //   renderWater(ctx);
+  // }
 
   // 4. Exit world space
   ctx.restore();
