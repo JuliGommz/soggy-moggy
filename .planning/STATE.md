@@ -30,9 +30,9 @@ progress:
 
 ## Current Position
 
-**Active Phase:** 04.1 — Visual Concept (PLANNED, not started)
-**Active Plan:** 04.1-01 is next — style guide, palette file, imageSmoothingEnabled, platform color update
-**Phase Status:** Phase 04.1 planned — 0/2 plans done
+**Active Phase:** 04.1 — Visual Concept (IN PROGRESS)
+**Active Plan:** 04.1-02 — sprite export + ASSET_LIST.md (on hold: sprite direction undecided)
+**Phase Status:** Phase 04.1 in progress — 1/2 plans done
 
 ```
 Progress: [x][x][x][x][ ][ ]  4/6 main phases complete
@@ -155,6 +155,22 @@ Progress: [x][x][x][x][ ][ ]  4/6 main phases complete
 - [ ] Measure actual max jump height (pixels) after Phase 2 physics are implemented — required for PLAT-03 gap constraint
 - [ ] Decide throw mechanic water interaction after Phase 4 playtesting — Phase 4 is now complete, decision can be made
 - [ ] Confirm GitHub Pages is enabled on the repository before Phase 6
+
+### Open Decisions (blocking Phase 04.1 execution)
+
+- [ ] **DECISION-01** — Cat sprite: Keep Cat1_beishe (beige, existing) with minor refinements only, OR redesign sprite? Plan 04.1-01 assumes keep-and-refine. Must confirm before executing.
+- [ ] **DECISION-02** — Platform color: Approve #5a7a3a (earthy dark green) replacing debug green #27ae60? Already written into 04.1-01-PLAN.md. Must confirm before executing.
+
+### School Formality Todos (deadline 22.04.2026)
+
+- [ ] **SCHOOL-01** — Create Projektplan from template (`Dokumente_Schule/Vorlagen/Projektplan_Abschlussarbeit_Vorlage.docx`) — worth 20pts in Projektmanagement grade
+- [ ] **SCHOOL-02** — Create Arbeitsprotokoll from template (`Dokumente_Schule/Vorlagen/Arbeitsprotokoll_Abschlussarbeit_Vorlage.docx`) — retroactive entries from 04.03.2026 to current date, then maintained daily
+- [ ] **SCHOOL-03** — Create GDD (Grobkonzept + Feinkonzept + Designkonzept) — Designkonzept is always separate; Phase 04.1 Style Guide can become the Designkonzept basis
+- [ ] **SCHOOL-04** — Create Medienkatalog — list all third-party assets, Claude Code AI usage (with prompts), pixel art tools, any external references
+- [ ] **SCHOOL-05** — Create README.md at repo root — name, asset list, startup instructions, where each requirement is met
+- [ ] **SCHOOL-06** — Gameplay video — recorded after game is feature-complete (Phase 5 area)
+- [ ] **SCHOOL-07** — Selbstständigkeitserklärung (independence declaration, signed) — at submission
+- [ ] **SCHOOL-08** — USB folder structure: Endergebnis / Konzeption / Arbeitsdateien / Material — at submission
 
 ### Blockers
 

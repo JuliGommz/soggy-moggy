@@ -107,11 +107,11 @@ function updatePlatforms(dt) {
 function renderPlatforms(ctx) {
   for (const p of platforms) {
     if (p.type === 'crumble') {
-      if (p.state === 'intact')         ctx.fillStyle = '#e74c3c'; // red
-      else if (p.state === 'cracked')   ctx.fillStyle = '#e67e22'; // orange
-      else if (p.state === 'crumbling') ctx.fillStyle = '#f39c12'; // yellow-orange — urgent
+      if (p.state === 'intact')         ctx.fillStyle = '#5a7a3a'; // PLAT-1 normal green — intact crumble reads same as normal until cracked
+      else if (p.state === 'cracked')   ctx.fillStyle = '#c0662a'; // PLAT-3 earthy warning orange
+      else if (p.state === 'crumbling') ctx.fillStyle = '#e8a830'; // PLAT-4 amber — urgent
     } else {
-      ctx.fillStyle = '#27ae60'; // green — normal platform
+      ctx.fillStyle = '#5a7a3a'; // PLAT-1 normal platform body
     }
     ctx.fillRect(Math.floor(p.x), Math.floor(p.y), p.w, p.h);
   }

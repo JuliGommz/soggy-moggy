@@ -9,6 +9,7 @@ const canvas = document.getElementById('gameCanvas');
 canvas.width  = 480; // set via JS attribute — NEVER via CSS
 canvas.height = 640;
 const ctx = canvas.getContext('2d', { alpha: false });
+ctx.imageSmoothingEnabled = false;  // pixel-crisp rendering — prevents sprite blur at any drawImage scale
 
 // ── Game loop timing ─────────────────────────────────────────────────────────
 let lastTime = performance.now(); // initialized here — prevents first-frame dt spike
