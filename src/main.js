@@ -27,6 +27,8 @@ function gameLoop(timestamp) {
 
 // ── Update dispatcher ────────────────────────────────────────────────────────
 function update(dt) {
+  updateBackground(dt); // always run — animates background on all screens
+
   switch (GameState.phase) {
     case GamePhase.START:
       if (keys.enter) {
@@ -84,40 +86,43 @@ function update(dt) {
 
 // ── Render pass ──────────────────────────────────────────────────────────────
 function render() {
-  // 1. Clear canvas (fillRect is faster than clearRect when alpha: false)
-  ctx.fillStyle = '#87CEEB'; // sky blue — placeholder background
+  // 1. Clear canvas — sky blue base so transparent edges of background layers blend cleanly
+  ctx.fillStyle = '#7eb8c9'; // BG-1 sky day — matches day.png dominant color
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // 2. Enter world space — all entities use world coordinates
+  // 2. Background layers — screen space, each at its own parallax scroll speed
+  renderBackground(ctx);
+
+  // 3. Enter world space — all entities use world coordinates
   ctx.save();
   ctx.translate(0, -GameState.cameraY); // cameraY is 0 in Phase 1; camera added in Phase 2
 
-  // 3. Draw world-space objects
+  // 4. Draw world-space objects
   if (GameState.phase === GamePhase.PLAYING || GameState.phase === GamePhase.LEVEL_COMPLETE) {
     renderPlatforms(ctx);  // draw platforms before player (player renders on top)
     renderPlayer(ctx);
 
-    // Goal line: dashed yellow horizontal line at the level goal world Y
-    if (GameState.levelGoalY !== undefined) {
-      ctx.strokeStyle = '#f1c40f';
-      ctx.lineWidth   = 3;
-      ctx.setLineDash([10, 6]);
-      ctx.beginPath();
-      ctx.moveTo(0,            GameState.levelGoalY);
-      ctx.lineTo(canvas.width, GameState.levelGoalY);
-      ctx.stroke();
-      ctx.setLineDash([]); // reset dash to avoid affecting other renders
-    }
+    // [TEST] Goal line disabled — re-enable when level completion check is active
+    // if (GameState.levelGoalY !== undefined) {
+    //   ctx.strokeStyle = '#f1c40f';
+    //   ctx.lineWidth   = 3;
+    //   ctx.setLineDash([10, 6]);
+    //   ctx.beginPath();
+    //   ctx.moveTo(0,            GameState.levelGoalY);
+    //   ctx.lineTo(canvas.width, GameState.levelGoalY);
+    //   ctx.stroke();
+    //   ctx.setLineDash([]);
+    // }
   }
   // [TEST] Water render disabled
   // if (GameState.phase === GamePhase.PLAYING || GameState.phase === GamePhase.LEVEL_COMPLETE) {
   //   renderWater(ctx);
   // }
 
-  // 4. Exit world space
+  // 5. Exit world space
   ctx.restore();
 
-  // 5. Draw HUD — ALWAYS in screen space (after ctx.restore)
+  // 6. Draw HUD — ALWAYS in screen space (after ctx.restore)
   renderHUD();
 }
 
