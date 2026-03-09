@@ -5,11 +5,11 @@
 // updateBackground(dt) must be called each frame from main.js update()
 
 // ── Asset loading ─────────────────────────────────────────────────────────────
-const _bgL1Day    = new Image(); _bgL1Day.src    = 'PixelArt/Paralax/Layer1/day.png';
-const _bgL1Night  = new Image(); _bgL1Night.src  = 'PixelArt/Paralax/Layer1/night.png';
-const _bgL2Bright = new Image(); _bgL2Bright.src = 'PixelArt/Paralax/Layer2/Clouds_bright.png';
-const _bgL2Dark   = new Image(); _bgL2Dark.src   = 'PixelArt/Paralax/Layer2/Clouds_dark.png';
-const _bgStars    = new Image(); _bgStars.src    = 'PixelArt/Paralax/Layer2/bf_mid_Stars.png';
+const _bgL1Day    = new Image(); _bgL1Day.src    = 'PixelArt/backgrounds/shared/sky_day.png';
+const _bgL1Night  = new Image(); _bgL1Night.src  = 'PixelArt/backgrounds/shared/sky_night.png';
+const _bgL2Bright = new Image(); _bgL2Bright.src = 'PixelArt/backgrounds/shared/clouds_bright.png';
+const _bgL2Dark   = new Image(); _bgL2Dark.src   = 'PixelArt/backgrounds/shared/clouds_dark.png';
+const _bgStars    = new Image(); _bgStars.src    = 'PixelArt/backgrounds/shared/stars.png';
 
 const BG_H = 640; // tile height — matches canvas height
 const BG_W = 480; // tile width  — matches canvas width

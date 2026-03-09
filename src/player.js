@@ -4,9 +4,9 @@
 
 // ── Sprite loading ───────────────────────────────────────────────────────────
 // Paths relative to index.html (project root)
-const _sprDown   = new Image(); _sprDown.src   = 'PixelArt/Cats/Cat1_grey-pink_down-jump.png';
-const _sprMiddle = new Image(); _sprMiddle.src = 'PixelArt/Cats/Cat1_grey-middle-jump.png';
-const _sprHigh   = new Image(); _sprHigh.src   = 'PixelArt/Cats/Cat1_grey-pink_high-jump.png';
+const _sprDown   = new Image(); _sprDown.src   = 'PixelArt/sprites/cat/cat_jump_down.png';
+const _sprMiddle = new Image(); _sprMiddle.src = 'PixelArt/sprites/cat/cat_jump_mid.png';
+const _sprHigh   = new Image(); _sprHigh.src   = 'PixelArt/sprites/cat/cat_jump_high.png';
 
 const PLAYER_SPEED  = 300;  // pixels per second — multiplied by dt, not per-frame
 const GRAVITY       = 980;  // px/s² — downward acceleration (Y increases downward in Canvas)

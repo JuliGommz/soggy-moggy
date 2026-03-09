@@ -4,7 +4,7 @@
 //             GameState (game-state.js — must load before this file)
 
 // ── Platform sprite sheet ─────────────────────────────────────────────────────
-// Jallosien_SpriteMap.png: 3 cols (A=left cap, B=middle, C=right cap) × 7 rows
+// jalousie_sheet.png: 3 cols (A=left cap, B=middle, C=right cap) × 7 rows
 // Coordinates measured via PIL alpha-scan on the PNG (480×640, RGBA):
 //   Col A left cap:  sx=57,  w=29px  (x=57 to x=85,  non-transparent run)
 //   Col B middle:    sx=93,  w=41px  (x=93 to x=133, tiled to fill gap)
@@ -21,7 +21,7 @@
 //   Row 7 (y=230): red    — crumble CRUMBLING (urgent)
 // Normal + crumble-intact platforms pick a random row at generation time.
 const _platSheet = new Image();
-_platSheet.src = 'PixelArt/Paralax/Layer3/Jallosien/Jallosien_SpriteMap.png';
+_platSheet.src = 'PixelArt/platforms/level1_city/jalousie_sheet.png';
 
 // Source region constants (px within the sprite sheet)
 const _PS = {
