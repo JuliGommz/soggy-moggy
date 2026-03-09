@@ -1,0 +1,20 @@
+GIMP Palette
+Name: Soggy Moggy
+Columns: 4
+#
+126 184 201 BG-1 Sky Day
+ 46  58  92 BG-2 Sky Night
+255 212 163 BG-3 Cloud Highlight
+200 160 122 BG-4 Cloud Shadow
+ 90 122  58 PLAT-1 Platform Normal
+ 61  82  41 PLAT-2 Platform Edge
+192 102  42 PLAT-3 Crumble Cracked
+232 168  48 PLAT-4 Crumble Crumbling
+176 144 112 CAT-1 Body Main
+122 101  85 CAT-2 Body Shadow
+232 200 160 CAT-3 Belly Highlight
+216  96  96 CAT-4 Inner Ear
+ 58 122 138 CAT-5 Button Eyes
+ 42  95 168 WATER-1 Water Fill
+ 80 144 208 WATER-2 Wave Crest
+255 255 255 UI-1 HUD Text

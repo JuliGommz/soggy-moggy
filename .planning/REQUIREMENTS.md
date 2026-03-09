@@ -55,11 +55,11 @@
 
 ### Visual & Audio
 
-- [ ] **VIS-01**: Cat character is a simple hand-drawn static sprite (not a colored rectangle)
-- [ ] **VIS-02**: Jump sound plays on every platform bounce
-- [ ] **VIS-03**: Damage sound plays when player takes water damage
-- [ ] **VIS-04**: Game over audio sting plays when all lives are lost
-- [ ] **VIS-05**: Background music loop plays during gameplay
+- [x] **VIS-01**: Cat character is a simple hand-drawn static sprite (not a colored rectangle)
+- [x] **VIS-02**: Jump sound plays on every platform bounce
+- [x] **VIS-03**: Damage sound plays when player takes water damage
+- [x] **VIS-04**: Game over audio sting plays when all lives are lost
+- [x] **VIS-05**: Background music loop plays during gameplay
 
 ### Hosting
 
@@ -133,11 +133,11 @@
 | PLAT-01 | Phase 3 | Complete |
 | PLAT-02 | Phase 3 | Complete |
 | PLAT-03 | Phase 3 | Complete |
-| VIS-01 | Phase 5 | Pending |
-| VIS-02 | Phase 5 | Pending |
-| VIS-03 | Phase 5 | Pending |
-| VIS-04 | Phase 5 | Pending |
-| VIS-05 | Phase 5 | Pending |
+| VIS-01 | Phase 5 | Complete |
+| VIS-02 | Phase 5 | Complete |
+| VIS-03 | Phase 5 | Complete |
+| VIS-04 | Phase 5 | Complete |
+| VIS-05 | Phase 5 | Complete |
 | HOST-01 | Phase 6 | Pending |
 | HOST-02 | Phase 6 | Pending |
 

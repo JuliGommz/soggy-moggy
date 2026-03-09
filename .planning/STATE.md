@@ -3,18 +3,19 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-03-06T12:06:49Z"
+last_updated: "2026-03-09T14:22:00.676Z"
 progress:
-  total_phases: 6
-  completed_phases: 4
-  total_plans: 9
-  completed_plans: 9
+  total_phases: 7
+  completed_phases: 5
+  total_plans: 11
+  completed_plans: 11
+  percent: 100
 ---
 
 # State: Cat Flood Jumper
 
-**Last updated:** 2026-03-06
-**Updated by:** Plan 04-02 execution complete
+**Last updated:** 2026-03-09
+**Updated by:** Phase 04.1 plan 01 verified complete — STYLE_GUIDE.md, palette file, imageSmoothingEnabled, platform colors all correct
 
 ---
 
@@ -22,7 +23,7 @@ progress:
 
 **Core Value:** A playable, complete gameplay loop: cat jumps up, water rises below, tension builds — the game feels real from first play.
 
-**Current Focus:** Phase 4 complete — ready for Phase 04.1 (Visual Concept) or Phase 5 (Throw + Audio)
+**Current Focus:** Phase 04.1 (Visual Concept) — COMPLETE. Both plans done. Phase 5 (Throw + Audio) planning next.
 
 **Stack:** Vanilla JavaScript ES2022+ + HTML Canvas 2D (480x640) + Web Audio API + GitHub Pages
 
@@ -30,13 +31,14 @@ progress:
 
 ## Current Position
 
-**Active Phase:** 4 — Flood + Lives (COMPLETE)
-**Active Plan:** Phase 4 Plan 02 done — Phase 4 complete
-**Phase Status:** Phase 4 complete — 2/2 plans done
+**Active Phase:** 5 — Throw + Audio (NOT STARTED — planning next)
+**Active Plan:** none — phase 04.1 complete, phase 5 plan pending
+**Phase Status:** Phase 04.1 complete — 2/2 plans done
 
 ```
-Progress: [x][x][x][x][ ][ ]  4/6 phases complete
+Progress: [x][x][x][x][x][ ]  5/6 main phases complete
            P1  P2  P3  P4  P5  P6
+           Phase 04.1 (visual concept) COMPLETE, Phase 5 next
 ```
 
 ---
@@ -49,6 +51,7 @@ Progress: [x][x][x][x][ ][ ]  4/6 phases complete
 | 2 | Core Mechanics | Complete | 2/2 |
 | 3 | Game World | Complete | 3/3 |
 | 4 | Flood + Lives | Complete | 2/2 |
+| 04.1 | Visual Concept | Complete | 2/2 |
 | 5 | Throw + Audio | Not started | 0/? |
 | 6 | Hosting | Not started | 0/? |
 
@@ -59,7 +62,7 @@ Progress: [x][x][x][x][ ][ ]  4/6 phases complete
 - Requirements defined: 30
 - Requirements mapped: 30 (100%)
 - Phases complete: 4/6
-- Plans complete: 9/?
+- Plans complete: 10/11
 - v1 features shipped: 0/30
 
 | Phase | Plan | Duration (s) | Tasks | Files |
@@ -73,6 +76,8 @@ Progress: [x][x][x][x][ ][ ]  4/6 phases complete
 | 03 | 03 | 174 | 2 | 2 |
 | 04 | 01 | 76 | 2 | 2 |
 | 04 | 02 | 118 | 2 | 2 |
+| 04.1 | 01 | 60 | 4 | 4 |
+| 04.1 | 02 | — | 1 | 1 |
 
 ---
 
@@ -103,6 +108,11 @@ Progress: [x][x][x][x][ ][ ]  4/6 phases complete
 | Math.floor on render positions | Prevents sub-pixel blur in fillRect; applied in renderPlayer | Phase 1 |
 | MVP-first approach | Core loop must work before polish; clear MVP boundary established | All phases |
 | Visual Concept phase (04.1) | Expert-agent-driven art direction before Phase 5 sprite work; placed after MVP is proven | Phase 04.1 |
+| Cat sprite direction: grey-pink, 3-frame jump | Grey-pink coloring; down/middle/high frames driven by bounceTimer in player.js; hitbox 32x32, drawn 96x96 | Phase 04.1 |
+| Game language: Spanish | All UI text, screen titles, HUD labels in Spanish for the dramaturgical layer | Phase 5 |
+| 4-level structure: Stadt, See, Aufzug, Freizeitpark | Each level has unique parallax layers and danger mechanic; not endless — level-based structure | Phase 5 |
+| Level-specific parallax per level | bg_far is always the setting silhouette; bg_mid/bg_near slots filled with level-specific sprites; clouds/stars reused across levels | Phase 5 |
+| Danger per level: L2=water, L3=electric shock, L4=ghosts | Level 1 danger TBD; water system stays for L2; new mechanics needed for L3 and L4 | Phase 5 |
 | Prompting strategy documentation | Two-stage system: auto-maintained log throughout + analysis at project end | All phases |
 | Classic script tags (no ES6 modules) | Works on file:// without dev server; matches school example pattern (jumprun, scripteroids) | Phase 1 |
 | GamePhase as Object.freeze | Prevents accidental mutation of phase string constants | Phase 1 |
@@ -154,6 +164,22 @@ Progress: [x][x][x][x][ ][ ]  4/6 phases complete
 - [ ] Decide throw mechanic water interaction after Phase 4 playtesting — Phase 4 is now complete, decision can be made
 - [ ] Confirm GitHub Pages is enabled on the repository before Phase 6
 
+### Resolved Decisions (Phase 04.1)
+
+- [x] **DECISION-01** — RESOLVED: Grey-pink direction chosen. 3-frame jump animation (down/middle/high) integrated in player.js. Cat1_beishe retired.
+- [x] **DECISION-02** — RESOLVED: #5a7a3a approved and implemented. Platform debug colors fully replaced.
+
+### School Formality Todos (deadline 22.04.2026)
+
+- [ ] **SCHOOL-01** — Create Projektplan from template (`Dokumente_Schule/Vorlagen/Projektplan_Abschlussarbeit_Vorlage.docx`) — worth 20pts in Projektmanagement grade
+- [ ] **SCHOOL-02** — Create Arbeitsprotokoll from template (`Dokumente_Schule/Vorlagen/Arbeitsprotokoll_Abschlussarbeit_Vorlage.docx`) — retroactive entries from 04.03.2026 to current date, then maintained daily
+- [ ] **SCHOOL-03** — Create GDD (Grobkonzept + Feinkonzept + Designkonzept) — Designkonzept is always separate; Phase 04.1 Style Guide can become the Designkonzept basis
+- [ ] **SCHOOL-04** — Create Medienkatalog — list all third-party assets, Claude Code AI usage (with prompts), pixel art tools, any external references
+- [ ] **SCHOOL-05** — Create README.md at repo root — name, asset list, startup instructions, where each requirement is met
+- [ ] **SCHOOL-06** — Gameplay video — recorded after game is feature-complete (Phase 5 area)
+- [ ] **SCHOOL-07** — Selbstständigkeitserklärung (independence declaration, signed) — at submission
+- [ ] **SCHOOL-08** — USB folder structure: Endergebnis / Konzeption / Arbeitsdateien / Material — at submission
+
 ### Blockers
 
 None.
@@ -170,8 +196,8 @@ None.
 
 **Repository:** `C:/Users/Teilnehmer/Desktop/Schule/PRG/Abschlussprojekt_SRH_26`
 **Planning files:** `.planning/`
-**Last session:** 2026-03-06 — Executed 04-02: Wired water into main.js (updateWater call, renderWater in world space, fall respawn with lives, flash overlay + hearts in HUD) and wired resetWater into game-state.js (resetGame + startNextLevel). Phase 4 complete.
-**Next action:** Phase 04.1 (Visual Concept) or Phase 5 (Throw + Audio) — Phase 4 MVP is playable and complete.
+**Last session:** 2026-03-09 — Phase 04.1 complete. Both plans done. ASSET_LIST.md created with 4-level design. New design decisions recorded: Spanish text, 4 levels (Stadt/See/Aufzug/Freizeitpark), level-specific parallax, per-level danger mechanics.
+**Next action:** `/gsd:plan-phase 5` — plan the Throw + Audio phase with new 4-level context.
 
 ---
 *State initialized: 2026-03-03 after roadmap creation*
