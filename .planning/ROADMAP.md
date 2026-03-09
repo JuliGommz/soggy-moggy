@@ -13,7 +13,7 @@
 - [x] **Phase 2: Core Mechanics** - Cat physics, one-way platform collision, camera scroll, fall-off-bottom death
 - [x] **Phase 3: Game World** - Procedural platforms (normal + crumbling), level structure (height goal + level-complete screen + progression), screens (start/game over), score system, LocalStorage high score
 - [ ] **Phase 4: Flood + Lives** - Rising water with escalating speed, lives system (3 hearts), damage feedback, animated wave
-- [ ] **Phase 04.1: Visual Concept** - Art style, color palette, style guide, asset list, sprite exports
+- [x] **Phase 04.1: Visual Concept** - Art style, color palette, style guide, asset list, sprite exports (completed 2026-03-09)
 - [ ] **Phase 5: Throw + Audio** - Throw mechanic with downward projectile, cat sprite, all sound effects, background music
 - [ ] **Phase 6: Hosting** - GitHub Pages deployment, shareable URL, final browser smoke test
 
@@ -27,7 +27,7 @@
 | 2. Core Mechanics | 2/2 | Complete | 2026-03-06 |
 | 3. Game World | 3/3 | Complete | 2026-03-06 |
 | 4. Flood + Lives | 0/2 | Not started | - |
-| 04.1 Visual Concept | 1/2 | In Progress|  |
+| 04.1 Visual Concept | 2/2 | Complete    | 2026-03-09 |
 | 5. Throw + Audio | 0/? | Not started | - |
 | 6. Hosting | 0/? | Not started | - |
 
@@ -105,7 +105,7 @@ Plans:
 **Goal:** A complete visual language is defined for Soggy Moggy — art style, color palette, mood, contrast rules, and a key asset list — so that all sprite and UI work in Phase 5 has a clear, consistent reference to build from.
 **Requirements:** VIS-01, VIS-02, VIS-03, VIS-04, VIS-05
 **Depends on:** Phase 4 (game is mechanically proven before art direction is locked)
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 **Success Criteria:**
   1. An art style is chosen (pixel art) with a written rationale — DONE by research
