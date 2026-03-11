@@ -4,9 +4,11 @@
 
 // ── Sprite loading ───────────────────────────────────────────────────────────
 // Paths relative to index.html (project root)
-const _sprDown   = new Image(); _sprDown.src   = 'PixelArt/sprites/cat/cat_jump_down.png';
-const _sprMiddle = new Image(); _sprMiddle.src = 'PixelArt/sprites/cat/cat_jump_mid.png';
-const _sprHigh   = new Image(); _sprHigh.src   = 'PixelArt/sprites/cat/cat_jump_high.png';
+const _sprIdle      = new Image(); _sprIdle.src      = 'PixelArt/cat/idle.png';
+const _sprRise      = new Image(); _sprRise.src      = 'PixelArt/cat/rise.png';
+const _sprPeak      = new Image(); _sprPeak.src      = 'PixelArt/cat/peak.png';
+const _sprPushRise  = new Image(); _sprPushRise.src  = 'PixelArt/cat/push_rise.png';
+const _sprPushPeak  = new Image(); _sprPushPeak.src  = 'PixelArt/cat/push_peak.png';
 
 const PLAYER_SPEED  = 300;  // pixels per second — multiplied by dt, not per-frame
 const GRAVITY       = 980;  // px/s² — downward acceleration (Y increases downward in Canvas)
@@ -25,6 +27,7 @@ const player = {
   airBoostUsed: false, // true once mid-air boost (Space) fires this jump; reset on landing
   facingLeft:   false, // last horizontal direction — flips sprite via ctx.scale(-1,1)
   bounceTimer:  0,     // seconds remaining to show middle-jump frame after a bounce
+  pushTimer:    0,     // seconds remaining to show push sprite after Z press
 };
 
 function resetPlayer() {
@@ -36,6 +39,7 @@ function resetPlayer() {
   player.airBoostUsed = false;
   player.facingLeft   = false;
   player.bounceTimer  = 0;
+  player.pushTimer    = 0;
 }
 
 function updatePlayer(dt) {
@@ -63,6 +67,10 @@ function updatePlayer(dt) {
   if (keys.right) player.vx =  PLAYER_SPEED;
   player.x += player.vx * dt;
 
+  // Push key (Z): latch pushTimer so animation holds for 250ms
+  if (keys.push && player.pushTimer <= 0) player.pushTimer = 0.25;
+  if (player.pushTimer > 0) player.pushTimer -= dt;
+
   // Count down bounce flash window
   if (player.bounceTimer > 0) player.bounceTimer -= dt;
 
@@ -76,17 +84,29 @@ function renderPlayer(ctx) {
   if (water.iframeTimer > 0 && Math.floor(water.iframeTimer * 5) % 2 === 1) return;
 
   // ── Frame selection ───────────────────────────────────────────────────────
-  // Bounce sequence (240ms): Down(40ms) → Middle(200ms) → High
-  // Pre-landing: velocity-based — sprMiddle when falling fast (vy > 350px/s)
-  //   >0.20s (40ms):  down-jump   — contact pose (first frame after bounce)
-  //   0–0.20s (200ms): middle-jump — launch stretch (ascending)
-  //   vy > 350 px/s:  middle-jump — pre-landing approach (airborne, falling fast)
-  //   else:           high-jump   — peak/neutral airborne
+  // Priority: push > bounce sequence > peak
+  //
+  // Push (Z held, 250ms window):
+  //   bounceTimer > 0.10 = cat still low/mid after bounce → push_rise
+  //   else               = cat is high                    → push_peak
+  //
+  // Bounce sequence (240ms): idle(40ms) → rise(200ms) → peak
+  //   >0.20s:  idle      — contact pose (just bounced)
+  //   0–0.20s: rise      — ascending stretch
+  //   vy > 600 px/s: rise — pre-landing (falling fast)
+  //   else:    peak      — peak / neutral airborne
   let frame;
-  if      (player.bounceTimer > 0.20) frame = _sprDown;
-  else if (player.bounceTimer > 0.05) frame = _sprMiddle;
-  else if (player.vy > 600)           frame = _sprMiddle; // pre-landing: falling fast
-  else                                frame = _sprHigh;
+  if (player.pushTimer > 0) {
+    frame = (player.bounceTimer > 0.10) ? _sprPushRise : _sprPushPeak;
+  } else if (player.bounceTimer > 0.20) {
+    frame = _sprIdle;
+  } else if (player.bounceTimer > 0.05) {
+    frame = _sprRise;
+  } else if (player.vy > 600) {
+    frame = _sprRise; // pre-landing: falling fast
+  } else {
+    frame = _sprPeak;
+  }
 
   // ── Fallback: draw red rectangle if sprites not yet loaded ───────────────
   if (!frame.complete || frame.naturalWidth === 0) {
