@@ -30,3 +30,17 @@ document.addEventListener('keyup', (e) => {
     case 'Enter':                   keys.enter = false; break;
   }
 });
+
+// ── Mouse support ─────────────────────────────────────────────────────────────
+// Left click = jump (same as Space), right click = push/action (same as Z)
+document.addEventListener('contextmenu', (e) => e.preventDefault()); // suppress right-click menu
+
+document.addEventListener('mousedown', (e) => {
+  if (e.button === 0) { keys.jump = true;  keys.shoot = true; }  // left
+  if (e.button === 2) { keys.push = true; }                       // right
+});
+
+document.addEventListener('mouseup', (e) => {
+  if (e.button === 0) { keys.jump = false; keys.shoot = false; }
+  if (e.button === 2) { keys.push = false; }
+});

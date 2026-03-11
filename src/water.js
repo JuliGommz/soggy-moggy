@@ -25,9 +25,11 @@ const water = {
 };
 
 // ---------------------------------------------------------------------------
-// SECTION 3 — resetWater(level)
+// SECTION 3 — resetHazard(level)
+// Generic entry point called by game-state.js on reset/level-start.
+// Dispatches to the active level's hazard (currently: water for all levels).
 // ---------------------------------------------------------------------------
-function resetWater(level) {
+function resetHazard(level) {
   water.waterY      = player.y + 120; // starts 120px below player spawn — just off screen bottom
   water.floodSpeed  = FLOOD_BASE_SPEED * (1 + (level - 1) * FLOOD_LEVEL_SCALE);
   water.waveTime    = 0;

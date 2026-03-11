@@ -140,7 +140,7 @@ function renderHUD() {
     ctx.fillStyle = '#ffffff';
     ctx.font      = '16px monospace';
     ctx.textAlign = 'left';
-    ctx.fillText('Score: ' + GameState.score + ' px', 8, 20);
+    ctx.fillText('Score: ' + Math.floor(GameState.score) + ' px', 8, 20);
     ctx.fillText('Level: ' + GameState.level, 8, 42);
 
     // Hearts — top-right, rendered right-to-left so heart 1 is rightmost
@@ -162,13 +162,13 @@ function renderHUD() {
 
     ctx.fillStyle = '#ffffff';
     ctx.font      = '36px monospace';
-    ctx.fillText('SOGGY MOGGY', canvas.width / 2, 220);
+    ctx.fillText('GATO SIN BOTAS', canvas.width / 2, 220);
 
     ctx.font = '16px monospace';
     ctx.fillStyle = '#cccccc';
-    ctx.fillText('Arrow keys or A / D to move', canvas.width / 2, 300);
-    ctx.fillText('Reach the goal line to clear each level', canvas.width / 2, 325);
-    ctx.fillText('Space mid-air for a boost — once per jump', canvas.width / 2, 350);
+    ctx.fillText('A / D or Arrow keys — move', canvas.width / 2, 300);
+    ctx.fillText('Space or Left click — jump', canvas.width / 2, 325);
+    ctx.fillText('Z or Right click — action', canvas.width / 2, 350);
 
     ctx.font = '20px monospace';
     ctx.fillStyle = '#f1c40f';
@@ -190,8 +190,8 @@ function renderHUD() {
 
     ctx.fillStyle = '#ffffff';
     ctx.font      = '20px monospace';
-    ctx.fillText('Score: ' + GameState.score + ' px', canvas.width / 2, 290);
-    ctx.fillText('Best:  ' + GameState.highScore + ' px', canvas.width / 2, 320);
+    ctx.fillText('Score: ' + Math.floor(GameState.score) + ' px', canvas.width / 2, 290);
+    ctx.fillText('Best:  ' + Math.floor(GameState.highScore) + ' px', canvas.width / 2, 320);
 
     ctx.font = '16px monospace';
     ctx.fillStyle = '#f1c40f';
@@ -213,8 +213,8 @@ function renderHUD() {
 
     ctx.fillStyle = '#ffffff';
     ctx.font      = '20px monospace';
-    ctx.fillText('Score: ' + GameState.score + ' px', canvas.width / 2, 290);
-    ctx.fillText('Best:  ' + GameState.highScore + ' px', canvas.width / 2, 320);
+    ctx.fillText('Score: ' + Math.floor(GameState.score) + ' px', canvas.width / 2, 290);
+    ctx.fillText('Best:  ' + Math.floor(GameState.highScore) + ' px', canvas.width / 2, 320);
 
     ctx.font = '16px monospace';
     ctx.fillStyle = '#f1c40f';
