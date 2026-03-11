@@ -5,6 +5,14 @@
 // ── Sprite loading ───────────────────────────────────────────────────────────
 // Paths relative to index.html (project root)
 const _sprIdle      = new Image(); _sprIdle.src      = 'PixelArt/cat/idle.png';
+const _sprWalk1     = new Image(); _sprWalk1.src     = 'PixelArt/cat/walk_1.png';
+const _sprWalk2     = new Image(); _sprWalk2.src     = 'PixelArt/cat/walk_2.png';
+// Per-sprite Y offsets: align each sprite's lowest visible pixel to the hitbox bottom.
+// Calculated from PIL alpha-scan: offset = transparent_px_at_bottom × (96/64 scale = 1.5)
+const _DY_IDLE      =  6; // idle:      4 transp src px × 1.5
+const _DY_WALK      = 20; // walk_1/2: 13 transp src px × 1.5
+const _DY_PUSH_RISE = 20; // push_rise: 13 transp src px × 1.5
+const _DY_PUSH_PEAK =  4; // push_peak:  3 transp src px × 1.5
 const _sprRise      = new Image(); _sprRise.src      = 'PixelArt/cat/rise.png';
 const _sprPeak      = new Image(); _sprPeak.src      = 'PixelArt/cat/peak.png';
 const _sprPushRise  = new Image(); _sprPushRise.src  = 'PixelArt/cat/push_rise.png';
@@ -12,9 +20,7 @@ const _sprPushPeak  = new Image(); _sprPushPeak.src  = 'PixelArt/cat/push_peak.p
 
 const PLAYER_SPEED  = 300;  // pixels per second — multiplied by dt, not per-frame
 const GRAVITY       = 980;  // px/s² — downward acceleration (Y increases downward in Canvas)
-const JUMP_VELOCITY = -700; // px/s — upward bounce velocity (negative = upward)
-const BOOST_IMPULSE = 300;   // px/s upward impulse applied by mid-air boost (Space while airborne)
-const BOOST_CAP_VY  = -808;  // px/s — max upward speed after boost: ~333px height (cap prevents extreme values)
+const JUMP_VELOCITY = -700; // px/s — upward jump velocity (negative = upward)
 
 const player = {
   x:     224, // (480 - 32) / 2 — horizontally centered
@@ -23,11 +29,11 @@ const player = {
   h:      32,
   vx:      0,
   vy:      0,
-  prevY:        528,  // y position before this frame's physics — used by one-way collision
-  airBoostUsed: false, // true once mid-air boost (Space) fires this jump; reset on landing
-  facingLeft:   false, // last horizontal direction — flips sprite via ctx.scale(-1,1)
-  bounceTimer:  0,     // seconds remaining to show middle-jump frame after a bounce
-  pushTimer:    0,     // seconds remaining to show push sprite after Z press
+  prevY:       528,   // y position before this frame's physics — used by one-way collision
+  onGround:    false, // true when standing on a platform — set by checkPlatformCollisions()
+  facingLeft:  false, // last horizontal direction — flips sprite via ctx.scale(-1,1)
+  bounceTimer: 0,     // seconds remaining to show jump animation frames after a jump
+  pushTimer:   0,     // seconds remaining to show push sprite after Z press
 };
 
 function resetPlayer() {
@@ -35,9 +41,9 @@ function resetPlayer() {
   player.y     = 528;
   player.vx    = 0;
   player.vy    = 0;
-  player.prevY        = 528;
-  player.airBoostUsed = false;
-  player.facingLeft   = false;
+  player.prevY      = 528;
+  player.onGround   = false;
+  player.facingLeft = false;
   player.bounceTimer  = 0;
   player.pushTimer    = 0;
 }
@@ -47,11 +53,12 @@ function updatePlayer(dt) {
   player.prevY  = player.y;           // save position BEFORE physics (used by collision)
   player.vy    += GRAVITY * dt;       // gravity: accelerate downward each frame
 
-  // Mid-air boost: Space while airborne (once per jump — airBoostUsed reset on any landing)
-  if (keys.jump && !player.airBoostUsed) {
-    player.vy           = Math.max(player.vy - BOOST_IMPULSE, BOOST_CAP_VY);
-    player.airBoostUsed = true;
-    keys.jump           = false;  // consume key — prevent re-trigger this frame
+  // Manual jump: Space while standing on a platform
+  if (keys.jump && player.onGround) {
+    player.vy          = JUMP_VELOCITY;
+    player.onGround    = false;
+    player.bounceTimer = 0.24;  // start jump animation sequence
+    keys.jump          = false; // consume key
   }
 
   player.y     += player.vy * dt;     // apply vertical displacement
@@ -97,9 +104,15 @@ function renderPlayer(ctx) {
   //   else:    peak      — peak / neutral airborne
   let frame;
   if (player.pushTimer > 0) {
-    frame = (player.bounceTimer > 0.10) ? _sprPushRise : _sprPushPeak;
+    frame = (player.onGround || player.bounceTimer > 0.10) ? _sprPushRise : _sprPushPeak;
+  } else if (player.onGround) {
+    if (player.vx !== 0) {
+      frame = Math.floor(performance.now() / 150) % 2 === 0 ? _sprWalk1 : _sprWalk2;
+    } else {
+      frame = _sprIdle;  // standing still
+    }
   } else if (player.bounceTimer > 0.20) {
-    frame = _sprIdle;
+    frame = _sprIdle;  // just left the ground (first 40ms of jump)
   } else if (player.bounceTimer > 0.05) {
     frame = _sprRise;
   } else if (player.vy > 600) {
@@ -120,8 +133,13 @@ function renderPlayer(ctx) {
   // centered horizontally on the hitbox. Hitbox (32×32) stays unchanged for collision.
   const DW = player.w * 3; // drawn width  96px
   const DH = player.h * 3; // drawn height 96px
-  const sx = Math.floor(player.x - (DW - player.w) / 2); // center horizontally
-  const sy = Math.floor(player.y - (DH - player.h));     // bottom-align to hitbox base
+  const sx  = Math.floor(player.x - (DW - player.w) / 2); // center horizontally
+  let frameDY = 0;
+  if      (frame === _sprIdle)                          frameDY = _DY_IDLE;
+  else if (frame === _sprWalk1 || frame === _sprWalk2)  frameDY = _DY_WALK;
+  else if (frame === _sprPushRise)                      frameDY = _DY_PUSH_RISE;
+  else if (frame === _sprPushPeak)                      frameDY = _DY_PUSH_PEAK;
+  const sy  = Math.floor(player.y - (DH - player.h)) + frameDY;
 
   if (player.facingLeft) {
     ctx.save();

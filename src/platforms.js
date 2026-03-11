@@ -100,6 +100,8 @@ function generateLevelPlatforms(level) {
 // One-way collision: player lands on platform top only.
 // Passing through from below and side contact are intentionally ignored.
 function checkPlatformCollisions() {
+  player.onGround = false; // reset each frame — set true below if on a platform
+
   const prevBottom = player.prevY + player.h;
   const currBottom = player.y    + player.h;
 
@@ -110,10 +112,9 @@ function checkPlatformCollisions() {
     const movingDown = player.vy > 0;
 
     if (overlapX && wasAbove && nowBelow && movingDown) {
-      player.y            = p.y - player.h;  // snap to surface
-      player.vy           = JUMP_VELOCITY;   // always auto-bounce — consistent feel
-      player.airBoostUsed = false;           // reset mid-air boost for the next jump
-      player.bounceTimer  = 0.24;            // 240ms total: 40ms down + 200ms middle-out (pre-landing via vy threshold)
+      player.y        = p.y - player.h;  // snap to surface
+      player.vy       = 0;               // stop falling — wait for manual jump
+      player.onGround = true;
 
       // Crumble state machine: each landing advances the state one step
       if (p.type === 'crumble') {

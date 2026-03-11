@@ -212,6 +212,14 @@ const ap_rows = [
   ['09.03.2026', 'PixelArt-Ordner umstrukturiert (Naming Convention)',  X,  X,  X],
   ['09.03.2026', 'Sprite-Pfade in player.js, background.js, platforms.js',X,X,  X],
   ['09.03.2026', 'Phase 05 initialisiert (Wurfmechanik + Sound)',        X,  X,  X],
+  ['10.03.2026', 'Sprites umbenannt: idle/rise/peak/push_rise/push_peak',X,  X,  X],
+  ['10.03.2026', 'Feature-Branch asset-restructure-mechanics erstellt',  X,  X,  X],
+  ['10.03.2026', 'Scope-Evolution: Titel, Steuerung WASD+Maus, HUD-Fix',X,  X,  X],
+  ['10.03.2026', 'Hazard-Rename: resetWater zu resetHazard generalisiert',X, X,  X],
+  ['10.03.2026', 'Maus-Eingabe: Left-Click=Jump, Right-Click=Action',    X,  X,  X],
+  ['11.03.2026', 'Auto-Bounce entfernt: manuelle Sprung-Mechanik',       X,  X,  X],
+  ['11.03.2026', 'Walk-Animation integriert (walk_1/2, 150ms-Zyklus)',   X,  X,  X],
+  ['11.03.2026', 'Sprite Y-Offsets: PIL alpha-scan, per-Frame-System',   X,  X,  X],
 ];
 
 const apTable = new Table({
