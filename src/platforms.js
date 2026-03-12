@@ -1,5 +1,40 @@
-// src/platforms.js
-// Platform system — Phase 3: procedural generation + crumbling state machine
+/*
+====================================================================
+* platforms.js - Platform system: generation, collision, rendering
+====================================================================
+* Project: Soggy Moggy (in-game: Gato Sin Botas)
+* Course: PRG Abschlussprojekt — SRH Fachschulen
+* Developer: Julian Gomez
+* Date: 2026-03-06
+* Version: 1.9 - Windows: tighter columns, skip bottom 3 rows, every-2nd-slot spacing
+*
+* AUTHORSHIP CLASSIFICATION:
+*
+* [AI-ASSISTED]
+* - PIL alpha-scan approach for precise sprite sheet coordinate measurement
+*   (capL/mid/capR x-positions and row y-positions)
+* - Procedural generation algorithm: slot-based upward distribution
+*   with horizontal margin constraints and CRUMBLE_CHANCE selection
+* - 2-landing crumble state machine: intact → cracked → crumbling → removed
+* - One-way AABB collision: 3-condition check (overlapX + wasAbove + movingDown)
+* - 3-part sprite tiling: left cap + clipped middle tiles + right cap
+*
+* NOTES:
+* - One-way collision reads player.prevY — updatePlayer() must run first each frame
+* - levelGoalY stored in GameState so main.js can draw the finish line
+* - GAP_PX must stay below 200px — otherwise jump cannot reach next platform
+*
+* VERSION HISTORY:
+* - v1.0: Static platform array, one-way collision
+* - v1.1: Procedural generation, crumble state machine
+* - v1.2: Jalousie sprite sheet rendering (3-part tiling)
+* - v1.3: Level 2 row restriction (blue-stripe only), LEVEL_BASE_HEIGHT scaling
+* - v1.7: Per-window randomised variants, platforms snap to window column center
+* - v1.8: windowFloors array (write-once) decouples windows from platform lifecycle;
+*         renderWindowFloors() replaces per-platform window draw so crumble splice
+*         no longer removes window sprites from the building
+====================================================================
+*/
 // Depends on: player (player.js — must load before this file), JUMP_VELOCITY (player.js)
 //             GameState (game-state.js — must load before this file)
 
@@ -22,6 +57,32 @@
 // Normal + crumble-intact platforms pick a random row at generation time.
 const _platSheet = new Image();
 _platSheet.src = 'PixelArt/platforms/level1_city/jalousie_sheet.png';
+
+// ── Window sprite sheet (Level 1 only) ───────────────────────────────────────
+// Windows.png: 2×2 grid of window variants (clean A/B, dirty A/B)
+// Coordinates measured via PIL alpha-scan:
+const _winSheet = new Image();
+_winSheet.src = 'PixelArt/backgrounds/level1_city/Windows.png';
+
+const _WS = {
+  // Coordinates from PIL alpha-scan (non-purple, non-transparent pixel bounds per quadrant):
+  //   A-column scanned from x=79 onward — excludes row-label ("1","2") purple left border
+  //   Row 1: y=83–192,  Row 2: y=266–375  (gap y=193–265 = inter-row spacing)
+  //   Gray "window sprites" footer at y=448+ is fully excluded from all sh values
+  variants: [
+    { sx:  79, sy:  84, sw: 103, sh: 109 }, // 0: A1 clean — brown frame, blue glass top / dark bottom
+    { sx: 264, sy:  83, sw: 119, sh: 110 }, // 1: B1 clean — wider variant, same style
+    { sx:  79, sy: 266, sw: 116, sh: 110 }, // 2: A2 dirty — cracked / stained glass
+    { sx: 264, sy: 266, sw: 119, sh: 110 }, // 3: B2 dirty — more cracks, partial pane
+  ],
+};
+
+// Window display layout — shared by generation (x-snap) and rendering (draw positions)
+const _WIN_W   = 100;                           // display width per window sprite (px)
+const _WIN_H   = 100;                           // display height (approx square, all variants)
+const _WIN_POS = [65, 190, 315];                // left-edge x of each of the 3 window columns
+//   column centers: 115, 240, 365  (= _WIN_POS[i] + _WIN_W/2)
+//   spacing: 65px outer margins, 25px gap between windows (65+100+25+100+25+100+65=480)
 
 // Source region constants (px within the sprite sheet)
 const _PS = {
@@ -46,22 +107,56 @@ const GAP_PX           = 120;  // vertical slot height — DO NOT exceed 200px (
 const CRUMBLE_CHANCE   = 0.25; // 25% of non-starter platforms are crumbling
 const CRUMBLE_DELAY_MS = 500;  // ms between crack and disappear
 const CRUMBLE_HOLD_MS  = 300;  // ms player has to react on second landing before platform disappears
-const LEVEL_BASE_HEIGHT = 2000; // px for level 1; scales per level
+const LEVEL_BASE_HEIGHT = 5000; // px for level 1; scales per level
 const PLAYER_START_Y   = 528;  // must match resetPlayer() in player.js
 
 // Phase 3: starts empty — generateLevelPlatforms() fills this on each reset
 const platforms = [];
+
+// windowFloors: write-once at level generation; never modified during gameplay.
+// Decouples window rendering from platform lifecycle so windows persist
+// after a crumble platform is spliced out.
+// Each entry: { y: worldY, winVariants: [v0, v1, v2] }
+const windowFloors = [];
 
 function resetPlatforms() {
   generateLevelPlatforms(GameState.level);
 }
 
 function generateLevelPlatforms(level) {
-  platforms.length = 0;
+  platforms.length    = 0;
+  windowFloors.length = 0; // fresh each level — never modified after this point
 
   const levelHeight = LEVEL_BASE_HEIGHT + (level - 1) * 500;
 
-  // Always start with a fixed starter platform directly under spawn point
+  // Level 2: only blue-stripe row (y=122) — sea dock / mast plank feel
+  // Level 1: all normal rows (rows 1,2,3,5,6)
+  const activeRows = (level === 2) ? [122] : _PS.rows;
+
+  // Level 1: invisible ledge platform — aligns with the building cornice in Entrance_Garbage.png.
+  // Entrance_Garbage.png is drawn 1:1 with world (camShift factor = 1.0), so entrance image
+  // y=342 maps permanently to world Y=342.  Full-width, no sprite rendered.
+  if (level === 1) {
+    platforms.push({
+      x:            0,
+      y:            342,
+      w:            480,
+      h:            PLATFORM_H,
+      type:         'normal',
+      state:        'intact',
+      crumbleTimer: 0,
+      row:          0,
+      winVariants:  undefined,
+      invisible:    true,   // skip jalousie + window rendering — decoration does the visual job
+    });
+  }
+
+  // Starter platform: fixed position centered over window column 1 (x=190, w=100 → center=240)
+  const starterWV = (level === 1) ? [
+    Math.floor(Math.random() * 4),
+    Math.floor(Math.random() * 4),
+    Math.floor(Math.random() * 4),
+  ] : undefined;
   platforms.push({
     x:            190,
     y:            560,
@@ -70,30 +165,54 @@ function generateLevelPlatforms(level) {
     type:         'normal',
     state:        'intact',
     crumbleTimer: 0,
-    row:          _PS.rows[Math.floor(Math.random() * _PS.rows.length)],
+    row:          activeRows[Math.floor(Math.random() * activeRows.length)],
+    winVariants:  starterWV,
   });
+  // Starter floor (y=560) is row 1 from bottom — intentionally excluded from windowFloors
+  // Windows only start at the 4th row from bottom (i=3 in the generation loop below)
 
   // Store the level goal world Y in GameState so main.js can check and draw it
   GameState.levelGoalY = PLAYER_START_Y - levelHeight;
 
-  // Generate platforms in upward slots from the player start position
+  // Generate platforms in upward slots from the player start position.
+  // Level 1: every platform must sit over a window — skip slots 1 and 2 from bottom
+  // (those rows have no windows per design).  All remaining slots get a platform + window.
   const slotCount = Math.floor(levelHeight / GAP_PX);
   for (let i = 1; i <= slotCount; i++) {
-    const worldY = PLAYER_START_Y - i * GAP_PX;
-    const w      = PLATFORM_MIN_W + Math.random() * (PLATFORM_MAX_W - PLATFORM_MIN_W);
-    const x      = 20 + Math.random() * (480 - w - 40); // 20px margin each side
-    const type   = Math.random() < CRUMBLE_CHANCE ? 'crumble' : 'normal';
+    if (level === 1 && (i < 3 || i % 2 === 0)) continue; // only odd slots i≥3 get a platform — must match window condition exactly
+    const worldY  = PLAYER_START_Y - i * GAP_PX;
+    const w       = PLATFORM_MIN_W + Math.random() * (PLATFORM_MAX_W - PLATFORM_MIN_W);
+    const type    = Math.random() < CRUMBLE_CHANCE ? 'crumble' : 'normal';
 
+    // Level 1: pick a random window column and center platform over it
+    let x;
+    if (level === 1) {
+      const colIdx    = Math.floor(Math.random() * _WIN_POS.length);
+      const winCenter = _WIN_POS[colIdx] + _WIN_W / 2;  // 115, 240, or 365
+      x = Math.max(0, Math.min(480 - w, winCenter - w / 2));
+    } else {
+      x = 20 + Math.random() * (480 - w - 40); // other levels: free placement
+    }
+
+    const wv = (level === 1) ? [
+      Math.floor(Math.random() * 4),
+      Math.floor(Math.random() * 4),
+      Math.floor(Math.random() * 4),
+    ] : undefined;
+    const floorY = Math.floor(worldY);
     platforms.push({
       x:            Math.floor(x),
-      y:            Math.floor(worldY),
+      y:            floorY,
       w:            Math.floor(w),
       h:            PLATFORM_H,
       type,
       state:        'intact',
       crumbleTimer: 0,
-      row:          _PS.rows[Math.floor(Math.random() * _PS.rows.length)],
+      row:          activeRows[Math.floor(Math.random() * activeRows.length)],
+      winVariants:  wv,
     });
+    // Windows on every platform — loop only reaches here for i≥3 odd slots.
+    if (level === 1) windowFloors.push({ y: floorY, winVariants: wv });
   }
 }
 
@@ -144,7 +263,22 @@ function updatePlatforms(dt) {
   }
 }
 
+// Renders all window floors independently of the platforms array.
+// Called before the platform loop so jalousies visually sit in front of windows.
+function renderWindowFloors(ctx) {
+  if (GameState.level !== 1) return;
+  if (!_winSheet.complete || _winSheet.naturalWidth === 0) return;
+  for (const f of windowFloors) {
+    const dy = Math.floor(f.y);
+    for (let i = 0; i < _WIN_POS.length; i++) {
+      const v = _WS.variants[f.winVariants[i]];
+      ctx.drawImage(_winSheet, v.sx, v.sy, v.sw, v.sh, _WIN_POS[i], dy, _WIN_W, _WIN_H);
+    }
+  }
+}
+
 function renderPlatforms(ctx) {
+  renderWindowFloors(ctx);  // windows behind jalousies; persists even after crumble splice
   for (const p of platforms) {
     _renderPlatformSprite(ctx, p);
   }
@@ -154,6 +288,19 @@ function renderPlatforms(ctx) {
 // Sprite is drawn at native height (17px), top-aligned to platform.y (collision surface).
 // Transparent slat gaps show the canvas/background through — no base fill added.
 function _renderPlatformSprite(ctx, p) {
+  if (p.invisible) return;  // decoration-backed platforms: visual is handled by the background asset
+  const dx = Math.floor(p.x);
+  const dy = Math.floor(p.y);
+
+  // Level 2: placeholder — no platform sprite yet
+  if (GameState.level === 2) {
+    ctx.fillStyle = '#3a6a50'; // placeholder: sea-green plank
+    ctx.fillRect(dx, dy, p.w, PLATFORM_H);
+    ctx.fillStyle = '#254d39'; // darker top edge
+    ctx.fillRect(dx, dy, p.w, 2);
+    return;
+  }
+
   // Pick base color for this platform state
   let baseColor;
   if (p.type === 'crumble') {
@@ -163,9 +310,6 @@ function _renderPlatformSprite(ctx, p) {
   } else {
     baseColor = _PS.colorNormal;
   }
-
-  const dx = Math.floor(p.x);
-  const dy = Math.floor(p.y);
 
   // Select sprite row based on platform state.
   // Intact (normal or crumble) → p.row (assigned randomly at generation).

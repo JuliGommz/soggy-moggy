@@ -1,4 +1,34 @@
-// src/water.js — rising flood water: object, physics, collision, rendering
+/*
+====================================================================
+* water.js - Rising flood: physics, damage, respawn, wave rendering
+====================================================================
+* Project: Soggy Moggy (in-game: Gato Sin Botas)
+* Course: PRG Abschlussprojekt — SRH Fachschulen
+* Developer: Julian Gomez
+* Date: 2026-03-07
+* Version: 1.1 - Damage/respawn system + sine wave rendering
+*
+* AUTHORSHIP CLASSIFICATION:
+*
+* [AI-ASSISTED]
+* - Sine wave rendering: per-pixel lineTo loop with WAVE_FREQUENCY + WAVE_SPEED
+* - respawnAboveWater() algorithm: scans platforms for the lowest intact
+*   platform still above the water line, falls back to camera top
+* - iframeTimer + flashTimer pattern: prevents unfair double-hits
+*   while providing clear visual damage feedback to the player
+* - Visibility clamp: waterY can never lag more than 10px off screen
+*   bottom when camera scrolls faster than the flood rises
+*
+* NOTES:
+* - resetHazard() is the generic entry point called from game-state.js
+*   on both full reset and level start — dispatch point for future level hazards
+* - FLOOD_LEVEL_SCALE increases base speed per level — tune during playtesting
+*
+* VERSION HISTORY:
+* - v1.0: Basic rising water, GAMEOVER on contact
+* - v1.1: Lives system, iframeTimer, respawnAboveWater(), sine wave rendering
+====================================================================
+*/
 // Depends on: GameState, GamePhase, saveHighScore (game-state.js), player (player.js)
 
 // ---------------------------------------------------------------------------

@@ -25,10 +25,10 @@ progress:
   percent: 100
 ---
 
-# State: Cat Flood Jumper
+# State: Soggy Moggy
 
-**Last updated:** 2026-03-09
-**Updated by:** Phase 04.1 plan 01 verified complete — STYLE_GUIDE.md, palette file, imageSmoothingEnabled, platform colors all correct
+**Last updated:** 2026-03-12
+**Updated by:** Phase restructure — "Throw + Audio" dissolved; Phase 5 = Push + HUD, Phase 6 = Audio (new), Phase 7 = Hosting (renumbered); "throw" replaced by "push" throughout
 
 ---
 
@@ -36,7 +36,7 @@ progress:
 
 **Core Value:** A playable, complete gameplay loop: cat jumps up, water rises below, tension builds — the game feels real from first play.
 
-**Current Focus:** Phase 04.1 (Visual Concept) — COMPLETE. Both plans done. Phase 5 (Throw + Audio) planning next.
+**Current Focus:** Phase 5 (Push + HUD) — planning next. Manual jump already implemented on feature/asset-restructure-mechanics branch.
 
 **Stack:** Vanilla JavaScript ES2022+ + HTML Canvas 2D (480x640) + Web Audio API + GitHub Pages
 
@@ -44,14 +44,14 @@ progress:
 
 ## Current Position
 
-**Active Phase:** 5 — Throw + Audio (NOT STARTED — planning next)
+**Active Phase:** 5 — Push + HUD (NOT STARTED — planning next)
 **Active Plan:** none — phase 04.1 complete, phase 5 plan pending
-**Phase Status:** Phase 04.1 complete — 2/2 plans done
+**Phase Status:** Phases 1–4 and 04.1 complete — mechanics restructure branch in progress
 
 ```
-Progress: [x][x][x][x][x][ ]  5/6 main phases complete
-           P1  P2  P3  P4  P5  P6
-           Phase 04.1 (visual concept) COMPLETE, Phase 5 next
+Progress: [x][x][x][x][x][ ][ ][ ]  5/7 main phases complete
+           P1  P2  P3  P4  P5  P6  P7
+           +04.1 complete; Phase 5 (Push+HUD) next
 ```
 
 ---
@@ -65,18 +65,19 @@ Progress: [x][x][x][x][x][ ]  5/6 main phases complete
 | 3 | Game World | Complete | 3/3 |
 | 4 | Flood + Lives | Complete | 2/2 |
 | 04.1 | Visual Concept | Complete | 2/2 |
-| 5 | Throw + Audio | Not started | 0/? |
-| 6 | Hosting | Not started | 0/? |
+| 5 | Push + HUD | Not started | 0/? |
+| 6 | Audio | Not started | 0/? |
+| 7 | Hosting | Not started | 0/? |
 
 ---
 
 ## Performance Metrics
 
-- Requirements defined: 30
-- Requirements mapped: 30 (100%)
-- Phases complete: 4/6
-- Plans complete: 10/11
-- v1 features shipped: 0/30
+- Requirements defined: 45
+- Requirements mapped: 45 (100%)
+- Phases complete: 5/7 (+ 04.1)
+- Plans complete: 11/11
+- v1 features shipped: 0/45
 
 | Phase | Plan | Duration (s) | Tasks | Files |
 |-------|------|-------------|-------|-------|
@@ -109,8 +110,8 @@ Progress: [x][x][x][x][x][ ]  5/6 main phases complete
 | Camera one-way gate: if (newCameraY < cameraY) | cameraY can only decrease — when player falls, newCameraY increases, condition fails, camera holds | Phase 2 |
 | Fall detection after updateCamera() | Fall check uses cameraY + canvas.height; must use current frame cameraY, not stale value | Phase 2 |
 | Height formula: 528 - maxHeightReached | 528 = player start world Y; maxHeightReached stores minimum Y seen; result = pixels climbed | Phase 2 |
-| Throw effect on water: TBD | Decide after water mechanic is working in Phase 4; playtesting informs the design | Phase 5 |
-| Lives system over instant death | More forgiving; makes the throw mechanic feel more meaningful | Phase 4 |
+| Push effect on water: item hits water → splash + bonus points | Level 2 confirmed; L3/L4 are stubs for later phases | Phase 5 |
+| Lives system over instant death | More forgiving; makes the push mechanic feel more meaningful | Phase 4 |
 | Working title: Soggy Moggy | Renamed from "Cat Flood Jumper" | — |
 | Player = Stuffed Cat | Not a real/live cat — specific visual character with floppy limbs, button eyes, stitched seams | Phase 04.1 |
 | Placeholders until sprites | Colored rectangles used through Phase 4; real sprites produced after Phase 04.1 | Phase 1–4 |
@@ -210,7 +211,7 @@ None.
 **Repository:** `C:/Users/Teilnehmer/Desktop/Schule/PRG/Abschlussprojekt_SRH_26`
 **Planning files:** `.planning/`
 **Last session:** 2026-03-10T16:51:30.044Z
-**Next action:** `/gsd:plan-phase 5` — plan the Throw + Audio phase with new 4-level context.
+**Next action:** Finish `feature/asset-restructure-mechanics` branch, then `/gsd:plan-phase 5` — Push + HUD (manual jump already done, items + speech bubbles to plan).
 
 ---
 *State initialized: 2026-03-03 after roadmap creation*
