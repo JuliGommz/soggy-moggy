@@ -6,7 +6,7 @@
 * Course: PRG Abschlussprojekt — SRH Fachschulen
 * Developer: Julian Gomez
 * Date: 2026-03-08
-* Version: 1.4 - building wall seam fix (_drawBuildingWall crops content region y=27-639)
+* Version: 1.5 - wall tiles brick-only above ground; stops at roof; cornice raised 95px
 *
 * AUTHORSHIP CLASSIFICATION:
 *
@@ -44,7 +44,10 @@ const _bgStars    = new Image(); _bgStars.src    = 'PixelArt/backgrounds/shared/
 
 // ── Level-specific assets ──────────────────────────────────────────────────────
 const _bgL1Wall     = new Image(); _bgL1Wall.src     = 'PixelArt/backgrounds/level1_city/building_wall.png';
-const _bgL1Entrance = new Image(); _bgL1Entrance.src = 'PixelArt/backgrounds/level1_city/Entrance_Garbage.png';
+const _bgL1TrashBin = new Image(); _bgL1TrashBin.src = 'PixelArt/backgrounds/level1_city/trash-bin.png';
+const _bgL1Door     = new Image(); _bgL1Door.src     = 'PixelArt/backgrounds/level1_city/building-door.png';
+const _bgL1Cornice  = new Image(); _bgL1Cornice.src  = 'PixelArt/backgrounds/level1_city/Cornice.png';
+const _bgL1Roof     = new Image(); _bgL1Roof.src     = 'PixelArt/backgrounds/level1_city/Building_Roof.png';
 const _bgL2Sun      = new Image(); _bgL2Sun.src      = 'PixelArt/backgrounds/level2_see/sun.png';
 
 const BG_H = 640; // tile height — matches canvas height
@@ -120,18 +123,50 @@ function renderBackground(ctx) {
     _drawBuildingWall(ctx, camShift);
   }
 
-  // Level 1: entrance/garbage drawn once at level bottom — no tiling, scrolls with world
+  // Level 1: individual building elements drawn once at level bottom — scroll with world
   if (GameState.level === 1) {
-    _drawL1Entrance(ctx, camShift);
+    _drawL1Elements(ctx, camShift);
   }
 }
 
-// Draws the Level 1 entrance / garbage once at world bottom — no tiling.
-// camShift = -cameraY; at world Y=0 → screenY = camShift (full 1:1 parallax with world).
-// Scrolls down and off screen as player climbs, exactly as a real world object would.
-function _drawL1Entrance(ctx, camShift) {
-  if (!_bgL1Entrance.complete || _bgL1Entrance.naturalWidth === 0) return;
-  ctx.drawImage(_bgL1Entrance, 0, Math.round(camShift));
+// Level 1 element world-Y positions (must match colliders in platforms.js).
+// Wall sidewalk top = y562 in building_wall.png; cornice band = y389 in wall texture.
+// Cornice placed ~5× its visible height (19px) above wall cornice line: 389 - 95 = 294.
+// Elements sit on sidewalk: bottom aligned to y562.
+const _L1_CORNICE_Y = 294;  // decorative cornice band (moved up 95px from wall's y389)
+const _L1_BIN_Y     = 465;  // 562 (sidewalk) - 97 (bin content height)
+const _L1_DOOR_Y    = 423;  // 562 (sidewalk) - 139 (door content height)
+
+// Sprite padding offsets (from PIL alpha-scan of each PNG):
+//   trash-bin.png:    content starts at (6, 5)
+//   building-door.png: content starts at (2, 2)
+//   Cornice.png:      content starts at (28, 60)
+//   Building_Roof.png: content starts at (25, 21)
+
+// Draws Level 1 building elements once at world bottom — scroll with world.
+// camShift = -cameraY; screenY = worldY + camShift.
+function _drawL1Elements(ctx, camShift) {
+  const cs = Math.round(camShift);
+
+  // Cornice — decorative band at wall's cornice height
+  if (_bgL1Cornice.complete && _bgL1Cornice.naturalWidth > 0) {
+    ctx.drawImage(_bgL1Cornice, 0, _L1_CORNICE_Y - 60 + cs);
+  }
+
+  // Trash bins — left side, sitting on sidewalk
+  if (_bgL1TrashBin.complete && _bgL1TrashBin.naturalWidth > 0) {
+    ctx.drawImage(_bgL1TrashBin, 85 - 6, _L1_BIN_Y - 5 + cs);
+  }
+
+  // Building door — right side, sitting on sidewalk
+  if (_bgL1Door.complete && _bgL1Door.naturalWidth > 0) {
+    ctx.drawImage(_bgL1Door, 280 - 2, _L1_DOOR_Y - 2 + cs);
+  }
+
+  // Building roof — placed at level goal (top of level)
+  if (_bgL1Roof.complete && _bgL1Roof.naturalWidth > 0 && GameState.levelGoalY !== undefined) {
+    ctx.drawImage(_bgL1Roof, 0, GameState.levelGoalY - 56 + cs);
+  }
 }
 
 // Draws the Level 2 sun with animation: pulse, arc movement, and day→night fade.
@@ -163,17 +198,28 @@ function _drawL2Sun(ctx, camShift, rawAlt) {
   ctx.globalAlpha  = savedAlpha;
 }
 
-// Draws building_wall.png without the 27px transparent top gap.
-// building_wall.png: 480×640, content rows y=27–639 (613px).
-// Factor 1.0 (full world speed) so the brick wall tiles in exact sync with world objects
-// (windows, platforms) — no parallax drift between building and its windows.
+// Draws building_wall.png in world space (factor 1.0 — no parallax drift).
+// Full 640px image drawn ONCE at ground level (sidewalk/steps at bottom).
+// Above that, only the brick portion (top 562px) tiles upward.
+// Tiling stops at levelGoalY (roof) so wall doesn't extend above the building.
 function _drawBuildingWall(ctx, camShift) {
   if (!_bgL1Wall.complete || _bgL1Wall.naturalWidth === 0) return;
-  const CONTENT_Y = 27;   // first opaque row (PIL alpha-scan: top 27 rows transparent)
-  const CONTENT_H = 613;  // rows 27–639 = 613px of brick content
-  const offsetY = Math.round((camShift * 1.0) % CONTENT_H);
-  for (let ty = offsetY - CONTENT_H; ty < BG_H + CONTENT_H; ty += CONTENT_H) {
-    ctx.drawImage(_bgL1Wall, 0, CONTENT_Y, BG_W, CONTENT_H, 0, ty, BG_W, CONTENT_H);
+  const BRICK_H = 562;   // y=0..561 in image: pure brick (tileable)
+  const FULL_H  = 640;   // full image includes sidewalk at y=562..639
+  const cs      = Math.round(camShift);
+  const goalY   = (GameState.levelGoalY !== undefined) ? GameState.levelGoalY : -5000;
+
+  // Ground tile: full image at world y=0 (sidewalk visible at bottom of building)
+  if (cs > -FULL_H && cs < BG_H) {
+    ctx.drawImage(_bgL1Wall, 0, cs);
+  }
+
+  // Brick-only tiles above: world y steps upward by BRICK_H
+  for (let wy = -BRICK_H; wy >= goalY - BRICK_H; wy -= BRICK_H) {
+    const sy = wy + cs;
+    if (sy > BG_H) continue;       // below viewport — skip
+    if (sy + BRICK_H < 0) break;   // above viewport — done
+    ctx.drawImage(_bgL1Wall, 0, 0, 480, BRICK_H, 0, sy, 480, BRICK_H);
   }
 }
 

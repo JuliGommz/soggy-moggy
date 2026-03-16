@@ -6,7 +6,7 @@
 * Course: PRG Abschlussprojekt — SRH Fachschulen
 * Developer: Julian Gomez
 * Date: 2026-03-06
-* Version: 1.9 - Windows: tighter columns, skip bottom 3 rows, every-2nd-slot spacing
+* Version: 2.0 - L1 colliders updated for separate element sprites (building_wall feature heights)
 *
 * AUTHORSHIP CLASSIFICATION:
 *
@@ -143,25 +143,28 @@ function generateLevelPlatforms(level) {
     });
   }
 
-  // Level 1: invisible platforms on fixed decorative elements in Entrance_Garbage.png.
-  // Entrance_Garbage.png is drawn 1:1 with world (camShift=1.0), so image pixel y = world y.
-  // Coordinates estimated from screenshot — fine-tune if cat clips through or floats above element.
+  // Level 1: invisible platforms on fixed decorative elements (separate sprites).
+  // Positions match _drawL1Elements() in background.js (building_wall.png feature heights).
+  // Wall drawn at camShift*1.0 — world Y = element Y directly.
   if (level === 1) {
-    // Building cornice — full-width ledge; image y=342 = world y=342
+    // Cornice band — PIL: content (28,60)-(449,78) in Cornice.png; drawn at y=294-60=234
+    // Collider at top of visible cornice: y=294, x=28, w=422
     platforms.push({
-      x: 0, y: 342, w: 480, h: PLATFORM_H,
+      x: 28, y: 294, w: 422, h: PLATFORM_H,
       type: 'normal', state: 'intact', crumbleTimer: 0,
       row: 0, winVariants: undefined, invisible: true,
     });
-    // Top of garbage bins (left side) — PIL alpha-scan: first opaque row y=537, x=55-209
+    // Trash bins — PIL: content (6,5)-(176,101) in trash-bin.png; drawn at x=79, y=460
+    // Collider at top of bins: y=465, x=85, w=171
     platforms.push({
-      x: 55, y: 537, w: 154, h: PLATFORM_H,
+      x: 85, y: 465, w: 171, h: PLATFORM_H,
       type: 'normal', state: 'intact', crumbleTimer: 0,
       row: 0, winVariants: undefined, invisible: true,
     });
-    // Top of entrance door (right side) — PIL alpha-scan: first opaque row y=496, x=287-413
+    // Building door — PIL: content (2,2)-(141,140) in building-door.png; drawn at x=278, y=421
+    // Collider at top of door: y=423, x=280, w=140
     platforms.push({
-      x: 287, y: 496, w: 126, h: PLATFORM_H,
+      x: 280, y: 423, w: 140, h: PLATFORM_H,
       type: 'normal', state: 'intact', crumbleTimer: 0,
       row: 0, winVariants: undefined, invisible: true,
     });

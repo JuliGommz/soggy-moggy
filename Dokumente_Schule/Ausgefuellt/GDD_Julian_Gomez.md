@@ -24,9 +24,9 @@
    - 2.2 Steuerung
    - 2.3 Spielerfigur
    - 2.4 Sprung & Bewegungsmechanik
-   - 2.5 Wurf-Mechanik
+   - 2.5 Push-Mechanik
    - 2.6 Plattformen
-   - 2.7 Flut-Mechanik
+   - 2.7 Gefahren-Mechanik (Hazard)
    - 2.8 Leben & Scheitern
    - 2.9 Punkte & Fortschritt
    - 2.10 Kamera & Weltkoordinaten
@@ -65,7 +65,7 @@
 
 Gato Sin Botas ist ein vertikaler Plattformer, in dem der Spieler eine ausgestopfte Katze steuert, die vor einer stetig steigenden Flut nach oben flieht. Im Gegensatz zu klassischen Endlos-Springern (Doodle Jump, etc.) springt die Figur **nicht automatisch**, sondern nur auf aktive Eingabe des Spielers. Das schafft eine direkte, greifbare Kontrolle und macht jede Plattform zu einer bewussten Entscheidung.
 
-Die Atmosphäre vermittelt „cozy danger": Die Spielwelt ist warm und verspielt gestaltet, die Bedrohung durch die Flut baut aber kontinuierlich Spannung auf. Das Spiel ist in vier thematisch unterschiedliche Level gegliedert, die jeweils eigene Plattformtypen und Gefahren einführen.
+Die Atmosphäre vermittelt „cozy danger": Die Spielwelt ist warm und verspielt gestaltet, die Bedrohung durch die Flut baut aber kontinuierlich Spannung auf. Das Spiel ist in drei thematisch unterschiedliche Level gegliedert, die jeweils eigene Plattformtypen und Gefahren einführen.
 
 ### 1.3 Zielgruppe
 
@@ -80,8 +80,8 @@ Die Atmosphäre vermittelt „cozy danger": Die Spielwelt ist warm und verspielt
 | Manueller Sprung | Keine Automatik — volle Kontrolle über Timing |
 | Figur als Kuscheltier | Plüsch-Ästhetik als Kontrast zur Bedrohung |
 | Spanischsprachige UI | Stilmittel für Charakter und Wiedererkennbarkeit |
-| Levelbasiert (nicht Endlos) | 4 eigenständige Level mit je eigener Gefahr |
-| Wurf-Mechanik | Projektile als Werkzeug gegen Hindernisse |
+| Levelbasiert (nicht Endlos) | 3 eigenständige Level mit je eigener Gefahr |
+| Push-Mechanik | Schieben von Objekten als aktives Werkzeug auf Plattformen |
 
 ### 1.5 Plattform & Technologie
 
@@ -96,14 +96,13 @@ Das Spiel läuft vollständig im Browser ohne Plug-ins oder Build-Tools.
 
 ### 1.6 Umfang & Levelstruktur
 
-Das Spiel enthält vier vollständige Spiellevel, je mit eigenem visuellen Thema und eigener Kernmechanik:
+Das Spiel enthält drei vollständige Spiellevel, je mit eigenem visuellen Thema und eigener Kernmechanik:
 
 | Level | Titel | Setting | Besondere Gefahr |
 |---|---|---|---|
-| 1 | La Ciudad | Stadtgebäude, Jalousien | Hindernisse (TBD) |
-| 2 | El Mar Abierto | Offener See, Masten/Stege | Flut steigt schneller |
-| 3 | El Pozo Eléctrico | Aufzugschacht | Elektroschocks |
-| 4 | El Parque | Freizeitpark, Geisterbahn | Geister |
+| 1 | La Ciudad | Stadtgebäude, Jalousien | Steigender Smog |
+| 2 | El Mar Abierto | Offener See, Masten/Stege | Steigende Flut (Sinuswelle) |
+| 3 | El Pozo Eléctrico | Aufzugschacht | Steigende Elektrizität (3-Schicht-Blitze) |
 
 ---
 
@@ -137,7 +136,7 @@ Das Spiel verwendet eine klar definierte Zustandsmaschine mit drei Hauptzuständ
 |---|---|---|
 | Bewegen (links/rechts) | A/D oder Pfeiltasten Links/Rechts | — |
 | Springen | Leertaste | Linksklick |
-| Werfen | Z | Rechtsklick |
+| Push (Aktion) | Z | Rechtsklick |
 
 Keine Diagonal-Eingabe. Bewegung ist sofort, kein Beschleunigungsmodell.
 
@@ -170,15 +169,14 @@ Eine Plattform stoppt die Figur nur wenn alle drei Bedingungen gleichzeitig erf�
 
 Bei Landung: `vy = 0`, `onGround = true`.
 
-### 2.5 Wurf-Mechanik
+### 2.5 Push-Mechanik
 
 *(Vollimplementierung in Phase 5)*
 
-- Taste Z / Rechtsklick erzeugt ein Projektil
-- Projektil fliegt in Blickrichtung des Spielers
-- Kollision mit Hindernissen (Level-spezifisch) löst Effekt aus
+- Taste Z / Rechtsklick schiebt Objekte auf Plattformen
+- Mehrere Objekttypen: Score-Objekte (Punkte), Bonus-Objekte (zeitlimitierte Effekte), kulturelle Objekte (lateinamerikanische Elemente)
 - Sprite-Wechsel: `push_rise` (am Boden oder kurz nach Sprung) / `push_peak` (in der Luft)
-- Maximale Anzahl gleichzeitiger Projektile: TBD (Balancing Phase 5)
+- Balancing-Werte werden in Phase 5 festgelegt
 
 ### 2.6 Plattformen
 
@@ -187,7 +185,7 @@ Bei Landung: `vy = 0`, `onGround = true`.
 | Typ | Verhalten | Visuell |
 |---|---|---|
 | Normal | Stabil, dauerhaft | Levelthema-Sprite (z.B. Jalousie) |
-| Brüchig (Crumble) | Beginnt zu bröckeln nach Landung, verschwindet nach kurzer Zeit | Rissig → Rot, dann unsichtbar |
+| Brüchig (Crumble) | Beginnt zu bröckeln nach Landung, verschwindet nach kurzer Zeit | Rissig gelb → Zerbröckelnd gelb (Zeile 4) |
 
 **Generierung:**
 - Plattformen werden prozedural generiert (Endlos-Scroll nach oben)
@@ -197,13 +195,15 @@ Bei Landung: `vy = 0`, `onGround = true`.
 **Level 1 — Jalousie:**
 - Sprite-Sheet mit 7 Zeilen: Zeilen 1/2/3/5/6 = intakt (zufällig zugewiesen), Zeile 4 = gerissen, Zeile 7 = zerbröckelnd
 
-### 2.7 Flut-Mechanik
+### 2.7 Gefahren-Mechanik (Hazard)
 
-- Die Flut steigt kontinuierlich von unten auf
-- Flutgeschwindigkeit erhöht sich mit Spielfortschritt
-- Kontakt mit der Flut = Leben verlieren
-- Visuelle Darstellung: Sinuswellen-Animation in WATER-1 (#2a5fa8) mit WATER-2-Wellenkamm
-- Die Flut bleibt in Weltkoordinaten; die Kamera folgt dem Spieler nach oben
+Jedes Level hat eine eigene, stetig steigende Gefahr. Alle drei Gefahren teilen dieselbe Physik (Anstiegsgeschwindigkeit, Beschleunigung, Kollisionserkennung), unterscheiden sich aber visuell:
+
+- **Level 1 (Smog):** Geschichtete Gradientenbänder mit Kosinus-Wölbung am oberen Rand und Glüheffekt
+- **Level 2 (Flut):** Sinuswellen-Animation in WATER-1 (#2a5fa8)
+- **Level 3 (Elektrizität):** Drei unabhängige Blitzschichten mit unterschiedlichen Frequenzen, Ankerpunkten und pulsierender Transparenz
+- Kontakt mit der Gefahr = Leben verlieren
+- Die Gefahr existiert in Weltkoordinaten; die Kamera folgt dem Spieler nach oben
 
 ### 2.8 Leben & Scheitern
 
@@ -230,33 +230,27 @@ Bei Landung: `vy = 0`, `onGround = true`.
 
 | Level | Gefahr | Beschreibung |
 |---|---|---|
-| 1 (Stadt) | TBD | Noch zu definieren (Balancing-Phase) |
-| 2 (Meer) | Schnellere Flut | Flutstieg-Rate erhöht; Plattformen als Mast-Stege |
-| 3 (Aufzugschacht) | Elektroschocks | Horizontale Blitze auf fixen Höhen; timed |
-| 4 (Freizeitpark) | Geister | Bewegliche Gegner; Ghost-Train bewegt sich auch leicht horizontal |
+| 1 (Stadt) | Steigender Smog | Geschichtete Gradientenbänder mit Kosinus-Wölbung; steigt kontinuierlich |
+| 2 (Meer) | Steigende Flut | Sinuswellen-Animation; Flutstieg schneller als Level 1 |
+| 3 (Aufzugschacht) | Steigende Elektrizität | 3-Schicht-Blitze mit unabhängigen Frequenzen und pulsierender Transparenz |
 
 ### 2.12 Levelstruktur im Detail
 
 **Level 1 — La Ciudad (Stadtsetting):**
 - Plattformthema: Jalousien an Stadtgebäuden
-- Hintergrundferne Schicht: Silhouette von Hochhäusern
+- Unsichtbare Plattformen auf Dekor-Elementen (Mülltonnen, Türrahmen, Gesims)
 - Einstiegslevel, niedrigste Schwierigkeit
-- Führt Sprung- und Bewegungsmechanik ein
+- Führt Sprung- und Bewegungsmechanik ein; Gefahr: steigender Smog
 
 **Level 2 — El Mar Abierto (Offener See):**
 - Plattformthema: Stege die von Masten/Pfählen ausgehen
-- Hintergrundferne Schicht: Weite See, Horizont
-- Flut steigt schneller als in Level 1
+- Hintergrundferne Schicht: Weite See, Horizont, Sonne mit Puls-Animation
+- Flut steigt schneller als in Level 1; Sinuswellen-Darstellung
 
 **Level 3 — El Pozo Eléctrico (Aufzugschacht):**
-- Plattformthema: Metallroste / Schachtplattformen
-- Hintergrundferne Schicht: Betonwände, Kabel
-- Elektroschocks als zeitgesteuerte Querhindernisse
-
-**Level 4 — El Parque (Freizeitpark):**
-- Plattformthema: Fahrgeschäft-Elementen, Geisterbahn-Wagen
-- Hintergrundferne Schicht: Riesenrad, Lichter
-- Geister als bewegliche Gegner; teilweise horizontale Bewegung
+- Plattformthema: Wandstufen im Schacht (verschiedene Breiten)
+- Hintergrundferne Schicht: Betonwände, Kabel/Rohre (Mid-Layer TBD)
+- Steigende Elektrizität als 3-Schicht-Blitzsystem
 
 ---
 
@@ -325,8 +319,8 @@ Die ausgestopfte Katze ist als Plüschtier konzipiert — erkennbar durch Nähte
 | Idle | `PixelArt/cat/idle.png` | Stehend auf Plattform |
 | Rise | `PixelArt/cat/rise.png` | Aufstieg nach Sprung |
 | Peak | `PixelArt/cat/peak.png` | Höhepunkt / freier Fall |
-| Push Rise | `PixelArt/cat/push_rise.png` | Werfen am Boden / tief in der Luft |
-| Push Peak | `PixelArt/cat/push_peak.png` | Werfen auf Höhepunkt |
+| Push Rise | `PixelArt/cat/push_rise.png` | Push am Boden / tief in der Luft |
+| Push Peak | `PixelArt/cat/push_peak.png` | Push auf Höhepunkt |
 | Walk 1 | `PixelArt/cat/walk_1.png` | Laufzyklus Frame 1 |
 | Walk 2 | `PixelArt/cat/walk_2.png` | Laufzyklus Frame 2 |
 
@@ -370,11 +364,11 @@ Horizontaler Drift bei 15 px/s (bright) und 4,5 px/s (stars) — kreiert ein leb
 
 **Level 1 — Jalousien (Stadtsetting):**
 - Sprite-Sheet: `PixelArt/platforms/level1_city/jalousie_sheet.png`
-- 7 Reihen im Sheet: 5 intakte Zustände, 1 gerissen (gelb, Reihe 4), 1 zerbröckelnd (rot, Reihe 7)
+- 7 Reihen im Sheet: 5 intakte Zustände, 1 gerissen (gelb, Reihe 4), 1 zerbröckelnd (gelb, Reihe 4)
 - 3-teiliges Rendering: linke Kappe + gekachelte Mitte + rechte Kappe
 - Zufällige Zeile pro Plattform bei Generierung (aus Zeilen 1,2,3,5,6)
 
-Weitere Plattform-Designs für Level 2–4 werden in späteren Phasen erstellt.
+Weitere Plattform-Designs für Level 2 und 3 werden in späteren Phasen erstellt.
 
 ### 3.6 UI & HUD
 
@@ -455,7 +449,7 @@ src/
 ├── input.js         — Tastatur-/Mauslistener
 ├── player.js        — Spielerfigur, Sprung, Sprite-Logik, Wurf
 ├── platforms.js     — Plattformgenerierung, Kollision, Sprite-Rendering
-├── water.js         — Flut-Mechanik, Wellendarstellung
+├── water.js         — Hazard-System (Smog, Flut, Elektrizität)
 └── background.js    — Parallax-Hintergrundsystem, Crossfade
 ```
 
@@ -473,4 +467,4 @@ src/
 ---
 
 *Dokument erstellt: März 2026*
-*Letzte Aktualisierung: 12.03.2026*
+*Letzte Aktualisierung: 16.03.2026*

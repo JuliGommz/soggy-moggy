@@ -5,8 +5,8 @@
 * Project: Soggy Moggy (in-game: Gato Sin Botas)
 * Course: PRG Abschlussprojekt — SRH Fachschulen
 * Developer: Julian Gomez
-* Date: 2026-03-07
-* Version: 1.3 - Constant taxonomy: shared HAZARD_* vs. level-specific FLOOD_WAVE_*
+* Date: 2026-03-16
+* Version: 1.4 - 3-layer electricity renderer (independent frequencies + pulsing alpha)
 *
 * HAZARD TYPES (Oberkategorie: hazard):
 *   Flood       — Level 2 — rising water (sine wave)
@@ -24,7 +24,8 @@
 * - Visibility clamp: hazard.y can never lag more than 10px off screen
 *   bottom when camera scrolls faster than the hazard rises
 * - renderSmog: layered gradient bands + cosine billowing edge (Level 1)
-* - renderElectricity: inharmonic sine displacement + two-pass glow (Level 3)
+* - renderElectricity: 3-layer bolt system (back/mid/front) with independent
+*   frequencies, anchor counts, pulsing alpha, and _buildElecEdge() helper
 *
 * NOTES:
 * - resetHazard() is the generic entry point called from game-state.js
@@ -36,6 +37,8 @@
 * - v1.0: Basic rising water, GAMEOVER on contact
 * - v1.1: Lives system, iframeTimer, respawnAboveWater(), sine wave rendering
 * - v1.2: Rename water → hazard; level-specific renderers for smog + electricity
+* - v1.3: Constant taxonomy: shared HAZARD_* vs. level-specific FLOOD_WAVE_*
+* - v1.4: 3-layer electricity renderer (back/mid/front bolts, pulsing alpha)
 ====================================================================
 */
 // Depends on: GameState, GamePhase, saveHighScore (game-state.js), player (player.js)

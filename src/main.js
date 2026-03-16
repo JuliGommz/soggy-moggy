@@ -36,6 +36,9 @@
 //             keys (input.js)
 //             player, updatePlayer, renderPlayer, resetPlayer (player.js)
 
+// ── HUD lives icon ──────────────────────────────────────────────────────────
+const _hudLifeIcon = new Image(); _hudLifeIcon.src = 'PixelArt/interactible_objects/live-up/cat_beishe.png';
+
 // ── Canvas setup ────────────────────────────────────────────────────────────
 const canvas = document.getElementById('gameCanvas');
 canvas.width  = 480; // set via JS attribute — NEVER via CSS
@@ -214,14 +217,15 @@ function renderHUD() {
     ctx.fillText('Score: ' + Math.floor(GameState.score) + ' px', 8, 20);
     ctx.fillText('Level: ' + GameState.level, 8, 42);
 
-    // Hearts — top-right, rendered right-to-left so heart 1 is rightmost
-    ctx.font      = '18px monospace';
-    ctx.textAlign = 'right';
-    for (let i = 0; i < 3; i++) {
-      ctx.fillStyle = i < GameState.lives ? '#e74c3c' : '#444444'; // red = full, grey = empty
-      ctx.fillText('\u2665', (canvas.width - 8) - i * 22, 20);
+    // Lives — top-right, cat icon repeated (max 9), right-to-left layout
+    if (_hudLifeIcon.complete && _hudLifeIcon.naturalWidth > 0) {
+      const icoW = 20, icoH = 16, gap = 2; // scaled from 64×64 source
+      const maxShow = Math.min(GameState.lives, 9);
+      for (let i = 0; i < maxShow; i++) {
+        const ix = canvas.width - 8 - (i + 1) * (icoW + gap);
+        ctx.drawImage(_hudLifeIcon, ix, 6, icoW, icoH);
+      }
     }
-    ctx.textAlign = 'left'; // always reset after right-aligned text
   }
 
   // ── Danger countdown banner — shown at start of each level before hazard activates ──
@@ -294,11 +298,14 @@ function renderHUD() {
     ctx.font      = '16px monospace';
     ctx.fillText('Puntos: ' + Math.floor(GameState.score) + ' px', cx, 192);
     ctx.fillText('Mejor:  ' + Math.floor(GameState.highScore) + ' px', cx, 216);
-    // Lives
-    ctx.fillText('Vidas: ', cx - 36, 240);
-    for (let i = 0; i < 3; i++) {
-      ctx.fillStyle = i < GameState.lives ? '#e74c3c' : '#444444';
-      ctx.fillText('\u2665', cx + 20 + i * 20, 240);
+    // Lives — cat icons
+    ctx.fillText('Vidas:', cx - 36, 240);
+    if (_hudLifeIcon.complete && _hudLifeIcon.naturalWidth > 0) {
+      const icoW = 22, icoH = 18; // slightly larger for menu screen
+      const maxShow = Math.min(GameState.lives, 9);
+      for (let i = 0; i < maxShow; i++) {
+        ctx.drawImage(_hudLifeIcon, cx + 14 + i * (icoW + 2), 226, icoW, icoH);
+      }
     }
 
     // Menu options

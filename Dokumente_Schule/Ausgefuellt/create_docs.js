@@ -300,6 +300,18 @@ const ap_rows = [
   ['12.03.2026', 'Variabler Sprung: Antippen kurz, Halten voll',           X,  X,  X],
   ['12.03.2026', 'Bugfix: JUMP_VELOCITY fuer Wasser-Respawn',              X,  X,  X],
   ['12.03.2026', 'Sprung-Tuning: Min -520 px/s, Boost 900/0.20s',          X,  X,  X],
+  ['16.03.2026', 'Hazard-Rename: water-Objekt zu hazard + Eigenschaftsnamen',X, X,  X],
+  ['16.03.2026', 'Hazard-Renderer: Smog (L1), Flut (L2), Elektrizitaet (L3)',X, X,  X],
+  ['16.03.2026', 'Konstanten-Taxonomie: HAZARD_* (shared) vs FLOOD_WAVE_*', X,  X,  X],
+  ['16.03.2026', 'Variabler Sprung +0.5%: Min -523, Boost 905 px/s²',       X,  X,  X],
+  ['16.03.2026', 'L1 unsichtbare Plattformen: Boden, Muelltonnen, Tuer',    X,  X,  X],
+  ['16.03.2026', 'PIL Alpha-Scan: exakte Koordinaten fuer L1-Collider',      X,  X,  X],
+  ['16.03.2026', 'Starter-Plattform nur L2; L1+L3 unsichtbarer Boden',      X,  X,  X],
+  ['16.03.2026', 'Crumble-Farbe: Zerbroeckelnd gelb statt rot (Zeile 4)',   X,  X,  X],
+  ['16.03.2026', 'Level-abhaengiger Spawn: L1+L3 y=596, L2 y=528',          X,  X,  X],
+  ['16.03.2026', '3-Schicht-Elektrizitaet: unabhaengige Frequenzen+Alpha',  X,  X,  X],
+  ['16.03.2026', 'Scope-Reduktion: 4 Level auf 3 (L4 Freizeitpark gestrichen)',X,X,  X],
+  ['16.03.2026', 'GDD + Arbeitsprotokoll aktualisiert (alle Aenderungen)',   X,  X,  X],
 ];
 
 const apTable = new Table({
@@ -378,9 +390,9 @@ const gddContent = [
     ['2.2',  'Steuerung',                          true],
     ['2.3',  'Spielerfigur',                       true],
     ['2.4',  'Bewegung & Sprung',                  true],
-    ['2.5',  'Wurf-Mechanik',                      true],
+    ['2.5',  'Push-Mechanik',                      true],
     ['2.6',  'Plattformtypen',                     true],
-    ['2.7',  'Flut-Mechanik',                      true],
+    ['2.7',  'Gefahren-Mechanik (Hazard)',         true],
     ['2.8',  'Leben & Scheitern',                  true],
     ['2.9',  'Punkte & Highscore',                 true],
     ['2.10', 'Kamera & Weltkoordinaten',           true],
@@ -427,14 +439,14 @@ const gddContent = [
 
   h2('1.2  Spielidee & Kernaussage'),
   body('Gato Sin Botas ist ein vertikaler Plattformer. Der Spieler steuert eine ausgestopfte Katze, die vor einer stetig steigenden Flut nach oben flieht. Anders als in klassischen Endlos-Springern wie Doodle Jump springt die Figur nicht automatisch, sondern nur auf direkte Eingabe des Spielers.'),
-  body('Diese Entscheidung macht jeden Sprung zu einem bewussten Akt und gibt dem Spieler vollständige Kontrolle über das Timing. Das Spiel ist in vier eigenständige Level unterteilt, jedes mit eigenem visuellem Thema und eigener Kernmechanik. Die Atmosphäre folgt dem Prinzip Cozy Danger: Die Welt wirkt warm und verspielt, die steigende Flut erzeugt aber kontinuierlich wachsenden Druck.'),
+  body('Diese Entscheidung macht jeden Sprung zu einem bewussten Akt und gibt dem Spieler vollständige Kontrolle über das Timing. Das Spiel ist in drei eigenständige Level unterteilt, jedes mit eigenem visuellem Thema und eigener Kernmechanik. Die Atmosphäre folgt dem Prinzip Cozy Danger: Die Welt wirkt warm und verspielt, die steigende Gefahr erzeugt aber kontinuierlich wachsenden Druck.'),
   gap(),
 
   h2('1.3  Zielgruppe'),
   infoTable([
     ['Primäre Zielgruppe',   'Casual-Gamer, 12 bis 30 Jahre, Vorerfahrung mit Plattformern'],
     ['Sekundäre Zielgruppe', 'Kurzzeit-Spieler mit Mobile-Mindset, kurze klare Sessions bevorzugt'],
-    ['Spielmotivation',      'Überleben, Highscore verbessern, alle vier Level abschließen'],
+    ['Spielmotivation',      'Überleben, Highscore verbessern, alle drei Level abschließen'],
     ['Session-Länge',        'Durchschnittlich 3 bis 8 Minuten pro Level'],
   ]),
   gap(),
@@ -446,8 +458,8 @@ const gddContent = [
       ['Manueller Sprung',        'Mechanik',  'Keine Automatik; volle Kontrolle über Timing und Rhythmus'],
       ['Plüschtier als Held',     'Ästhetik',  'Figurdesign als Kuscheltier; Kontrast zur Bedrohung durch die Flut'],
       ['Spanischsprachige UI',    'Identität', 'Alle UI-Texte auf Spanisch als bewusstes Stilmittel'],
-      ['Vier eigenständige Level','Struktur',  'Je eigenes Thema und Gefahr, kein Endlos-Modus'],
-      ['Wurf-Mechanik',           'Mechanik',  'Projektile als aktives Werkzeug gegen levelspezifische Hindernisse'],
+      ['Drei eigenständige Level','Struktur',   'Je eigenes Thema und Gefahr, kein Endlos-Modus'],
+      ['Push-Mechanik',           'Mechanik',  'Schieben von Objekten als aktives Werkzeug auf Plattformen'],
     ],
     [1600, 1400, 4937]
   ),
@@ -472,10 +484,9 @@ const gddContent = [
   tableN(
     ['#', 'Titel', 'Setting', 'Besondere Gefahr'],
     [
-      ['1', 'La Ciudad',         'Stadtgebäude, Jalousien als Plattformen', 'Hindernisse im Stadtumfeld'],
-      ['2', 'El Mar Abierto',    'Offener See, Masten mit Stegen',          'Flut steigt deutlich schneller'],
-      ['3', 'El Pozo Eléctrico', 'Aufzugschacht, Betonwände, Kabel',       'Zeitgesteuerte Elektroschocks'],
-      ['4', 'El Parque',         'Freizeitpark, Geisterbahn, Riesenrad',   'Bewegliche Geister als Gegner'],
+      ['1', 'La Ciudad',         'Stadtgebäude, Jalousien als Plattformen', 'Steigender Smog'],
+      ['2', 'El Mar Abierto',    'Offener See, Masten mit Stegen',          'Steigende Flut (Sinuswelle)'],
+      ['3', 'El Pozo Eléctrico', 'Aufzugschacht, Betonwände, Kabel',       'Steigende Elektrizität (3-Schicht-Blitze)'],
     ],
     [500, 1700, 2600, 3137]
   ),
@@ -509,7 +520,7 @@ const gddContent = [
       ['Links bewegen',  'A oder Pfeiltaste Links',  'nicht belegt'],
       ['Rechts bewegen', 'D oder Pfeiltaste Rechts', 'nicht belegt'],
       ['Springen',       'Leertaste',                'Linksklick'],
-      ['Werfen',         'Z',                        'Rechtsklick'],
+      ['Push (Aktion)',  'Z',                        'Rechtsklick'],
     ],
     [2200, 2500, 3237]
   ),
@@ -529,12 +540,12 @@ const gddContent = [
   h2('2.4  Bewegung & Sprung'),
   body('Die Physik basiert auf einem semi-fixen Zeitschritt. Alle Geschwindigkeitswerte sind in Pixel pro Sekunde angegeben und werden mit dt / 1000 pro Frame skaliert. Ein Delta-Cap von 50 Millisekunden verhindert Physikfehler bei Tab-Wechsel.'),
   body('Der Sprung ist manuell: Er wird nur ausgelöst, wenn player.onGround den Wert true hat. Die Variable wird am Anfang jeder Kollisionsprüfung auf false zurückgesetzt und nur bei erfolgreicher Landung wieder gesetzt.'),
-  body('Der Sprung ist variabel: Ein kurzer Tastendruck oder kurzer Klick erzeugt einen kleinen Hüpfer (Mindestimpuls -520 px/s, etwa 138 px Höhe). Langes Halten der Taste fügt innerhalb eines 200ms-Boostfensters weiteren Aufwärtsimpuls hinzu und erreicht maximal -700 px/s (ca. 250 px Höhe). Ein jumpLocked-Flag verhindert einen erneuten Sprung, solange die Taste nach der Landung noch gehalten wird.'),
+  body('Der Sprung ist variabel: Ein kurzer Tastendruck oder kurzer Klick erzeugt einen kleinen Hüpfer (Mindestimpuls -523 px/s, etwa 139 px Höhe). Langes Halten der Taste fügt innerhalb eines 200ms-Boostfensters weiteren Aufwärtsimpuls hinzu (905 px/s² Boost) und erreicht maximal -704 px/s (ca. 253 px Höhe). Ein jumpLocked-Flag verhindert einen erneuten Sprung, solange die Taste nach der Landung noch gehalten wird.'),
   body('Das Kollisionsmodell ist eine One-Way-AABB-Kollision. Eine Plattform stoppt die Figur nur bei gleichzeitig erfüllten drei Bedingungen: horizontale Überlappung, Spieler war im Vorframe oberhalb der Plattform, und Spieler bewegt sich aktuell nach unten. Bei Landung wird vy auf 0 gesetzt.'),
   gap(),
 
-  h2('2.5  Wurf-Mechanik'),
-  body('Die Wurfmechanik wird in Phase 5 vollständig implementiert. Taste Z oder Rechtsklick erzeugt ein Projektil in Blickrichtung des Spielers. Während des Wurfes wechselt der Sprite auf push_rise am Boden oder push_peak in der Luft. Kollisionslogik mit levelspezifischen Hindernissen und Balancing-Werte werden in Phase 5 festgelegt.'),
+  h2('2.5  Push-Mechanik'),
+  body('Die Push-Mechanik wird in Phase 5 vollständig implementiert. Taste Z oder Rechtsklick schiebt Objekte auf Plattformen. Es gibt mehrere Objekttypen: Score-Objekte (Punkte), Bonus-Objekte (zeitlimitierte Effekte) und kulturelle Objekte (lateinamerikanische Elemente). Während der Push-Aktion wechselt der Sprite auf push_rise am Boden oder push_peak in der Luft. Balancing-Werte werden in Phase 5 festgelegt.'),
   gap(),
 
   h2('2.6  Plattformtypen'),
@@ -542,16 +553,16 @@ const gddContent = [
     ['Typ', 'Verhalten', 'Visuell'],
     [
       ['Normal',  'Stabil und dauerhaft vorhanden.',                        'Levelthema-Sprite (z.B. Jalousie in Level 1)'],
-      ['Brüchig', 'Bröckelt nach Landung, verschwindet nach kurzer Zeit.',  'Rissig gelb (Zeile 4), dann zerbröckelnd rot (Zeile 7)'],
+      ['Brüchig', 'Bröckelt nach Landung, verschwindet nach kurzer Zeit.',  'Rissig gelb (Zeile 4), dann zerbröckelnd gelb (Zeile 4)'],
     ],
     [1400, 3000, 3537]
   ),
   body('Plattformen werden prozedural generiert. Mindest- und Maximalabstand begrenzen den spielbaren Sprungbereich. Jede Plattform wird dreiteilig gerendert: linke Kappe, gekachelte Mitte, rechte Kappe.'),
   gap(),
 
-  h2('2.7  Flut-Mechanik'),
-  body('Die Flut steigt kontinuierlich von unten. Die Anstiegsgeschwindigkeit erhöht sich mit dem Spielfortschritt und variiert zwischen den Leveln. Kontakt mit der Flut kostet ein Leben. Die Flut existiert in Weltkoordinaten und folgt dem gleichen Koordinatensystem wie alle anderen Spielentitäten.'),
-  body('Visuell wird die Flut als Sinuswellen-Animation dargestellt: Hauptfarbe WATER-1 (#2a5fa8), Wellenkamm WATER-2 (#4a8fd8), Tiefe WATER-3 (#1a3f78).'),
+  h2('2.7  Gefahren-Mechanik (Hazard)'),
+  body('Jedes Level hat eine eigene, stetig steigende Gefahr. Alle drei Gefahren teilen dieselbe Physik (Anstiegsgeschwindigkeit, Beschleunigung, Kollisionserkennung), unterscheiden sich aber visuell. Kontakt mit der Gefahr kostet ein Leben. Die Gefahr existiert in Weltkoordinaten und folgt dem gleichen Koordinatensystem wie alle anderen Spielentitäten.'),
+  body('Level 1 (Smog): Geschichtete Gradientenbänder mit Kosinus-Wölbung am oberen Rand und Glüheffekt. Level 2 (Flut): Sinuswellen-Animation in WATER-1 (#2a5fa8). Level 3 (Elektrizität): Drei unabhängige Blitzschichten mit unterschiedlichen Frequenzen, Ankerpunkten und pulsierender Transparenz.'),
   gap(),
 
   h2('2.8  Leben & Scheitern'),
@@ -575,10 +586,9 @@ const gddContent = [
   tableN(
     ['Level', 'Titel', 'Gefahrentyp', 'Beschreibung'],
     [
-      ['1', 'La Ciudad',         'Hindernisse',        'Levelspezifische Hindernisse im Stadtumfeld; Details in Balancing-Phase'],
-      ['2', 'El Mar Abierto',    'Flutgeschwindigkeit', 'Flutstieg deutlich schneller als Level 1; erhöhter Zeitdruck'],
-      ['3', 'El Pozo Eléctrico', 'Elektroschock',      'Horizontale Blitze auf fixen Höhen, zeitgesteuert; Kontakt kostet Leben'],
-      ['4', 'El Parque',         'Gegner',             'Geister als bewegliche Gegner; Ghost-Train-Wagen mit leichter Horizontalbewegung'],
+      ['1', 'La Ciudad',         'Steigender Smog',       'Geschichtete Gradientenbänder mit Kosinus-Wölbung; steigt kontinuierlich'],
+      ['2', 'El Mar Abierto',    'Steigende Flut',        'Sinuswellen-Animation; Flutstieg schneller als Level 1'],
+      ['3', 'El Pozo Eléctrico', 'Steigende Elektrizität','3-Schicht-Blitze mit unabhängigen Frequenzen und pulsierender Transparenz'],
     ],
     [500, 1700, 1500, 4237]
   ),
@@ -636,8 +646,8 @@ const gddContent = [
       ['walk_2',    'cat/walk_2.png',    'Am Boden, Bewegung, ungerader 150ms-Frame'],
       ['rise',      'cat/rise.png',      'Aufsteigend nach Sprung (bounceTimer aktiv)'],
       ['peak',      'cat/peak.png',      'Höhepunkt der Flugbahn oder freier Fall'],
-      ['push_rise', 'cat/push_rise.png', 'Wurf am Boden oder kurz nach Sprung'],
-      ['push_peak', 'cat/push_peak.png', 'Wurf auf Höhepunkt der Flugbahn'],
+      ['push_rise', 'cat/push_rise.png', 'Push am Boden oder kurz nach Sprung'],
+      ['push_peak', 'cat/push_peak.png', 'Push auf Höhepunkt der Flugbahn'],
     ],
     [1200, 2200, 4537]
   ),
@@ -659,8 +669,8 @@ const gddContent = [
   gap(),
 
   h2('3.5  Plattform-Design'),
-  body('Level 1 nutzt ein Jalousien-Sprite-Sheet mit 7 Zeilen. Fünf intakte Zustände werden bei der Plattformgenerierung zufällig zugewiesen. Zeile 4 zeigt die gerissene Variante in Gelb, Zeile 7 die zerbröckelnde in Rot. Jede Plattform wird dreiteilig gerendert: linke Kappe, gekachelte Mitte, rechte Kappe.'),
-  body('Plattform-Designs für Level 2 bis 4 werden in der zugehörigen Pixelart-Phase erstellt und folgen demselben dreiteiligen Muster.'),
+  body('Level 1 nutzt ein Jalousien-Sprite-Sheet mit 7 Zeilen. Fünf intakte Zustände werden bei der Plattformgenerierung zufällig zugewiesen. Zeile 4 zeigt sowohl die gerissene als auch die zerbröckelnde Variante in Gelb. Jede Plattform wird dreiteilig gerendert: linke Kappe, gekachelte Mitte, rechte Kappe.'),
+  body('Plattform-Designs für Level 2 und 3 werden in der zugehörigen Pixelart-Phase erstellt und folgen demselben dreiteiligen Muster.'),
   gap(),
 
   h2('3.6  UI & HUD'),
@@ -683,7 +693,7 @@ const gddContent = [
   infoTable([
     ['Laufzyklus',       '2 Frames (walk_1, walk_2); Wechsel alle 150ms via performance.now()'],
     ['BounceTimer',      '240ms nach Sprung aktiv; verhindert sofortigen Sprite-Wechsel zu idle'],
-    ['PushTimer',        'Aktiv solange Wurf-Aktion läuft; überschreibt Bewegungs-Sprites'],
+    ['PushTimer',        'Aktiv solange Push-Aktion läuft; überschreibt Bewegungs-Sprites'],
     ['Sprite-Priorität', 'pushTimer > Boden+Bewegung > Boden+Stand > Aufstieg > Höhepunkt > Fall'],
   ]),
   gap(),
@@ -695,8 +705,8 @@ const gddContent = [
     [
       ['Sprung',           'Kurzton', 'Federndes, leicht quietschendes Geräusch passend zum Plüschtier'],
       ['Landung',          'Kurzton', 'Dumpfes, weiches Aufsetzen'],
-      ['Wurf',             'Kurzton', 'Schwunggeräusch passend zur Figur'],
-      ['Flut steigt',      'Loop',    'Wassergeräusch; Lautstärke wächst mit Flutpegel'],
+      ['Push',             'Kurzton', 'Schiebegeräusch passend zur Figur'],
+      ['Gefahr steigt',    'Loop',    'Levelspezifisch (Wasser/Smog/Strom); Lautstärke wächst mit Pegel'],
       ['Leben verloren',   'Effekt',  'Kurzes komisches Geräusch ohne Horror-Charakter'],
       ['Game Over',        'Sequenz', 'Kurze Abschluss-Melodie, ruhig auslaufend'],
       ['Hintergrundmusik', 'Loop',    'Levelspezifisch, ambient und locker'],
