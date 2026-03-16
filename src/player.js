@@ -72,11 +72,14 @@ const player = {
 };
 
 function resetPlayer() {
+  // L1 + L3: invisible ground at y=628, player stands at y=596 (628 - player.h=32)
+  // L2: jalousie starter at y=560, player stands at y=528 (560 - 32)
+  const spawnY = (GameState.level === 1 || GameState.level === 3) ? 596 : 528;
   player.x     = 224;
-  player.y     = 528;
+  player.y     = spawnY;
   player.vx    = 0;
   player.vy    = 0;
-  player.prevY      = 528;
+  player.prevY      = spawnY;
   player.onGround      = false;
   player.facingLeft    = false;
   player.bounceTimer   = 0;

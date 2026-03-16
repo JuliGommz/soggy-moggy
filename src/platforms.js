@@ -93,7 +93,7 @@ const _PS = {
   rows:         [71, 97, 122, 176, 202], // rows for intact platforms (rows 1,2,3,5,6)
                                          // Row 4 (146) + Row 7 (230) reserved for crumble states
   rowCracked:   146,           // Row 4: yellow (crumble cracked  — overrides p.row)
-  rowCrumbling: 230,           // Row 7: red    (crumble crumbling — overrides p.row)
+  rowCrumbling: 146,           // Row 4: yellow (crumble crumbling — same warning color as cracked)
   // Fallback solid colors (used while sprite loads)
   colorNormal:    '#5a7a3a',
   colorCracked:   '#c0662a',
@@ -133,42 +133,55 @@ function generateLevelPlatforms(level) {
   // Level 1: all normal rows (rows 1,2,3,5,6)
   const activeRows = (level === 2) ? [122] : _PS.rows;
 
-  // Level 1: invisible ledge platform — aligns with the building cornice in Entrance_Garbage.png.
-  // Entrance_Garbage.png is drawn 1:1 with world (camShift factor = 1.0), so entrance image
-  // y=342 maps permanently to world Y=342.  Full-width, no sprite rendered.
-  if (level === 1) {
+  // Level 1 + 3: invisible ground platform — cat stands here at game start.
+  // y=628 = canvas height (640) - PLATFORM_H (12). Player spawn y=596 (628 - player.h=32).
+  if (level === 1 || level === 3) {
     platforms.push({
-      x:            0,
-      y:            342,
-      w:            480,
+      x: 0, y: 628, w: 480, h: PLATFORM_H,
+      type: 'normal', state: 'intact', crumbleTimer: 0,
+      row: 0, winVariants: undefined, invisible: true,
+    });
+  }
+
+  // Level 1: invisible platforms on fixed decorative elements in Entrance_Garbage.png.
+  // Entrance_Garbage.png is drawn 1:1 with world (camShift=1.0), so image pixel y = world y.
+  // Coordinates estimated from screenshot — fine-tune if cat clips through or floats above element.
+  if (level === 1) {
+    // Building cornice — full-width ledge; image y=342 = world y=342
+    platforms.push({
+      x: 0, y: 342, w: 480, h: PLATFORM_H,
+      type: 'normal', state: 'intact', crumbleTimer: 0,
+      row: 0, winVariants: undefined, invisible: true,
+    });
+    // Top of garbage bins (left side) — PIL alpha-scan: first opaque row y=537, x=55-209
+    platforms.push({
+      x: 55, y: 537, w: 154, h: PLATFORM_H,
+      type: 'normal', state: 'intact', crumbleTimer: 0,
+      row: 0, winVariants: undefined, invisible: true,
+    });
+    // Top of entrance door (right side) — PIL alpha-scan: first opaque row y=496, x=287-413
+    platforms.push({
+      x: 287, y: 496, w: 126, h: PLATFORM_H,
+      type: 'normal', state: 'intact', crumbleTimer: 0,
+      row: 0, winVariants: undefined, invisible: true,
+    });
+  }
+
+  // Starter platform: Level 2 only — sea-green placeholder dock plank.
+  // Level 1 + 3 use the invisible ground platform (y=628) instead — no jalousie at start.
+  if (level === 2) {
+    platforms.push({
+      x:            190,
+      y:            560,
+      w:            100,
       h:            PLATFORM_H,
       type:         'normal',
       state:        'intact',
       crumbleTimer: 0,
-      row:          0,
+      row:          activeRows[Math.floor(Math.random() * activeRows.length)],
       winVariants:  undefined,
-      invisible:    true,   // skip jalousie + window rendering — decoration does the visual job
     });
   }
-
-  // Starter platform: fixed position centered over window column 1 (x=190, w=100 → center=240)
-  const starterWV = (level === 1) ? [
-    Math.floor(Math.random() * 4),
-    Math.floor(Math.random() * 4),
-    Math.floor(Math.random() * 4),
-  ] : undefined;
-  platforms.push({
-    x:            190,
-    y:            560,
-    w:            100,
-    h:            PLATFORM_H,
-    type:         'normal',
-    state:        'intact',
-    crumbleTimer: 0,
-    row:          activeRows[Math.floor(Math.random() * activeRows.length)],
-    winVariants:  starterWV,
-  });
-  // Starter floor (y=560) is row 1 from bottom — intentionally excluded from windowFloors
   // Windows only start at the 4th row from bottom (i=3 in the generation loop below)
 
   // Store the level goal world Y in GameState so main.js can check and draw it
