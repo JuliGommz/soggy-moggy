@@ -252,32 +252,95 @@ function renderSmog(ctx) {
 
 // ---------------------------------------------------------------------------
 // SECTION 10 — renderElectricity(ctx)  [Level 3 — elevator shaft]
-// Jagged crackling floor: midpoint-displaced edge via inharmonic sines.
-// Two-pass glow: wide aura + sharp bolt edge.
+// Three independent bolt layers at different speeds, displacements, and alphas.
+// Each layer: anchor-based edge → linear interpolation → fill/stroke.
+// Layer 1 (back):  slow, wide, dark blue, low alpha — deep background crackle
+// Layer 2 (mid):   medium speed, medium displacement, electric blue
+// Layer 3 (front): fast, tight jagged, white-hot gradient + glow passes
 // ---------------------------------------------------------------------------
+
+// Per-layer configuration: [anchors, yOffset, sines[], fillStyle, strokeStyle, lineWidth, alphaPulse]
+// sines: array of { tMul, xMul, amp } — summed for displacement at each anchor
+const _ELEC_LAYERS = [
+  { // Layer 1 — back: slow, wide undulation
+    anchors: 4, yOffset: 25,
+    sines: [
+      { tMul: 3.1,  xMul: 0.019, amp: 30 },
+      { tMul: 5.3,  xMul: 0.011, amp: 18 },
+    ],
+    fill:   'rgba(30, 40, 120, 0.45)',
+    stroke: 'rgba(60, 80, 180, 0.25)',
+    lineW:  5,
+    alphaPulse: { tMul: 1.7, min: 0.25, max: 0.55 },
+  },
+  { // Layer 2 — mid: medium crackle
+    anchors: 8, yOffset: 10,
+    sines: [
+      { tMul: 6.7,  xMul: 0.027, amp: 20 },
+      { tMul: 10.3, xMul: 0.014, amp: 12 },
+      { tMul: 4.9,  xMul: 0.041, amp: 8 },
+    ],
+    fill:   'rgba(60, 100, 255, 0.50)',
+    stroke: 'rgba(120, 160, 255, 0.35)',
+    lineW:  3,
+    alphaPulse: { tMul: 2.9, min: 0.35, max: 0.70 },
+  },
+  { // Layer 3 — front: fast, tight, hot
+    anchors: 6, yOffset: 0,
+    sines: [
+      { tMul: 9.3,  xMul: 0.031, amp: 22 },
+      { tMul: 13.7, xMul: 0.017, amp: 14 },
+      { tMul: 7.1,  xMul: 0.053, amp: 10 },
+    ],
+    fill:   null, // uses gradient instead
+    stroke: null, // uses dedicated glow passes
+    lineW:  0,
+    alphaPulse: null, // always full
+  },
+];
+
 function renderElectricity(ctx) {
   const baseY = hazard.y;
   const t     = hazard.time;
+  const saved = ctx.globalAlpha;
 
-  // Build edge displacement table — 6 anchor points, linearly interpolated to per-pixel
-  const ANCHORS = 6;
-  const step    = 480 / ANCHORS;
-  const anchors = [];
-  for (let i = 0; i <= ANCHORS; i++) {
-    const x    = i * step;
-    const disp = Math.sin(t * 9.3  + x * 0.031) * 22
-               + Math.sin(t * 13.7 + x * 0.017) * 14
-               + Math.sin(t * 7.1  + x * 0.053) * 10;
-    anchors.push({ x, y: baseY + disp });
+  // --- Layer 1 + 2: back and mid bolts (flat fill + single stroke) ---
+  for (let li = 0; li < 2; li++) {
+    const L    = _ELEC_LAYERS[li];
+    const step = 480 / L.anchors;
+    const edge = _buildElecEdge(L, baseY, t, step);
+
+    // Pulsing alpha: oscillates between min and max
+    const pulse = L.alphaPulse;
+    const alpha = pulse.min + (pulse.max - pulse.min)
+                * (0.5 + 0.5 * Math.sin(t * pulse.tMul));
+    ctx.globalAlpha = alpha;
+
+    // Fill body below edge
+    ctx.fillStyle = L.fill;
+    ctx.beginPath();
+    ctx.moveTo(0, edge[0]);
+    for (let x = 1; x <= 480; x++) ctx.lineTo(x, edge[x]);
+    ctx.lineTo(480, baseY + 2000);
+    ctx.lineTo(0,   baseY + 2000);
+    ctx.closePath();
+    ctx.fill();
+
+    // Stroke edge
+    ctx.strokeStyle = L.stroke;
+    ctx.lineWidth   = L.lineW;
+    ctx.beginPath();
+    ctx.moveTo(0, edge[0]);
+    for (let x = 1; x <= 480; x++) ctx.lineTo(x, edge[x]);
+    ctx.stroke();
   }
-  const edgeY = new Float32Array(481);
-  for (let x = 0; x <= 480; x++) {
-    const seg  = x / step;
-    const lo   = Math.floor(seg);
-    const hi   = Math.min(lo + 1, ANCHORS);
-    const frac = seg - lo;
-    edgeY[x]   = anchors[lo].y * (1 - frac) + anchors[hi].y * frac;
-  }
+
+  ctx.globalAlpha = saved;
+
+  // --- Layer 3: front bolt with gradient fill + two glow passes ---
+  const L3   = _ELEC_LAYERS[2];
+  const step3 = 480 / L3.anchors;
+  const edge3 = _buildElecEdge(L3, baseY, t, step3);
 
   // Gradient fill: hot white-yellow → electric blue → deep dark
   const grad = ctx.createLinearGradient(0, baseY - 30, 0, baseY + 100);
@@ -286,8 +349,8 @@ function renderElectricity(ctx) {
   grad.addColorStop(1,    'rgba(20,  20,  80,  0.95)');
   ctx.fillStyle = grad;
   ctx.beginPath();
-  ctx.moveTo(0, edgeY[0]);
-  for (let x = 1; x <= 480; x++) ctx.lineTo(x, edgeY[x]);
+  ctx.moveTo(0, edge3[0]);
+  for (let x = 1; x <= 480; x++) ctx.lineTo(x, edge3[x]);
   ctx.lineTo(480, baseY + 2000);
   ctx.lineTo(0,   baseY + 2000);
   ctx.closePath();
@@ -297,15 +360,38 @@ function renderElectricity(ctx) {
   ctx.strokeStyle = 'rgba(200, 220, 255, 0.15)';
   ctx.lineWidth   = 9;
   ctx.beginPath();
-  ctx.moveTo(0, edgeY[0]);
-  for (let x = 1; x <= 480; x++) ctx.lineTo(x, edgeY[x]);
+  ctx.moveTo(0, edge3[0]);
+  for (let x = 1; x <= 480; x++) ctx.lineTo(x, edge3[x]);
   ctx.stroke();
 
   // Glow pass 2 — sharp bright bolt edge
   ctx.strokeStyle = 'rgba(255, 255, 255, 1.0)';
   ctx.lineWidth   = 1;
   ctx.beginPath();
-  ctx.moveTo(0, edgeY[0]);
-  for (let x = 1; x <= 480; x++) ctx.lineTo(x, edgeY[x]);
+  ctx.moveTo(0, edge3[0]);
+  for (let x = 1; x <= 480; x++) ctx.lineTo(x, edge3[x]);
   ctx.stroke();
+}
+
+// Builds a per-pixel edge displacement table from a layer config.
+// Returns Float32Array[481] with world-Y values for x = 0..480.
+function _buildElecEdge(layer, baseY, t, step) {
+  const anchors = [];
+  for (let i = 0; i <= layer.anchors; i++) {
+    const x = i * step;
+    let disp = 0;
+    for (const s of layer.sines) {
+      disp += Math.sin(t * s.tMul + x * s.xMul) * s.amp;
+    }
+    anchors.push({ x, y: baseY + layer.yOffset + disp });
+  }
+  const edge = new Float32Array(481);
+  for (let x = 0; x <= 480; x++) {
+    const seg  = x / step;
+    const lo   = Math.floor(seg);
+    const hi   = Math.min(lo + 1, layer.anchors);
+    const frac = seg - lo;
+    edge[x]    = anchors[lo].y * (1 - frac) + anchors[hi].y * frac;
+  }
+  return edge;
 }

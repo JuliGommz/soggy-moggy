@@ -58,7 +58,7 @@ function resetGame() {
   GameState.lives            = 3;
   GameState.cameraY          = 0;
   GameState.maxHeightReached = 9999; // sentinel: first frame will capture actual player.y
-  GameState.level            = 1;
+  GameState.level            = 3; // TODO: revert to 1 after testing
   GameState.countdownTimer   = 3;   // 3s danger countdown before hazard activates
   GameState.menuCursor       = 0;
   // highScore is intentionally NOT reset — it persists across full game resets
