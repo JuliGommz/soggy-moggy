@@ -1,55 +1,72 @@
 /*
 ====================================================================
-* water.js - Rising flood: physics, damage, respawn, wave rendering
+* water.js - Rising hazard: physics, damage, respawn, level renderers
 ====================================================================
 * Project: Soggy Moggy (in-game: Gato Sin Botas)
 * Course: PRG Abschlussprojekt — SRH Fachschulen
 * Developer: Julian Gomez
 * Date: 2026-03-07
-* Version: 1.1 - Damage/respawn system + sine wave rendering
+* Version: 1.3 - Constant taxonomy: shared HAZARD_* vs. level-specific FLOOD_WAVE_*
+*
+* HAZARD TYPES (Oberkategorie: hazard):
+*   Flood       — Level 2 — rising water (sine wave)
+*   Smog        — Level 1 — creeping urban smog (gradient bands + cosine edge)
+*   Electricity — Level 3 — crackling electric floor (inharmonic displacement)
 *
 * AUTHORSHIP CLASSIFICATION:
 *
 * [AI-ASSISTED]
-* - Sine wave rendering: per-pixel lineTo loop with WAVE_FREQUENCY + WAVE_SPEED
+* - Sine wave rendering (renderFlood): per-pixel lineTo loop with FLOOD_WAVE_FREQUENCY + FLOOD_WAVE_SPEED
 * - respawnAboveWater() algorithm: scans platforms for the lowest intact
-*   platform still above the water line, falls back to camera top
+*   platform still above the hazard line, falls back to camera top
 * - iframeTimer + flashTimer pattern: prevents unfair double-hits
 *   while providing clear visual damage feedback to the player
-* - Visibility clamp: waterY can never lag more than 10px off screen
-*   bottom when camera scrolls faster than the flood rises
+* - Visibility clamp: hazard.y can never lag more than 10px off screen
+*   bottom when camera scrolls faster than the hazard rises
+* - renderSmog: layered gradient bands + cosine billowing edge (Level 1)
+* - renderElectricity: inharmonic sine displacement + two-pass glow (Level 3)
 *
 * NOTES:
 * - resetHazard() is the generic entry point called from game-state.js
-*   on both full reset and level start — dispatch point for future level hazards
-* - FLOOD_LEVEL_SCALE increases base speed per level — tune during playtesting
+*   on both full reset and level start — dispatch point for level hazards
+* - renderHazard() dispatches to level-specific renderer by GameState.level
+* - HAZARD_LEVEL_SCALE increases base speed per level — tune during playtesting
 *
 * VERSION HISTORY:
 * - v1.0: Basic rising water, GAMEOVER on contact
 * - v1.1: Lives system, iframeTimer, respawnAboveWater(), sine wave rendering
+* - v1.2: Rename water → hazard; level-specific renderers for smog + electricity
 ====================================================================
 */
 // Depends on: GameState, GamePhase, saveHighScore (game-state.js), player (player.js)
 
 // ---------------------------------------------------------------------------
 // SECTION 1 — Constants (tune-friendly, one declaration per line)
+//
+// HAZARD_* — shared across all hazard types (Flood, Smog, Electricity)
+// FLOOD_WAVE_* — exclusive to renderFlood (Level 2 sine wave)
 // ---------------------------------------------------------------------------
-const FLOOD_BASE_SPEED  = 60;    // px/s at level 1 — tune during playtesting
-const FLOOD_ACCEL       = 1.5;   // px/s per second — linear speed increase within a level
-const FLOOD_LEVEL_SCALE = 0.4;   // each level multiplies base by (1 + (level-1) * scale)
-const WAVE_AMPLITUDE    = 10;    // px — sine crest height
-const WAVE_FREQUENCY    = 0.04;  // radians per pixel — controls wave width
-const WAVE_SPEED        = 2.5;   // radians per second — controls animation pace
-const IFRAME_DURATION   = 1.0;   // seconds of invincibility after damage hit
-const FLASH_DURATION    = 0.4;   // seconds the red overlay is visible
+
+// Shared physics
+const HAZARD_BASE_SPEED        = 60;    // px/s at level 1 — tune during playtesting
+const HAZARD_ACCEL             = 1.5;   // px/s per second — linear speed increase within a level
+const HAZARD_LEVEL_SCALE       = 0.4;   // each level multiplies base by (1 + (level-1) * scale)
+const HAZARD_COLLISION_MARGIN  = 10;    // px above hazard.y where player contact is detected
+const IFRAME_DURATION          = 1.0;   // seconds of invincibility after damage hit
+const FLASH_DURATION           = 0.4;   // seconds the red overlay is visible
+
+// Flood (Level 2) — sine wave rendering
+const FLOOD_WAVE_AMPLITUDE  = 10;    // px — sine crest height
+const FLOOD_WAVE_FREQUENCY  = 0.04;  // radians per pixel — controls wave width
+const FLOOD_WAVE_SPEED      = 2.5;   // radians per second — controls animation pace
 
 // ---------------------------------------------------------------------------
-// SECTION 2 — water object
+// SECTION 2 — hazard object
 // ---------------------------------------------------------------------------
-const water = {
-  waterY:      700,  // world Y of wave surface — starts 60px below canvas bottom (cameraY=0)
-  floodSpeed:  FLOOD_BASE_SPEED,
-  waveTime:    0,
+const hazard = {
+  y:           700,  // world Y of hazard surface — starts 60px below canvas bottom (cameraY=0)
+  speed:       HAZARD_BASE_SPEED,
+  time:        0,
   iframeTimer: 0,
   flashTimer:  0,
 };
@@ -57,24 +74,23 @@ const water = {
 // ---------------------------------------------------------------------------
 // SECTION 3 — resetHazard(level)
 // Generic entry point called by game-state.js on reset/level-start.
-// Dispatches to the active level's hazard (currently: water for all levels).
 // ---------------------------------------------------------------------------
 function resetHazard(level) {
-  water.waterY      = player.y + 120; // starts 120px below player spawn — just off screen bottom
-  water.floodSpeed  = FLOOD_BASE_SPEED * (1 + (level - 1) * FLOOD_LEVEL_SCALE);
-  water.waveTime    = 0;
-  water.iframeTimer = 0;
-  water.flashTimer  = 0;
+  hazard.y           = player.y + 120; // starts 120px below player spawn — just off screen bottom
+  hazard.speed       = HAZARD_BASE_SPEED * (1 + (level - 1) * HAZARD_LEVEL_SCALE);
+  hazard.time        = 0;
+  hazard.iframeTimer = 0;
+  hazard.flashTimer  = 0;
 }
 
 // ---------------------------------------------------------------------------
 // SECTION 4 — takeDamage()
-// The iframeTimer guard is checked by the caller (updateWater), not here.
+// The iframeTimer guard is checked by the caller (updateHazard), not here.
 // ---------------------------------------------------------------------------
 function takeDamage() {
-  GameState.lives  -= 1;
-  water.iframeTimer = IFRAME_DURATION;
-  water.flashTimer  = FLASH_DURATION;
+  GameState.lives   -= 1;
+  hazard.iframeTimer = IFRAME_DURATION;
+  hazard.flashTimer  = FLASH_DURATION;
   if (GameState.lives <= 0) {
     saveHighScore(GameState.score);
     GameState.phase = GamePhase.GAMEOVER;
@@ -83,16 +99,16 @@ function takeDamage() {
 
 // ---------------------------------------------------------------------------
 // SECTION 5 — respawnAboveWater()
-// Teleports player onto the lowest intact platform still above the wave line.
+// Teleports player onto the lowest intact platform still above the hazard line.
 // Falls back to near camera top if every platform is submerged.
 // ---------------------------------------------------------------------------
 function respawnAboveWater() {
-  const waterLine = water.waterY - WAVE_AMPLITUDE;
+  const waterLine = hazard.y - HAZARD_COLLISION_MARGIN;
   let best = null;
   for (const p of platforms) {
     if (p.state === 'crumbling') continue;        // skip platforms mid-collapse
-    if (p.y >= waterLine) continue;               // platform is at or below water surface
-    if (best === null || p.y > best.y) best = p;  // keep lowest platform still above water
+    if (p.y >= waterLine) continue;               // platform is at or below hazard surface
+    if (best === null || p.y > best.y) best = p;  // keep lowest platform still above hazard
   }
   if (best) {
     player.x = best.x + Math.floor(best.w / 2) - Math.floor(player.w / 2);
@@ -106,52 +122,190 @@ function respawnAboveWater() {
 }
 
 // ---------------------------------------------------------------------------
-// SECTION 6 — updateWater(dt)
+// SECTION 6 — updateHazard(dt)
 // dt is time in seconds (already divided by 1000 in main.js game loop).
 // ---------------------------------------------------------------------------
-function updateWater(dt) {
+function updateHazard(dt) {
   // Tick timers — clamp to 0, never go negative
-  water.iframeTimer = Math.max(0, water.iframeTimer - dt);
-  water.flashTimer  = Math.max(0, water.flashTimer  - dt);
+  hazard.iframeTimer = Math.max(0, hazard.iframeTimer - dt);
+  hazard.flashTimer  = Math.max(0, hazard.flashTimer  - dt);
 
   // Rise
-  water.waterY -= water.floodSpeed * dt;
+  hazard.y -= hazard.speed * dt;
 
-  // Visibility clamp: water can never fall more than 10px below the screen bottom.
-  // Prevents the wave from lagging off-screen when the camera scrolls up faster than the flood rises.
-  water.waterY = Math.min(water.waterY, GameState.cameraY + canvas.height + 10);
+  // Visibility clamp: hazard can never fall more than 10px below the screen bottom.
+  // Prevents the surface from lagging off-screen when the camera scrolls up faster than the hazard rises.
+  hazard.y = Math.min(hazard.y, GameState.cameraY + canvas.height + 10);
 
   // Accelerate
-  water.floodSpeed += FLOOD_ACCEL * dt;
+  hazard.speed += HAZARD_ACCEL * dt;
 
-  // Animate wave
-  water.waveTime += WAVE_SPEED * dt;
+  // Advance animation timer
+  hazard.time += FLOOD_WAVE_SPEED * dt;
 
-  // Collision — playerBottom vs. wave surface (crest = waterY - WAVE_AMPLITUDE)
+  // Collision — playerBottom vs. hazard surface (margin = HAZARD_COLLISION_MARGIN)
   const playerBottom = player.y + player.h;
-  const collisionY   = water.waterY - WAVE_AMPLITUDE;
-  if (playerBottom >= collisionY && water.iframeTimer <= 0) {
+  const collisionY   = hazard.y - HAZARD_COLLISION_MARGIN;
+  if (playerBottom >= collisionY && hazard.iframeTimer <= 0) {
     takeDamage();
     if (GameState.phase === GamePhase.PLAYING) {
-      respawnAboveWater(); // teleport to nearest safe platform above wave
+      respawnAboveWater(); // teleport to nearest safe platform above hazard
     }
   }
 }
 
 // ---------------------------------------------------------------------------
-// SECTION 7 — renderWater(ctx)
-// Must be called inside the world-space ctx.save/translate block — ctx is
-// already translated by cameraY when this function runs.
+// SECTION 7 — renderHazard(ctx)  [dispatcher]
+// Routes to the level-specific renderer. Must be called inside the world-space
+// ctx.save/translate block — ctx is already translated by cameraY.
 // ---------------------------------------------------------------------------
-function renderWater(ctx) {
+function renderHazard(ctx) {
+  if      (GameState.level === 1) renderSmog(ctx);
+  else if (GameState.level === 3) renderElectricity(ctx);
+  else                            renderFlood(ctx);
+}
+
+// ---------------------------------------------------------------------------
+// SECTION 8 — renderFlood(ctx)  [Level 2 — open sea, default]
+// Classic sine wave. Blue water rising from below.
+// ---------------------------------------------------------------------------
+function renderFlood(ctx) {
   ctx.fillStyle = 'rgba(30, 144, 255, 0.75)';
   ctx.beginPath();
-  ctx.moveTo(0, water.waterY + Math.sin(water.waveTime) * WAVE_AMPLITUDE);
+  ctx.moveTo(0, hazard.y + Math.sin(hazard.time) * FLOOD_WAVE_AMPLITUDE);
   for (let x = 1; x <= 480; x++) {
-    ctx.lineTo(x, water.waterY + Math.sin(x * WAVE_FREQUENCY + water.waveTime) * WAVE_AMPLITUDE);
+    ctx.lineTo(x, hazard.y + Math.sin(x * FLOOD_WAVE_FREQUENCY + hazard.time) * FLOOD_WAVE_AMPLITUDE);
   }
-  ctx.lineTo(480, water.waterY + 2000); // far sentinel — fills water body below wave
-  ctx.lineTo(0,   water.waterY + 2000);
+  ctx.lineTo(480, hazard.y + 2000); // far sentinel — fills body below wave
+  ctx.lineTo(0,   hazard.y + 2000);
   ctx.closePath();
   ctx.fill();
+}
+
+// ---------------------------------------------------------------------------
+// SECTION 9 — renderSmog(ctx)  [Level 1 — city / building]
+// Oppressive creeping smog: layered gradient bands + cosine billowing top edge.
+// No clean wave line — fades upward with a soft diffuse glow pass.
+// ---------------------------------------------------------------------------
+function renderSmog(ctx) {
+  const baseY    = hazard.y;
+  const sentinel = baseY + 2000;
+  const t        = hazard.time;
+
+  // Bottom band — dense opaque, hazard.y + 60 downward to sentinel
+  ctx.fillStyle = 'rgba(60, 55, 40, 0.85)';
+  ctx.fillRect(0, baseY + 60, 480, sentinel - (baseY + 60));
+
+  // Mid band — semi-transparent body, hazard.y to hazard.y + 60
+  ctx.fillStyle = 'rgba(60, 55, 40, 0.55)';
+  ctx.fillRect(0, baseY, 480, 60);
+
+  // Top wisps — linear gradient fading to alpha 0
+  const grad = ctx.createLinearGradient(0, baseY - 20, 0, baseY);
+  grad.addColorStop(0, 'rgba(70, 65, 45, 0)');
+  grad.addColorStop(1, 'rgba(70, 65, 45, 0.35)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, baseY - 20, 480, 20);
+
+  // Cosine bumps at top edge — billowing silhouette (3 inharmonic terms)
+  ctx.fillStyle = 'rgba(60, 55, 40, 0.55)';
+  ctx.beginPath();
+  ctx.moveTo(0, baseY + Math.cos(0 * 0.025 + t * 0.7) * 8 + Math.cos(0 * 0.011 + t * 0.4) * 12 + Math.cos(0 * 0.047 + t * 1.1) * 5);
+  for (let x = 1; x <= 480; x++) {
+    const bump = Math.cos(x * 0.025 + t * 0.7) * 8
+               + Math.cos(x * 0.011 + t * 0.4) * 12
+               + Math.cos(x * 0.047 + t * 1.1) * 5;
+    ctx.lineTo(x, baseY + bump);
+  }
+  ctx.lineTo(480, baseY + 60);
+  ctx.lineTo(0,   baseY + 60);
+  ctx.closePath();
+  ctx.fill();
+
+  // Glow pass 1 — wide soft aura
+  ctx.strokeStyle = 'rgba(90, 80, 55, 0.18)';
+  ctx.lineWidth   = 6;
+  ctx.beginPath();
+  ctx.moveTo(0, baseY + Math.cos(0 * 0.025 + t * 0.7) * 8 + Math.cos(0 * 0.011 + t * 0.4) * 12 + Math.cos(0 * 0.047 + t * 1.1) * 5);
+  for (let x = 1; x <= 480; x++) {
+    const bump = Math.cos(x * 0.025 + t * 0.7) * 8
+               + Math.cos(x * 0.011 + t * 0.4) * 12
+               + Math.cos(x * 0.047 + t * 1.1) * 5;
+    ctx.lineTo(x, baseY + bump);
+  }
+  ctx.stroke();
+
+  // Glow pass 2 — sharp edge line
+  ctx.strokeStyle = 'rgba(100, 90, 60, 0.55)';
+  ctx.lineWidth   = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(0, baseY + Math.cos(0 * 0.025 + t * 0.7) * 8 + Math.cos(0 * 0.011 + t * 0.4) * 12 + Math.cos(0 * 0.047 + t * 1.1) * 5);
+  for (let x = 1; x <= 480; x++) {
+    const bump = Math.cos(x * 0.025 + t * 0.7) * 8
+               + Math.cos(x * 0.011 + t * 0.4) * 12
+               + Math.cos(x * 0.047 + t * 1.1) * 5;
+    ctx.lineTo(x, baseY + bump);
+  }
+  ctx.stroke();
+  ctx.lineWidth = 1;
+}
+
+// ---------------------------------------------------------------------------
+// SECTION 10 — renderElectricity(ctx)  [Level 3 — elevator shaft]
+// Jagged crackling floor: midpoint-displaced edge via inharmonic sines.
+// Two-pass glow: wide aura + sharp bolt edge.
+// ---------------------------------------------------------------------------
+function renderElectricity(ctx) {
+  const baseY = hazard.y;
+  const t     = hazard.time;
+
+  // Build edge displacement table — 6 anchor points, linearly interpolated to per-pixel
+  const ANCHORS = 6;
+  const step    = 480 / ANCHORS;
+  const anchors = [];
+  for (let i = 0; i <= ANCHORS; i++) {
+    const x    = i * step;
+    const disp = Math.sin(t * 9.3  + x * 0.031) * 22
+               + Math.sin(t * 13.7 + x * 0.017) * 14
+               + Math.sin(t * 7.1  + x * 0.053) * 10;
+    anchors.push({ x, y: baseY + disp });
+  }
+  const edgeY = new Float32Array(481);
+  for (let x = 0; x <= 480; x++) {
+    const seg  = x / step;
+    const lo   = Math.floor(seg);
+    const hi   = Math.min(lo + 1, ANCHORS);
+    const frac = seg - lo;
+    edgeY[x]   = anchors[lo].y * (1 - frac) + anchors[hi].y * frac;
+  }
+
+  // Gradient fill: hot white-yellow → electric blue → deep dark
+  const grad = ctx.createLinearGradient(0, baseY - 30, 0, baseY + 100);
+  grad.addColorStop(0,    'rgba(255, 255, 180, 0.95)');
+  grad.addColorStop(0.35, 'rgba(80,  120, 255, 0.85)');
+  grad.addColorStop(1,    'rgba(20,  20,  80,  0.95)');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.moveTo(0, edgeY[0]);
+  for (let x = 1; x <= 480; x++) ctx.lineTo(x, edgeY[x]);
+  ctx.lineTo(480, baseY + 2000);
+  ctx.lineTo(0,   baseY + 2000);
+  ctx.closePath();
+  ctx.fill();
+
+  // Glow pass 1 — wide diffuse aura
+  ctx.strokeStyle = 'rgba(200, 220, 255, 0.15)';
+  ctx.lineWidth   = 9;
+  ctx.beginPath();
+  ctx.moveTo(0, edgeY[0]);
+  for (let x = 1; x <= 480; x++) ctx.lineTo(x, edgeY[x]);
+  ctx.stroke();
+
+  // Glow pass 2 — sharp bright bolt edge
+  ctx.strokeStyle = 'rgba(255, 255, 255, 1.0)';
+  ctx.lineWidth   = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, edgeY[0]);
+  for (let x = 1; x <= 480; x++) ctx.lineTo(x, edgeY[x]);
+  ctx.stroke();
 }

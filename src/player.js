@@ -50,8 +50,8 @@ const _sprPushPeak  = new Image(); _sprPushPeak.src  = 'PixelArt/cat/push_peak.p
 
 const PLAYER_SPEED       = 300;   // pixels per second — multiplied by dt, not per-frame
 const GRAVITY            = 980;   // px/s² — downward acceleration (Y increases downward in Canvas)
-const JUMP_MIN_VELOCITY  = -520;  // px/s — tap height: ~138 px (55% of full jump)
-const JUMP_BOOST_ACCEL   =  900;  // px/s² — hold bonus; full 0.20s adds 180 px/s → -700 total
+const JUMP_MIN_VELOCITY  = -523;  // px/s — tap height: ~138 px (55% of full jump)
+const JUMP_BOOST_ACCEL   =  905;  // px/s² — hold bonus; full 0.20s adds 181 px/s → -704 total
 const JUMP_BOOST_DURATION = 0.20; // s — hold window; full hold = same height as old flat -700
 const JUMP_VELOCITY      = -700;  // px/s — full-power forced bounce (water respawn, etc.)
 
@@ -134,7 +134,7 @@ function updatePlayer(dt) {
 
 function renderPlayer(ctx) {
   // Blink during invincibility frames: 5Hz alternation, starts hidden on first tick (hit feedback)
-  if (water.iframeTimer > 0 && Math.floor(water.iframeTimer * 5) % 2 === 1) return;
+  if (hazard.iframeTimer > 0 && Math.floor(hazard.iframeTimer * 5) % 2 === 1) return;
 
   // ── Frame selection ───────────────────────────────────────────────────────
   // Priority: push > bounce sequence > peak

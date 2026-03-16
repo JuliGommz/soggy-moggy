@@ -101,7 +101,7 @@ function update(dt) {
       }
 
       // Fall-off-bottom: costs one life, respawns at camera top
-      if (player.y > GameState.cameraY + canvas.height && water.iframeTimer <= 0) {
+      if (player.y > GameState.cameraY + canvas.height && hazard.iframeTimer <= 0) {
         takeDamage();
         player.y  = GameState.cameraY + 60; // respawn near top of camera view
         player.vy = JUMP_VELOCITY;           // auto-bounce on respawn
@@ -111,7 +111,7 @@ function update(dt) {
       if (GameState.countdownTimer > 0) {
         GameState.countdownTimer = Math.max(0, GameState.countdownTimer - dt);
       } else {
-        updateWater(dt);
+        updateHazard(dt);
       }
       break;
 
@@ -187,7 +187,7 @@ function render() {
     }
   }
   if (GameState.phase === GamePhase.PLAYING || GameState.phase === GamePhase.LEVEL_COMPLETE || GameState.phase === GamePhase.PAUSED) {
-    renderWater(ctx);
+    renderHazard(ctx);
   }
 
   // 5. Exit world space
@@ -199,8 +199,8 @@ function render() {
 
 function renderHUD() {
   // ── Damage flash overlay — drawn first so it sits behind HUD text ──────────
-  if (water.flashTimer > 0) {
-    const alpha = (water.flashTimer / FLASH_DURATION) * 0.5; // 0.5 at peak, fades to 0
+  if (hazard.flashTimer > 0) {
+    const alpha = (hazard.flashTimer / FLASH_DURATION) * 0.5; // 0.5 at peak, fades to 0
     ctx.fillStyle = 'rgba(220, 30, 30, ' + alpha.toFixed(3) + ')';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
