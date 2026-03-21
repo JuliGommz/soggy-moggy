@@ -45,9 +45,9 @@ const _BAL_W = 70, _BAL_H = 106; // drawn size — 2.2× base (32×48) for visib
 // Balloon rises upward continuously (anchorY decreases each frame) with a sinusoidal horizontal weave.
 // Pure world-space = no camera interaction bugs.
 const _balloon = { active: false, x: 0, y: 0, anchorX: 0, anchorY: 0, time: 0, spawnAtY: 0 };
-const _BAL_RISE_SPEED = 30;   // px/s — upward drift; doubled so player can realistically chase it
-const _BAL_H_AMP      = 100;  // px — wider horizontal swing for more visible pendling
-const _BAL_H_PERIOD   = 2.5;  // seconds per horizontal weave cycle — faster pendulum feel
+const _BAL_RISE_SPEED = 60;   // px/s — fast upward drift; visually obvious, forces active chase
+const _BAL_H_AMP      = 150;  // px — wide horizontal swing, strong pendulum feel
+const _BAL_H_PERIOD   = 1.8;  // seconds per horizontal weave cycle — snappy pendulum tempo
 
 function resetBalloon() {
   // Dormant until player climbs to a random threshold in the first 5%–40% of the level.

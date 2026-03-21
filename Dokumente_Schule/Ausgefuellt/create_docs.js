@@ -312,6 +312,15 @@ const ap_rows = [
   ['16.03.2026', '3-Schicht-Elektrizitaet: unabhaengige Frequenzen+Alpha',  X,  X,  X],
   ['16.03.2026', 'Scope-Reduktion: 4 Level auf 3 (L4 Freizeitpark gestrichen)',X,X,  X],
   ['16.03.2026', 'GDD + Arbeitsprotokoll aktualisiert (alle Aenderungen)',   X,  X,  X],
+  ['17.03.2026', 'L2 Hintergrund: Rocket-Sprite als 3-Layer-Parallax',       X,  X,  X],
+  ['17.03.2026', 'Finish-Trigger: Z-Taste auf Zielplattform loest Levelende aus',X,X,  X],
+  ['17.03.2026', 'Finish-Animationen: Windrad (L1), Glocke (L2), Hebel (L3)',X,  X,  X],
+  ['17.03.2026', 'Hazard-Fade: 1.2s Alpha-Ausblenden bei Levelende',          X,  X,  X],
+  ['17.03.2026', 'Ballon-Sammelobjekt: Spawn, Lissajous, Z-Fang-Mechanik',   X,  X,  X],
+  ['17.03.2026', 'Walk-Animation: walk_1/walk_2 Sprites integriert',          X,  X,  X],
+  ['21.03.2026', 'Smog L1: Obergrenze bei levelGoalY+22 nach Sichtbarkeits-Clamp',X,X,X],
+  ['21.03.2026', 'Ballon: Spawn bei player.y-90 (Weltkoordinaten) statt Bildschirmrand',X,X,X],
+  ['21.03.2026', 'Ballon: Steiggeschwindigkeit 60px/s, Amplitude 150px, Periode 1.8s',X,X,X],
 ];
 
 const apTable = new Table({
