@@ -64,7 +64,7 @@ const player = {
   vy:      0,
   prevY:       528,   // y position before this frame's physics — used by one-way collision
   onGround:      false, // true when standing on a platform — set by checkPlatformCollisions()
-  facingLeft:    false, // last horizontal direction — flips sprite via ctx.scale(-1,1)
+  flipped:       false, // true = sprite mirrored via ctx.scale(-1,1) to face right
   bounceTimer:   0,     // seconds remaining to show jump animation frames after a jump
   pushTimer:     0,     // seconds remaining to show push sprite after Z press
   jumpLocked:    false, // true while jump key held after a jump — prevents re-jump on landing
@@ -81,7 +81,7 @@ function resetPlayer() {
   player.vy    = 0;
   player.prevY      = spawnY;
   player.onGround      = false;
-  player.facingLeft    = false;
+  player.flipped    = false;
   player.bounceTimer   = 0;
   player.pushTimer     = 0;
   player.jumpLocked    = false;
@@ -114,8 +114,9 @@ function updatePlayer(dt) {
   player.y += player.vy * dt;
 
   // ── Horizontal movement ──────────────────────────────────────────────────
-  if (keys.left  && !keys.right) player.facingLeft = false;
-  if (keys.right && !keys.left)  player.facingLeft = true;
+  // Sprites face left by default; flipped=true applies ctx.scale(-1,1) to face right
+  if (keys.left  && !keys.right) player.flipped = false;
+  if (keys.right && !keys.left)  player.flipped = true;
 
   player.vx = 0;
   if (keys.left)  player.vx = -PLAYER_SPEED;
@@ -190,7 +191,7 @@ function renderPlayer(ctx) {
   else if (frame === _sprPushPeak)                      frameDY = _DY_PUSH_PEAK;
   const sy  = Math.floor(player.y - (DH - player.h)) + frameDY;
 
-  if (player.facingLeft) {
+  if (player.flipped) {
     ctx.save();
     ctx.translate(sx + DW, sy);        // origin at right edge of drawn sprite
     ctx.scale(-1, 1);

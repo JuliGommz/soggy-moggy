@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soggy Moggy — Präsentation 12.03.2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P:wght@400&family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── Palette (1:1 aus dem Spiel) ──────────────────────────────────── */
+    :root {
+      --bg:       #0d1520;
+      --night:    #2e3a5c;
+      --sky:      #7eb8c9;
+      --platform: #5a7a3a;
+      --water:    #2a5fa8;
+      --cat:      #b09070;
+      --gold:     #f1c40f;
+      --red:      #e74c3c;
+      --green:    #2ecc71;
+      --white:    #f0f4f8;
+      --dim:      #7a8fa8;
+      --card:     rgba(46,58,92,0.55);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html {
+      scroll-snap-type: y mandatory;
+      overflow-y: scroll;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'IBM Plex Mono', monospace;
+      cursor: default;
+    }
+
+    /* ── Slide base ────────────────────────────────────────────────────── */
+    .slide {
+      min-height: 100vh;
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 48px 64px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--dim);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    h1.pixel {
+      font-family: 'Press Start 2P', monospace;
+      line-height: 1.5;
+    }
+
+    h2.pixel {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 18px;
+      line-height: 1.6;
+      color: var(--gold);
+      margin-bottom: 40px;
+    }
+
+    /* ── Nav dots ──────────────────────────────────────────────────────── */
+    #nav {
+      position: fixed;
+      right: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 999;
+    }
+    #nav a {
+      display: block;
+      width: 8px;
+      height: 8px;
+      background: var(--dim);
+      border-radius: 0;
+      transition: background .2s, transform .2s;
+      text-decoration: none;
+    }
+    #nav a:hover,
+    #nav a.active {
+      background: var(--gold);
+      transform: scale(1.5);
+    }
+
+    /* ── Slide counter ─────────────────────────────────────────────────── */
+    .slide-num {
+      position: absolute;
+      bottom: 24px;
+      right: 40px;
+      font-size: 11px;
+      color: var(--dim);
+      font-family: 'Press Start 2P', monospace;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* SLIDE 1 — TITEL                                                    */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    #s1 {
+      background: linear-gradient(180deg, #0d1520 0%, var(--night) 60%, #1a3060 100%);
+      align-items: flex-start;
+      padding-top: 80px;
+    }
+
+    #s1 .stars {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 12% 18%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 28% 8%,  #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 44% 22%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 67% 11%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 82% 19%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 95% 5%,  #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 7%  45%, rgba(255,255,255,.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 54% 38%, rgba(255,255,255,.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 76% 42%, rgba(255,255,255,.6) 0%, transparent 100%);
+    }
+
+    .title-super {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      color: var(--sky);
+      letter-spacing: 4px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .title-main {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(28px, 5vw, 52px);
+      color: var(--white);
+      line-height: 1.4;
+      position: relative;
+      text-shadow: 0 0 40px rgba(126,184,201,.4);
+    }
+
+    .title-sub {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 14px;
+      color: var(--gold);
+      margin-top: 16px;
+      position: relative;
+    }
+
+    .title-meta {
+      margin-top: 48px;
+      font-size: 13px;
+      color: var(--dim);
+      line-height: 2;
+      position: relative;
+    }
+
+    .title-deadline {
+      margin-top: 24px;
+      display: inline-block;
+      background: var(--red);
+      color: #fff;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      padding: 8px 16px;
+      letter-spacing: 1px;
+      position: relative;
+    }
+
+    /* Pixel water at bottom */
+    .wave-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 120px;
+      overflow: hidden;
+    }
+    .wave {
+      position: absolute;
+      bottom: 0;
+      left: -100%;
+      width: 300%;
+      height: 80px;
+      background: var(--water);
+      clip-path: polygon(
+        0% 50%, 2% 38%, 4% 28%, 6% 22%, 8% 20%, 10% 22%, 12% 28%, 14% 38%, 16% 50%,
+        18% 62%, 20% 72%, 22% 78%, 24% 80%, 26% 78%, 28% 72%, 30% 62%, 32% 50%,
+        34% 38%, 36% 28%, 38% 22%, 40% 20%, 42% 22%, 44% 28%, 46% 38%, 48% 50%,
+        50% 62%, 52% 72%, 54% 78%, 56% 80%, 58% 78%, 60% 72%, 62% 62%, 64% 50%,
+        66% 38%, 68% 28%, 70% 22%, 72% 20%, 74% 22%, 76% 28%, 78% 38%, 80% 50%,
+        82% 62%, 84% 72%, 86% 78%, 88% 80%, 90% 78%, 92% 72%, 94% 62%, 96% 50%,
+        98% 38%, 100% 30%, 100% 100%, 0% 100%
+      );
+      animation: waveScroll 8s linear infinite;
+    }
+    .wave2 {
+      opacity: .5;
+      animation-delay: -4s;
+      background: #1e4a8a;
+    }
+    @keyframes waveScroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(33.33%); }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* SLIDE 2 — ABGABEDOKUMENT                                          */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    #s2 { background: var(--bg); }
+
+    .checklist {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      max-width: 860px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px 20px;
+      background: var(--card);
+      border-left: 3px solid transparent;
+      transition: border-color .2s;
+    }
+    .check-item.done  { border-color: var(--green); }
+    .check-item.wip   { border-color: var(--gold); }
+    .check-item.todo  { border-color: var(--dim); }
+
+    .check-icon {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 11px;
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+    .check-item.done  .check-icon { color: var(--green); }
+    .check-item.wip   .check-icon { color: var(--gold); }
+    .check-item.todo  .check-icon { color: var(--dim); }
+
+    .check-label { font-size: 13px; font-weight: 600; line-height: 1.4; }
+    .check-note  { font-size: 11px; color: var(--dim); margin-top: 4px; }
+
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* SLIDE 3 — PROJEKTPLAN                                             */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    #s3 { background: var(--bg); }
+
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      max-width: 700px;
+      position: relative;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 120px;
+      top: 12px;
+      bottom: 12px;
+      width: 2px;
+      background: linear-gradient(180deg, var(--sky), var(--water), var(--red));
+    }
+
+    .tl-item {
+      display: grid;
+      grid-template-columns: 120px 24px 1fr;
+      align-items: start;
+      gap: 0;
+      padding: 10px 0;
+    }
+    .tl-date {
+      font-size: 11px;
+      color: var(--dim);
+      padding-right: 16px;
+      text-align: right;
+      padding-top: 2px;
+      line-height: 1.4;
+    }
+    .tl-dot {
+      display: flex;
+      justify-content: center;
+      padding-top: 4px;
+    }
+    .tl-dot span {
+      display: block;
+      width: 10px;
+      height: 10px;
+      background: var(--sky);
+      position: relative;
+      z-index: 1;
+    }
+    .tl-item.today .tl-dot span  { background: var(--gold); width: 14px; height: 14px; margin-top: -2px; }
+    .tl-item.danger .tl-dot span { background: var(--red); }
+    .tl-item.done   .tl-dot span { background: var(--green); }
+
+    .tl-text {
+      padding-left: 20px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .tl-text strong { color: var(--white); display: block; }
+    .tl-text span   { color: var(--dim); font-size: 11px; }
+
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* SLIDE 4 — GSD PLANUNG                                             */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    #s4 { background: var(--bg); }
+
+    .gsd-flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 32px 0 40px;
+      flex-wrap: wrap;
+    }
+    .gsd-step {
+      background: var(--card);
+      border: 1px solid rgba(126,184,201,.2);
+      padding: 14px 20px;
+      text-align: center;
+      min-width: 110px;
+    }
+    .gsd-step .step-num {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      color: var(--sky);
+      display: block;
+      margin-bottom: 6px;
+    }
+    .gsd-step .step-name {
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .gsd-arrow {
+      color: var(--gold);
+      font-size: 18px;
+      padding: 0 8px;
+    }
+
+    .gsd-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      max-width: 700px;
+    }
+    .stat-box {
+      background: var(--card);
+      padding: 20px 16px;
+      text-align: center;
+      border-top: 2px solid var(--sky);
+    }
+    .stat-num {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 22px;
+      color: var(--gold);
+      display: block;
+      margin-bottom: 8px;
+    }
+    .stat-label { font-size: 11px; color: var(--dim); }
+
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* SLIDE 5 — SKRIPT-STRUKTUR                                         */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    #s5 { background: var(--bg); }
+
+    .dep-graph {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 32px;
+      max-width: 900px;
+    }
+
+    .module-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .module-box {
+      background: var(--card);
+      border: 1px solid rgba(126,184,201,.15);
+      padding: 10px 16px;
+      border-left: 3px solid var(--sky);
+    }
+    .module-box.entry {
+      background: rgba(42,95,168,.35);
+      border: 1px solid var(--water);
+      border-left: 3px solid var(--gold);
+      padding: 14px 20px;
+    }
+
+    .mod-name {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      color: var(--gold);
+      margin-bottom: 4px;
+    }
+    .mod-export { font-size: 11px; color: var(--sky); }
+    .mod-desc   { font-size: 11px; color: var(--dim); margin-top: 3px; }
+
+    .center-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .arrow-in  { color: var(--gold); font-size: 24px; line-height: 1; }
+    .arrow-out { color: var(--green); font-size: 24px; line-height: 1; }
+
+    .index-note {
+      background: var(--card);
+      border: 1px dashed rgba(126,184,201,.3);
+      padding: 12px 20px;
+      font-size: 12px;
+      color: var(--dim);
+      margin-top: 24px;
+      max-width: 700px;
+    }
+    .index-note strong { color: var(--sky); }
+
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* SLIDE 6 — GROBER STAND                                            */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    #s6 { background: var(--bg); }
+
+    .phase-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-width: 700px;
+    }
+
+    .phase-row {
+      display: grid;
+      grid-template-columns: 220px 1fr 80px;
+      align-items: center;
+      gap: 16px;
+    }
+    .phase-label {
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .phase-label .phase-num {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      color: var(--dim);
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .bar-bg {
+      height: 12px;
+      background: rgba(255,255,255,.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .bar-fill {
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      background: var(--platform);
+      transition: width 1.2s cubic-bezier(.4,0,.2,1);
+      width: 0;
+    }
+    .bar-fill.done    { background: var(--green); }
+    .bar-fill.current { background: var(--gold); }
+    .bar-fill.empty   { background: var(--dim); width: 0; }
+
+    .phase-pct {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      text-align: right;
+    }
+    .pct-done    { color: var(--green); }
+    .pct-current { color: var(--gold); }
+    .pct-empty   { color: var(--dim); }
+
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* SLIDE 7 — DEMO                                                    */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    #s7 {
+      background: var(--night);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding: 32px 48px;
+    }
+
+    .demo-header {
+      display: flex;
+      align-items: baseline;
+      gap: 24px;
+      align-self: flex-start;
+    }
+    .demo-header .slide-label { margin-bottom: 0; }
+
+    /* Scale wrapper: outer = visual size, inner = native game size */
+    .game-scale-outer {
+      width: 394px;   /* 480 × 0.82 */
+      height: 525px;  /* 640 × 0.82 */
+      overflow: hidden;
+      position: relative;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .game-scale-inner {
+      width: 480px;
+      height: 640px;
+      transform: scale(0.82);
+      transform-origin: top left;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    .game-scale-outer::before {
+      content: 'LIVE PREVIEW — Klicken zum Aktivieren';
+      position: absolute;
+      top: -22px;
+      left: 0;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      color: var(--gold);
+      letter-spacing: 2px;
+      z-index: 1;
+    }
+    iframe.game {
+      display: block;
+      width: 480px;
+      height: 640px;
+      border: 2px solid var(--water);
+      box-shadow: 0 0 40px rgba(42,95,168,.6), 0 0 80px rgba(42,95,168,.25);
+    }
+
+    .controls-list {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 12px 24px;
+      justify-content: center;
+    }
+    .ctrl-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+    .key {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.25);
+      padding: 5px 9px;
+      display: inline-block;
+      min-width: 48px;
+      text-align: center;
+      color: var(--sky);
+    }
+    .ctrl-desc { color: var(--dim); }
+
+    /* ── Shared utilities ─────────────────────────────────────────────── */
+    .tag {
+      display: inline-block;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      padding: 4px 10px;
+      letter-spacing: 1px;
+    }
+    .tag-sky   { background: rgba(126,184,201,.15); color: var(--sky); border: 1px solid rgba(126,184,201,.3); }
+    .tag-gold  { background: rgba(241,196,15,.12);  color: var(--gold); border: 1px solid rgba(241,196,15,.3); }
+    .tag-green { background: rgba(46,204,113,.12);  color: var(--green); border: 1px solid rgba(46,204,113,.3); }
+    .tag-red   { background: rgba(231,76,60,.15);   color: var(--red); border: 1px solid rgba(231,76,60,.3); }
+
+    .divider {
+      width: 40px;
+      height: 3px;
+      background: var(--sky);
+      margin: 20px 0 32px;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp .6s ease forwards; }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation dots ────────────────────────────────────────────────── -->
+<nav id="nav">
+  <a href="#s1" title="Titel"></a>
+  <a href="#s2" title="Abgabedokument"></a>
+  <a href="#s3" title="Projektplan"></a>
+  <a href="#s4" title="GSD Planung"></a>
+  <a href="#s5" title="Skript-Struktur"></a>
+  <a href="#s6" title="Grober Stand"></a>
+  <a href="#s7" title="Demo"></a>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 1 — TITEL                                                    -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="slide" id="s1">
+  <div class="stars"></div>
+
+  <p class="title-super">SRH · Abschlussprojekt · Game &amp; Multimedia Design</p>
+
+  <h1 class="title-main">Soggy Moggy</h1>
+  <p class="title-sub">»Gato Sin Botas«</p>
+
+  <div class="title-meta">
+    Julian Gomez<br>
+    12. März 2026<br>
+    <br>
+    Vanilla JS + HTML Canvas 2D<br>
+    Kein Framework. Kein Build-Tool.
+  </div>
+
+  <div style="margin-top:32px; display:flex; gap:12px; flex-wrap:wrap;">
+    <span class="tag tag-sky">480 × 640 px Canvas</span>
+    <span class="tag tag-gold">7 JS Module</span>
+    <span class="tag tag-green">45 Anforderungen</span>
+    <span class="tag tag-red">Deadline 22.04.26</span>
+  </div>
+
+  <div class="wave-container">
+    <div class="wave wave2"></div>
+    <div class="wave"></div>
+  </div>
+
+  <span class="slide-num">01 / 07</span>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 2 — ABGABEDOKUMENT                                          -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="slide" id="s2">
+  <p class="slide-label">02 — Abgabe</p>
+  <h2 class="pixel">Abgabe&shy;dokumente</h2>
+  <div class="divider"></div>
+
+  <div class="checklist">
+
+    <div class="check-item done">
+      <span class="check-icon">✓</span>
+      <div>
+        <div class="check-label">Projektplan</div>
+        <div class="check-note">Projektplan_Julian_Gomez.docx · fertig</div>
+      </div>
+    </div>
+
+    <div class="check-item done">
+      <span class="check-icon">✓</span>
+      <div>
+        <div class="check-label">Arbeitsprotokoll</div>
+        <div class="check-note">wird täglich aktualisiert · ab 04.03</div>
+      </div>
+    </div>
+
+    <div class="check-item wip">
+      <span class="check-icon">~</span>
+      <div>
+        <div class="check-label">GDD</div>
+        <div class="check-note">Grob- + Feinkonzept + Designkonzept · in Arbeit</div>
+      </div>
+    </div>
+
+    <div class="check-item todo">
+      <span class="check-icon">○</span>
+      <div>
+        <div class="check-label">Medienkatalog</div>
+        <div class="check-note">KI, Pixelorama, externe Quellen · steht aus</div>
+      </div>
+    </div>
+
+    <div class="check-item todo">
+      <span class="check-icon">○</span>
+      <div>
+        <div class="check-label">README.md</div>
+        <div class="check-note">Repo-Root · nach Phase 5</div>
+      </div>
+    </div>
+
+    <div class="check-item todo">
+      <span class="check-icon">○</span>
+      <div>
+        <div class="check-label">Gameplay-Video</div>
+        <div class="check-note">nach Phase 5 abgeschlossen</div>
+      </div>
+    </div>
+
+    <div class="check-item todo">
+      <span class="check-icon">○</span>
+      <div>
+        <div class="check-label">Selbstständigkeitserklärung</div>
+        <div class="check-note">zum Einreichen</div>
+      </div>
+    </div>
+
+    <div class="check-item todo">
+      <span class="check-icon">○</span>
+      <div>
+        <div class="check-label">USB-Abgabestruktur</div>
+        <div class="check-note">Endergebnis / Konzeption / Arbeitsdateien / Material</div>
+      </div>
+    </div>
+
+  </div>
+
+  <span class="slide-num">02 / 07</span>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 3 — PROJEKTPLAN                                             -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="slide" id="s3">
+  <p class="slide-label">03 — Planung</p>
+  <h2 class="pixel">Projektplan</h2>
+  <div class="divider"></div>
+
+  <div class="timeline">
+
+    <div class="tl-item done">
+      <div class="tl-date">03.03.26</div>
+      <div class="tl-dot"><span></span></div>
+      <div class="tl-text">
+        <strong>Projektstart</strong>
+        <span>Themeneinreichung, Roadmap, Anforderungen</span>
+      </div>
+    </div>
+
+    <div class="tl-item done">
+      <div class="tl-date">05.–06.03</div>
+      <div class="tl-dot"><span></span></div>
+      <div class="tl-text">
+        <strong>Phase 1–3 abgeschlossen</strong>
+        <span>Foundation → Core Mechanics → Game World</span>
+      </div>
+    </div>
+
+    <div class="tl-item done">
+      <div class="tl-date">08.–09.03</div>
+      <div class="tl-dot"><span></span></div>
+      <div class="tl-text">
+        <strong>Phase 04.1 abgeschlossen</strong>
+        <span>Visuelles Konzept, Palette, Sprites, Style Guide</span>
+      </div>
+    </div>
+
+    <div class="tl-item today">
+      <div class="tl-date">12.03.26 ★</div>
+      <div class="tl-dot"><span></span></div>
+      <div class="tl-text">
+        <strong>Heute — Präsentation</strong>
+        <span>Stand: 5 von 7 Phasen fertig · Phase 5 (Push + HUD) als nächstes</span>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-date">bis ~28.03</div>
+      <div class="tl-dot"><span></span></div>
+      <div class="tl-text">
+        <strong>Phase 5 + 6</strong>
+        <span>Push + HUD, Audio</span>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-date">bis ~10.04</div>
+      <div class="tl-dot"><span></span></div>
+      <div class="tl-text">
+        <strong>Phase 7 + Dokumente</strong>
+        <span>GitHub Pages, GDD, Medienkatalog, README</span>
+      </div>
+    </div>
+
+    <div class="tl-item danger">
+      <div class="tl-date">22.04.26</div>
+      <div class="tl-dot"><span></span></div>
+      <div class="tl-text">
+        <strong>Abgabe</strong>
+        <span>Deadline · USB + Repo + alle Dokumente</span>
+      </div>
+    </div>
+
+  </div>
+
+  <span class="slide-num">03 / 07</span>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 4 — GSD PLANUNG                                             -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="slide" id="s4">
+  <p class="slide-label">04 — Methodik</p>
+  <h2 class="pixel">GSD Planung</h2>
+  <div class="divider"></div>
+
+  <p style="font-size:13px; color:var(--dim); max-width:620px; margin-bottom:28px;">
+    Jede Phase durchläuft denselben Zyklus. Kein Code wird geschrieben bevor Research und Plan abgenommen sind.
+  </p>
+
+  <div class="gsd-flow">
+    <div class="gsd-step">
+      <span class="step-num">01</span>
+      <span class="step-name">Research</span>
+    </div>
+    <span class="gsd-arrow">→</span>
+    <div class="gsd-step">
+      <span class="step-num">02</span>
+      <span class="step-name">Plan(s)</span>
+    </div>
+    <span class="gsd-arrow">→</span>
+    <div class="gsd-step">
+      <span class="step-num">03</span>
+      <span class="step-name">Execute</span>
+    </div>
+    <span class="gsd-arrow">→</span>
+    <div class="gsd-step">
+      <span class="step-num">04</span>
+      <span class="step-name">Verify</span>
+    </div>
+    <span class="gsd-arrow">→</span>
+    <div class="gsd-step">
+      <span class="step-num">05</span>
+      <span class="step-name">Summary</span>
+    </div>
+  </div>
+
+  <div class="gsd-stats">
+    <div class="stat-box">
+      <span class="stat-num">8</span>
+      <span class="stat-label">Phasen definiert</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-num">45</span>
+      <span class="stat-label">Anforderungen gemappt</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-num">11</span>
+      <span class="stat-label">PLAN.md abgeschlossen</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-num">5/8</span>
+      <span class="stat-label">Phasen verifiziert</span>
+    </div>
+  </div>
+
+  <div style="margin-top:24px; display:flex; gap:10px; flex-wrap:wrap;">
+    <span class="tag tag-sky">.planning/ROADMAP.md</span>
+    <span class="tag tag-sky">.planning/REQUIREMENTS.md</span>
+    <span class="tag tag-sky">phases/XX/XX-PLAN.md</span>
+    <span class="tag tag-sky">phases/XX/XX-VERIFICATION.md</span>
+  </div>
+
+  <span class="slide-num">04 / 07</span>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 5 — SKRIPT-STRUKTUR                                         -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="slide" id="s5">
+  <p class="slide-label">05 — Architektur</p>
+  <h2 class="pixel">Skript-Struktur</h2>
+  <div class="divider"></div>
+
+  <div class="dep-graph">
+
+    <!-- Left: input + state modules -->
+    <div class="module-col">
+
+      <div class="module-box">
+        <div class="mod-name">input.js</div>
+        <div class="mod-export">→ keys{}</div>
+        <div class="mod-desc">Tastatur + Maus-Eingaben</div>
+      </div>
+
+      <div class="module-box">
+        <div class="mod-name">game-state.js</div>
+        <div class="mod-export">→ GameState, GamePhase</div>
+        <div class="mod-desc">Zustand + State Machine</div>
+      </div>
+
+      <div class="module-box">
+        <div class="mod-name">background.js</div>
+        <div class="mod-export">→ updateBackground, renderBackground</div>
+        <div class="mod-desc">5-Layer-Parallax, Tag/Nacht</div>
+      </div>
+
+    </div>
+
+    <!-- Center: main.js -->
+    <div class="center-col">
+      <span class="arrow-in">←</span>
+      <div class="module-box entry">
+        <div class="mod-name" style="color:var(--gold);font-size:11px;">main.js</div>
+        <div class="mod-export" style="color:var(--white);font-size:12px;">Canvas · Loop · HUD</div>
+        <div class="mod-desc" style="margin-top:6px;">update() + render()</div>
+        <div class="mod-desc">Orchestrator</div>
+      </div>
+      <span class="arrow-in">→</span>
+    </div>
+
+    <!-- Right: gameplay modules -->
+    <div class="module-col">
+
+      <div class="module-box">
+        <div class="mod-name">player.js</div>
+        <div class="mod-export">→ player, updatePlayer, renderPlayer</div>
+        <div class="mod-desc">Physik, Sprites, Animation</div>
+      </div>
+
+      <div class="module-box">
+        <div class="mod-name">platforms.js</div>
+        <div class="mod-export">→ updatePlatforms, checkPlatformCollisions</div>
+        <div class="mod-desc">Generierung, AABB-Kollision</div>
+      </div>
+
+      <div class="module-box">
+        <div class="mod-name">water.js</div>
+        <div class="mod-export">→ water, updateWater, renderWater</div>
+        <div class="mod-desc">Flut, Leben, Damage-Flash</div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="index-note">
+    <strong>index.html</strong> lädt alle 6 Module als <code style="color:var(--gold)">&lt;script&gt;</code>-Tags vor <code style="color:var(--gold)">main.js</code>.
+    Kein Bundler. Globaler Scope als bewusste Entscheidung für Unterricht.
+    <strong style="margin-left:8px;">Call-Order ist load-bearing</strong> — updatePlayer → updatePlatforms → checkPlatformCollisions → updateCamera.
+  </div>
+
+  <span class="slide-num">05 / 07</span>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 6 — GROBER STAND                                            -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="slide" id="s6">
+  <p class="slide-label">06 — Fortschritt</p>
+  <h2 class="pixel">Grober Stand</h2>
+  <div class="divider"></div>
+
+  <div class="phase-list" id="phaseList">
+
+    <div class="phase-row">
+      <div class="phase-label">
+        <span class="phase-num">PHASE 1</span>
+        Foundation
+      </div>
+      <div class="bar-bg"><div class="bar-fill done" data-pct="100"></div></div>
+      <div class="phase-pct pct-done">100%</div>
+    </div>
+
+    <div class="phase-row">
+      <div class="phase-label">
+        <span class="phase-num">PHASE 2</span>
+        Core Mechanics
+      </div>
+      <div class="bar-bg"><div class="bar-fill done" data-pct="100"></div></div>
+      <div class="phase-pct pct-done">100%</div>
+    </div>
+
+    <div class="phase-row">
+      <div class="phase-label">
+        <span class="phase-num">PHASE 3</span>
+        Game World
+      </div>
+      <div class="bar-bg"><div class="bar-fill done" data-pct="100"></div></div>
+      <div class="phase-pct pct-done">100%</div>
+    </div>
+
+    <div class="phase-row">
+      <div class="phase-label">
+        <span class="phase-num">PHASE 04.1</span>
+        Visuelles Konzept
+      </div>
+      <div class="bar-bg"><div class="bar-fill done" data-pct="100"></div></div>
+      <div class="phase-pct pct-done">100%</div>
+    </div>
+
+    <div class="phase-row">
+      <div class="phase-label">
+        <span class="phase-num">PHASE 4</span>
+        Flut + Leben
+      </div>
+      <div class="bar-bg"><div class="bar-fill done" data-pct="100"></div></div>
+      <div class="phase-pct pct-done">100%</div>
+    </div>
+
+    <div class="phase-row">
+      <div class="phase-label">
+        <span class="phase-num">PHASE 5 ← nächste</span>
+        Push + HUD
+      </div>
+      <div class="bar-bg"><div class="bar-fill current" data-pct="0"></div></div>
+      <div class="phase-pct pct-current">geplant</div>
+    </div>
+
+    <div class="phase-row">
+      <div class="phase-label">
+        <span class="phase-num">PHASE 6</span>
+        Audio
+      </div>
+      <div class="bar-bg"><div class="bar-fill empty" data-pct="0"></div></div>
+      <div class="phase-pct pct-empty">—</div>
+    </div>
+
+    <div class="phase-row">
+      <div class="phase-label">
+        <span class="phase-num">PHASE 7</span>
+        Hosting
+      </div>
+      <div class="bar-bg"><div class="bar-fill empty" data-pct="0"></div></div>
+      <div class="phase-pct pct-empty">—</div>
+    </div>
+
+  </div>
+
+  <div style="margin-top:32px; display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+    <span class="tag tag-green">5 von 7 fertig</span>
+    <span class="tag tag-gold">45 / 45 Requirements gemappt</span>
+    <span class="tag tag-red">3 Phasen offen</span>
+  </div>
+
+  <span class="slide-num">06 / 07</span>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 7 — DEMO                                                    -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="slide" id="s7">
+
+  <div class="demo-header">
+    <p class="slide-label">07 — Live Demo</p>
+    <span style="font-size:12px; color:var(--dim);">Phase 1–4 + 04.1 · Plattformen, Kamera, Flut, Score, Sprites</span>
+  </div>
+
+  <div class="game-scale-outer" id="gameWrap">
+    <div class="game-scale-inner">
+      <iframe
+        class="game"
+        id="gameFrame"
+        src="../index.html"
+        scrolling="no"
+        title="Gato Sin Botas — Live Demo"
+      ></iframe>
+    </div>
+  </div>
+
+  <div class="controls-list">
+    <div class="ctrl-row">
+      <span class="key">A / D</span>
+      <span class="ctrl-desc">Bewegen</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="key">SPACE</span>
+      <span class="ctrl-desc">Springen</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="key">Z</span>
+      <span class="ctrl-desc">Aktion</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="key">ENTER</span>
+      <span class="ctrl-desc">Start</span>
+    </div>
+  </div>
+
+  <span class="slide-num">07 / 07</span>
+</section>
+
+<!-- ── Scripts ─────────────────────────────────────────────────────── -->
+<script>
+  // Nav dot active state
+  const slides = document.querySelectorAll('.slide');
+  const dots   = document.querySelectorAll('#nav a');
+
+  function updateDots() {
+    let active = 0;
+    slides.forEach((s, i) => {
+      const rect = s.getBoundingClientRect();
+      if (rect.top <= window.innerHeight * 0.5) active = i;
+    });
+    dots.forEach((d, i) => d.classList.toggle('active', i === active));
+  }
+
+  window.addEventListener('scroll', updateDots, { passive: true });
+  updateDots();
+
+  // Focus iframe on click so keyboard input reaches the game
+  document.getElementById('gameWrap').addEventListener('click', () => {
+    document.getElementById('gameFrame').focus();
+  });
+
+  // Keyboard nav
+  document.addEventListener('keydown', e => {
+    const cur = [...slides].findIndex(s => {
+      const r = s.getBoundingClientRect();
+      return r.top >= -10 && r.top < window.innerHeight * 0.5;
+    });
+    if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+      e.preventDefault();
+      const next = slides[Math.min(cur + 1, slides.length - 1)];
+      next && next.scrollIntoView({ behavior: 'smooth' });
+    }
+    if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+      e.preventDefault();
+      const prev = slides[Math.max(cur - 1, 0)];
+      prev && prev.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+
+  // Animate progress bars when slide 6 enters view
+  const s6 = document.getElementById('s6');
+  const bars = s6.querySelectorAll('.bar-fill[data-pct]');
+
+  let barsAnimated = false;
+  const observer = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && !barsAnimated) {
+      barsAnimated = true;
+      bars.forEach((bar, i) => {
+        const pct = parseInt(bar.dataset.pct);
+        setTimeout(() => { bar.style.width = pct + '%'; }, i * 120);
+      });
+    }
+  }, { threshold: 0.3 });
+  observer.observe(s6);
+</script>
+
+</body>
+</html>

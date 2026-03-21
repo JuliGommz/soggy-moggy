@@ -72,6 +72,7 @@ const hazard = {
   time:        0,
   iframeTimer: 0,
   flashTimer:  0,
+  fadeAlpha:   1,    // 1 = fully visible; fades to 0 after finish trigger activates
 };
 
 // ---------------------------------------------------------------------------
@@ -84,6 +85,7 @@ function resetHazard(level) {
   hazard.time        = 0;
   hazard.iframeTimer = 0;
   hazard.flashTimer  = 0;
+  hazard.fadeAlpha   = 1;
 }
 
 // ---------------------------------------------------------------------------
@@ -136,9 +138,24 @@ function updateHazard(dt) {
   // Rise
   hazard.y -= hazard.speed * dt;
 
+  // Fade out once finish trigger is activated (1.2s to fully disappear)
+  if (GameState.finishState === 'activating') {
+    hazard.fadeAlpha = Math.max(0, hazard.fadeAlpha - dt / 1.2);
+  }
+
   // Visibility clamp: hazard can never fall more than 10px below the screen bottom.
   // Prevents the surface from lagging off-screen when the camera scrolls up faster than the hazard rises.
   hazard.y = Math.min(hazard.y, GameState.cameraY + canvas.height + 10);
+
+  // Top cap: applied AFTER visibility clamp so it always takes final precedence.
+  // L1 smog stops near the level top (22px below levelGoalY) — matches red line in building.
+  // Other levels use the wider 300px safety margin.
+  if (GameState.levelGoalY !== undefined) {
+    const capOffset = (GameState.level === 1) ? 22 : 300;
+    if (hazard.y < GameState.levelGoalY + capOffset) {
+      hazard.y = GameState.levelGoalY + capOffset;
+    }
+  }
 
   // Accelerate
   hazard.speed += HAZARD_ACCEL * dt;
@@ -163,9 +180,15 @@ function updateHazard(dt) {
 // ctx.save/translate block — ctx is already translated by cameraY.
 // ---------------------------------------------------------------------------
 function renderHazard(ctx) {
+  if (hazard.fadeAlpha <= 0) return;
+  if (hazard.fadeAlpha < 1) {
+    ctx.save();
+    ctx.globalAlpha = hazard.fadeAlpha; // smog + flood: multiplies their rgba alphas automatically
+  }
   if      (GameState.level === 1) renderSmog(ctx);
   else if (GameState.level === 3) renderElectricity(ctx);
   else                            renderFlood(ctx);
+  if (hazard.fadeAlpha < 1) ctx.restore();
 }
 
 // ---------------------------------------------------------------------------
@@ -313,10 +336,10 @@ function renderElectricity(ctx) {
     const step = 480 / L.anchors;
     const edge = _buildElecEdge(L, baseY, t, step);
 
-    // Pulsing alpha: oscillates between min and max
+    // Pulsing alpha: oscillates between min and max; scaled by fade factor
     const pulse = L.alphaPulse;
-    const alpha = pulse.min + (pulse.max - pulse.min)
-                * (0.5 + 0.5 * Math.sin(t * pulse.tMul));
+    const alpha = (pulse.min + (pulse.max - pulse.min)
+                * (0.5 + 0.5 * Math.sin(t * pulse.tMul))) * hazard.fadeAlpha;
     ctx.globalAlpha = alpha;
 
     // Fill body below edge

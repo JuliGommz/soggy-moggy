@@ -190,6 +190,31 @@ function generateLevelPlatforms(level) {
   // Store the level goal world Y in GameState so main.js can check and draw it
   GameState.levelGoalY = PLAYER_START_Y - levelHeight;
 
+  // Level 1: invisible collider for the building roof top surface.
+  // Roof drawn at levelGoalY - 56; Building_Roof.png content starts at y=21 (PIL scan)
+  // → walkable surface at levelGoalY - 35. Full canvas width — cat can land anywhere on the roof.
+  if (level === 1) {
+    platforms.push({
+      x: 0, y: Math.floor(GameState.levelGoalY) - 35, w: 480, h: PLATFORM_H,
+      type: 'normal', state: 'intact', crumbleTimer: 0,
+      row: 0, winVariants: undefined, invisible: true,
+    });
+  }
+
+  // Finish platform — centered, wide enough to land on comfortably, slightly bigger than the cat (hitbox 32px)
+  // The interactive finish object (pinwheel / bell / lever) is rendered on top of this in main.js
+  const FIN_W = 100;
+  const finX  = 480 - FIN_W - 20; // x = 360, right side (20px margin from edge)
+  // L1: finish platform sits on the roof surface (levelGoalY - 35). Other levels: at levelGoalY.
+  const finY  = (level === 1) ? Math.floor(GameState.levelGoalY) - 35 : Math.floor(GameState.levelGoalY);
+  platforms.push({
+    x: finX, y: finY, w: FIN_W, h: PLATFORM_H,
+    type: 'normal', state: 'intact', crumbleTimer: 0,
+    row: activeRows[0], winVariants: undefined,
+    invisible: false, isFinish: true,
+  });
+  GameState.finishTrigger = { x: finX, y: finY, w: FIN_W, h: PLATFORM_H };
+
   // Generate platforms in upward slots from the player start position.
   // Level 1: every platform must sit over a window — skip slots 1 and 2 from bottom
   // (those rows have no windows per design).  All remaining slots get a platform + window.
@@ -305,6 +330,18 @@ function renderPlatforms(ctx) {
 // Transparent slat gaps show the canvas/background through — no base fill added.
 function _renderPlatformSprite(ctx, p) {
   if (p.invisible) return;  // decoration-backed platforms: visual is handled by the background asset
+
+  // Finish platform: draw as a golden-highlighted slab to distinguish it visually
+  // L1: roof sprite is the visual base — no slab drawn (pinwheel + [Z] prompt is enough)
+  if (p.isFinish) {
+    if (GameState.level === 1) return;
+    const dx = Math.floor(p.x), dy = Math.floor(p.y);
+    ctx.fillStyle = '#d4ac0d';
+    ctx.fillRect(dx, dy, p.w, PLATFORM_H);
+    ctx.fillStyle = '#f1c40f';
+    ctx.fillRect(dx, dy, p.w, 3); // bright top edge
+    return;
+  }
   const dx = Math.floor(p.x);
   const dy = Math.floor(p.y);
 

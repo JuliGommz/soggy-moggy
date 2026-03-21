@@ -77,7 +77,7 @@ document.addEventListener('mousedown', (e) => {
 });
 
 document.addEventListener('mouseup', (e) => {
-  if (e.button === 0) { keys.jump = false; keys.shoot = false; }
+  if (e.button === 0) { keys.jump = false; keys.shoot = false; keys.enter = false; }
   if (e.button === 2) { keys.push = false; }
 });
 

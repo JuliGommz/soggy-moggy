@@ -2,7 +2,7 @@
 
 **Project:** Soggy Moggy
 **Created:** 2026-03-03
-**Updated:** 2026-03-12 — Phase 5 split: Push+HUD / Audio / Hosting; "throw" replaced by "push" everywhere
+**Updated:** 2026-03-21 — Doc consistency audit: fixed stale criteria (auto-bounce→manual jump, 4→3 levels, danger types)
 **Depth:** Standard (7 phases + 04.1)
 **Coverage:** 45/45 v1 requirements mapped
 
@@ -58,7 +58,7 @@ Plans:
 **Depends on:** Phase 1
 **Requirements:** LOOP-01, LOOP-02, LOOP-04, LOOP-05
 **Success Criteria:**
-  1. Cat automatically bounces upward every time it lands on a platform — no jump key required
+  1. Cat jumps upward when Space/click is pressed while on a platform (manual jump; auto-bounce was removed)
   2. Cat moves left and right smoothly in response to arrow keys or A/D with no lag
   3. Cat passes through a platform from below without collision triggering — only landing from above resolves
   4. Camera scrolls upward as the cat climbs and never scrolls back down, even if the cat falls
@@ -124,13 +124,13 @@ Plans:
 **Goal:** The cat pushes items off platforms, items fall and interact with level hazards, and comic-style Spanish speech bubbles react to key game events — the game has physical depth and cultural character.
 **Depends on:** Phase 4, Phase 04.1
 **Requirements:** PUSH-01, PUSH-02, PUSH-03, HUD-01, HUD-02, HUD-03, VIS-06, VIS-07, VIS-08
-**Note:** Manual jump (Space key, onGround gate) was implemented on the feature/asset-restructure-mechanics branch before planning. Plan 05-01 validates and finalizes the full input remap.
+**Note:** Manual jump (Space key, onGround gate), variable jump, walk animation, finish trigger system, balloon collectible, and 3 hazard renderers were all implemented on the feature/asset-restructure-mechanics branch before Phase 5 planning.
 
 **Success Criteria:**
-  1. Pressing Space while on a platform jumps; pressing Space in the air does nothing
+  1. ~~Pressing Space while on a platform jumps~~ (DONE on mechanics branch)
   2. Z key while in hitbox range of a platform item triggers push — item falls downward with gravity
   3. Items spawn on ~20% of platforms, never overlapping each other
-  4. Item hitting water (Level 2) produces a visible splash effect and awards bonus points; floating text "+N" appears at impact and fades after ~1 second
+  4. Item hitting hazard (L2=flood) produces a visible splash effect and awards bonus points; floating text "+N" appears at impact and fades after ~1 second
   5. A speech bubble appears on damage, level-complete, and game-over events — correct shape, Spanish phrase from the appropriate pool, fades cleanly
 **Plans:** TBD (estimated 5–6)
 
