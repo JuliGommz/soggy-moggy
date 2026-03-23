@@ -204,6 +204,8 @@ Jedes Level hat eine eigene, stetig steigende Gefahr. Alle drei Gefahren teilen 
 - **Level 3 (Elektrizität):** Drei unabhängige Blitzschichten mit unterschiedlichen Frequenzen, Ankerpunkten und pulsierender Transparenz
 - Kontakt mit der Gefahr = Leben verlieren
 - Die Gefahr existiert in Weltkoordinaten; die Kamera folgt dem Spieler nach oben
+- **Obergrenze:** L1-Smog stoppt 22 px unterhalb des Dachs (visuell bündig). L2/L3 steigen bis auf `levelGoalY` — die Gefahr füllt den gesamten Schacht/Turm
+- **Ausblenden:** Beim Auslösen des Zielfeldes blendet die Gefahr über 1,2 s aus
 
 ### 2.8 Leben & Scheitern
 
@@ -244,13 +246,18 @@ Jedes Level hat eine eigene, stetig steigende Gefahr. Alle drei Gefahren teilen 
 
 **Level 2 — El Mar Abierto (Offener See):**
 - Plattformthema: Stege die von Masten/Pfählen ausgehen
-- Hintergrundferne Schicht: Weite See, Horizont, Sonne mit Puls-Animation
-- Flut steigt schneller als in Level 1; Sinuswellen-Darstellung
+- Hintergrundferne Schicht: Weite See, Horizont, Sonne mit Puls-Animation; Gerüst hinter dem Raketenturm
+- Raketenturm: getilelter Schaft mit Gerüst-Parallaxe; Raketen-Top schließt nahtlos an den letzten Schaft-Tile an
+- Flut steigt schneller als in Level 1; Sinuswellen-Darstellung; erreicht `levelGoalY`
 
 **Level 3 — El Pozo Eléctrico (Aufzugschacht):**
-- Plattformthema: Wandstufen im Schacht (verschiedene Breiten)
-- Hintergrundferne Schicht: Betonwände, Kabel/Rohre (Mid-Layer TBD)
-- Steigende Elektrizität als 3-Schicht-Blitzsystem
+- Start: Spieler steht im Fahrstuhl (Erdgeschoss). Die Katze klettert durch eine Decken-Luke in den Schacht.
+- Decken-Mechanik: Nur die Luke (x=138–337) ist durchdringbar — der Rest der Fahrstuhldecke hat unsichtbare Kollider. Gleiches Prinzip am oberen Schachtausgang.
+- Schachtboden: Linke und rechte Randbereiche begehbar. Die mittlere Öffnung (x=172–300) hat keinen Boden — Katze fällt zurück in den Fahrstuhl und verliert ein Leben.
+- Dach: Nach dem Verlassen des Schachts kann die Katze frei auf dem Dachelement laufen; Hebel befindet sich auf dem Dach.
+- Hintergrund: Fahrstuhl-Sprite (Boden) → Schacht-Boden-Sprite (überlappt Fahrstuhldecke nahtlos) → getilede Schacht-Wände → Schacht-Top mit goldenem Balken und Dachelement
+- Parallax-Mid-Layer: Kabel/Rohr-Sprites (0,9×-Faktor) hinter den Schachtwänden
+- Steigende Elektrizität als 3-Schicht-Blitzsystem; erreicht `levelGoalY`
 
 ---
 
@@ -449,7 +456,7 @@ src/
 ├── input.js         — Tastatur-/Mauslistener
 ├── player.js        — Spielerfigur, Sprung, Sprite-Logik, Wurf
 ├── platforms.js     — Plattformgenerierung, Kollision, Sprite-Rendering
-├── water.js         — Hazard-System (Smog, Flut, Elektrizität)
+├── hazards.js       — Hazard-System (Smog, Flut, Elektrizität)
 └── background.js    — Parallax-Hintergrundsystem, Crossfade
 ```
 

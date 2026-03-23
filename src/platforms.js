@@ -215,6 +215,31 @@ function generateLevelPlatforms(level) {
   });
   GameState.finishTrigger = { x: finX, y: finY, w: FIN_W, h: PLATFORM_H };
 
+  // Level 3: invisible structural colliders derived from PIL pixel analysis.
+  // All use one-way collision (blocks from above only) — cat can jump up freely through any gap.
+  if (level === 3) {
+    const goalY = GameState.levelGoalY;
+
+    // C1 — Elevator ceiling (world y=268): solid left + right flanking the hatch.
+    // Hatch gap x=138–337 = passable (cat jumps up through); solid parts land cat back on ceiling.
+    platforms.push({ x: 0,   y: 268, w: 138, h: 8, type: 'normal', state: 'intact', crumbleTimer: 0, row: 0, winVariants: undefined, invisible: true });
+    platforms.push({ x: 337, y: 268, w: 143, h: 8, type: 'normal', state: 'intact', crumbleTimer: 0, row: 0, winVariants: undefined, invisible: true });
+
+    // C2 — Shaft bottom floor (world y=196): walkable left + right flanking the death-hatch.
+    // Death-hatch gap x=172–300 = no platform → cat falls back into elevator → life lost.
+    platforms.push({ x: 0,   y: 196, w: 172, h: 8, type: 'normal', state: 'intact', crumbleTimer: 0, row: 0, winVariants: undefined, invisible: true });
+    platforms.push({ x: 300, y: 196, w: 180, h: 8, type: 'normal', state: 'intact', crumbleTimer: 0, row: 0, winVariants: undefined, invisible: true });
+
+    // C3 — Shaft exit ceiling (world y=goalY+80): flanking exit hatch (ShaftTop row 255).
+    // Cat can only exit through center gap x=138–337.
+    platforms.push({ x: 0,   y: goalY + 80, w: 138, h: 8, type: 'normal', state: 'intact', crumbleTimer: 0, row: 0, winVariants: undefined, invisible: true });
+    platforms.push({ x: 337, y: goalY + 80, w: 143, h: 8, type: 'normal', state: 'intact', crumbleTimer: 0, row: 0, winVariants: undefined, invisible: true });
+
+    // C4 — Roof surface (world y=goalY): full-width walkable roof.
+    // Finish platform (x=360, w=100) also sits at goalY — both coexist without conflict.
+    platforms.push({ x: 0, y: goalY, w: 480, h: 8, type: 'normal', state: 'intact', crumbleTimer: 0, row: 0, winVariants: undefined, invisible: true });
+  }
+
   // Generate platforms in upward slots from the player start position.
   // Level 1: every platform must sit over a window — skip slots 1 and 2 from bottom
   // (those rows have no windows per design).  All remaining slots get a platform + window.

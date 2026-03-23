@@ -151,7 +151,7 @@ function updateHazard(dt) {
   // L1 smog stops near the level top (22px below levelGoalY) — matches red line in building.
   // Other levels use the wider 300px safety margin.
   if (GameState.levelGoalY !== undefined) {
-    const capOffset = (GameState.level === 1) ? 22 : 300;
+    const capOffset = (GameState.level === 1) ? 22 : 0;
     if (hazard.y < GameState.levelGoalY + capOffset) {
       hazard.y = GameState.levelGoalY + capOffset;
     }

@@ -70,7 +70,7 @@ function resetGame() {
   // levelGoalY and finishTrigger are NOT reset here — set by generateLevelPlatforms() inside resetPlatforms()
   resetPlayer();
   resetPlatforms(); // Phase 2: defined in platforms.js (loaded after game-state.js — safe at runtime)
-  resetHazard(1);   // level 1 hazard on full game reset — dispatches via water.js
+  resetHazard(1);   // level 1 hazard on full game reset — dispatches via hazards.js
 }
 
 function startNextLevel() {

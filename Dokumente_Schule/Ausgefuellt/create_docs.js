@@ -321,6 +321,15 @@ const ap_rows = [
   ['21.03.2026', 'Smog L1: Obergrenze bei levelGoalY+22 nach Sichtbarkeits-Clamp',X,X,X],
   ['21.03.2026', 'Ballon: Spawn bei player.y-90 (Weltkoordinaten) statt Bildschirmrand',X,X,X],
   ['21.03.2026', 'Ballon: Steiggeschwindigkeit 60px/s, Amplitude 150px, Periode 1.8s',X,X,X],
+  ['23.03.2026', 'L2 Hintergrund: Geruest-Assets integriert (Tiling, 529px-Schritt)',  X,  X,  X],
+  ['23.03.2026', 'L2 Rakete: Top-Sprite an letzten Mid-Tile gesnappt (kein Overlap)',   X,  X,  X],
+  ['23.03.2026', 'L3 Hintergrund: ShaftBot-Offset korrigiert (nahtloser Uebergang)',    X,  X,  X],
+  ['23.03.2026', 'L3 Hintergrund: Mid-Kachel-Loop-Start angepasst (268px-Gap)',         X,  X,  X],
+  ['23.03.2026', 'L3 Hintergrund: ShaftTop + Pipes auf 175px-Offset korrigiert',        X,  X,  X],
+  ['23.03.2026', 'L3 Collider: Fahrstuhldecke, Schachtboden, Dachausgang',              X,  X,  X],
+  ['23.03.2026', 'Hazard: Obergrenze L2/L3 auf levelGoalY gesetzt (war +300px)',         X,  X,  X],
+  ['23.03.2026', 'Ballon: 2x Steiggeschwindigkeit, 1/3 Seitenamplitude',                X,  X,  X],
+  ['23.03.2026', 'water.js umbenannt zu hazards.js (korrekte Benennung)',               X,  X,  X],
 ];
 
 const apTable = new Table({
