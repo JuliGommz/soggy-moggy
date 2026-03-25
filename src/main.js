@@ -37,10 +37,10 @@
 //             player, updatePlayer, renderPlayer, resetPlayer (player.js)
 
 // ── HUD lives icon ──────────────────────────────────────────────────────────
-const _hudLifeIcon = new Image(); _hudLifeIcon.src = 'PixelArt/interactible_objects/live-up/cat_beishe.png';
+const _hudLifeIcon = new Image(); _hudLifeIcon.src = 'PixelArt/collectibles/life_icon.png';
 
 // ── Balloon extra-life collectible ──────────────────────────────────────────
-const _sprExtraLife = new Image(); _sprExtraLife.src = 'PixelArt/interactible_objects/live-up/extra-life.png';
+const _sprExtraLife = new Image(); _sprExtraLife.src = 'PixelArt/collectibles/balloon.png';
 const _BAL_W = 70, _BAL_H = 106; // drawn size — 2.2× base (32×48) for visibility
 // Balloon rises upward continuously (anchorY decreases each frame) with a sinusoidal horizontal weave.
 // Pure world-space = no camera interaction bugs.

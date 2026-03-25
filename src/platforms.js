@@ -59,10 +59,10 @@ const _platSheet = new Image();
 _platSheet.src = 'PixelArt/platforms/level1_city/jalousie_sheet.png';
 
 // ── Window sprite sheet (Level 1 only) ───────────────────────────────────────
-// Windows.png: 2×2 grid of window variants (clean A/B, dirty A/B)
+// windows.png: 2×2 grid of window variants (clean A/B, dirty A/B)
 // Coordinates measured via PIL alpha-scan:
 const _winSheet = new Image();
-_winSheet.src = 'PixelArt/backgrounds/level1_city/Windows.png';
+_winSheet.src = 'PixelArt/backgrounds/level1_city/windows.png';
 
 const _WS = {
   // Coordinates from PIL alpha-scan (non-purple, non-transparent pixel bounds per quadrant):
@@ -147,21 +147,21 @@ function generateLevelPlatforms(level) {
   // Positions match _drawL1Elements() in background.js (building_wall.png feature heights).
   // Wall drawn at camShift*1.0 — world Y = element Y directly.
   if (level === 1) {
-    // Cornice band — PIL: content (28,60)-(449,78) in Cornice.png; drawn at y=294-60=234
+    // Cornice band — PIL: content (28,60)-(449,78) in cornice.png; drawn at y=294-60=234
     // Collider at top of visible cornice: y=294, x=28, w=422
     platforms.push({
       x: 28, y: 294, w: 422, h: PLATFORM_H,
       type: 'normal', state: 'intact', crumbleTimer: 0,
       row: 0, winVariants: undefined, invisible: true,
     });
-    // Trash bins — PIL: content (6,5)-(176,101) in trash-bin.png; drawn at x=79, y=460
+    // Trash bins — PIL: content (6,5)-(176,101) in trash_bin.png; drawn at x=79, y=460
     // Collider at top of bins: y=465, x=85, w=171
     platforms.push({
       x: 85, y: 465, w: 171, h: PLATFORM_H,
       type: 'normal', state: 'intact', crumbleTimer: 0,
       row: 0, winVariants: undefined, invisible: true,
     });
-    // Building door — PIL: content (2,2)-(141,140) in building-door.png; drawn at x=278, y=421
+    // Building door — PIL: content (2,2)-(141,140) in building_door.png; drawn at x=278, y=421
     // Collider at top of door: y=423, x=280, w=140
     platforms.push({
       x: 280, y: 423, w: 140, h: PLATFORM_H,
@@ -191,7 +191,7 @@ function generateLevelPlatforms(level) {
   GameState.levelGoalY = PLAYER_START_Y - levelHeight;
 
   // Level 1: invisible collider for the building roof top surface.
-  // Roof drawn at levelGoalY - 56; Building_Roof.png content starts at y=21 (PIL scan)
+  // Roof drawn at levelGoalY - 56; building_roof.png content starts at y=21 (PIL scan)
   // → walkable surface at levelGoalY - 35. Full canvas width — cat can land anywhere on the roof.
   if (level === 1) {
     platforms.push({

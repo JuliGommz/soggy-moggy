@@ -44,30 +44,30 @@ const _bgStars    = new Image(); _bgStars.src    = 'PixelArt/backgrounds/shared/
 
 // ── Level-specific assets ──────────────────────────────────────────────────────
 const _bgL1Wall     = new Image(); _bgL1Wall.src     = 'PixelArt/backgrounds/level1_city/building_wall.png';
-const _bgL1TrashBin = new Image(); _bgL1TrashBin.src = 'PixelArt/backgrounds/level1_city/trash-bin.png';
-const _bgL1Door     = new Image(); _bgL1Door.src     = 'PixelArt/backgrounds/level1_city/building-door.png';
-const _bgL1Cornice  = new Image(); _bgL1Cornice.src  = 'PixelArt/backgrounds/level1_city/Cornice.png';
-const _bgL1Roof     = new Image(); _bgL1Roof.src     = 'PixelArt/backgrounds/level1_city/Building_Roof.png';
+const _bgL1TrashBin = new Image(); _bgL1TrashBin.src = 'PixelArt/backgrounds/level1_city/trash_bin.png';
+const _bgL1Door     = new Image(); _bgL1Door.src     = 'PixelArt/backgrounds/level1_city/building_door.png';
+const _bgL1Cornice  = new Image(); _bgL1Cornice.src  = 'PixelArt/backgrounds/level1_city/cornice.png';
+const _bgL1Roof     = new Image(); _bgL1Roof.src     = 'PixelArt/backgrounds/level1_city/building_roof.png';
 const _bgL2Sun      = new Image(); _bgL2Sun.src      = 'PixelArt/backgrounds/level2_see/sun.png';
-const _bgL2Landing  = new Image(); _bgL2Landing.src  = 'PixelArt/backgrounds/level2_see/see_landing-space.png';
-const _bgL2Bottom   = new Image(); _bgL2Bottom.src   = 'PixelArt/backgrounds/level2_see/Rocket_bottom.png';
-const _bgL2MidTop   = new Image(); _bgL2MidTop.src   = 'PixelArt/backgrounds/level2_see/Rocket_mid_and_top.png';
-const _bgL2ScaffBot = new Image(); _bgL2ScaffBot.src = 'PixelArt/backgrounds/level2_see/Rocket_scaffolding_botoom.png';
-const _bgL2ScaffMid = new Image(); _bgL2ScaffMid.src = 'PixelArt/backgrounds/level2_see/Rocket_scaffolding_mid.png';
+const _bgL2Landing  = new Image(); _bgL2Landing.src  = 'PixelArt/backgrounds/level2_see/sea_launchpad.png';
+const _bgL2Bottom   = new Image(); _bgL2Bottom.src   = 'PixelArt/backgrounds/level2_see/rocket_bottom.png';
+const _bgL2MidTop   = new Image(); _bgL2MidTop.src   = 'PixelArt/backgrounds/level2_see/rocket_mid_top.png';
+const _bgL2ScaffBot = new Image(); _bgL2ScaffBot.src = 'PixelArt/backgrounds/level2_see/rocket_scaffolding_bottom.png';
+const _bgL2ScaffMid = new Image(); _bgL2ScaffMid.src = 'PixelArt/backgrounds/level2_see/rocket_scaffolding_mid.png';
 
 // ── Level 3 assets (bg-back: shaft wall; bg-mid: pipes) ───────────────────────
-const _bgL3Elevator    = new Image(); _bgL3Elevator.src    = 'PixelArt/backgrounds/Level3_elevator/Elevator.png';
-const _bgL3ShaftBot    = new Image(); _bgL3ShaftBot.src    = 'PixelArt/backgrounds/Level3_elevator/Elevator_shaft_background_bottom.png';
-const _bgL3ShaftMid1   = new Image(); _bgL3ShaftMid1.src   = 'PixelArt/backgrounds/Level3_elevator/Elevator_shaft_background_mid1.png';
-const _bgL3ShaftMid2   = new Image(); _bgL3ShaftMid2.src   = 'PixelArt/backgrounds/Level3_elevator/Elevator_shaft_background_mid2.png';
-const _bgL3ShaftTop    = new Image(); _bgL3ShaftTop.src    = 'PixelArt/backgrounds/Level3_elevator/Elevator_shaft_background_top.png';
-const _bgL3PipesBot    = new Image(); _bgL3PipesBot.src    = 'PixelArt/backgrounds/Level3_elevator/Elevator_shaft_bg-mid_pipes_bottom.png';
-const _bgL3PipesMid    = new Image(); _bgL3PipesMid.src    = 'PixelArt/backgrounds/Level3_elevator/Elevator_shaft_bg-mid_pipes_middle.png';
-const _bgL3PipesTop    = new Image(); _bgL3PipesTop.src    = 'PixelArt/backgrounds/Level3_elevator/Elevator_shaft_bg-mid_pipes_top.png';
+const _bgL3Elevator    = new Image(); _bgL3Elevator.src    = 'PixelArt/backgrounds/level3_shaft/elevator.png';
+const _bgL3ShaftBot    = new Image(); _bgL3ShaftBot.src    = 'PixelArt/backgrounds/level3_shaft/shaft_bg_bottom.png';
+const _bgL3ShaftMid1   = new Image(); _bgL3ShaftMid1.src   = 'PixelArt/backgrounds/level3_shaft/shaft_bg_mid1.png';
+const _bgL3ShaftMid2   = new Image(); _bgL3ShaftMid2.src   = 'PixelArt/backgrounds/level3_shaft/shaft_bg_mid2.png';
+const _bgL3ShaftTop    = new Image(); _bgL3ShaftTop.src    = 'PixelArt/backgrounds/level3_shaft/shaft_bg_top.png';
+const _bgL3PipesBot    = new Image(); _bgL3PipesBot.src    = 'PixelArt/backgrounds/level3_shaft/pipes_bottom.png';
+const _bgL3PipesMid    = new Image(); _bgL3PipesMid.src    = 'PixelArt/backgrounds/level3_shaft/pipes_mid.png';
+const _bgL3PipesTop    = new Image(); _bgL3PipesTop.src    = 'PixelArt/backgrounds/level3_shaft/pipes_top.png';
 
-// Rocket_mid_and_top.png sprite regions (PIL alpha-scan verified):
+// rocket_mid_top.png sprite regions (PIL alpha-scan verified):
 //   3 sprites, all sw=74px, sh=270px content (sy=24: 24px transparent top padding in source).
-//   Rocket_bottom.png content cx = (184+299)/2 = 241.5 → drawX = 241 − 37 = 204
+//   rocket_bottom.png content cx = (184+299)/2 = 241.5 → drawX = 241 − 37 = 204
 const _RKT_SPRITES = [
   { sx:  24, sy: 24, sw: 74, sh: 270 }, // 0: mid tile A (left   sprite in sheet)
   { sx: 126, sy: 24, sw: 74, sh: 270 }, // 1: mid tile B (center sprite in sheet)
@@ -179,10 +179,10 @@ const _L1_BIN_Y     = 465;  // 562 (sidewalk) - 97 (bin content height)
 const _L1_DOOR_Y    = 423;  // 562 (sidewalk) - 139 (door content height)
 
 // Sprite padding offsets (from PIL alpha-scan of each PNG):
-//   trash-bin.png:    content starts at (6, 5)
-//   building-door.png: content starts at (2, 2)
-//   Cornice.png:      content starts at (28, 60)
-//   Building_Roof.png: content starts at (25, 21)
+//   trash_bin.png:    content starts at (6, 5)
+//   building_door.png: content starts at (2, 2)
+//   cornice.png:      content starts at (28, 60)
+//   building_roof.png: content starts at (25, 21)
 
 // Draws Level 1 building elements once at world bottom — scroll with world.
 // camShift = -cameraY; screenY = worldY + camShift.
@@ -271,13 +271,13 @@ function _drawL2Scaffolding(ctx, camShift) {
 // All parts are drawn at parallax factor 1.0 (world-speed, same as L1 building wall).
 //
 // Layer stacking (bottom to top of draw order):
-//   1. see_landing-space.png — full-width sea/dock image at world origin
-//   2. Rocket_bottom.png     — full-width base, overlaid on landing area
-//   3. Mid shaft tiles       — _RKT_SPRITES[0/1] alternating, tile upward to level goal
-//   4. Rocket top            — _RKT_SPRITES[2], content bottom at levelGoalY
+//   1. sea_launchpad.png  — full-width sea/dock image at world origin
+//   2. rocket_bottom.png  — full-width base, overlaid on landing area
+//   3. Mid shaft tiles    — _RKT_SPRITES[0/1] alternating, tile upward to level goal
+//   4. Rocket top         — _RKT_SPRITES[2], content bottom at levelGoalY
 //
 // Mid tile start: wy = -_RKT_MID_H so tile's content BOTTOM aligns with
-//   the TOP of Rocket_bottom.png (image y=0 at screen y=cs).
+//   the TOP of rocket_bottom.png (image y=0 at screen y=cs).
 function _drawL2Elements(ctx, camShift) {
   if (!_bgL2Landing.complete || _bgL2Landing.naturalWidth === 0) return;
   if (!_bgL2Bottom.complete  || _bgL2Bottom.naturalWidth  === 0) return;
