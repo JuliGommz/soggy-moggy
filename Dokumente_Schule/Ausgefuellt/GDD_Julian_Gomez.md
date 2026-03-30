@@ -173,10 +173,10 @@ Bei Landung: `vy = 0`, `onGround = true`.
 
 *(Vollimplementierung in Phase 5)*
 
-- Taste Z / Rechtsklick schiebt Objekte auf Plattformen
-- Mehrere Objekttypen: Score-Objekte (Punkte), Bonus-Objekte (zeitlimitierte Effekte), kulturelle Objekte (lateinamerikanische Elemente)
-- Sprite-Wechsel: `push_rise` (am Boden oder kurz nach Sprung) / `push_peak` (in der Luft)
-- Balancing-Werte werden in Phase 5 festgelegt
+- Taste Z / Rechtsklick löst Push-Aktion aus
+- Sprite-Wechsel: `push_rise` (am Boden oder kurz nach Sprung) / `push_peak` (in der Luft) — bereits implementiert
+- **MVP-Scope:** Kein generisches Item-Spawn-System. Einziges Push-Objekt im MVP ist die Kletter-Kiste in L3 Szene 1 (Elevator) — ein einzelnes, vorplatziertes Puzzle-Element das als Sprungstein zur Decken-Luke dient
+- Score-Objekte, Bonus-Objekte und kulturelle Objekte (lateinamerikanische Elemente) sind als Nice-to-Have zurückgestellt
 
 ### 2.6 Plattformen
 
@@ -245,10 +245,12 @@ Jedes Level hat eine eigene, stetig steigende Gefahr. Alle drei Gefahren teilen 
 - Führt Sprung- und Bewegungsmechanik ein; Gefahr: steigender Smog
 
 **Level 2 — El Mar Abierto (Offener See):**
-- Plattformthema: Stege die von Masten/Pfählen ausgehen
-- Hintergrundferne Schicht: Weite See, Horizont, Sonne mit Puls-Animation; Gerüst hinter dem Raketenturm
-- Raketenturm: getilelter Schaft mit Gerüst-Parallaxe; Raketen-Top schließt nahtlos an den letzten Schaft-Tile an
-- Flut steigt schneller als in Level 1; Sinuswellen-Darstellung; erreicht `levelGoalY`
+- Setting: Leuchtturm an einer felsigen Küste am offenen Meer (ersetzt Raketen-Setting; Entscheidung 30.03.2026)
+- Plattformthema: Felsvorsprünge, Wellenbrecherstufen, evtl. Leiterstangen am Turm
+- Hintergrund: Weite See, Horizont, Sonne mit Puls-Animation; Leuchtturm als zentrale vertikale Struktur (Stein/Backstein)
+- Shared-Layers (Himmel, Wolken) bleiben unverändert
+- Gefahr: Steigende Flut (Sinuswellen-Darstellung); steigt bis `levelGoalY` — passt thematisch besser zum Leuchtturm als zur Rakete
+- Pixel-Art Redesign: Phase 04.2
 
 **Level 3 — El Pozo Eléctrico (Aufzugschacht):**
 - Start: Spieler steht im Fahrstuhl (Erdgeschoss). Die Katze klettert durch eine Decken-Luke in den Schacht.

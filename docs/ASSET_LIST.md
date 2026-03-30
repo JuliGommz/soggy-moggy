@@ -68,9 +68,12 @@ Building composition sprites loaded in `src/background.js` for L1 background ren
 
 | Asset | File | Status | Notes |
 |-------|------|--------|-------|
-| Rocket launch ramp | `sea_launchpad.png` | wired | Launch tower background |
+| Sea launchpad / shore | `sea_launchpad.png` | wired | Shoreline background — keep for now, review in Phase 04.2 |
 | Sun | `sun.png` | wired | Sun element |
-| Platform arms (rocket tower) | — | needs-draw | Horizontal arms for L2 platforms |
+| Rocket sprites (all) | ~~rocket_bottom, rocket_mid_top, rocket_top, rocket_scaffolding_*~~ | RETIRED | Replaced by Lighthouse in Phase 04.2 |
+| Lighthouse building | — | needs-draw | Phase 04.2 — central vertical structure, stone/brick |
+| Lighthouse surroundings | — | needs-draw | Phase 04.2 — rocks, sea, environment |
+| L2 platform sprites | — | needs-draw | Phase 5 — rocky ledges / wave-breaker steps (new concept) |
 
 ---
 
@@ -146,7 +149,7 @@ Building composition sprites loaded in `src/background.js` for L1 background ren
 
 | Asset | Priority | Notes |
 |-------|----------|-------|
-| L2 platform sprites | Phase 5 | Rocket tower arm extensions |
+| L2 platform sprites | Phase 5 | Lighthouse platform elements (rocky ledges / wave-breaker steps) |
 | L3 shaft background PNG exports | Phase 5 | PXO files exist in _wip/ |
 | L3 wall-step platform sprites | Phase 5 | Ledge steps on shaft walls |
 | L3 mid-layer (cables/pipes) | Phase 5 | Julian's concept, confirmed |
