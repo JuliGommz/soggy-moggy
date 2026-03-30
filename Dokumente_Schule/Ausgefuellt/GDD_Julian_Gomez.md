@@ -284,29 +284,28 @@ Das Spiel kombiniert warme, plüschige Pixel-Ästhetik mit einer wachsenden Bedr
 
 Die Palette ist auf 16 Farben festgelegt und unveränderlich. Kein Schwarz (#000000) als Outline.
 
-| Code | Hex | Verwendung |
-|---|---|---|
-| BG-1 | #7eb8c9 | Taghimmel (Hintergrundebene 1) |
-| BG-2 | #2e3a5c | Nachthimmel (Hintergrundebene 2) |
-| BG-3 | #1a2438 | Tiefer Nachthimmel |
-| BG-4 | #c8e8f0 | Heller Himmelstreifen |
-| PLAT-1 | #5a7a3a | Plattformgrundfarbe (Grün) |
-| PLAT-2 | #3d5228 | Plattformschatten |
-| PLAT-3 | #8ab04a | Plattformhighlight |
-| WATER-1 | #2a5fa8 | Flut-Hauptfarbe |
-| WATER-2 | #4a8fd8 | Flut-Wellenkamm |
-| WATER-3 | #1a3f78 | Flut-Tiefe |
-| CAT-1 | #b09070 | Katzenkörper (Plüschbeige) |
-| CAT-2 | #d4b896 | Katze-Highlight |
-| CAT-3 | #7a6050 | Katze-Schatten |
-| CAT-4 | #2a2020 | Katzenaugen (Knöpfe) |
-| UI-1 | #f5e6c8 | UI-Hintergrund / Textfelder |
-| UI-2 | #c87820 | UI-Akzent / Rahmen |
+**Verbindliche Quelle:** `docs/STYLE_GUIDE.md` — die dort definierte Palette ist die einzig gültige Version. Sie wurde in Phase 04.1 verabschiedet und ist für alle weiteren Phasen gesperrt.
 
-**Kontrast-Regeln:**
-- Spielerfigur (CAT-1) muss immer auf BG-1/BG-2 lesbar sein — bestätigt ausreichend
-- HUD-Text auf UI-1-Hintergrund: ausreichender Kontrast
-- CAT-2 auf BG-2: grenzwertig — nur für kurze Animationsframes akzeptabel
+Die folgende Tabelle ist eine Übersicht der Slot-Rollen. Genaue Hex-Werte immer aus dem Style Guide entnehmen.
+
+| Slot | Rolle |
+|---|---|
+| BG-1 | Taghimmel |
+| BG-2 | Nachthimmel / tiefer Hintergrund |
+| BG-3 | Wolken-Highlight / warmer Akzent |
+| BG-4 | Wolken-Schatten / mittlerer Hintergrundton |
+| PLAT-1 | Plattformgrundfarbe |
+| PLAT-2 | Plattformkante / Schatten |
+| PLAT-3 | Brüchige Plattform (gerissener Zustand) |
+| PLAT-4 | Brüchige Plattform (zerbröckelnder Zustand) |
+| CAT-1 | Katzenkörper (Plüschbeige) |
+| CAT-2 | Katzenschatten |
+| CAT-3 | Katzenbauch / Highlight |
+| CAT-4 | Katzenohr-Akzent |
+| CAT-5 | Katzenknopfaugen |
+| WATER-1 | Flut-Hauptfarbe |
+| WATER-2 | Wellenkamm-Highlight |
+| UI-1 | HUD-Text / UI-Elemente |
 
 ### 3.3 Sprite-Design: Spielerfigur
 
@@ -414,7 +413,7 @@ Kein Sprite-Blending oder Fade zwischen Frames — harte Cuts entsprechen dem Pi
 
 ### 3.8 Audio-Konzept
 
-*(Vollimplementierung in Phase 5)*
+*(Vollimplementierung in Phase 6)*
 
 Alle Sounds werden über die Web Audio API erzeugt oder abgespielt.
 

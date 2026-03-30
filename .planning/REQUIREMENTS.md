@@ -1,4 +1,4 @@
-# Requirements: Cat Flood Jumper
+# Requirements: Soggy Moggy (Gato Sin Botas)
 
 **Defined:** 2026-03-03
 **Core Value:** A playable, complete gameplay loop: cat jumps up, water rises below, tension builds — the game feels real from first play.
@@ -7,7 +7,7 @@
 
 ### Core Loop
 
-- [x] **LOOP-01**: Player's cat auto-jumps upward when landing on any platform (no manual jump input)
+- [x] **LOOP-01**: Player's cat jumps on manual input (Space/left-click) while `onGround === true` — no auto-jump
 - [x] **LOOP-02**: Player can move cat left and right using arrow keys or A/D keys
 - [x] **LOOP-03**: Platforms are procedurally generated as the player climbs higher
 - [ ] **LOOP-04**: Camera scrolls upward with the player and never scrolls back down
@@ -133,11 +133,11 @@
 | PLAT-01 | Phase 3 | Complete |
 | PLAT-02 | Phase 3 | Complete |
 | PLAT-03 | Phase 3 | Complete |
-| VIS-01 | Phase 5 | Complete |
-| VIS-02 | Phase 5 | Complete |
-| VIS-03 | Phase 5 | Complete |
-| VIS-04 | Phase 5 | Complete |
-| VIS-05 | Phase 5 | Complete |
+| VIS-01 | Phase 04.1 | Complete |
+| VIS-02 | Phase 04.1 | Complete |
+| VIS-03 | Phase 04.1 | Complete |
+| VIS-04 | Phase 04.1 | Complete |
+| VIS-05 | Phase 04.1 | Complete |
 | HOST-01 | Phase 6 | Pending |
 | HOST-02 | Phase 6 | Pending |
 
@@ -148,4 +148,4 @@
 
 ---
 *Requirements defined: 2026-03-03*
-*Last updated: 2026-03-04 — corrected endless framing, added LEVEL-01 to LEVEL-04, updated LOOP-06, total now 34*
+*Last updated: 2026-03-30 — updated title; LOOP-01 corrected to manual jump; VIS-01–05 moved to Phase 04.1*
