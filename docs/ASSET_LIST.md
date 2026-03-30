@@ -1,7 +1,7 @@
 # Soggy Moggy — Asset List
 
 **Created:** 2026-03-09 (Phase 04.1)
-**Updated:** 2026-03-21 — full refresh with current paths post asset-restructure
+**Updated:** 2026-03-30 — naming convention sync (snake_case, collectibles folder)
 **Purpose:** Source of truth for all game assets. Every asset, its real filename, status, and where it's used in code.
 
 ---
@@ -54,12 +54,12 @@ Building composition sprites loaded in `src/background.js` for L1 background ren
 | Asset | File | Status | Notes |
 |-------|------|--------|-------|
 | Building wall | `building_wall.png` | wired | Main wall texture, tiled vertically |
-| Windows | `Windows.png` | wired | Window rows overlaid on wall |
-| Entrance + garbage | `Entrance_Garbage.png` | wired | Ground-level entrance area |
-| Building door | `building-door.png` | wired | Door element (invisible platform collider at x=280, y=423, w=140) |
-| Trash bin | `trash-bin.png` | wired | Trash bins (invisible platform collider at x=85, y=465, w=171) |
-| Cornice | `Cornice.png` | wired | Ledge element (invisible platform collider at x=28, y=294, w=422) |
-| Building roof | `Building_Roof.png` | wired | Rooftop element (finish trigger area) |
+| Windows | `windows.png` | wired | Window rows overlaid on wall |
+| Entrance + garbage | `entrance_garbage.png` | wired | Ground-level entrance area |
+| Building door | `building_door.png` | wired | Door element (invisible platform collider at x=280, y=423, w=140) |
+| Trash bin | `trash_bin.png` | wired | Trash bins (invisible platform collider at x=85, y=465, w=171) |
+| Cornice | `cornice.png` | wired | Ledge element (invisible platform collider at x=28, y=294, w=422) |
+| Building roof | `building_roof.png` | wired | Rooftop element (finish trigger area) |
 | City silhouette (bg_far) | — | DROPPED | Dropped for MVP |
 
 ---
@@ -68,7 +68,7 @@ Building composition sprites loaded in `src/background.js` for L1 background ren
 
 | Asset | File | Status | Notes |
 |-------|------|--------|-------|
-| Rocket launch ramp | `see_landing-space.png` | wired | Launch tower background |
+| Rocket launch ramp | `sea_launchpad.png` | wired | Launch tower background |
 | Sun | `sun.png` | wired | Sun element |
 | Platform arms (rocket tower) | — | needs-draw | Horizontal arms for L2 platforms |
 
@@ -97,13 +97,13 @@ Building composition sprites loaded in `src/background.js` for L1 background ren
 
 ---
 
-## Interactible Objects (`PixelArt/interactible_objects/`)
+## Collectibles (`PixelArt/collectibles/`)
 
 | Asset | File | Status | Notes |
 |-------|------|--------|-------|
-| Balloon extra-life | `live-up/extra-life.png` | wired | 150x220 source, drawn 70x106; Lissajous bob pattern |
-| HUD lives icon | `live-up/cat_beishe.png` | wired | 20x16 per life in HUD (top-right) |
-| Plush cat reference | `live-up/cat_beishe_plush.png` | exists | Reference for balloon sub-zone |
+| Balloon extra-life | `balloon.png` | wired | 150x220 source, drawn 70x106; Lissajous bob pattern |
+| HUD lives icon | `life_icon.png` | wired | 20x16 per life in HUD (top-right) |
+| Plush cat reference | `life_plush.png` | exists | Reference for balloon sub-zone |
 
 ---
 
@@ -132,7 +132,7 @@ Building composition sprites loaded in `src/background.js` for L1 background ren
 
 | Asset | Status | Notes |
 |-------|--------|-------|
-| Lives (cat icon) | wired | `cat_beishe.png`, drawn as pixel icons |
+| Lives (cat icon) | wired | `life_icon.png`, drawn as pixel icons |
 | Score display | canvas-drawn | System font, screen-space after ctx.restore() |
 | Height display | canvas-drawn | System font |
 | Pause menu | canvas-drawn | Overlay with 3 options |
