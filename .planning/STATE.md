@@ -3,27 +3,26 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-03-09T14:22:00.676Z"
+last_updated: "2026-03-21T12:00:00.000Z"
 progress:
   total_phases: 7
   completed_phases: 5
   total_plans: 11
   completed_plans: 11
-  percent: 100
 ---
 
-# State: Cat Flood Jumper
+# State: Soggy Moggy
 
-**Last updated:** 2026-03-09
-**Updated by:** Phase 04.1 plan 01 verified complete — STYLE_GUIDE.md, palette file, imageSmoothingEnabled, platform colors all correct
+**Last updated:** 2026-03-21
+**Updated by:** L2 background assets integrated (rocket tower + sea landing); L2 level planning on hold pending further design decisions
 
 ---
 
 ## Project Reference
 
-**Core Value:** A playable, complete gameplay loop: cat jumps up, water rises below, tension builds — the game feels real from first play.
+**Core Value:** A playable, complete gameplay loop: cat jumps up, level-specific hazards rise from below (smog/flood/electricity), tension builds — the game feels real from first play.
 
-**Current Focus:** Phase 04.1 (Visual Concept) — COMPLETE. Both plans done. Phase 5 (Throw + Audio) planning next.
+**Current Focus:** Phase 5 (Push + HUD) — planning next. Manual jump already implemented on feature/asset-restructure-mechanics branch.
 
 **Stack:** Vanilla JavaScript ES2022+ + HTML Canvas 2D (480x640) + Web Audio API + GitHub Pages
 
@@ -31,14 +30,14 @@ progress:
 
 ## Current Position
 
-**Active Phase:** 5 — Throw + Audio (NOT STARTED — planning next)
+**Active Phase:** 5 — Push + HUD (NOT STARTED — planning next)
 **Active Plan:** none — phase 04.1 complete, phase 5 plan pending
-**Phase Status:** Phase 04.1 complete — 2/2 plans done
+**Phase Status:** Phases 1–4 and 04.1 complete — mechanics restructure branch in progress
 
 ```
-Progress: [x][x][x][x][x][ ]  5/6 main phases complete
-           P1  P2  P3  P4  P5  P6
-           Phase 04.1 (visual concept) COMPLETE, Phase 5 next
+Progress: [x][x][x][x][x][ ][ ][ ]  5/8 phases complete (incl. 04.1)
+           P1  P2  P3  P4 04.1 P5  P6  P7
+           Phases 1-4 + 04.1 complete; Phase 5 (Push+HUD) next
 ```
 
 ---
@@ -52,18 +51,19 @@ Progress: [x][x][x][x][x][ ]  5/6 main phases complete
 | 3 | Game World | Complete | 3/3 |
 | 4 | Flood + Lives | Complete | 2/2 |
 | 04.1 | Visual Concept | Complete | 2/2 |
-| 5 | Throw + Audio | Not started | 0/? |
-| 6 | Hosting | Not started | 0/? |
+| 5 | Push + HUD | Not started | 0/? |
+| 6 | Audio | Not started | 0/? |
+| 7 | Hosting | Not started | 0/? |
 
 ---
 
 ## Performance Metrics
 
-- Requirements defined: 30
-- Requirements mapped: 30 (100%)
-- Phases complete: 4/6
-- Plans complete: 10/11
-- v1 features shipped: 0/30
+- Requirements defined: 45
+- Requirements mapped: 45 (100%)
+- Phases complete: 5/7 (+ 04.1)
+- Plans complete: 11/11
+- v1 features shipped: 0/45
 
 | Phase | Plan | Duration (s) | Tasks | Files |
 |-------|------|-------------|-------|-------|
@@ -96,8 +96,8 @@ Progress: [x][x][x][x][x][ ]  5/6 main phases complete
 | Camera one-way gate: if (newCameraY < cameraY) | cameraY can only decrease — when player falls, newCameraY increases, condition fails, camera holds | Phase 2 |
 | Fall detection after updateCamera() | Fall check uses cameraY + canvas.height; must use current frame cameraY, not stale value | Phase 2 |
 | Height formula: 528 - maxHeightReached | 528 = player start world Y; maxHeightReached stores minimum Y seen; result = pixels climbed | Phase 2 |
-| Throw effect on water: TBD | Decide after water mechanic is working in Phase 4; playtesting informs the design | Phase 5 |
-| Lives system over instant death | More forgiving; makes the throw mechanic feel more meaningful | Phase 4 |
+| Push effect on hazard: item hits hazard → splash + bonus points | Level 2 confirmed; L1/L3 stubs for later | Phase 5 |
+| Lives system over instant death | More forgiving; makes the push mechanic feel more meaningful | Phase 4 |
 | Working title: Soggy Moggy | Renamed from "Cat Flood Jumper" | — |
 | Player = Stuffed Cat | Not a real/live cat — specific visual character with floppy limbs, button eyes, stitched seams | Phase 04.1 |
 | Placeholders until sprites | Colored rectangles used through Phase 4; real sprites produced after Phase 04.1 | Phase 1–4 |
@@ -110,9 +110,9 @@ Progress: [x][x][x][x][x][ ]  5/6 main phases complete
 | Visual Concept phase (04.1) | Expert-agent-driven art direction before Phase 5 sprite work; placed after MVP is proven | Phase 04.1 |
 | Cat sprite direction: grey-pink, 3-frame jump | Grey-pink coloring; down/middle/high frames driven by bounceTimer in player.js; hitbox 32x32, drawn 96x96 | Phase 04.1 |
 | Game language: Spanish | All UI text, screen titles, HUD labels in Spanish for the dramaturgical layer | Phase 5 |
-| 4-level structure: Stadt, See, Aufzug, Freizeitpark | Each level has unique parallax layers and danger mechanic; not endless — level-based structure | Phase 5 |
+| 3-level structure: Stadt, See, Aufzugschacht | Each level has unique parallax layers and danger mechanic; L4 Freizeitpark DROPPED for MVP | Phase 5 |
 | Level-specific parallax per level | bg_far is always the setting silhouette; bg_mid/bg_near slots filled with level-specific sprites; clouds/stars reused across levels | Phase 5 |
-| Danger per level: L2=water, L3=electric shock, L4=ghosts | Level 1 danger TBD; water system stays for L2; new mechanics needed for L3 and L4 | Phase 5 |
+| Danger per level: L1=Smog, L2=Flood, L3=Electricity | All three renderers implemented in water.js; hazard dispatcher per GameState.level | Phase 4 |
 | Prompting strategy documentation | Two-stage system: auto-maintained log throughout + analysis at project end | All phases |
 | Classic script tags (no ES6 modules) | Works on file:// without dev server; matches school example pattern (jumprun, scripteroids) | Phase 1 |
 | GamePhase as Object.freeze | Prevents accidental mutation of phase string constants | Phase 1 |
@@ -153,16 +153,23 @@ Progress: [x][x][x][x][x][ ]  5/6 main phases complete
 
 | Question | When to Decide |
 |----------|----------------|
-| What does the throw do to the water? (freeze / slow / visual only) | Now — Phase 4 is complete, playtesting is possible |
-| Throw cooldown duration | Phase 5 default recommendation: 1-2 seconds |
-| Does the project need a pause key? | Phase 5 only if time permits |
-| Max jump height in pixels (needed for gap constraint formula) | Measure in Phase 2 before Phase 3 starts |
+| What does the push do to the hazard? (splash / visual only) | Phase 5 planning |
+| Push cooldown duration | Phase 5 default recommendation: 1-2 seconds |
+
+### Resolved Design Questions
+
+| Question | Resolution |
+|----------|------------|
+| Does the project need a pause key? | YES — Escape key pauses, implemented with menu (resume/restart/quit) |
+| Max jump height in pixels | Variable jump implemented; GAP_PX=120 confirmed reachable |
+| How many levels? | 3 levels (L4 Freizeitpark dropped for MVP, 16.03.2026) |
+| Danger per level? | L1=Smog, L2=Flood, L3=Electricity — all implemented |
 
 ### Todos
 
-- [ ] Measure actual max jump height (pixels) after Phase 2 physics are implemented — required for PLAT-03 gap constraint
-- [ ] Decide throw mechanic water interaction after Phase 4 playtesting — Phase 4 is now complete, decision can be made
-- [ ] Confirm GitHub Pages is enabled on the repository before Phase 6
+- [x] Measure actual max jump height — variable jump implemented, GAP_PX=120 confirmed
+- [ ] Decide push mechanic hazard interaction after playtesting — Phase 5 scope
+- [ ] Confirm GitHub Pages is enabled on the repository before Phase 7
 
 ### Resolved Decisions (Phase 04.1)
 
@@ -171,9 +178,9 @@ Progress: [x][x][x][x][x][ ]  5/6 main phases complete
 
 ### School Formality Todos (deadline 22.04.2026)
 
-- [ ] **SCHOOL-01** — Create Projektplan from template (`Dokumente_Schule/Vorlagen/Projektplan_Abschlussarbeit_Vorlage.docx`) — worth 20pts in Projektmanagement grade
-- [ ] **SCHOOL-02** — Create Arbeitsprotokoll from template (`Dokumente_Schule/Vorlagen/Arbeitsprotokoll_Abschlussarbeit_Vorlage.docx`) — retroactive entries from 04.03.2026 to current date, then maintained daily
-- [ ] **SCHOOL-03** — Create GDD (Grobkonzept + Feinkonzept + Designkonzept) — Designkonzept is always separate; Phase 04.1 Style Guide can become the Designkonzept basis
+- [x] **SCHOOL-01** — Projektplan: `Dokumente_Schule/Ausgefuellt/Projektplan_Julian_Gomez.docx` — DONE
+- [x] **SCHOOL-02** — Arbeitsprotokoll: `Dokumente_Schule/Ausgefuellt/Arbeitsprotokoll_Julian_Gomez.docx` — DONE (needs daily updates)
+- [x] **SCHOOL-03** — GDD: `Dokumente_Schule/Ausgefuellt/GDD_Julian_Gomez.md` + `.docx` — DONE
 - [ ] **SCHOOL-04** — Create Medienkatalog — list all third-party assets, Claude Code AI usage (with prompts), pixel art tools, any external references
 - [ ] **SCHOOL-05** — Create README.md at repo root — name, asset list, startup instructions, where each requirement is met
 - [ ] **SCHOOL-06** — Gameplay video — recorded after game is feature-complete (Phase 5 area)
@@ -196,8 +203,8 @@ None.
 
 **Repository:** `C:/Users/Teilnehmer/Desktop/Schule/PRG/Abschlussprojekt_SRH_26`
 **Planning files:** `.planning/`
-**Last session:** 2026-03-09 — Phase 04.1 complete. Both plans done. ASSET_LIST.md created with 4-level design. New design decisions recorded: Spanish text, 4 levels (Stadt/See/Aufzug/Freizeitpark), level-specific parallax, per-level danger mechanics.
-**Next action:** `/gsd:plan-phase 5` — plan the Throw + Audio phase with new 4-level context.
+**Last session:** 2026-03-21
+**Next action:** L2 background integrated but planning on hold (further design decisions needed). Focus: finish `feature/asset-restructure-mechanics` branch, merge, then `/gsd:plan-phase 5` — Push + HUD.
 
 ---
 *State initialized: 2026-03-03 after roadmap creation*

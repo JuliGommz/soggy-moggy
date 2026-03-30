@@ -1,183 +1,162 @@
-# Soggy Moggy — Phase 5 Asset List
+# Soggy Moggy — Asset List
 
 **Created:** 2026-03-09 (Phase 04.1)
-**Updated:** 2026-03-09 — reflects actual integrated sprites and 4-level design
-**Purpose:** Source of truth for Phase 5. Every asset, its real filename, status, and which Phase 5 plan uses it.
+**Updated:** 2026-03-30 — naming convention sync (snake_case, collectibles folder)
+**Purpose:** Source of truth for all game assets. Every asset, its real filename, status, and where it's used in code.
 
 ---
 
-## How to read this list
+## Status Legend
 
-- **exists + wired** — file in repo, referenced in code, working
-- **exists + unwired** — file in repo, not yet referenced in any source file
-- **needs-draw** — asset does not exist yet, must be drawn in Pixelorama
-- **needs-draw (per level)** — one variant per level needed
+- **wired** — file in repo, referenced in code, working
+- **exists** — file in repo, not yet referenced in code
+- **needs-draw** — asset does not exist yet, must be created
+- **canvas-drawn** — rendered via code, no sprite file needed
 
 ---
 
-## Cat Character Sprites
+## Cat Character Sprites (`PixelArt/cat/`)
 
-### Jump animation (3 frames) — INTEGRATED
-
-All three frames are loaded in `src/player.js` and wired to the bounce animation timer.
+All frames loaded in `src/player.js` and wired to the frame selection logic.
 
 | Frame | File | Size | Status |
 |-------|------|------|--------|
-| Contact / down | `PixelArt/Cats/Cat1_grey-pink_down-jump.png` | 64x64 | exists + wired |
-| Launch / middle | `PixelArt/Cats/Cat1_grey-middle-jump.png` | 64x64 | exists + wired |
-| Peak / high | `PixelArt/Cats/Cat1_grey-pink_high-jump.png` | 64x64 | exists + wired |
+| Idle (standing) | `PixelArt/cat/idle.png` | 64x64 | wired |
+| Rise (ascending) | `PixelArt/cat/rise.png` | 64x64 | wired |
+| Peak (airborne) | `PixelArt/cat/peak.png` | 64x64 | wired |
+| Push rise (Z, low) | `PixelArt/cat/push_rise.png` | 64x64 | wired |
+| Push peak (Z, high) | `PixelArt/cat/push_peak.png` | 64x64 | wired |
+| Walk frame 1 | `PixelArt/cat/walk_1.png` | 64x64 | wired |
+| Walk frame 2 | `PixelArt/cat/walk_2.png` | 64x64 | wired |
 
-Rendering: 96x96 display (3× hitbox), bottom-aligned, horizontal flip on left movement.
-
-### Throw pose — EXISTS, not yet wired
-
-| Frame | File | Size | Status | Phase 5 plan |
-|-------|------|------|--------|--------------|
-| Throw / paw-up | `PixelArt/Cats/Cat1_grey_Paw-Up.png` | 64x64 | exists + unwired | 05-01 throw mechanic |
-
-Wire via `_sprThrow` in `src/player.js` — show while throw cooldown is active.
+Rendering: 96x96 display (3x hitbox 32x32), bottom-aligned, `player.flipped` triggers ctx.scale(-1,1) for right-facing.
 
 ---
 
-## Background Layers (existing)
+## Background Layers — Shared (`PixelArt/backgrounds/shared/`)
 
-### Layer 1 — Sky (bg_far equivalent for current system)
+All layers loaded in `src/background.js`. 5-layer parallax system with day/night crossfade.
 
-| File | Size | Status | Notes |
-|------|------|--------|-------|
-| `PixelArt/Paralax/Layer1/day.png` | 480x640 | exists + wired | Day sky fill |
-| `PixelArt/Paralax/Layer1/night.png` | 480x640 | exists + wired | Night sky fill |
-| `PixelArt/Paralax/Layer1/bf_far_Sky_grandient.png` | — | exists, verify size | Sky gradient variant |
-
-### Layer 2 — Mid (clouds, stars)
-
-| File | Size | Status | Notes |
-|------|------|--------|-------|
-| `PixelArt/Paralax/Layer2/Clouds_bright.png` | 480x220 | exists + wired | Content rows y=16–201; tileH=186 |
-| `PixelArt/Paralax/Layer2/Clouds_dark.png` | 480x640 | exists + wired | tileH=210 |
-| `PixelArt/Paralax/Layer2/bf_mid_Stars.png` | 480x640 | exists + wired | tileH=363 |
-
-### Layer 3 — Near (platform sprites)
-
-| File | Size | Status | Notes |
-|------|------|--------|-------|
-| `PixelArt/Paralax/Layer3/Jallosien/Jallosien_SpriteMap.png` | — | exists + wired | 3-part platform sprite (capL/mid/capR), 7 rows |
-| `PixelArt/Paralax/Layer3/Jallosien/3Parts_Jal_1.png` | — | exists | Reference / parts sheet |
+| Layer | File | Size | Status |
+|-------|------|------|--------|
+| Day sky | `PixelArt/backgrounds/shared/sky_day.png` | 480x640 | wired |
+| Night sky | `PixelArt/backgrounds/shared/sky_night.png` | 480x640 | wired |
+| Stars | `PixelArt/backgrounds/shared/stars.png` | 480x640, tileH=363 | wired |
+| Clouds bright | `PixelArt/backgrounds/shared/clouds_bright.png` | 480x220, tileH=186 | wired |
+| Clouds dark | `PixelArt/backgrounds/shared/clouds_dark.png` | 480x640, tileH=210 | wired |
 
 ---
 
-## 4-Level Design — Assets Needed
+## Level 1 — Stadt / City (`PixelArt/backgrounds/level1_city/`)
 
-Game has 4 levels, each with level-specific parallax layers. Structure:
-- **bg_far**: Setting silhouette (unique per level, vague/distant)
-- **bg_mid 1**: Clouds + stars (reuse existing)
-- **bg_mid 2–4**: Level-specific mid elements
-- **bg_near 1–4**: Level-specific near elements
+Building composition sprites loaded in `src/background.js` for L1 background rendering.
 
-### Level 1 — Stadtsetting (City)
-
-| Asset | File | Notes | Status |
-|-------|------|-------|--------|
-| City silhouette | bg_far_level1_city.png | Distant rooftops, vague, night look | needs-draw |
-| Jalousien (near) | Jallosien_SpriteMap.png | Reuse existing | exists + wired |
-| bg_mid elements | — | TBD | — |
-| Danger element | — | TBD | — |
-
-### Level 2 — Offener See (Open Lake/Sea)
-
-| Asset | File | Notes | Status |
-|-------|------|-------|--------|
-| Sea horizon | bg_far_level2_sea.png | Water horizon, sky | needs-draw |
-| Masten / Posts | bg_mid_level2_mast.png | Posts that anchor platforms | needs-draw |
-| Platform arms | bg_near_level2_platform.png | Platforms extending from masts | needs-draw |
-| Water danger | — | Reuse/extend existing water system | exists (water.js) |
-
-### Level 3 — Aufzugschacht (Elevator Shaft)
-
-| Asset | File | Notes | Status |
-|-------|------|-------|--------|
-| Shaft walls | bg_far_level3_shaft.png | Dark concrete/metal shaft | needs-draw |
-| Cables + metal | bg_mid_level3_cables.png | Hanging cables, metal parts | needs-draw |
-| Steam clouds | bg_mid_level3_steam.png | Rising steam puffs | needs-draw |
-| Elektroboxen | bg_near_level3_boxes.png | Electric distribution boxes | needs-draw |
-| Electric shock VFX | — | Danger: periodic electric zap | needs-draw |
-
-### Level 4 — Freizeitpark (Amusement Park)
-
-| Asset | File | Notes | Status |
-|-------|------|-------|--------|
-| Park silhouette | bg_far_level4_park.png | Distant rides, Ferris wheel outline | needs-draw |
-| Ghost train | bg_near_level4_ghosttrain.png | Stationary; possible slight sideways drift | needs-draw |
-| Ghost enemies | enemy_ghost.png | Moving threat: drifts toward player | needs-draw |
-| bg_mid elements | — | TBD | — |
+| Asset | File | Status | Notes |
+|-------|------|--------|-------|
+| Building wall | `building_wall.png` | wired | Main wall texture, tiled vertically |
+| Windows | `windows.png` | wired | Window rows overlaid on wall |
+| Entrance + garbage | `entrance_garbage.png` | wired | Ground-level entrance area |
+| Building door | `building_door.png` | wired | Door element (invisible platform collider at x=280, y=423, w=140) |
+| Trash bin | `trash_bin.png` | wired | Trash bins (invisible platform collider at x=85, y=465, w=171) |
+| Cornice | `cornice.png` | wired | Ledge element (invisible platform collider at x=28, y=294, w=422) |
+| Building roof | `building_roof.png` | wired | Rooftop element (finish trigger area) |
+| City silhouette (bg_far) | — | DROPPED | Dropped for MVP |
 
 ---
 
-## UI Elements
+## Level 2 — Offener See / Open Sea (`PixelArt/backgrounds/level2_see/`)
 
-| Asset | File | Notes | Status |
-|-------|------|-------|--------|
-| Heart full | `PixelArt/UI/heart_full.png` | 16x16 | needs-draw |
-| Heart empty | `PixelArt/UI/heart_empty.png` | 16x16 | needs-draw |
-
-Current HUD uses Unicode hearts — acceptable for submission. Pixel-art hearts are polish only.
-
----
-
-## Thrown Object
-
-| Asset | File | Notes | Status |
-|-------|------|-------|--------|
-| Projectile | `PixelArt/Objects/throw_ball.png` | 16x16, ball of yarn or beanbag | needs-draw |
+| Asset | File | Status | Notes |
+|-------|------|--------|-------|
+| Rocket launch ramp | `sea_launchpad.png` | wired | Launch tower background |
+| Sun | `sun.png` | wired | Sun element |
+| Platform arms (rocket tower) | — | needs-draw | Horizontal arms for L2 platforms |
 
 ---
 
-## What is NOT needed for Phase 5
+## Level 3 — Aufzugschacht / Elevator Shaft
 
-| Item | Reason |
-|------|--------|
-| cat_idle.png / cat_throw.png aliases | Sprites use their real Pixelorama filenames directly |
-| Multi-frame walk cycle | v1 scope: jump animation only |
-| Tilemap sheet | Project uses single-sprite drawImage |
-| Bitmap font sheet | System font is sufficient for submission |
-| Enemy sprites (non-ghost) | No enemies in v1 except Level 4 ghosts |
+| Asset | File | Status | Notes |
+|-------|------|--------|-------|
+| Elevator cabin | `PixelArt/_wip/Elevator.pxo` | WIP (no PNG) | Starting area |
+| Elevator shaft | `PixelArt/_wip/Elevator_shaft.pxo` | WIP (no PNG) | Main climbing area |
+| Shaft backwall | `PixelArt/_wip/Elevator_shaft_Backwall.pxo` | WIP (no PNG) | Background layer |
+| Wall-step platforms | — | needs-draw | Ledge steps on shaft walls |
+| Mid-layer (cables/pipes) | — | needs-draw | Parallax mid-layer, Julian's concept |
 
 ---
 
-## Image Loading Pattern (Phase 5 reference)
+## Platforms (`PixelArt/platforms/`)
 
-Standard preload for all sprites. Add to `src/sprites.js` (new file):
+| Asset | File | Status | Notes |
+|-------|------|--------|-------|
+| Jalousie sprite sheet (L1) | `platforms/level1_city/jalousie_sheet.png` | wired | 3-part: capL + tiled mid + capR, 7 rows |
+| Jalousie parts reference | `platforms/level1_city/jalousie_parts.png` | exists | Reference sheet |
+| L2 platforms | — | needs-draw | Rocket tower arms |
+| L3 platforms | — | needs-draw | Shaft wall ledge steps |
 
-```js
-const sprites = {};
+---
 
-function loadSprites(onComplete) {
-  const toLoad = {
-    catDown:       'PixelArt/Cats/Cat1_grey-pink_down-jump.png',
-    catMiddle:     'PixelArt/Cats/Cat1_grey-middle-jump.png',
-    catHigh:       'PixelArt/Cats/Cat1_grey-pink_high-jump.png',
-    catThrow:      'PixelArt/Cats/Cat1_grey_Paw-Up.png',
-    cloudsBright:  'PixelArt/Paralax/Layer2/Clouds_bright.png',
-    cloudsDark:    'PixelArt/Paralax/Layer2/Clouds_dark.png',
-    bgDay:         'PixelArt/Paralax/Layer1/day.png',
-    bgNight:       'PixelArt/Paralax/Layer1/night.png',
-    stars:         'PixelArt/Paralax/Layer2/bf_mid_Stars.png',
-  };
-  let pending = Object.keys(toLoad).length;
-  for (const [key, src] of Object.entries(toLoad)) {
-    const img = new Image();
-    img.onload = () => { if (--pending === 0) onComplete(); };
-    img.onerror = () => console.error('Failed to load sprite:', src);
-    img.src = src;
-    sprites[key] = img;
-  }
-}
-```
+## Collectibles (`PixelArt/collectibles/`)
 
-Note: cat sprites are currently loaded inline in `src/player.js` — migrate to this central loader in Phase 5 as part of sprite-wiring plan.
+| Asset | File | Status | Notes |
+|-------|------|--------|-------|
+| Balloon extra-life | `balloon.png` | wired | 150x220 source, drawn 70x106; Lissajous bob pattern |
+| HUD lives icon | `life_icon.png` | wired | 20x16 per life in HUD (top-right) |
+| Plush cat reference | `life_plush.png` | exists | Reference for balloon sub-zone |
+
+---
+
+## Finish Trigger Objects (canvas-drawn in `src/main.js`)
+
+| Object | Level | Status | Notes |
+|--------|-------|--------|-------|
+| Pinwheel (spinning) | L1 | canvas-drawn | Weather vane style, rotates on trigger |
+| Bell (swaying) | L2 | canvas-drawn | Sways on trigger |
+| Lever (snapping) | L3 | canvas-drawn | Snaps to turn off electricity |
+| Golden slab platform | All | canvas-drawn | 100px wide, right-aligned (x=360) |
+
+---
+
+## Hazards (canvas-drawn in `src/water.js`)
+
+| Hazard | Level | Status | Notes |
+|--------|-------|--------|-------|
+| Smog | L1 | canvas-drawn | 3 gradient bands + cosine billowing edge + 2-pass glow |
+| Flood | L2 | canvas-drawn | Sine wave surface |
+| Electricity | L3 | canvas-drawn | 3-layer bolt system with pulsing alpha |
+
+---
+
+## UI / HUD Elements
+
+| Asset | Status | Notes |
+|-------|--------|-------|
+| Lives (cat icon) | wired | `life_icon.png`, drawn as pixel icons |
+| Score display | canvas-drawn | System font, screen-space after ctx.restore() |
+| Height display | canvas-drawn | System font |
+| Pause menu | canvas-drawn | Overlay with 3 options |
+| Level complete screen | canvas-drawn | Title + score + 4 menu options |
+| Game over screen | canvas-drawn | Title + high score |
+| Start screen | canvas-drawn | Title + controls hint |
+
+---
+
+## Still Missing (all levels)
+
+| Asset | Priority | Notes |
+|-------|----------|-------|
+| L2 platform sprites | Phase 5 | Rocket tower arm extensions |
+| L3 shaft background PNG exports | Phase 5 | PXO files exist in _wip/ |
+| L3 wall-step platform sprites | Phase 5 | Ledge steps on shaft walls |
+| L3 mid-layer (cables/pipes) | Phase 5 | Julian's concept, confirmed |
+| Pushable object sprites | Phase 5 | 3 types (score, bonus, cultural) |
+| Cultural element sprites | TBD | Latin American/Colombian themed |
+| Title screen art | TBD | Custom artwork for start screen |
 
 ---
 
 ## Palette Reference
 
-Full palette in `docs/STYLE_GUIDE.md`. Importable as `PixelArt/soggy_moggy_palette.gpl`.
+Full palette in `docs/STYLE_GUIDE.md`.
+Importable as `PixelArt/_dev/_palette/soggy_moggy.gpl` (16 colors).
