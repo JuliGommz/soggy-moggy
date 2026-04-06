@@ -330,6 +330,15 @@ const ap_rows = [
   ['23.03.2026', 'Hazard: Obergrenze L2/L3 auf levelGoalY gesetzt (war +300px)',         X,  X,  X],
   ['23.03.2026', 'Ballon: 2x Steiggeschwindigkeit, 1/3 Seitenamplitude',                X,  X,  X],
   ['23.03.2026', 'water.js umbenannt zu hazards.js (korrekte Benennung)',               X,  X,  X],
+  ['25.03.2026', 'PixelArt: snake_case Benennung alle Assets erzwungen',                X,  X,  X],
+  ['25.03.2026', 'Sprite-Pfade in player.js + background.js aktualisiert',             X,  X,  X],
+  ['30.03.2026', 'Merge: feature/asset-restructure-mechanics → master',                X,  X,  X],
+  ['30.03.2026', 'GDD: Scope-Entscheidungen (Push-Mechanik, L2 Leuchtturm)',           X,  X,  X],
+  ['30.03.2026', 'Phase 04.2 initialisiert: Recherche L2-Leuchtturm-Redesign',        X,  X,  X],
+  ['06.04.2026', 'Katzen-Sprites: 7 Einzeldateien zu animation_sheet.png konsolidiert',X,  X,  X],
+  ['06.04.2026', 'player.js: Spritesheet-System mit Index-Array (_CAT_SPRITES)',       X,  X,  X],
+  ['06.04.2026', 'background.js: Leuchtturm-Renderer (_drawL2Lighthouse) implementiert',X, X,  X],
+  ['06.04.2026', 'Branch feature/04.2-l2-lighthouse erstellt, Doku aktualisiert',     X,  X,  X],
 ];
 
 const apTable = new Table({

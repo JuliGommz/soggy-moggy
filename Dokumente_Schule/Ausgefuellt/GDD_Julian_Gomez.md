@@ -322,15 +322,17 @@ Die ausgestopfte Katze ist als Plüschtier konzipiert — erkennbar durch Nähte
 
 **Sprite-Set (Implementiert):**
 
-| Sprite | Datei | Zustand |
+Alle 7 Posen sind in einem einzigen Spritesheet zusammengefasst: `PixelArt/cat/animation_sheet.png`
+
+| Index | Pose | Zustand |
 |---|---|---|
-| Idle | `PixelArt/cat/idle.png` | Stehend auf Plattform |
-| Rise | `PixelArt/cat/rise.png` | Aufstieg nach Sprung |
-| Peak | `PixelArt/cat/peak.png` | Höhepunkt / freier Fall |
-| Push Rise | `PixelArt/cat/push_rise.png` | Push am Boden / tief in der Luft |
-| Push Peak | `PixelArt/cat/push_peak.png` | Push auf Höhepunkt |
-| Walk 1 | `PixelArt/cat/walk_1.png` | Laufzyklus Frame 1 |
-| Walk 2 | `PixelArt/cat/walk_2.png` | Laufzyklus Frame 2 |
+| 0 | Idle | Stehend auf Plattform |
+| 1 | Rise | Aufstieg nach Sprung |
+| 2 | Walk 1 | Laufzyklus Frame 1 |
+| 3 | Walk 2 | Laufzyklus Frame 2 |
+| 4 | Push Rise | Push am Boden / tief in der Luft |
+| 5 | Push Peak | Push auf Höhepunkt |
+| 6 | Peak | Höhepunkt / freier Fall |
 
 **Sprite-Auswahl-Logik (Priorität von oben nach unten):**
 1. `pushTimer > 0` → push_rise (am Boden oder kurz nach Sprung) / push_peak (hoch oben)
@@ -343,12 +345,15 @@ Die ausgestopfte Katze ist als Plüschtier konzipiert — erkennbar durch Nähte
 
 **Y-Offsets** (Pixelkorrektur für transparente Randbereiche, 1,5× skaliert):
 
-| Sprite | Offset |
-|---|---|
-| idle | 6 px |
-| walk | 20 px |
-| push_rise | 20 px |
-| push_peak | 4 px |
+| Index | Pose | Offset |
+|---|---|---|
+| 0 | idle | 16 px |
+| 1 | rise | 16 px |
+| 2 | walk_1 | 16 px |
+| 3 | walk_2 | 16 px |
+| 4 | push_rise | 16 px |
+| 5 | push_peak | 12 px |
+| 6 | peak | 12 px |
 
 ### 3.4 Hintergrund & Parallax
 
