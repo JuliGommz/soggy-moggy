@@ -41,11 +41,12 @@
 - [ ] **LIFE-02**: Player receives a brief visual indicator (screen flash) when taking damage
 - [ ] **LIFE-03**: Losing all 3 lives triggers the game over screen
 
-### Throw Mechanic
+### Push Mechanic
 
-- [ ] **THROW-01**: Player can throw an object downward (button TBD — spacebar or click)
-- [ ] **THROW-02**: Thrown object has visible projectile travel downward on screen
-- [ ] **THROW-03**: Throw effect on game world (water interaction) decided in playtesting — placeholder accepted for submission
+- [x] **PUSH-01**: Z / right-click triggers push action; sprite switches to push_rise or push_peak based on player state (DONE on mechanics branch)
+- [ ] ~~**PUSH-02**: Push mechanic + item spawn system + item physics~~ — **DROPPED from MVP** (nice-to-have, deferred)
+- [ ] ~~**PUSH-03**: Item-hazard interaction (splash, bonus points, floating text)~~ — **DROPPED from MVP** (nice-to-have, deferred)
+- [ ] **PUSH-04**: Kletter-Kiste — single pre-placed box in L3 Scene 1; cat pushes it with Z to position as stepping stone for ceiling hatch (Phase 5)
 
 ### Platforms
 
@@ -127,9 +128,10 @@
 | LIFE-01 | Phase 4 | Pending |
 | LIFE-02 | Phase 4 | Pending |
 | LIFE-03 | Phase 4 | Pending |
-| THROW-01 | Phase 5 | Pending |
-| THROW-02 | Phase 5 | Pending |
-| THROW-03 | Phase 5 | Pending |
+| PUSH-01 | Mechanics branch | Complete |
+| PUSH-02 | — | DROPPED (MVP) |
+| PUSH-03 | — | DROPPED (MVP) |
+| PUSH-04 | Phase 5 | Pending |
 | PLAT-01 | Phase 3 | Complete |
 | PLAT-02 | Phase 3 | Complete |
 | PLAT-03 | Phase 3 | Complete |

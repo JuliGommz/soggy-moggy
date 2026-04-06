@@ -96,7 +96,7 @@ Progress: [x][x][x][x][x][ ][ ][ ]  5/8 phases complete (incl. 04.1)
 | Camera one-way gate: if (newCameraY < cameraY) | cameraY can only decrease — when player falls, newCameraY increases, condition fails, camera holds | Phase 2 |
 | Fall detection after updateCamera() | Fall check uses cameraY + canvas.height; must use current frame cameraY, not stale value | Phase 2 |
 | Height formula: 528 - maxHeightReached | 528 = player start world Y; maxHeightReached stores minimum Y seen; result = pixels climbed | Phase 2 |
-| Push effect on hazard: item hits hazard → splash + bonus points | Level 2 confirmed; L1/L3 stubs for later | Phase 5 |
+| Push item spawn system DROPPED from MVP | PUSH-02/03 deferred as nice-to-have; Kletter-Kiste (L3 single puzzle box) is the only push element in MVP | Phase 5 |
 | Lives system over instant death | More forgiving; makes the push mechanic feel more meaningful | Phase 4 |
 | Working title: Soggy Moggy | Renamed from "Cat Flood Jumper" | — |
 | Player = Stuffed Cat | Not a real/live cat — specific visual character with floppy limbs, button eyes, stitched seams | Phase 04.1 |
