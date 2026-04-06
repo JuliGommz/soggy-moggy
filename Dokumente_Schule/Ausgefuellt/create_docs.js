@@ -554,6 +554,7 @@ const gddContent = [
     ['3.7',  'Animationssystem',                   true],
     ['3.8',  'Audio-Konzept',                      true],
     ['3.9',  'Typografie',                         true],
+    ['3.10', 'Produktionswerkzeuge (Pixel Art)',   true],
   ].map(([nr, title, indent]) => new Paragraph({
     spacing: { after: 60, line: SPACING, lineRule: 'auto' },
     indent: { left: indent ? 360 : 0 },
@@ -874,6 +875,19 @@ const gddContent = [
     ],
     [2300, 1700, 3937]
   ),
+
+  h2('3.10  Produktionswerkzeuge (Pixel Art)'),
+  body('Alle Sprites wurden manuell mit Pixelorama gezeichnet — einem Open-Source-Pixelart-Editor. Quelldateien haben die Endung .pxo. Weitere Informationen und Download: https://pixelorama.org/'),
+  body('Einzelne Sprites wurden mit Adobe Photoshop zusammengesetzt, zum Beispiel beim Erstellen von Spritesheets aus Einzelteilen. Diese Dateien sind an der Endung .psd erkennbar.'),
+  tableN(
+    ['Software', 'Verwendung', 'Erkennbar an'],
+    [
+      ['Pixelorama',        'Erstellung aller Pixel-Art-Sprites (manuell gezeichnet)', '.pxo Quelldatei'],
+      ['Adobe Photoshop',   'Zusammensetzen von Sprites / Spritesheets',               '.psd Datei'],
+    ],
+    [2000, 4337, 1600]
+  ),
+  note('Vollständige Liste welche Datei mit welchem Tool erstellt wurde folgt im Medienkatalog am Projektende.'),
 ];
 ACTIVE_CW = CONTENT_W;
 

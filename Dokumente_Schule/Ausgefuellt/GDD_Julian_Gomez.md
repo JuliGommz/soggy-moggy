@@ -43,6 +43,7 @@
    - 3.7 Animationssystem
    - 3.8 Audio-Konzept
    - 3.9 Typografie
+   - 3.10 Produktionswerkzeuge (Pixel Art)
 
 ---
 
@@ -448,6 +449,19 @@ Keine aggressiven oder erschreckenden Sounds. Ton unterstützt die „cozy dange
 | Hinweistexte | Arial | 14 px | UI-1 |
 
 Keine mehr als zwei Schriftgrößen pro Screen. Alle Texte linksbündig oder zentriert — kein Flattersatz rechts.
+
+### 3.10 Produktionswerkzeuge (Pixel Art)
+
+Alle Sprites wurden manuell mit **Pixelorama** gezeichnet, einem Open-Source-Pixelart-Editor. Quelldateien haben die Endung `.pxo`. Weitere Informationen und Download: https://pixelorama.org/
+
+Einzelne Sprites wurden mit **Adobe Photoshop** zusammengesetzt, zum Beispiel beim Erstellen von Spritesheets aus Einzelteilen. Diese Dateien sind an der Endung `.psd` erkennbar.
+
+| Software | Verwendung | Erkennbar an |
+|---|---|---|
+| Pixelorama | Erstellung aller Pixel-Art-Sprites (manuell gezeichnet) | `.pxo` Quelldatei |
+| Adobe Photoshop | Zusammensetzen von Sprites / Spritesheets | `.psd` Datei |
+
+Welche Datei mit welchem Tool erstellt wurde, wird im **Medienkatalog** am Projektende vollständig dokumentiert.
 
 ---
 

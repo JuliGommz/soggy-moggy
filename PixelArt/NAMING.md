@@ -143,3 +143,16 @@ life_plush.png          — larger plush variant (reference/preview)
 3. Create the `.pxo` source with the same base name.
 4. Export the `.png` with the same base name.
 5. Add the path to the relevant `src/` file — never use uppercase or hyphens in the path string.
+
+---
+
+## Produktionswerkzeuge
+
+Alle Sprites wurden manuell mit **Pixelorama** gezeichnet (Open-Source-Pixelart-Editor).
+Weitere Informationen und Download: https://pixelorama.org/
+Quelldateien: `.pxo`
+
+Einzelne Sprites wurden mit **Adobe Photoshop** zusammengesetzt (z.B. Spritesheets aus Einzelteilen).
+Erkennbar an: `.psd`
+
+Welche Datei mit welchem Tool erstellt wurde, wird im Medienkatalog am Projektende vollständig dokumentiert.
