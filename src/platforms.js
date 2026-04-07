@@ -107,6 +107,8 @@ const GAP_PX           = 120;  // vertical slot height — DO NOT exceed 200px (
 const CRUMBLE_CHANCE   = 0.25; // 25% of non-starter platforms are crumbling
 const CRUMBLE_DELAY_MS = 500;  // ms between crack and disappear
 const CRUMBLE_HOLD_MS  = 300;  // ms player has to react on second landing before platform disappears
+const CLOUD_SINK_SPEED  = 40;  // px/s — sinks while cat stands on it
+const CLOUD_RISE_SPEED  = 20;  // px/s — floats back to rest when cat leaves
 const LEVEL_BASE_HEIGHT = 5000; // px for level 1; scales per level
 const PLAYER_START_Y   = 528;  // must match resetPlayer() in player.js
 
@@ -127,7 +129,13 @@ function generateLevelPlatforms(level) {
   platforms.length    = 0;
   windowFloors.length = 0; // fresh each level — never modified after this point
 
-  const levelHeight = LEVEL_BASE_HEIGHT + (level - 1) * 500;
+  // L2: height aligned to lighthouse geometry so levelGoalY = lighthouse visual floor.
+  // Formula: 7 × _LH_MID_H (577) tiles, offset by _LH_GROUND_OFFSET (31) from background.js.
+  // → levelHeight = 4536 → levelGoalY = 528 − 4536 = −4008.
+  // lastTileWy = −Math.ceil(4008/577)×577 = −7×577 = −4039; with GO=31 cap-floor is at −4008. ✓
+  // _LH_MID_SEQ has exactly 7 entries — one per tile, no repeats.
+  // Keep in sync with _LH_MID_H and _LH_GROUND_OFFSET constants in background.js.
+  const levelHeight = (level === 2) ? 4536 : LEVEL_BASE_HEIGHT + (level - 1) * 500;
 
   // Level 2: only blue-stripe row (y=122) — sea dock / mast plank feel
   // Level 1: all normal rows (rows 1,2,3,5,6)
@@ -190,6 +198,44 @@ function generateLevelPlatforms(level) {
   // Store the level goal world Y in GameState so main.js can check and draw it
   GameState.levelGoalY = PLAYER_START_Y - levelHeight;
 
+  // Level 2: invisible structural colliders on the lighthouse cap (background.js cap sprite).
+  // Cap world-y formula: capRow − 4562  (derived from topScrY = cs − 4562 in background.js).
+  // All positions PIL-verified from lighthouse_sheet.png cap strip (sx=3369, sw=217, drawX=132).
+  if (level === 2) {
+    // LH-G — Stone ground at lighthouse entrance (base sprite row 535, PIL-verified).
+    // Base drawn at screen_y = cs + GO (GO=31); world_y = GO + row = 31 + 535 = 566.
+    // Row 535 is 5px below the door-frame bottom (row 530, where sprite widens to 340px).
+    // Full canvas width so the cat can stand anywhere on the stone foundation.
+    platforms.push({
+      x: 0, y: 566, w: 480, h: PLATFORM_H,
+      type: 'normal', state: 'intact', crumbleTimer: 0,
+      row: 0, winVariants: undefined, invisible: true,
+    });
+
+    // LH-C1 — Balcony walkway ring (cap row 117, first row of 181px-wide section x=150–330).
+    // Horizontal surface surrounding the lantern room base — wide enough to land on comfortably.
+    platforms.push({
+      x: 150, y: 117 - 4562, w: 181, h: PLATFORM_H,
+      type: 'normal', state: 'intact', crumbleTimer: 0,
+      row: 0, winVariants: undefined, invisible: true,
+    });
+
+    // LH-Bridge 1–4: fixed visible platforms bridging the gap between the procedural ceiling
+    // and the lighthouse balcony (LH-C1).
+    // slotCount ceiling: slot 37 → world y = 528 − 37×120 = −3912.
+    // Balcony at −4445: gap = 533 px. Four 120px steps close it exactly.
+    // x positions alternate left/right of the cap body (x≈150–330) to avoid clipping the art.
+    platforms.push({ x: 330, y: -4032, w: 100, h: PLATFORM_H, type: 'normal', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false });
+    platforms.push({ x:  50, y: -4152, w: 100, h: PLATFORM_H, type: 'normal', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false });
+    platforms.push({ x: 320, y: -4272, w: 100, h: PLATFORM_H, type: 'normal', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false });
+    platforms.push({ x:  60, y: -4392, w: 100, h: PLATFORM_H, type: 'normal', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false });
+
+    // LH-C2 / finish — Bell dome top (cap row 77, w=35, x=223–257, centred at 240).
+    // Invisible surface at top of the dome cone; also the finish trigger for L2.
+    // The bell finish object (rendered in main.js) sits here instead of a floating platform.
+    // goalY stays at −4008 for hazard-cap / tile-count math; finish is deliberately above it.
+  }
+
   // Level 1: invisible collider for the building roof top surface.
   // Roof drawn at levelGoalY - 56; building_roof.png content starts at y=21 (PIL scan)
   // → walkable surface at levelGoalY - 35. Full canvas width — cat can land anywhere on the roof.
@@ -201,17 +247,22 @@ function generateLevelPlatforms(level) {
     });
   }
 
-  // Finish platform — centered, wide enough to land on comfortably, slightly bigger than the cat (hitbox 32px)
-  // The interactive finish object (pinwheel / bell / lever) is rendered on top of this in main.js
-  const FIN_W = 100;
-  const finX  = 480 - FIN_W - 20; // x = 360, right side (20px margin from edge)
-  // L1: finish platform sits on the roof surface (levelGoalY - 35). Other levels: at levelGoalY.
-  const finY  = (level === 1) ? Math.floor(GameState.levelGoalY) - 35 : Math.floor(GameState.levelGoalY);
+  // Finish platform — the interactive finish object (pinwheel / bell / lever) is rendered on top.
+  // L1: sits on the roof surface (levelGoalY − 35), visible, right side.
+  // L2: invisible, on the lighthouse dome top (cap row 77, PIL-derived), centred at x=240.
+  //     goalY stays −4008 (hazard/tile math); finish is placed above it at the bell surface.
+  // L3: visible, at levelGoalY, right side.
+  const FIN_W  = (level === 2) ? 35  : 100;
+  const finX   = (level === 2) ? 223 : 480 - 100 - 20;          // L2: dome centre; others: right side
+  const finY   = (level === 1) ? Math.floor(GameState.levelGoalY) - 35
+               : (level === 2) ? (77 - 4562)                     // cap row 77 world y (PIL)
+               :                 Math.floor(GameState.levelGoalY);
+  const finVis = (level !== 2);                                   // L2 finish is invisible — no floating platform
   platforms.push({
     x: finX, y: finY, w: FIN_W, h: PLATFORM_H,
     type: 'normal', state: 'intact', crumbleTimer: 0,
     row: activeRows[0], winVariants: undefined,
-    invisible: false, isFinish: true,
+    invisible: !finVis, isFinish: true,
   });
   GameState.finishTrigger = { x: finX, y: finY, w: FIN_W, h: PLATFORM_H };
 
