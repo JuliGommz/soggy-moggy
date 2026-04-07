@@ -367,6 +367,9 @@ function checkPlatformCollisions() {
         if      (p.state === 'intact')  { p.state = 'cracked';   p.crumbleTimer = 0; }
         else if (p.state === 'cracked') { p.state = 'crumbling'; p.crumbleTimer = 0; }
       }
+
+      // Cloud-sink: mark as loaded this frame
+      if (p.type === 'cloud-sink') p.catOnTop = true;
     }
   }
 }
