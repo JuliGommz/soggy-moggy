@@ -445,11 +445,27 @@ function _renderPlatformSprite(ctx, p) {
   const dx = Math.floor(p.x);
   const dy = Math.floor(p.y);
 
-  // Level 2: placeholder — no platform sprite yet
+  // Level 2: cloud placeholders — distinct colors per type until cloud_sheet.png is ready
   if (GameState.level === 2) {
-    ctx.fillStyle = '#3a6a50'; // placeholder: sea-green plank
+    let cloudFill, cloudEdge;
+    if (p.type === 'cloud-sink') {
+      cloudFill = '#b0c8e8';  // sky blue — sinking cloud
+      cloudEdge = '#8aaac8';
+    } else if (p.type === 'crumble') {
+      if (p.state === 'cracked' || p.state === 'crumbling') {
+        cloudFill = '#e8a830';  // reuse existing crumble warning color
+        cloudEdge = '#c07010';
+      } else {
+        cloudFill = '#d0d0e8';  // muted lavender — disappearing cloud (intact)
+        cloudEdge = '#a0a0c0';
+      }
+    } else {
+      cloudFill = '#e8e8f0';  // light grey-white — stable cloud
+      cloudEdge = '#c0c0d0';
+    }
+    ctx.fillStyle = cloudFill;
     ctx.fillRect(dx, dy, p.w, PLATFORM_H);
-    ctx.fillStyle = '#254d39'; // darker top edge
+    ctx.fillStyle = cloudEdge;
     ctx.fillRect(dx, dy, p.w, 2);
     return;
   }
