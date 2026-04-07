@@ -377,6 +377,17 @@ function checkPlatformCollisions() {
 function updatePlatforms(dt) {
   for (let i = platforms.length - 1; i >= 0; i--) {
     const p = platforms[i];
+
+    // Cloud-sink: move platform based on cat contact this frame
+    if (p.type === 'cloud-sink') {
+      if (p.catOnTop) {
+        p.y += CLOUD_SINK_SPEED * dt;  // sink downward (increasing y = moving down in canvas)
+      } else {
+        p.y = Math.max(p.baseY, p.y - CLOUD_RISE_SPEED * dt);  // float back, clamp at rest
+      }
+      p.catOnTop = false;  // reset — collision system sets it true again next frame if still contact
+    }
+
     if (p.type === 'crumble') {
       if (p.state === 'cracked') {
         p.crumbleTimer += dt * 1000;
