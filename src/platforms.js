@@ -130,21 +130,21 @@ function generateLevelPlatforms(level) {
   platforms.length    = 0;
   windowFloors.length = 0; // fresh each level — never modified after this point
 
-  // L2: height aligned to lighthouse geometry so levelGoalY = lighthouse visual floor.
+  // L3: height aligned to lighthouse geometry so levelGoalY = lighthouse visual floor.
   // Formula: 7 × _LH_MID_H (577) tiles, offset by _LH_GROUND_OFFSET (31) from background.js.
   // → levelHeight = 4536 → levelGoalY = 528 − 4536 = −4008.
   // lastTileWy = −Math.ceil(4008/577)×577 = −7×577 = −4039; with GO=31 cap-floor is at −4008. ✓
   // _LH_MID_SEQ has exactly 7 entries — one per tile, no repeats.
   // Keep in sync with _LH_MID_H and _LH_GROUND_OFFSET constants in background.js.
-  const levelHeight = (level === 2) ? 4536 : LEVEL_BASE_HEIGHT + (level - 1) * 500;
+  const levelHeight = (level === 3) ? 4536 : LEVEL_BASE_HEIGHT + (level - 1) * 500;
 
-  // Level 2: only blue-stripe row (y=122) — sea dock / mast plank feel
+  // Level 3: only blue-stripe row (y=122) — sea dock / mast plank feel
   // Level 1: all normal rows (rows 1,2,3,5,6)
-  const activeRows = (level === 2) ? [122] : _PS.rows;
+  const activeRows = (level === 3) ? [122] : _PS.rows;
 
-  // Level 1 + 3: invisible ground platform — cat stands here at game start.
+  // Level 1 + 2: invisible ground platform — cat stands here at game start.
   // y=628 = canvas height (640) - PLATFORM_H (12). Player spawn y=596 (628 - player.h=32).
-  if (level === 1 || level === 3) {
+  if (level === 1 || level === 2) {
     platforms.push({
       x: 0, y: 628, w: 480, h: PLATFORM_H,
       type: 'normal', state: 'intact', crumbleTimer: 0,
@@ -179,9 +179,9 @@ function generateLevelPlatforms(level) {
     });
   }
 
-  // Starter platform: Level 2 only — sea-green placeholder dock plank.
-  // Level 1 + 3 use the invisible ground platform (y=628) instead — no jalousie at start.
-  if (level === 2) {
+  // Starter platform: Level 3 only — sea-green placeholder dock plank.
+  // Level 1 + 2 use the invisible ground platform (y=628) instead — no jalousie at start.
+  if (level === 3) {
     platforms.push({
       x:            190,
       y:            560,
@@ -199,10 +199,10 @@ function generateLevelPlatforms(level) {
   // Store the level goal world Y in GameState so main.js can check and draw it
   GameState.levelGoalY = PLAYER_START_Y - levelHeight;
 
-  // Level 2: invisible structural colliders on the lighthouse cap (background.js cap sprite).
+  // Level 3: invisible structural colliders on the lighthouse cap (background.js cap sprite).
   // Cap world-y formula: capRow − 4562  (derived from topScrY = cs − 4562 in background.js).
   // All positions PIL-verified from lighthouse_sheet.png cap strip (sx=3369, sw=217, drawX=132).
-  if (level === 2) {
+  if (level === 3) {
     // LH-G — Stone ground at lighthouse entrance (base sprite row 535, PIL-verified).
     // Base drawn at screen_y = cs + GO (GO=31); world_y = GO + row = 31 + 535 = 566.
     // Row 535 is 5px below the door-frame bottom (row 530, where sprite widens to 340px).
@@ -232,7 +232,7 @@ function generateLevelPlatforms(level) {
     platforms.push({ x:  60, y: -4392, w: 100, h: PLATFORM_H, type: 'normal', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false });
 
     // LH-C2 / finish — Bell dome top (cap row 77, w=35, x=223–257, centred at 240).
-    // Invisible surface at top of the dome cone; also the finish trigger for L2.
+    // Invisible surface at top of the dome cone; also the finish trigger for L3.
     // The bell finish object (rendered in main.js) sits here instead of a floating platform.
     // goalY stays at −4008 for hazard-cap / tile-count math; finish is deliberately above it.
   }
@@ -250,15 +250,15 @@ function generateLevelPlatforms(level) {
 
   // Finish platform — the interactive finish object (pinwheel / bell / lever) is rendered on top.
   // L1: sits on the roof surface (levelGoalY − 35), visible, right side.
-  // L2: invisible, on the lighthouse dome top (cap row 77, PIL-derived), centred at x=240.
+  // L2: visible, at levelGoalY, right side (shaft roof).
+  // L3: invisible, on the lighthouse dome top (cap row 77, PIL-derived), centred at x=240.
   //     goalY stays −4008 (hazard/tile math); finish is placed above it at the bell surface.
-  // L3: visible, at levelGoalY, right side.
-  const FIN_W  = (level === 2) ? 35  : 100;
-  const finX   = (level === 2) ? 223 : 480 - 100 - 20;          // L2: dome centre; others: right side
+  const FIN_W  = (level === 3) ? 35  : 100;
+  const finX   = (level === 3) ? 223 : 480 - 100 - 20;          // L3: dome centre; others: right side
   const finY   = (level === 1) ? Math.floor(GameState.levelGoalY) - 35
-               : (level === 2) ? (77 - 4562)                     // cap row 77 world y (PIL)
+               : (level === 3) ? (77 - 4562)                     // cap row 77 world y (PIL)
                :                 Math.floor(GameState.levelGoalY);
-  const finVis = (level !== 2);                                   // L2 finish is invisible — no floating platform
+  const finVis = (level !== 3);                                   // L3 finish is invisible — no floating platform
   platforms.push({
     x: finX, y: finY, w: FIN_W, h: PLATFORM_H,
     type: 'normal', state: 'intact', crumbleTimer: 0,
@@ -267,9 +267,9 @@ function generateLevelPlatforms(level) {
   });
   GameState.finishTrigger = { x: finX, y: finY, w: FIN_W, h: PLATFORM_H };
 
-  // Level 3: invisible structural colliders derived from PIL pixel analysis.
+  // Level 2: invisible structural colliders derived from PIL pixel analysis.
   // All use one-way collision (blocks from above only) — cat can jump up freely through any gap.
-  if (level === 3) {
+  if (level === 2) {
     const goalY = GameState.levelGoalY;
 
     // C1 — Elevator ceiling (world y=268): solid left + right flanking the hatch.
@@ -301,7 +301,8 @@ function generateLevelPlatforms(level) {
     const worldY  = PLAYER_START_Y - i * GAP_PX;
     const w       = PLATFORM_MIN_W + Math.random() * (PLATFORM_MAX_W - PLATFORM_MIN_W);
     let type;
-    if (level === 2) {
+    if (level === 3) {
+      // L3 lighthouse / sea: mix of cloud-sink (bobbing sea clouds), crumble, and stable
       const roll = Math.random();
       type = roll < 0.25 ? 'crumble'
            : roll < 0.50 ? 'cloud-sink'
@@ -382,7 +383,15 @@ function updatePlatforms(dt) {
     // Cloud-sink: move platform based on cat contact this frame
     if (p.type === 'cloud-sink') {
       if (p.catOnTop) {
-        p.y = Math.min(p.baseY + CLOUD_SINK_MAX, p.y + CLOUD_SINK_SPEED * dt);  // sink, clamp at max depth
+        const oldY  = p.y;
+        p.y = Math.min(p.baseY + CLOUD_SINK_MAX, p.y + CLOUD_SINK_SPEED * dt);
+        const delta = p.y - oldY;  // how far platform sank this frame (>= 0)
+        // Drag player with the platform — one-way collision can't track a moving surface,
+        // so we explicitly keep the player riding the cloud rather than relying on re-snap.
+        if (delta > 0) {
+          player.y     += delta;
+          player.prevY += delta;
+        }
       } else {
         p.y = Math.max(p.baseY, p.y - CLOUD_RISE_SPEED * dt);  // float back, clamp at rest
       }
@@ -446,8 +455,8 @@ function _renderPlatformSprite(ctx, p) {
   const dx = Math.floor(p.x);
   const dy = Math.floor(p.y);
 
-  // Level 2: cloud placeholders — distinct colors per type until cloud_sheet.png is ready
-  if (GameState.level === 2) {
+  // Level 3: cloud placeholders — distinct colors per type until cloud_sheet.png is ready
+  if (GameState.level === 3) {
     let cloudFill, cloudEdge;
     if (p.type === 'cloud-sink') {
       cloudFill = '#b0c8e8';  // sky blue — sinking cloud
