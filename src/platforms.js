@@ -299,7 +299,15 @@ function generateLevelPlatforms(level) {
     if (level === 1 && (i < 3 || i % 2 === 0)) continue; // only odd slots i≥3 get a platform — must match window condition exactly
     const worldY  = PLAYER_START_Y - i * GAP_PX;
     const w       = PLATFORM_MIN_W + Math.random() * (PLATFORM_MAX_W - PLATFORM_MIN_W);
-    const type    = Math.random() < CRUMBLE_CHANCE ? 'crumble' : 'normal';
+    let type;
+    if (level === 2) {
+      const roll = Math.random();
+      type = roll < 0.25 ? 'crumble'
+           : roll < 0.50 ? 'cloud-sink'
+           : 'normal';
+    } else {
+      type = Math.random() < CRUMBLE_CHANCE ? 'crumble' : 'normal';
+    }
 
     // Level 1: pick a random window column and center platform over it
     let x;
@@ -327,6 +335,8 @@ function generateLevelPlatforms(level) {
       crumbleTimer: 0,
       row:          activeRows[Math.floor(Math.random() * activeRows.length)],
       winVariants:  wv,
+      baseY:        (type === 'cloud-sink') ? floorY : undefined,
+      catOnTop:     (type === 'cloud-sink') ? false   : undefined,
     });
     // Windows on every platform — loop only reaches here for i≥3 odd slots.
     if (level === 1) windowFloors.push({ y: floorY, winVariants: wv });
