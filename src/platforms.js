@@ -109,7 +109,7 @@ const CRUMBLE_DELAY_MS = 500;  // ms between crack and disappear
 const CRUMBLE_HOLD_MS  = 300;  // ms player has to react on second landing before platform disappears
 const CLOUD_SINK_SPEED  = 40;  // px/s — sinks while cat stands on it
 const CLOUD_RISE_SPEED  = 20;  // px/s — floats back to rest when cat leaves
-const CLOUD_SINK_MAX    = 200; // px  — max drop below baseY before platform stops
+const CLOUD_SINK_MAX    = 60;  // px  — max drop below baseY; must stay < GAP_PX − player.h − PLATFORM_H (76px)
 const LEVEL_BASE_HEIGHT = 5000; // px for level 1; scales per level
 const PLAYER_START_Y   = 528;  // must match resetPlayer() in player.js
 
