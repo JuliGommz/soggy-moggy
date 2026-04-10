@@ -50,6 +50,8 @@ const GameState = {
   devCursor:        1, // dev level selector cursor (1–3)
   highScore:        0,
   levelGoalY:       undefined,
+  killBonus:        0,    // accumulated points from stomping wasps (+50 per kill)
+  clearBonus:       0,    // +200 if all wasps in the level were defeated; 0 otherwise
   countdownTimer:   0,    // seconds remaining before hazard activates; 0 = hazard active
   menuCursor:       0,    // selected option index on PAUSED / LEVEL_COMPLETE screens
   finishState:      'idle',  // 'idle' | 'activating' | 'done'
@@ -60,6 +62,8 @@ const GameState = {
 function resetGame(startLevel = 1) {
   GameState.phase            = GamePhase.PLAYING;
   GameState.score            = 0;
+  GameState.killBonus        = 0;
+  GameState.clearBonus       = 0;
   GameState.lives            = 3;
   GameState.cameraY          = 0;
   GameState.maxHeightReached = 9999; // sentinel: first frame will capture actual player.y
@@ -72,12 +76,15 @@ function resetGame(startLevel = 1) {
   // levelGoalY and finishTrigger are NOT reset here — set by generateLevelPlatforms() inside resetPlatforms()
   resetPlayer();
   resetPlatforms(); // Phase 2: defined in platforms.js (loaded after game-state.js — safe at runtime)
+  resetEnemies();   // clear enemy state before spawnEnemies() runs in main.js
   resetHazard(startLevel);
 }
 
 function startNextLevel() {
   GameState.level           += 1;
   GameState.score            = 0;
+  GameState.killBonus        = 0;
+  GameState.clearBonus       = 0;
   GameState.cameraY          = 0;
   GameState.maxHeightReached = 9999;
   GameState.phase            = GamePhase.PLAYING;
@@ -88,12 +95,15 @@ function startNextLevel() {
   // GameState.lives is intentionally NOT reset — lives persist across levels
   resetPlayer();
   resetPlatforms(); // also sets GameState.levelGoalY and finishTrigger for the new level
+  resetEnemies();
   resetHazard(GameState.level); // reset hazard for new level; higher level = faster/harder
 }
 
 // Retry the current level — lives are preserved, score and camera reset.
 function restartLevel() {
   GameState.score            = 0;
+  GameState.killBonus        = 0;
+  GameState.clearBonus       = 0;
   GameState.cameraY          = 0;
   GameState.maxHeightReached = 9999;
   GameState.phase            = GamePhase.PLAYING;
@@ -104,6 +114,7 @@ function restartLevel() {
   // GameState.level and GameState.lives intentionally NOT changed
   resetPlayer();
   resetPlatforms();
+  resetEnemies();
   resetHazard(GameState.level);
 }
 

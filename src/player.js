@@ -57,6 +57,17 @@ const JUMP_BOOST_ACCEL   =  905;  // px/s² — hold bonus; full 0.20s adds 181 
 const JUMP_BOOST_DURATION = 0.20; // s — hold window; full hold = same height as old flat -700
 const JUMP_VELOCITY      = -700;  // px/s — full-power forced bounce (water respawn, etc.)
 
+// Paw zone — the hitbox for the Z-key action (balloon catch, wasp hit).
+// Shared so enemies.js and main.js always use the same AABB.
+function getPawZone() {
+  return {
+    x: player.x - 4,
+    y: player.y - 28,
+    w: player.w + 8,
+    h: 40,
+  };
+}
+
 const player = {
   x:     224, // (480 - 32) / 2 — horizontally centered
   y:     528, // 32px above starting platform top at y=560

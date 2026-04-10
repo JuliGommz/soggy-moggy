@@ -52,9 +52,9 @@ const _BAL_H_PERIOD   = 1.8;  // seconds per horizontal weave cycle — snappy p
 function resetBalloon() {
   // Dormant until player climbs to a random threshold in the first 5%–40% of the level.
   // Earlier window ensures the balloon appears well before the level's final stretch.
-  const levelHeight = 528 - GameState.levelGoalY;
+  const levelHeight = PLAYER_START_Y - GameState.levelGoalY;
   const frac        = 0.05 + Math.random() * 0.35;
-  _balloon.spawnAtY = 528 - levelHeight * frac;
+  _balloon.spawnAtY = PLAYER_START_Y - levelHeight * frac;
   _balloon.active   = false;
 }
 
@@ -104,15 +104,11 @@ function updateBalloon(dt) {
   const plushX = _balloon.x + _BAL_PLUSH.ox;
   const plushY = _balloon.y + _BAL_PLUSH.oy;
 
-  // Paw zone: raised above player head (push_peak airborne) or extended forward (push_rise ground)
-  // Covers ~40px above and across the player hitbox — reaches the plush cat when cat jumps up to it
-  const pawX = player.x - 4;
-  const pawY = player.y - 28;
-  const pawW = player.w + 8;  // 40px
-  const pawH = 40;
+  // Paw zone: shared AABB from getPawZone() (player.js)
+  const paw = getPawZone();
 
-  const overlapX = pawX < plushX + _BAL_PLUSH.w && pawX + pawW > plushX;
-  const overlapY = pawY < plushY + _BAL_PLUSH.h && pawY + pawH > plushY;
+  const overlapX = paw.x < plushX + _BAL_PLUSH.w && paw.x + paw.w > plushX;
+  const overlapY = paw.y < plushY + _BAL_PLUSH.h && paw.y + paw.h > plushY;
   if (overlapX && overlapY) {
     GameState.lives += 1;
     _balloon.active = false;
@@ -203,7 +199,8 @@ function update(dt) {
       updateEnemies(dt);
 
       // Score: height climbed this level (pixels above spawn point)
-      GameState.score = Math.max(0, 528 - GameState.maxHeightReached);
+      // killBonus is tracked separately and revealed at level complete
+      GameState.score = Math.max(0, PLAYER_START_Y - GameState.maxHeightReached);
 
       // Finish trigger: player must stand on finish platform and press Z (push key)
       if (GameState.finishState === 'idle' && GameState.finishTrigger) {
@@ -219,7 +216,10 @@ function update(dt) {
       if (GameState.finishState === 'activating') {
         GameState.finishAnimTimer -= dt;
         if (GameState.finishAnimTimer <= 0) {
-          saveHighScore(GameState.score);
+          // Compute clear bonus once at level finish — stored so level complete screen can read it
+          const _waspTotal = _WASP_COUNT[GameState.level] || 0;
+          GameState.clearBonus = (_waspTotal > 0 && _waspsDefeated >= _waspTotal) ? 200 : 0;
+          saveHighScore(GameState.score + GameState.killBonus + GameState.clearBonus);
           GameState.menuCursor = 0;
           keys.enter = false;
           keys.jump  = false;
@@ -231,8 +231,10 @@ function update(dt) {
       // Fall-off-bottom: costs one life, respawns at camera top
       if (player.y > GameState.cameraY + canvas.height && hazard.iframeTimer <= 0) {
         takeDamage();
-        player.y  = GameState.cameraY + 60; // respawn near top of camera view
-        player.vy = JUMP_VELOCITY;           // auto-bounce on respawn
+        if (GameState.phase === GamePhase.PLAYING) {
+          player.y  = GameState.cameraY + 60; // respawn near top of camera view
+          player.vy = JUMP_VELOCITY;           // auto-bounce on respawn
+        }
       }
 
       // Countdown: tick down; hazard only activates once timer expires
@@ -405,10 +407,20 @@ function renderHUD() {
   // ── PLAYING: real-time score in top-left ─────────────────────────────────
   if (GameState.phase === GamePhase.PLAYING) {
     // Score and level — top-left
-    ctx.fillStyle = '#ffffff';
     ctx.font      = '16px monospace';
     ctx.textAlign = 'left';
-    ctx.fillText('Score: ' + Math.floor(GameState.score) + ' px', 8, 20);
+    ctx.fillStyle = '#ffffff';
+    const _scoreText = 'Score: ' + Math.floor(GameState.score) + ' px';
+    ctx.fillText(_scoreText, 8, 20);
+    // Kill bonus — bold yellow counter, inline right of score, hidden at 0
+    if (GameState.killBonus > 0) {
+      const _scoreW = ctx.measureText(_scoreText).width; // measure in regular font BEFORE switching
+      ctx.font      = 'bold 16px monospace';
+      ctx.fillStyle = '#f1c40f';
+      ctx.fillText(' +' + GameState.killBonus, 8 + _scoreW, 20);
+      ctx.font      = '16px monospace';
+    }
+    ctx.fillStyle = '#ffffff';
     ctx.fillText('Level: ' + GameState.level, 8, 42);
 
     // Lives — top-right, cat icon repeated (max 9), right-to-left layout
@@ -531,26 +543,37 @@ function renderHUD() {
     ctx.font      = '16px monospace';
     ctx.fillText(LEVEL_NAMES[GameState.level] || '', cx, 148);
 
-    // Stats
-    ctx.fillStyle = '#ffffff';
+    // Stats — height score + kill bonus + clear bonus breakdown, then combined total
+    const _lvlTotal = Math.floor(GameState.score) + Math.floor(GameState.killBonus) + GameState.clearBonus;
     ctx.font      = '16px monospace';
-    ctx.fillText('Puntos: ' + Math.floor(GameState.score) + ' px', cx, 192);
-    ctx.fillText('Mejor:  ' + Math.floor(GameState.highScore) + ' px', cx, 216);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('Altura:   ' + Math.floor(GameState.score)      + ' px',  cx, 184);
+    ctx.fillStyle = GameState.killBonus > 0 ? '#f1c40f' : '#888888';
+    ctx.fillText('Avispas:  ' + Math.floor(GameState.killBonus)  + ' pts', cx, 206);
+    ctx.fillStyle = GameState.clearBonus > 0 ? '#ff9f43' : '#555555';
+    ctx.font      = GameState.clearBonus > 0 ? 'bold 16px monospace' : '16px monospace';
+    ctx.fillText('¡Todas!   ' + (GameState.clearBonus > 0 ? '+200 pts' : '---'),  cx, 228);
+    ctx.font      = '16px monospace';
+    ctx.fillStyle = '#2ecc71';
+    ctx.fillText('Total:    ' + _lvlTotal                        + ' pts', cx, 252);
+    ctx.fillStyle = '#aaaaaa';
+    ctx.fillText('Mejor:    ' + Math.floor(GameState.highScore)  + ' pts', cx, 274);
     // Lives — cat icons
-    ctx.fillText('Vidas:', cx - 36, 240);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('Vidas:', cx - 36, 298);
     if (_hudLifeIcon.complete && _hudLifeIcon.naturalWidth > 0) {
       const icoW = 22, icoH = 18; // slightly larger for menu screen
       const maxShow = Math.min(GameState.lives, 9);
       for (let i = 0; i < maxShow; i++) {
-        ctx.drawImage(_hudLifeIcon, cx + 14 + i * (icoW + 2), 226, icoW, icoH);
+        ctx.drawImage(_hudLifeIcon, cx + 14 + i * (icoW + 2), 284, icoW, icoH);
       }
     }
 
     // Menu options
     const option0 = GameState.level < 3 ? 'Siguiente nivel' : 'Ver puntuacion final';
     const options = [option0, 'Reiniciar nivel', 'Reiniciar juego', 'Menu principal'];
-    const optY0   = 300;
-    const optStep = 50;
+    const optY0   = 328;
+    const optStep = 46;
     options.forEach((label, i) => {
       const y = optY0 + i * optStep;
       const selected = i === GameState.menuCursor;
@@ -622,8 +645,8 @@ function renderHUD() {
 
     ctx.fillStyle = '#ffffff';
     ctx.font      = '20px monospace';
-    ctx.fillText('Score: ' + Math.floor(GameState.score) + ' px', canvas.width / 2, 290);
-    ctx.fillText('Best:  ' + Math.floor(GameState.highScore) + ' px', canvas.width / 2, 320);
+    ctx.fillText('Score: ' + Math.floor(GameState.score) + ' pts', canvas.width / 2, 290);
+    ctx.fillText('Best:  ' + Math.floor(GameState.highScore) + ' pts', canvas.width / 2, 320);
 
     ctx.font = '16px monospace';
     ctx.fillStyle = '#f1c40f';
