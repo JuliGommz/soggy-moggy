@@ -33,6 +33,7 @@
 
 const GamePhase = Object.freeze({
   START:          'start',
+  DEV_SELECT:     'dev_select',
   PLAYING:        'playing',
   PAUSED:         'paused',
   LEVEL_COMPLETE: 'level_complete',
@@ -46,6 +47,7 @@ const GameState = {
   cameraY:          0,
   maxHeightReached: 0,
   level:            1,
+  devCursor:        1, // dev level selector cursor (1–3)
   highScore:        0,
   levelGoalY:       undefined,
   countdownTimer:   0,    // seconds remaining before hazard activates; 0 = hazard active
@@ -55,13 +57,13 @@ const GameState = {
   finishTrigger:    null,     // { x, y, w, h } — set by generateLevelPlatforms()
 };
 
-function resetGame() {
+function resetGame(startLevel = 1) {
   GameState.phase            = GamePhase.PLAYING;
   GameState.score            = 0;
   GameState.lives            = 3;
   GameState.cameraY          = 0;
   GameState.maxHeightReached = 9999; // sentinel: first frame will capture actual player.y
-  GameState.level            = 1;
+  GameState.level            = startLevel;
   GameState.countdownTimer   = 3;   // 3s danger countdown before hazard activates
   GameState.menuCursor       = 0;
   GameState.finishState      = 'idle';
@@ -70,7 +72,7 @@ function resetGame() {
   // levelGoalY and finishTrigger are NOT reset here — set by generateLevelPlatforms() inside resetPlatforms()
   resetPlayer();
   resetPlatforms(); // Phase 2: defined in platforms.js (loaded after game-state.js — safe at runtime)
-  resetHazard(1);   // level 1 hazard on full game reset — dispatches via hazards.js
+  resetHazard(startLevel);
 }
 
 function startNextLevel() {

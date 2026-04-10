@@ -161,6 +161,23 @@ function update(dt) {
         keys.enter = false; // one-shot: prevent instant pass-through on next frame
         resetGame();
         resetBalloon(); // called after resetGame → resetPlatforms → finishTrigger is set
+        spawnEnemies(); // called after resetPlatforms so platforms array is ready
+      }
+      if (keys.push) {
+        keys.push = false;
+        GameState.phase = GamePhase.DEV_SELECT;
+      }
+      break;
+
+    case GamePhase.DEV_SELECT:
+      if (keys.escape) { keys.escape = false; GameState.phase = GamePhase.START; break; }
+      if (keys.menuUp)   { keys.menuUp   = false; GameState.devCursor = GameState.devCursor > 1 ? GameState.devCursor - 1 : 3; }
+      if (keys.menuDown) { keys.menuDown = false; GameState.devCursor = GameState.devCursor < 3 ? GameState.devCursor + 1 : 1; }
+      if (keys.enter) {
+        keys.enter = false;
+        resetGame(GameState.devCursor);
+        resetBalloon();
+        spawnEnemies();
       }
       break;
 
@@ -183,6 +200,7 @@ function update(dt) {
       checkPlatformCollisions();
       updateCamera();
       updateBalloon(dt);
+      updateEnemies(dt);
 
       // Score: height climbed this level (pixels above spawn point)
       GameState.score = Math.max(0, 528 - GameState.maxHeightReached);
@@ -234,9 +252,9 @@ function update(dt) {
         keys.enter = false;
         switch (GameState.menuCursor) {
           case 0: GameState.phase = GamePhase.PLAYING; break; // Continuar
-          case 1: restartLevel(); resetBalloon();      break; // Reiniciar nivel
-          case 2: resetGame();    resetBalloon();      break; // Reiniciar juego
-          case 3: GameState.phase = GamePhase.START;   break; // Menú principal
+          case 1: restartLevel(); resetBalloon(); spawnEnemies(); break; // Reiniciar nivel
+          case 2: resetGame();    resetBalloon(); spawnEnemies(); break; // Reiniciar juego
+          case 3: GameState.phase = GamePhase.START;             break; // Menú principal
         }
       }
       break;
@@ -248,12 +266,12 @@ function update(dt) {
         keys.enter = false;
         switch (GameState.menuCursor) {
           case 0: // Siguiente nivel — if on last level, go to start
-            if (GameState.level < 3) { startNextLevel(); resetBalloon(); }
+            if (GameState.level < 3) { startNextLevel(); resetBalloon(); spawnEnemies(); }
             else GameState.phase = GamePhase.START;
             break;
-          case 1: restartLevel(); resetBalloon(); break; // Reiniciar nivel
-          case 2: resetGame();    resetBalloon(); break; // Reiniciar juego
-          case 3: GameState.phase = GamePhase.START; break; // Menú principal
+          case 1: restartLevel(); resetBalloon(); spawnEnemies(); break; // Reiniciar nivel
+          case 2: resetGame();    resetBalloon(); spawnEnemies(); break; // Reiniciar juego
+          case 3: GameState.phase = GamePhase.START;             break; // Menú principal
         }
       }
       break;
@@ -283,6 +301,7 @@ function render() {
   // 4. Draw world-space objects
   if (GameState.phase === GamePhase.PLAYING || GameState.phase === GamePhase.LEVEL_COMPLETE || GameState.phase === GamePhase.PAUSED) {
     renderPlatforms(ctx);  // draw platforms before player (player renders on top)
+    renderEnemies(ctx);    // enemies behind player — stomp is clearer when player overlaps on top
     renderBalloon(ctx);
     renderPlayer(ctx);
     if (GameState.finishTrigger) _renderFinishTrigger(ctx);
@@ -334,8 +353,8 @@ function _renderFinishTrigger(ctx) {
     ctx.fillStyle = '#ffffff';
     ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill();
 
-  } else if (GameState.level === 2) {
-    // Bell: gentle sway at idle, vigorous ringing when activating
+  } else if (GameState.level === 3) {
+    // Bell: gentle sway at idle, vigorous ringing when activating (L3 lighthouse)
     const swingAmp = GameState.finishState === 'activating' ? 0.55 : 0.12;
     ctx.rotate(Math.sin(t * (GameState.finishState === 'activating' ? 8 : 1.5)) * swingAmp);
     ctx.fillStyle = '#f1c40f';
@@ -448,12 +467,56 @@ function renderHUD() {
     ctx.fillStyle = '#f1c40f';
     ctx.fillText('ENTER or click to start', canvas.width / 2, 420);
 
+    ctx.font = '13px monospace';
+    ctx.fillStyle = '#555555';
+    ctx.fillText('Z — dev level select', canvas.width / 2, 470);
+
     ctx.textAlign = 'left'; // always reset after centered rendering
+  }
+
+  // ── DEV SELECT screen ─────────────────────────────────────────────────────
+  if (GameState.phase === GamePhase.DEV_SELECT) {
+    const cx = canvas.width / 2;
+    const LEVEL_NAMES = ['', 'L1 — Stadt', 'L2 — Aufzugschacht', 'L3 — Offener See'];
+
+    ctx.fillStyle = 'rgba(0,0,0,0.80)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.textAlign = 'center';
+
+    ctx.fillStyle = '#e74c3c';
+    ctx.font      = '14px monospace';
+    ctx.fillText('DEV MODE', cx, 155);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font      = '26px monospace';
+    ctx.fillText('Select Level', cx, 195);
+
+    const optY0   = 280;
+    const optStep = 70;
+    for (let i = 1; i <= 3; i++) {
+      const y        = optY0 + (i - 1) * optStep;
+      const selected = i === GameState.devCursor;
+      if (selected) {
+        ctx.fillStyle = 'rgba(255,255,255,0.10)';
+        ctx.fillRect(cx - 160, y - 26, 320, 40);
+        ctx.fillStyle = '#f1c40f';
+      } else {
+        ctx.fillStyle = '#888888';
+      }
+      ctx.font = '20px monospace';
+      ctx.fillText((selected ? '\u25b6 ' : '  ') + LEVEL_NAMES[i], cx, y);
+    }
+
+    ctx.fillStyle = '#555555';
+    ctx.font      = '13px monospace';
+    ctx.fillText('\u2191\u2193 select   ENTER start   ESC back', cx, 520);
+
+    ctx.textAlign = 'left';
   }
 
   // ── LEVEL COMPLETE screen ─────────────────────────────────────────────────
   if (GameState.phase === GamePhase.LEVEL_COMPLETE) {
-    const LEVEL_NAMES = ['', 'Stadt', 'Offener See', 'Aufzugschacht', 'Freizeitpark'];
+    const LEVEL_NAMES = ['', 'Stadt', 'Aufzugschacht', 'Offener See', 'Freizeitpark'];
     const cx = canvas.width / 2;
 
     ctx.fillStyle = 'rgba(0,0,0,0.72)';

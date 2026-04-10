@@ -35,16 +35,18 @@
 // ── Sprite loading ───────────────────────────────────────────────────────────
 // Paths relative to index.html (project root)
 // Cat animation spritesheet (animation_sheet.png: 7 sprites left→right)
-// dy = transparent_px_at_bottom × 1.5 scale — aligns visual feet to hitbox bottom (PIL scan)
 const _catSheet = new Image(); _catSheet.src = 'PixelArt/cat/animation_sheet.png';
+// dy = transparent_rows_at_bottom × 2.0 (DH/sh scale) — aligns visual feet to hitbox bottom
+// idle/rise/walk/pushRise: content y=19–52 → 11 transparent rows below → dy = 11×2 = 22
+// pushPeak/peak:           content y=8–55  →  8 transparent rows below → dy =  8×2 = 16
 const _CAT_SPRITES = [
-  { sx:   4, sw: 46, dy: 16 }, // 0: idle
-  { sx:  69, sw: 50, dy: 16 }, // 1: rise
-  { sx: 137, sw: 50, dy: 16 }, // 2: walk_1
-  { sx: 206, sw: 50, dy: 16 }, // 3: walk_2
-  { sx: 274, sw: 52, dy: 16 }, // 4: push_rise
-  { sx: 345, sw: 48, dy: 12 }, // 5: push_peak
-  { sx: 411, sw: 48, dy: 12 }, // 6: peak
+  { sx:   4, sw: 46, dy: 22 }, // 0: idle
+  { sx:  69, sw: 50, dy: 22 }, // 1: rise
+  { sx: 137, sw: 50, dy: 22 }, // 2: walk_1
+  { sx: 206, sw: 50, dy: 22 }, // 3: walk_2
+  { sx: 274, sw: 52, dy: 22 }, // 4: push_rise
+  { sx: 345, sw: 48, dy: 16 }, // 5: push_peak
+  { sx: 411, sw: 48, dy: 16 }, // 6: peak
 ];
 const _CAT_IDX = { idle: 0, rise: 1, walk1: 2, walk2: 3, pushRise: 4, pushPeak: 5, peak: 6 };
 
@@ -179,10 +181,11 @@ function renderPlayer(ctx) {
   }
 
   // ── Draw sprite with direction mirroring ─────────────────────────────────
-  // Sprite drawn at 3× hitbox size (96×96), bottom-aligned so feet land on platforms,
-  // centered horizontally on the hitbox. Hitbox (32×32) stays unchanged for collision.
+  // DW = 3× hitbox width (96px). DH = 2× source sheet height (128px) to preserve
+  // aspect ratio — source is 64px tall, not square like the hitbox.
+  // Hitbox (32×32) stays unchanged for collision.
   const DW  = player.w * 3; // drawn width  96px
-  const DH  = player.h * 3; // drawn height 96px
+  const DH  = 128;          // drawn height 128px (= source height 64 × 2)
   const sx  = Math.floor(player.x - (DW - player.w) / 2); // screen x, centered on hitbox
   const spr = _CAT_SPRITES[frameIdx];
   const sy  = Math.floor(player.y - (DH - player.h)) + spr.dy;

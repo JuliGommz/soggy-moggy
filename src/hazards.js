@@ -186,13 +186,13 @@ function renderHazard(ctx) {
     ctx.globalAlpha = hazard.fadeAlpha; // smog + flood: multiplies their rgba alphas automatically
   }
   if      (GameState.level === 1) renderSmog(ctx);
-  else if (GameState.level === 3) renderElectricity(ctx);
-  else                            renderFlood(ctx);
+  else if (GameState.level === 2) renderElectricity(ctx); // L2 = shaft (electricity)
+  else                            renderFlood(ctx);       // L3 = lighthouse (flood/sea)
   if (hazard.fadeAlpha < 1) ctx.restore();
 }
 
 // ---------------------------------------------------------------------------
-// SECTION 8 — renderFlood(ctx)  [Level 2 — open sea, default]
+// SECTION 8 — renderFlood(ctx)  [Level 3 — open sea / lighthouse, default]
 // Classic sine wave. Blue water rising from below.
 // ---------------------------------------------------------------------------
 function renderFlood(ctx) {
