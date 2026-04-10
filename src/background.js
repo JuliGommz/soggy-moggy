@@ -400,15 +400,15 @@ function _drawL3Back(ctx, camShift) {
   // Elevator car at world origin
   ctx.drawImage(_bgL3Elevator, 0, cs);
 
-  // Shaft bottom — shifted up by 268px so its bottom aligns with the elevator
-  // ceiling (Elevator.png row 268 = world y 268), eliminating the dark gap.
-  // cs + 268 - BG_H = cs - 372
-  ctx.drawImage(_bgL3ShaftBot, 0, cs + 268 - BG_H);
+  // Shaft bottom — shifted up by 96px so its bottom aligns with the elevator
+  // ceiling (Elevator.png row 96 = world y 96), eliminating the dark gap.
+  // cs + 96 - BG_H = cs - 544
+  ctx.drawImage(_bgL3ShaftBot, 0, cs + 96 - BG_H);
 
-  // Mid tiles — start at wy=−1012 (= −(BG_H*2 − 268)) so the first tile's
-  // bottom (world y −372) connects to ShaftBot's top — no gap after B1 shift.
+  // Mid tiles — start at wy=−1184 (= −(BG_H*2 − 96)) so the first tile's
+  // bottom (world y −544) connects to ShaftBot's top — no gap after B1 shift.
   let tileIdx = 0;
-  for (let wy = -(BG_H * 2 - 268); wy > goalY - BG_H; wy -= BG_H) {
+  for (let wy = -(BG_H * 2 - 96); wy > goalY - BG_H; wy -= BG_H) {
     const sy = wy + cs;
     if (sy > BG_H)         continue; // below viewport
     if (sy + BG_H < 0)     break;    // above viewport — all further tiles too

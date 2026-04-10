@@ -272,15 +272,21 @@ function generateLevelPlatforms(level) {
   if (level === 2) {
     const goalY = GameState.levelGoalY;
 
-    // C1 — Elevator ceiling (world y=268): solid left + right flanking the hatch.
-    // Hatch gap x=138–337 = passable (cat jumps up through); solid parts land cat back on ceiling.
-    platforms.push({ x: 0,   y: 268, w: 138, h: 8, type: 'normal', state: 'intact', crumbleTimer: 0, row: 0, winVariants: undefined, invisible: true });
-    platforms.push({ x: 337, y: 268, w: 143, h: 8, type: 'normal', state: 'intact', crumbleTimer: 0, row: 0, winVariants: undefined, invisible: true });
+    // C1 — Elevator ceiling (world y=96): solid left + right flanking the hatch.
+    // Hatch gap x=164–311 = passable (cat jumps up through); solid parts land cat back on ceiling.
+    // PIL-derived from elevator.png row 96 (shaft→room transition); hatch bounds from row 126 scan.
+    platforms.push({ x: 0,   y: 96, w: 164, h: 8, type: 'normal', state: 'intact', crumbleTimer: 0, row: 0, winVariants: undefined, invisible: true });
+    platforms.push({ x: 311, y: 96, w: 169, h: 8, type: 'normal', state: 'intact', crumbleTimer: 0, row: 0, winVariants: undefined, invisible: true });
 
-    // C2 — Shaft bottom floor (world y=196): walkable left + right flanking the death-hatch.
+    // C2 — Shaft bottom floor (world y=24): walkable left + right flanking the death-hatch.
+    // 72px above C1 ceiling — same gap as before; shaft_bg_bottom.png content unchanged.
     // Death-hatch gap x=172–300 = no platform → cat falls back into elevator → life lost.
-    platforms.push({ x: 0,   y: 196, w: 172, h: 8, type: 'normal', state: 'intact', crumbleTimer: 0, row: 0, winVariants: undefined, invisible: true });
-    platforms.push({ x: 300, y: 196, w: 180, h: 8, type: 'normal', state: 'intact', crumbleTimer: 0, row: 0, winVariants: undefined, invisible: true });
+    platforms.push({ x: 0,   y: 24, w: 172, h: 8, type: 'normal', state: 'intact', crumbleTimer: 0, row: 0, winVariants: undefined, invisible: true });
+    platforms.push({ x: 300, y: 24, w: 180, h: 8, type: 'normal', state: 'intact', crumbleTimer: 0, row: 0, winVariants: undefined, invisible: true });
+
+    // C404 — 404 floor-display top surface (world y=301): invisible platform over the clock display.
+    // PIL bounds: y=301–320, x=210–262. Collider sits at the display's top edge.
+    platforms.push({ x: 210, y: 301, w: 52,  h: 8, type: 'normal', state: 'intact', crumbleTimer: 0, row: 0, winVariants: undefined, invisible: true });
 
     // C3 — Shaft exit ceiling (world y=goalY+80): flanking exit hatch (ShaftTop row 255).
     // Cat can only exit through center gap x=138–337.
