@@ -34,19 +34,21 @@
 
 // ── Sprite loading ───────────────────────────────────────────────────────────
 // Paths relative to index.html (project root)
-const _sprIdle      = new Image(); _sprIdle.src      = 'PixelArt/cat/idle.png';
-const _sprWalk1     = new Image(); _sprWalk1.src     = 'PixelArt/cat/walk_1.png';
-const _sprWalk2     = new Image(); _sprWalk2.src     = 'PixelArt/cat/walk_2.png';
-// Per-sprite Y offsets: align each sprite's lowest visible pixel to the hitbox bottom.
-// Calculated from PIL alpha-scan: offset = transparent_px_at_bottom × (96/64 scale = 1.5)
-const _DY_IDLE      =  6; // idle:      4 transp src px × 1.5
-const _DY_WALK      = 20; // walk_1/2: 13 transp src px × 1.5
-const _DY_PUSH_RISE = 20; // push_rise: 13 transp src px × 1.5
-const _DY_PUSH_PEAK =  4; // push_peak:  3 transp src px × 1.5
-const _sprRise      = new Image(); _sprRise.src      = 'PixelArt/cat/rise.png';
-const _sprPeak      = new Image(); _sprPeak.src      = 'PixelArt/cat/peak.png';
-const _sprPushRise  = new Image(); _sprPushRise.src  = 'PixelArt/cat/push_rise.png';
-const _sprPushPeak  = new Image(); _sprPushPeak.src  = 'PixelArt/cat/push_peak.png';
+// Cat animation spritesheet (animation_sheet.png: 7 sprites left→right)
+const _catSheet = new Image(); _catSheet.src = 'PixelArt/cat/animation_sheet.png';
+// dy = transparent_rows_at_bottom × 2.0 (DH/sh scale) — aligns visual feet to hitbox bottom
+// idle/rise/walk/pushRise: content y=19–52 → 11 transparent rows below → dy = 11×2 = 22
+// pushPeak/peak:           content y=8–55  →  8 transparent rows below → dy =  8×2 = 16
+const _CAT_SPRITES = [
+  { sx:   4, sw: 46, dy: 22 }, // 0: idle
+  { sx:  69, sw: 50, dy: 22 }, // 1: rise
+  { sx: 137, sw: 50, dy: 22 }, // 2: walk_1
+  { sx: 206, sw: 50, dy: 22 }, // 3: walk_2
+  { sx: 274, sw: 52, dy: 22 }, // 4: push_rise
+  { sx: 345, sw: 48, dy: 16 }, // 5: push_peak
+  { sx: 411, sw: 48, dy: 16 }, // 6: peak
+];
+const _CAT_IDX = { idle: 0, rise: 1, walk1: 2, walk2: 3, pushRise: 4, pushPeak: 5, peak: 6 };
 
 const PLAYER_SPEED       = 300;   // pixels per second — multiplied by dt, not per-frame
 const GRAVITY            = 980;   // px/s² — downward acceleration (Y increases downward in Canvas)
@@ -54,6 +56,17 @@ const JUMP_MIN_VELOCITY  = -523;  // px/s — tap height: ~138 px (55% of full j
 const JUMP_BOOST_ACCEL   =  905;  // px/s² — hold bonus; full 0.20s adds 181 px/s → -704 total
 const JUMP_BOOST_DURATION = 0.20; // s — hold window; full hold = same height as old flat -700
 const JUMP_VELOCITY      = -700;  // px/s — full-power forced bounce (water respawn, etc.)
+
+// Paw zone — the hitbox for the Z-key action (balloon catch, wasp hit).
+// Shared so enemies.js and main.js always use the same AABB.
+function getPawZone() {
+  return {
+    x: player.x - 4,
+    y: player.y - 28,
+    w: player.w + 8,
+    h: 40,
+  };
+}
 
 const player = {
   x:     224, // (480 - 32) / 2 — horizontally centered
@@ -152,54 +165,51 @@ function renderPlayer(ctx) {
   //   0–0.20s: rise      — ascending stretch
   //   vy > 600 px/s: rise — pre-landing (falling fast)
   //   else:    peak      — peak / neutral airborne
-  let frame;
+  let frameIdx;
   if (player.pushTimer > 0) {
-    frame = (player.onGround || player.bounceTimer > 0.10) ? _sprPushRise : _sprPushPeak;
+    frameIdx = (player.onGround || player.bounceTimer > 0.10) ? _CAT_IDX.pushRise : _CAT_IDX.pushPeak;
   } else if (player.onGround) {
     if (player.vx !== 0) {
-      frame = Math.floor(performance.now() / 150) % 2 === 0 ? _sprWalk1 : _sprWalk2;
+      frameIdx = Math.floor(performance.now() / 150) % 2 === 0 ? _CAT_IDX.walk1 : _CAT_IDX.walk2;
     } else {
-      frame = _sprIdle;  // standing still
+      frameIdx = _CAT_IDX.idle;
     }
   } else if (player.bounceTimer > 0.20) {
-    frame = _sprIdle;  // just left the ground (first 40ms of jump)
+    frameIdx = _CAT_IDX.idle;  // just left the ground (first 40ms of jump)
   } else if (player.bounceTimer > 0.05) {
-    frame = _sprRise;
+    frameIdx = _CAT_IDX.rise;
   } else if (player.vy > 600) {
-    frame = _sprRise; // pre-landing: falling fast
+    frameIdx = _CAT_IDX.rise;  // pre-landing: falling fast
   } else {
-    frame = _sprPeak;
+    frameIdx = _CAT_IDX.peak;
   }
 
-  // ── Fallback: draw red rectangle if sprites not yet loaded ───────────────
-  if (!frame.complete || frame.naturalWidth === 0) {
+  // ── Fallback: draw red rectangle if spritesheet not yet loaded ────────────
+  if (!_catSheet.complete || _catSheet.naturalWidth === 0) {
     ctx.fillStyle = '#e74c3c';
     ctx.fillRect(Math.floor(player.x), Math.floor(player.y), player.w, player.h);
     return;
   }
 
   // ── Draw sprite with direction mirroring ─────────────────────────────────
-  // Sprite drawn at 3× hitbox size (96×96), bottom-aligned so feet land on platforms,
-  // centered horizontally on the hitbox. Hitbox (32×32) stays unchanged for collision.
-  const DW = player.w * 3; // drawn width  96px
-  const DH = player.h * 3; // drawn height 96px
-  const sx  = Math.floor(player.x - (DW - player.w) / 2); // center horizontally
-  let frameDY = 0;
-  if      (frame === _sprIdle)                          frameDY = _DY_IDLE;
-  else if (frame === _sprWalk1 || frame === _sprWalk2)  frameDY = _DY_WALK;
-  else if (frame === _sprPushRise)                      frameDY = _DY_PUSH_RISE;
-  else if (frame === _sprPushPeak)                      frameDY = _DY_PUSH_PEAK;
-  const sy  = Math.floor(player.y - (DH - player.h)) + frameDY;
+  // DW = 3× hitbox width (96px). DH = 2× source sheet height (128px) to preserve
+  // aspect ratio — source is 64px tall, not square like the hitbox.
+  // Hitbox (32×32) stays unchanged for collision.
+  const DW  = player.w * 3; // drawn width  96px
+  const DH  = 128;          // drawn height 128px (= source height 64 × 2)
+  const sx  = Math.floor(player.x - (DW - player.w) / 2); // screen x, centered on hitbox
+  const spr = _CAT_SPRITES[frameIdx];
+  const sy  = Math.floor(player.y - (DH - player.h)) + spr.dy;
 
   if (player.flipped) {
     ctx.save();
     ctx.translate(sx + DW, sy);        // origin at right edge of drawn sprite
     ctx.scale(-1, 1);
     ctx.imageSmoothingEnabled = false; // re-assert: some browsers reset on save()
-    ctx.drawImage(frame, 0, 0, DW, DH);
+    ctx.drawImage(_catSheet, spr.sx, 0, spr.sw, 64, 0, 0, DW, DH);
     ctx.restore();
     ctx.imageSmoothingEnabled = false; // re-assert after restore()
   } else {
-    ctx.drawImage(frame, sx, sy, DW, DH);
+    ctx.drawImage(_catSheet, spr.sx, 0, spr.sw, 64, sx, sy, DW, DH);
   }
 }

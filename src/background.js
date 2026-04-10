@@ -54,6 +54,8 @@ const _bgL2Bottom   = new Image(); _bgL2Bottom.src   = 'PixelArt/backgrounds/lev
 const _bgL2MidTop   = new Image(); _bgL2MidTop.src   = 'PixelArt/backgrounds/level2_see/rocket_mid_top.png';
 const _bgL2ScaffBot = new Image(); _bgL2ScaffBot.src = 'PixelArt/backgrounds/level2_see/rocket_scaffolding_bottom.png';
 const _bgL2ScaffMid = new Image(); _bgL2ScaffMid.src = 'PixelArt/backgrounds/level2_see/rocket_scaffolding_mid.png';
+// Lighthouse (Phase 04.2) — replaces rocket system
+const _bgL2LhSheet = new Image(); _bgL2LhSheet.src = 'PixelArt/backgrounds/level2_see/lighthouse_sheet.png';
 
 // ── Level 3 assets (bg-back: shaft wall; bg-mid: pipes) ───────────────────────
 const _bgL3Elevator    = new Image(); _bgL3Elevator.src    = 'PixelArt/backgrounds/level3_shaft/elevator.png';
@@ -75,6 +77,28 @@ const _RKT_SPRITES = [
 ];
 const _RKT_DRAW_X = 204; // screen x: centers 74px shaft over rocket bottom content (cx=241)
 const _RKT_MID_H  = 270; // content height per tile — vertical tiling step
+const _LH_MID_H   = 577; // lighthouse mid tile content height (rows 30–607 = 578px, step=577)
+// dyo = draw-Y offset in px: shifts each tile down to close art-side seam gaps.
+// Computed from PIL content bounds so every seam is pixel-perfect (error=0).
+const _LH_SPRITES = [
+  { sx:   20, sw: 434, drawX:  23, dyo:  0 }, // [0] base
+  { sx:  634, sw: 286, drawX:  97, dyo:  2 }, // [1] mid 1 — widest
+  { sx: 1100, sw: 263, drawX: 108, dyo:  5 }, // [2] mid 2
+  { sx: 1541, sw: 235, drawX: 122, dyo:  5 }, // [3] mid 3
+  { sx: 1956, sw: 212, drawX: 134, dyo:  6 }, // [4] mid 4
+  { sx: 2357, sw: 180, drawX: 150, dyo: 10 }, // [5] mid 5
+  { sx: 2703, sw: 161, drawX: 159, dyo: 13 }, // [6] mid 6
+  { sx: 3044, sw: 146, drawX: 167, dyo: 14 }, // [7] mid 7 — narrowest
+  { sx: 3369, sw: 217, drawX: 132, dyo:  0 }, // [8] top cap
+];
+// 7 mid sprites used once each in taper order (widest→narrowest).
+// Must have exactly Math.ceil(-levelGoalY_L2 / _LH_MID_H) entries — see platforms.js L2 height.
+const _LH_MID_SEQ         = [1, 2, 3, 4, 5, 6, 7]; // 7 tiles bottom→top, each sprite once
+const _LH_TOP_CONTENT_BOT = 568; // row of cap's last-solid pixel — aligns cap bottom with mid7 top
+// Ground offset: base sprite has 31px transparent below content (rows 609–639).
+// Shift all lighthouse draws down by this amount so rocky ground reaches canvas bottom.
+// Must stay in sync with L2 levelHeight in platforms.js (uses same value).
+const _LH_GROUND_OFFSET   = 31;
 
 const BG_H = 640; // tile height — matches canvas height
 const BG_W = 480; // tile width  — matches canvas width
@@ -126,8 +150,8 @@ function renderBackground(ctx) {
   if (GameState.level >= 2) {
     t = Math.min(1, t + 0.35);
   }
-  // Level 3: enclosed shaft — always full-night so stars show from ground up
-  if (GameState.level === 3) {
+  // Level 2: enclosed shaft — always full-night so stars show from ground up
+  if (GameState.level === 2) {
     t = 1;
   }
 
@@ -135,8 +159,8 @@ function renderBackground(ctx) {
   _drawLayerAlpha(ctx, _bgL1Day,   camShift, 0.30, 0, 1);
   _drawLayerAlpha(ctx, _bgL1Night, camShift, 0.30, 0, t);
 
-  // Level 2: sun between sky and clouds (before clouds so clouds can pass in front)
-  if (GameState.level === 2) {
+  // Level 3: sun between sky and clouds (before clouds so clouds can pass in front)
+  if (GameState.level === 3) {
     _drawL2Sun(ctx, camShift, rawAlt);
   }
 
@@ -158,13 +182,13 @@ function renderBackground(ctx) {
     _drawL1Elements(ctx, camShift);
   }
 
-  // Level 2: rocket tower + sea landing area — in front of clouds, same layer as L1 wall
-  if (GameState.level === 2) {
-    _drawL2Elements(ctx, camShift);
+  // Level 3: lighthouse tower + sea landing area — in front of clouds, same layer as L1 wall
+  if (GameState.level === 3) {
+    _drawL2Lighthouse(ctx, camShift);
   }
 
-  // Level 3: shaft wall background (bg-back, 1.0x) then pipes (bg-mid, 0.90x) on top
-  if (GameState.level === 3) {
+  // Level 2: shaft wall background (bg-back, 1.0x) then pipes (bg-mid, 0.90x) on top
+  if (GameState.level === 2) {
     _drawL3Back(ctx, camShift);
     _drawL3Mid(ctx, camShift);
   }
@@ -315,6 +339,44 @@ function _drawL2Elements(ctx, camShift) {
   if (topScrY < BG_H && topScrY + topSpr.sh > -BG_H) {
     ctx.drawImage(_bgL2MidTop, topSpr.sx, topSpr.sy, topSpr.sw, topSpr.sh,
                                _RKT_DRAW_X, topScrY, topSpr.sw, topSpr.sh);
+  }
+}
+
+// Draws Level 2 lighthouse — replaces rocket tower (Phase 04.2).
+// Uses lighthouse_sheet.png: 9 elements — base, 7 mid tiles (tapering), top cap.
+// Base drawn once at world y=0; mid tiles by world position for consistent taper;
+// top cap snapped so its content-bottom aligns with the last mid tile top edge.
+function _drawL2Lighthouse(ctx, camShift) {
+  if (!_bgL2LhSheet.complete || _bgL2LhSheet.naturalWidth === 0) return;
+
+  const cs    = Math.round(camShift);
+  const goalY = (GameState.levelGoalY !== undefined) ? GameState.levelGoalY : -5000;
+  const sh    = BG_H; // all sprites: full canvas height (640px)
+
+  const GO = _LH_GROUND_OFFSET; // 31px shift — anchors rocky ground to canvas bottom
+
+  // Base tile — drawn once at world y=0; shifted down by GO so content-bottom hits canvas edge
+  const base = _LH_SPRITES[0];
+  ctx.drawImage(_bgL2LhSheet, base.sx, 0, base.sw, sh, base.drawX, cs + GO, base.sw, sh);
+
+  // Mid tiles — sprite chosen by world position so taper is consistent regardless of culling
+  for (let wy = -_LH_MID_H; wy > goalY - _LH_MID_H; wy -= _LH_MID_H) {
+    const tileIdx = Math.floor((-wy / _LH_MID_H) - 1);
+    const sprIdx  = _LH_MID_SEQ[Math.min(tileIdx, _LH_MID_SEQ.length - 1)];
+    const spr     = _LH_SPRITES[sprIdx];
+    const sy = wy + cs + GO + spr.dyo; // dyo closes art-side seam gaps per tile
+    if (sy > BG_H)           continue; // below viewport
+    if (sy + sh < 0) break;            // above viewport — done
+    ctx.drawImage(_bgL2LhSheet, spr.sx, 0, spr.sw, sh, spr.drawX, sy, spr.sw, sh);
+  }
+
+  // Top cap — snapped to last mid tile, accounting for its dyo so the join stays seamless
+  const cap        = _LH_SPRITES[8];
+  const lastMidSpr = _LH_SPRITES[_LH_MID_SEQ[_LH_MID_SEQ.length - 1]];
+  const lastTileWy = -(Math.ceil(-goalY / _LH_MID_H)) * _LH_MID_H;
+  const topScrY    = Math.round(lastTileWy + cs + GO + lastMidSpr.dyo) - _LH_TOP_CONTENT_BOT;
+  if (topScrY < BG_H && topScrY + sh > -BG_H) {
+    ctx.drawImage(_bgL2LhSheet, cap.sx, 0, cap.sw, sh, cap.drawX, topScrY, cap.sw, sh);
   }
 }
 

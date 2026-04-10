@@ -15,7 +15,8 @@
 - [x] **Phase 3: Game World** - Procedural platforms (normal + crumbling), level structure (height goal + level-complete screen + progression), screens (start/game over), score system, LocalStorage high score
 - [x] **Phase 4: Flood + Lives** - Rising water with escalating speed, lives system (3 hearts), damage feedback, animated wave
 - [x] **Phase 04.1: Visual Concept** - Art style, color palette, style guide, asset list, sprite exports (completed 2026-03-09)
-- [ ] **Phase 5: Push + HUD** - Manual jump, push mechanic with item physics and hazard interaction, Spanish speech bubble HUD narration
+- [ ] **Phase 04.2: L2 Lighthouse Redesign** - Replace rocket setting with lighthouse; new pixel art; rewrite background.js L2 section; new platform concept (rocky ledges / wave-breaker steps)
+- [ ] **Phase 5: Push + HUD** - Kletter-Kiste puzzle (L3), NPC patrolling creature, balloon chase mechanic, Spanish speech bubbles, level platform sprites (L2+L3)
 - [ ] **Phase 6: Audio** - Jump SFX, damage SFX, game over sting, background music loop, push/impact sound
 - [ ] **Phase 7: Hosting** - GitHub Pages deployment, shareable URL, final browser smoke test
 
@@ -30,6 +31,7 @@
 | 3. Game World | 3/3 | Complete | 2026-03-06 |
 | 4. Flood + Lives | 2/2 | Complete | 2026-03-10 |
 | 04.1 Visual Concept | 2/2 | Complete | 2026-03-09 |
+| 04.2 L2 Lighthouse | 0/? | Not started | - |
 | 5. Push + HUD | 0/? | Not started | - |
 | 6. Audio | 0/? | Not started | - |
 | 7. Hosting | 0/? | Not started | - |
@@ -120,18 +122,29 @@ Plans:
 - [x] 04.1-01-PLAN.md — Style guide, palette file, placeholder color updates (Wave 1) — DONE 2026-03-09
 - [x] 04.1-02-PLAN.md — Sprite exports, background asset verification, ASSET_LIST.md (Wave 2) — DONE 2026-03-09
 
+### Phase 04.2: L2 Lighthouse Redesign (NEW — confirmed 30.03.2026)
+**Goal:** Level 2 has a fully working lighthouse setting replacing the rocket — new background, new platform concept, no rocket references remain.
+**Depends on:** Phase 04.1
+**Success Criteria:**
+  1. All rocket sprites removed from L2 rendering in background.js — no rocket code remains
+  2. Lighthouse background renders correctly across all altitude levels in L2
+  3. L2 platform sprites reflect new setting (rocks, ledges, wave-breaker steps)
+  4. L2 hazard (rising flood/water) unchanged — visual only redesign
+**Plans:** TBD (estimated 2)
+
 ### Phase 5: Push + HUD
-**Goal:** The cat pushes items off platforms, items fall and interact with level hazards, and comic-style Spanish speech bubbles react to key game events — the game has physical depth and cultural character.
-**Depends on:** Phase 4, Phase 04.1
-**Requirements:** PUSH-01, PUSH-02, PUSH-03, HUD-01, HUD-02, HUD-03, VIS-06, VIS-07, VIS-08
+**Goal:** L3 has a functional Kletter-Kiste puzzle, a patrolling NPC creature adds risk to platforms, balloon chase mechanic is active, and Spanish speech bubbles react to key game events.
+**Depends on:** Phase 04.2, Phase 04.1
+**Requirements:** PUSH-01, HUD-01, HUD-02, HUD-03, VIS-06, VIS-08, NPC-01
 **Note:** Manual jump (Space key, onGround gate), variable jump, walk animation, finish trigger system, balloon collectible, and 3 hazard renderers were all implemented on the feature/asset-restructure-mechanics branch before Phase 5 planning.
+**Note:** PUSH-02 (item spawn system) and PUSH-03 (item-hazard interaction) are DROPPED from MVP — deferred as nice-to-have. VIS-07 (item sprites) also deferred.
 
 **Success Criteria:**
   1. ~~Pressing Space while on a platform jumps~~ (DONE on mechanics branch)
-  2. Z key while in hitbox range of a platform item triggers push — item falls downward with gravity
-  3. Items spawn on ~20% of platforms, never overlapping each other
-  4. Item hitting hazard (L2=flood) produces a visible splash effect and awards bonus points; floating text "+N" appears at impact and fades after ~1 second
-  5. A speech bubble appears on damage, level-complete, and game-over events — correct shape, Spanish phrase from the appropriate pool, fades cleanly
+  2. L3 Scene 1 (Elevator): a pre-placed Kletter-Kiste can be pushed with Z into position; cat can jump on it to reach the ceiling hatch
+  3. NPC creature spawns on select platforms, patrols full platform width, reverses at edges, contact with cat triggers takeDamage()
+  4. Balloon rises upward at chase speed — disappears if it reaches levelGoalY before being caught
+  5. A speech bubble appears on damage, level-complete, and game-over events — Spanish phrase, fades cleanly
 **Plans:** TBD (estimated 5–6)
 
 ### Phase 6: Audio

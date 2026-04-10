@@ -82,9 +82,8 @@ Every `.pxo` source file shares the **exact same base name** as its exported `.p
 
 ### `cat/`
 ```
-idle.png / rise.png / peak.png
-push_rise.png / push_peak.png
-walk_1.png / walk_2.png
+animation_sheet.png     — sheet: 7 sprites (all animation poses)
+einzel_sprites/         — individual source PNGs (reference, not loaded by game)
 ```
 
 ### `backgrounds/shared/`
@@ -106,13 +105,8 @@ building_roof.png       — rooftop at level goal
 
 ### `backgrounds/level2_see/`
 ```
-sea_launchpad.png       — full-width sea + dock at world origin
 sun.png                 — sun sprite with pulse animation
-rocket_bottom.png       — rocket base (full width)
-rocket_mid_top.png      — sheet: 3 sprites (mid A, mid B, top)
-rocket_top.png          — standalone top (higher quality, future use)
-rocket_scaffolding_bottom.png   — scaffolding base tile
-rocket_scaffolding_mid.png      — scaffolding repeating mid tile
+lighthouse_sheet.png    — sheet: 9 sprites (base, mid_1–mid_7, top cap)
 ```
 
 ### `backgrounds/level3_shaft/`
@@ -149,3 +143,16 @@ life_plush.png          — larger plush variant (reference/preview)
 3. Create the `.pxo` source with the same base name.
 4. Export the `.png` with the same base name.
 5. Add the path to the relevant `src/` file — never use uppercase or hyphens in the path string.
+
+---
+
+## Produktionswerkzeuge
+
+Alle Sprites wurden manuell mit **Pixelorama** gezeichnet (Open-Source-Pixelart-Editor).
+Weitere Informationen und Download: https://pixelorama.org/
+Quelldateien: `.pxo`
+
+Einzelne Sprites wurden mit **Adobe Photoshop** zusammengesetzt (z.B. Spritesheets aus Einzelteilen).
+Erkennbar an: `.psd`
+
+Welche Datei mit welchem Tool erstellt wurde, wird im Medienkatalog am Projektende vollständig dokumentiert.

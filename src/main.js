@@ -52,9 +52,9 @@ const _BAL_H_PERIOD   = 1.8;  // seconds per horizontal weave cycle — snappy p
 function resetBalloon() {
   // Dormant until player climbs to a random threshold in the first 5%–40% of the level.
   // Earlier window ensures the balloon appears well before the level's final stretch.
-  const levelHeight = 528 - GameState.levelGoalY;
+  const levelHeight = PLAYER_START_Y - GameState.levelGoalY;
   const frac        = 0.05 + Math.random() * 0.35;
-  _balloon.spawnAtY = 528 - levelHeight * frac;
+  _balloon.spawnAtY = PLAYER_START_Y - levelHeight * frac;
   _balloon.active   = false;
 }
 
@@ -104,15 +104,11 @@ function updateBalloon(dt) {
   const plushX = _balloon.x + _BAL_PLUSH.ox;
   const plushY = _balloon.y + _BAL_PLUSH.oy;
 
-  // Paw zone: raised above player head (push_peak airborne) or extended forward (push_rise ground)
-  // Covers ~40px above and across the player hitbox — reaches the plush cat when cat jumps up to it
-  const pawX = player.x - 4;
-  const pawY = player.y - 28;
-  const pawW = player.w + 8;  // 40px
-  const pawH = 40;
+  // Paw zone: shared AABB from getPawZone() (player.js)
+  const paw = getPawZone();
 
-  const overlapX = pawX < plushX + _BAL_PLUSH.w && pawX + pawW > plushX;
-  const overlapY = pawY < plushY + _BAL_PLUSH.h && pawY + pawH > plushY;
+  const overlapX = paw.x < plushX + _BAL_PLUSH.w && paw.x + paw.w > plushX;
+  const overlapY = paw.y < plushY + _BAL_PLUSH.h && paw.y + paw.h > plushY;
   if (overlapX && overlapY) {
     GameState.lives += 1;
     _balloon.active = false;
@@ -161,6 +157,23 @@ function update(dt) {
         keys.enter = false; // one-shot: prevent instant pass-through on next frame
         resetGame();
         resetBalloon(); // called after resetGame → resetPlatforms → finishTrigger is set
+        spawnEnemies(); // called after resetPlatforms so platforms array is ready
+      }
+      if (keys.push) {
+        keys.push = false;
+        GameState.phase = GamePhase.DEV_SELECT;
+      }
+      break;
+
+    case GamePhase.DEV_SELECT:
+      if (keys.escape) { keys.escape = false; GameState.phase = GamePhase.START; break; }
+      if (keys.menuUp)   { keys.menuUp   = false; GameState.devCursor = GameState.devCursor > 1 ? GameState.devCursor - 1 : 3; }
+      if (keys.menuDown) { keys.menuDown = false; GameState.devCursor = GameState.devCursor < 3 ? GameState.devCursor + 1 : 1; }
+      if (keys.enter) {
+        keys.enter = false;
+        resetGame(GameState.devCursor);
+        resetBalloon();
+        spawnEnemies();
       }
       break;
 
@@ -183,9 +196,11 @@ function update(dt) {
       checkPlatformCollisions();
       updateCamera();
       updateBalloon(dt);
+      updateEnemies(dt);
 
       // Score: height climbed this level (pixels above spawn point)
-      GameState.score = Math.max(0, 528 - GameState.maxHeightReached);
+      // killBonus is tracked separately and revealed at level complete
+      GameState.score = Math.max(0, PLAYER_START_Y - GameState.maxHeightReached);
 
       // Finish trigger: player must stand on finish platform and press Z (push key)
       if (GameState.finishState === 'idle' && GameState.finishTrigger) {
@@ -201,7 +216,10 @@ function update(dt) {
       if (GameState.finishState === 'activating') {
         GameState.finishAnimTimer -= dt;
         if (GameState.finishAnimTimer <= 0) {
-          saveHighScore(GameState.score);
+          // Compute clear bonus once at level finish — stored so level complete screen can read it
+          const _waspTotal = _WASP_COUNT[GameState.level] || 0;
+          GameState.clearBonus = (_waspTotal > 0 && _waspsDefeated >= _waspTotal) ? 200 : 0;
+          saveHighScore(GameState.score + GameState.killBonus + GameState.clearBonus);
           GameState.menuCursor = 0;
           keys.enter = false;
           keys.jump  = false;
@@ -213,8 +231,10 @@ function update(dt) {
       // Fall-off-bottom: costs one life, respawns at camera top
       if (player.y > GameState.cameraY + canvas.height && hazard.iframeTimer <= 0) {
         takeDamage();
-        player.y  = GameState.cameraY + 60; // respawn near top of camera view
-        player.vy = JUMP_VELOCITY;           // auto-bounce on respawn
+        if (GameState.phase === GamePhase.PLAYING) {
+          player.y  = GameState.cameraY + 60; // respawn near top of camera view
+          player.vy = JUMP_VELOCITY;           // auto-bounce on respawn
+        }
       }
 
       // Countdown: tick down; hazard only activates once timer expires
@@ -234,9 +254,9 @@ function update(dt) {
         keys.enter = false;
         switch (GameState.menuCursor) {
           case 0: GameState.phase = GamePhase.PLAYING; break; // Continuar
-          case 1: restartLevel(); resetBalloon();      break; // Reiniciar nivel
-          case 2: resetGame();    resetBalloon();      break; // Reiniciar juego
-          case 3: GameState.phase = GamePhase.START;   break; // Menú principal
+          case 1: restartLevel(); resetBalloon(); spawnEnemies(); break; // Reiniciar nivel
+          case 2: resetGame();    resetBalloon(); spawnEnemies(); break; // Reiniciar juego
+          case 3: GameState.phase = GamePhase.START;             break; // Menú principal
         }
       }
       break;
@@ -248,12 +268,12 @@ function update(dt) {
         keys.enter = false;
         switch (GameState.menuCursor) {
           case 0: // Siguiente nivel — if on last level, go to start
-            if (GameState.level < 3) { startNextLevel(); resetBalloon(); }
+            if (GameState.level < 3) { startNextLevel(); resetBalloon(); spawnEnemies(); }
             else GameState.phase = GamePhase.START;
             break;
-          case 1: restartLevel(); resetBalloon(); break; // Reiniciar nivel
-          case 2: resetGame();    resetBalloon(); break; // Reiniciar juego
-          case 3: GameState.phase = GamePhase.START; break; // Menú principal
+          case 1: restartLevel(); resetBalloon(); spawnEnemies(); break; // Reiniciar nivel
+          case 2: resetGame();    resetBalloon(); spawnEnemies(); break; // Reiniciar juego
+          case 3: GameState.phase = GamePhase.START;             break; // Menú principal
         }
       }
       break;
@@ -283,6 +303,7 @@ function render() {
   // 4. Draw world-space objects
   if (GameState.phase === GamePhase.PLAYING || GameState.phase === GamePhase.LEVEL_COMPLETE || GameState.phase === GamePhase.PAUSED) {
     renderPlatforms(ctx);  // draw platforms before player (player renders on top)
+    renderEnemies(ctx);    // enemies behind player — stomp is clearer when player overlaps on top
     renderBalloon(ctx);
     renderPlayer(ctx);
     if (GameState.finishTrigger) _renderFinishTrigger(ctx);
@@ -334,8 +355,8 @@ function _renderFinishTrigger(ctx) {
     ctx.fillStyle = '#ffffff';
     ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill();
 
-  } else if (GameState.level === 2) {
-    // Bell: gentle sway at idle, vigorous ringing when activating
+  } else if (GameState.level === 3) {
+    // Bell: gentle sway at idle, vigorous ringing when activating (L3 lighthouse)
     const swingAmp = GameState.finishState === 'activating' ? 0.55 : 0.12;
     ctx.rotate(Math.sin(t * (GameState.finishState === 'activating' ? 8 : 1.5)) * swingAmp);
     ctx.fillStyle = '#f1c40f';
@@ -386,10 +407,20 @@ function renderHUD() {
   // ── PLAYING: real-time score in top-left ─────────────────────────────────
   if (GameState.phase === GamePhase.PLAYING) {
     // Score and level — top-left
-    ctx.fillStyle = '#ffffff';
     ctx.font      = '16px monospace';
     ctx.textAlign = 'left';
-    ctx.fillText('Score: ' + Math.floor(GameState.score) + ' px', 8, 20);
+    ctx.fillStyle = '#ffffff';
+    const _scoreText = 'Score: ' + Math.floor(GameState.score) + ' px';
+    ctx.fillText(_scoreText, 8, 20);
+    // Kill bonus — bold yellow counter, inline right of score, hidden at 0
+    if (GameState.killBonus > 0) {
+      const _scoreW = ctx.measureText(_scoreText).width; // measure in regular font BEFORE switching
+      ctx.font      = 'bold 16px monospace';
+      ctx.fillStyle = '#f1c40f';
+      ctx.fillText(' +' + GameState.killBonus, 8 + _scoreW, 20);
+      ctx.font      = '16px monospace';
+    }
+    ctx.fillStyle = '#ffffff';
     ctx.fillText('Level: ' + GameState.level, 8, 42);
 
     // Lives — top-right, cat icon repeated (max 9), right-to-left layout
@@ -448,12 +479,56 @@ function renderHUD() {
     ctx.fillStyle = '#f1c40f';
     ctx.fillText('ENTER or click to start', canvas.width / 2, 420);
 
+    ctx.font = '13px monospace';
+    ctx.fillStyle = '#555555';
+    ctx.fillText('Z — dev level select', canvas.width / 2, 470);
+
     ctx.textAlign = 'left'; // always reset after centered rendering
+  }
+
+  // ── DEV SELECT screen ─────────────────────────────────────────────────────
+  if (GameState.phase === GamePhase.DEV_SELECT) {
+    const cx = canvas.width / 2;
+    const LEVEL_NAMES = ['', 'L1 — Stadt', 'L2 — Aufzugschacht', 'L3 — Offener See'];
+
+    ctx.fillStyle = 'rgba(0,0,0,0.80)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.textAlign = 'center';
+
+    ctx.fillStyle = '#e74c3c';
+    ctx.font      = '14px monospace';
+    ctx.fillText('DEV MODE', cx, 155);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font      = '26px monospace';
+    ctx.fillText('Select Level', cx, 195);
+
+    const optY0   = 280;
+    const optStep = 70;
+    for (let i = 1; i <= 3; i++) {
+      const y        = optY0 + (i - 1) * optStep;
+      const selected = i === GameState.devCursor;
+      if (selected) {
+        ctx.fillStyle = 'rgba(255,255,255,0.10)';
+        ctx.fillRect(cx - 160, y - 26, 320, 40);
+        ctx.fillStyle = '#f1c40f';
+      } else {
+        ctx.fillStyle = '#888888';
+      }
+      ctx.font = '20px monospace';
+      ctx.fillText((selected ? '\u25b6 ' : '  ') + LEVEL_NAMES[i], cx, y);
+    }
+
+    ctx.fillStyle = '#555555';
+    ctx.font      = '13px monospace';
+    ctx.fillText('\u2191\u2193 select   ENTER start   ESC back', cx, 520);
+
+    ctx.textAlign = 'left';
   }
 
   // ── LEVEL COMPLETE screen ─────────────────────────────────────────────────
   if (GameState.phase === GamePhase.LEVEL_COMPLETE) {
-    const LEVEL_NAMES = ['', 'Stadt', 'Offener See', 'Aufzugschacht', 'Freizeitpark'];
+    const LEVEL_NAMES = ['', 'Stadt', 'Aufzugschacht', 'Offener See', 'Freizeitpark'];
     const cx = canvas.width / 2;
 
     ctx.fillStyle = 'rgba(0,0,0,0.72)';
@@ -468,26 +543,37 @@ function renderHUD() {
     ctx.font      = '16px monospace';
     ctx.fillText(LEVEL_NAMES[GameState.level] || '', cx, 148);
 
-    // Stats
-    ctx.fillStyle = '#ffffff';
+    // Stats — height score + kill bonus + clear bonus breakdown, then combined total
+    const _lvlTotal = Math.floor(GameState.score) + Math.floor(GameState.killBonus) + GameState.clearBonus;
     ctx.font      = '16px monospace';
-    ctx.fillText('Puntos: ' + Math.floor(GameState.score) + ' px', cx, 192);
-    ctx.fillText('Mejor:  ' + Math.floor(GameState.highScore) + ' px', cx, 216);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('Altura:   ' + Math.floor(GameState.score)      + ' px',  cx, 184);
+    ctx.fillStyle = GameState.killBonus > 0 ? '#f1c40f' : '#888888';
+    ctx.fillText('Avispas:  ' + Math.floor(GameState.killBonus)  + ' pts', cx, 206);
+    ctx.fillStyle = GameState.clearBonus > 0 ? '#ff9f43' : '#555555';
+    ctx.font      = GameState.clearBonus > 0 ? 'bold 16px monospace' : '16px monospace';
+    ctx.fillText('¡Todas!   ' + (GameState.clearBonus > 0 ? '+200 pts' : '---'),  cx, 228);
+    ctx.font      = '16px monospace';
+    ctx.fillStyle = '#2ecc71';
+    ctx.fillText('Total:    ' + _lvlTotal                        + ' pts', cx, 252);
+    ctx.fillStyle = '#aaaaaa';
+    ctx.fillText('Mejor:    ' + Math.floor(GameState.highScore)  + ' pts', cx, 274);
     // Lives — cat icons
-    ctx.fillText('Vidas:', cx - 36, 240);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('Vidas:', cx - 36, 298);
     if (_hudLifeIcon.complete && _hudLifeIcon.naturalWidth > 0) {
       const icoW = 22, icoH = 18; // slightly larger for menu screen
       const maxShow = Math.min(GameState.lives, 9);
       for (let i = 0; i < maxShow; i++) {
-        ctx.drawImage(_hudLifeIcon, cx + 14 + i * (icoW + 2), 226, icoW, icoH);
+        ctx.drawImage(_hudLifeIcon, cx + 14 + i * (icoW + 2), 284, icoW, icoH);
       }
     }
 
     // Menu options
     const option0 = GameState.level < 3 ? 'Siguiente nivel' : 'Ver puntuacion final';
     const options = [option0, 'Reiniciar nivel', 'Reiniciar juego', 'Menu principal'];
-    const optY0   = 300;
-    const optStep = 50;
+    const optY0   = 328;
+    const optStep = 46;
     options.forEach((label, i) => {
       const y = optY0 + i * optStep;
       const selected = i === GameState.menuCursor;
@@ -559,8 +645,8 @@ function renderHUD() {
 
     ctx.fillStyle = '#ffffff';
     ctx.font      = '20px monospace';
-    ctx.fillText('Score: ' + Math.floor(GameState.score) + ' px', canvas.width / 2, 290);
-    ctx.fillText('Best:  ' + Math.floor(GameState.highScore) + ' px', canvas.width / 2, 320);
+    ctx.fillText('Score: ' + Math.floor(GameState.score) + ' pts', canvas.width / 2, 290);
+    ctx.fillText('Best:  ' + Math.floor(GameState.highScore) + ' pts', canvas.width / 2, 320);
 
     ctx.font = '16px monospace';
     ctx.fillStyle = '#f1c40f';

@@ -250,13 +250,69 @@ const projektplanDoc = new Document({
 
 // ══════════════════════════════════════════════════════════════════════════
 // ARBEITSPROTOKOLL
-// Col widths: Datum(1500) | Aufgabe(4337) | geplant(700) | IB(700) | erl(700) = 7937
-// Font 9pt in cells to prevent overflow in narrow status columns
+// Col widths: Tag(500) | Datum(1400) | Aufgabe(3937) | geplant(700) | IB(700) | erl(700) = 7937
+// Rows auto-generated for full calendar range — work entries + empty days + weekends
 // ══════════════════════════════════════════════════════════════════════════
 
-const AP = { DAT: 1500, AUFG: 4337, GP: 700, IB: 700, ERL: 700 };
+const AP = { TAG: 500, DAT: 1400, AUFG: 3937, GP: 700, IB: 700, ERL: 700 };
 const X = 'x';
 
+// Row background colors
+const C_WORK    = 'FFFFFF'; // normal work entry
+const C_WEEKEND = 'D9E2F3'; // Saturday / Sunday — soft blue
+const C_NOENTRY = 'F5F5F5'; // weekday without work — light gray
+const C_KW      = 'EBF0F8'; // calendar week separator
+
+// ── Date helpers ────────────────────────────────────────────────────────────
+function parseDate(str) {
+  const [d, m, y] = str.split('.').map(Number);
+  return new Date(y, m - 1, d);
+}
+function toDateStr(d) {
+  return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
+}
+const WT_NAMES = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+function getWT(d)   { return WT_NAMES[d.getDay()]; }
+function isWE(d)    { return d.getDay() === 0 || d.getDay() === 6; }
+function getISOWeek(d) {
+  const tmp = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  tmp.setUTCDate(tmp.getUTCDate() + 4 - (tmp.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(tmp.getUTCFullYear(), 0, 1));
+  return Math.ceil((((tmp - yearStart) / 86400000) + 1) / 7);
+}
+
+// ── Colored cell builder ─────────────────────────────────────────────────────
+function dCellC(text, w, fill, { center = false, bold = false, italic = false } = {}) {
+  return new TableCell({
+    width: { size: w, type: WidthType.DXA },
+    borders,
+    shading: { fill, type: ShadingType.CLEAR },
+    margins: { top: 60, bottom: 60, left: 100, right: 100 },
+    verticalAlign: VerticalAlign.CENTER,
+    children: [new Paragraph({
+      alignment: center ? AlignmentType.CENTER : AlignmentType.LEFT,
+      spacing: { line: 240, lineRule: 'auto' },
+      children: [new TextRun({ text: String(text), bold, italic, font: FONT, size: FS_CELL,
+        color: fill === C_WORK ? '000000' : '555555' })]
+    })]
+  });
+}
+
+// ── KW separator row ─────────────────────────────────────────────────────────
+function kwRow(kw, monDate, sunDate) {
+  const fmt = d => `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.`;
+  const label = `KW ${kw}   ${fmt(monDate)} – ${fmt(sunDate)}`;
+  return new TableRow({ children: [
+    dCellC('',    AP.TAG,  C_KW, { center: true }),
+    dCellC('',    AP.DAT,  C_KW, { center: true }),
+    dCellC(label, AP.AUFG, C_KW, { bold: true }),
+    dCellC('',    AP.GP,   C_KW, { center: true }),
+    dCellC('',    AP.IB,   C_KW, { center: true }),
+    dCellC('',    AP.ERL,  C_KW, { center: true }),
+  ]});
+}
+
+// ── Work entries ─────────────────────────────────────────────────────────────
 const ap_rows = [
   // Datum          Aufgabe (max ~55 chars)                               GP  IB  ERL
   ['04.03.2026', 'Spielkonzept definieren, Themeneinreichung',           X,  X,  X],
@@ -330,26 +386,99 @@ const ap_rows = [
   ['23.03.2026', 'Hazard: Obergrenze L2/L3 auf levelGoalY gesetzt (war +300px)',         X,  X,  X],
   ['23.03.2026', 'Ballon: 2x Steiggeschwindigkeit, 1/3 Seitenamplitude',                X,  X,  X],
   ['23.03.2026', 'water.js umbenannt zu hazards.js (korrekte Benennung)',               X,  X,  X],
+  ['25.03.2026', 'PixelArt: snake_case Benennung alle Assets erzwungen',                X,  X,  X],
+  ['25.03.2026', 'Sprite-Pfade in player.js + background.js aktualisiert',             X,  X,  X],
+  ['30.03.2026', 'Merge: feature/asset-restructure-mechanics → master',                X,  X,  X],
+  ['30.03.2026', 'GDD: Scope-Entscheidungen (Push-Mechanik, L2 Leuchtturm)',           X,  X,  X],
+  ['30.03.2026', 'Phase 04.2 initialisiert: Recherche L2-Leuchtturm-Redesign',        X,  X,  X],
+  ['06.04.2026', 'Katzen-Sprites: 7 Einzeldateien zu animation_sheet.png konsolidiert',X,  X,  X],
+  ['06.04.2026', 'player.js: Spritesheet-System mit Index-Array (_CAT_SPRITES)',       X,  X,  X],
+  ['06.04.2026', 'background.js: Leuchtturm-Renderer (_drawL2Lighthouse) implementiert',X, X,  X],
+  ['06.04.2026', 'Branch feature/04.2-l2-lighthouse erstellt, Doku aktualisiert',     X,  X,  X],
 ];
+
+// ── Calendar row generator ───────────────────────────────────────────────────
+// Builds one TableRow per calendar day between AP_START and AP_END:
+//   - Work entries:  white background, actual content
+//   - Weekends:      blue background, "Wochenende" label
+//   - Empty weekday: gray background, "–" label
+// A KW header row is inserted at the start of each ISO calendar week.
+function buildApRows() {
+  const entryMap = {};
+  for (const row of ap_rows) {
+    if (!entryMap[row[0]]) entryMap[row[0]] = [];
+    entryMap[row[0]].push(row);
+  }
+
+  const AP_START = parseDate('04.03.2026');
+  const AP_END   = parseDate('22.04.2026'); // project deadline
+  const rows     = [];
+  let lastKW     = null;
+
+  for (let cur = new Date(AP_START); cur <= AP_END; cur.setDate(cur.getDate() + 1)) {
+    const kw  = getISOWeek(cur);
+    const wt  = getWT(cur);
+    const we  = isWE(cur);
+    const ds  = toDateStr(cur);
+
+    if (kw !== lastKW) {
+      // Monday of this week
+      const mon = new Date(cur);
+      mon.setDate(cur.getDate() - (cur.getDay() === 0 ? 6 : cur.getDay() - 1));
+      const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+      rows.push(kwRow(kw, mon, sun));
+      lastKW = kw;
+    }
+
+    const entries = entryMap[ds];
+    if (entries) {
+      const fill = we ? C_WEEKEND : C_WORK;
+      for (const [dat, aufg, gp, ib, erl] of entries) {
+        rows.push(new TableRow({ children: [
+          dCellC(wt,   AP.TAG,  fill, { center: true }),
+          dCellC(dat,  AP.DAT,  fill, { center: true }),
+          dCellC(aufg, AP.AUFG, fill),
+          dCellC(gp,   AP.GP,   fill, { center: true }),
+          dCellC(ib,   AP.IB,   fill, { center: true }),
+          dCellC(erl,  AP.ERL,  fill, { center: true }),
+        ]}));
+      }
+    } else if (we) {
+      rows.push(new TableRow({ children: [
+        dCellC(wt,           AP.TAG,  C_WEEKEND, { center: true, italic: true }),
+        dCellC(ds,           AP.DAT,  C_WEEKEND, { center: true, italic: true }),
+        dCellC('Wochenende', AP.AUFG, C_WEEKEND, { italic: true }),
+        dCellC('',           AP.GP,   C_WEEKEND, { center: true }),
+        dCellC('',           AP.IB,   C_WEEKEND, { center: true }),
+        dCellC('',           AP.ERL,  C_WEEKEND, { center: true }),
+      ]}));
+    } else {
+      rows.push(new TableRow({ children: [
+        dCellC(wt,  AP.TAG,  C_NOENTRY, { center: true, italic: true }),
+        dCellC(ds,  AP.DAT,  C_NOENTRY, { center: true, italic: true }),
+        dCellC('–', AP.AUFG, C_NOENTRY, { italic: true }),
+        dCellC('',  AP.GP,   C_NOENTRY, { center: true }),
+        dCellC('',  AP.IB,   C_NOENTRY, { center: true }),
+        dCellC('',  AP.ERL,  C_NOENTRY, { center: true }),
+      ]}));
+    }
+  }
+  return rows;
+}
 
 const apTable = new Table({
   width: { size: CONTENT_W, type: WidthType.DXA },
-  columnWidths: [AP.DAT, AP.AUFG, AP.GP, AP.IB, AP.ERL],
+  columnWidths: [AP.TAG, AP.DAT, AP.AUFG, AP.GP, AP.IB, AP.ERL],
   rows: [
     new TableRow({ children: [
-      hCell('Datum',          AP.DAT),
-      hCell('Aufgabe',        AP.AUFG),
-      hCell('geplant',        AP.GP),
-      hCell('in Bearb.',      AP.IB),
-      hCell('erledigt',       AP.ERL),
+      hCell('Tag',       AP.TAG),
+      hCell('Datum',     AP.DAT),
+      hCell('Aufgabe',   AP.AUFG),
+      hCell('geplant',   AP.GP),
+      hCell('in Bearb.', AP.IB),
+      hCell('erledigt',  AP.ERL),
     ]}),
-    ...ap_rows.map(([dat, aufg, gp, ib, erl]) => new TableRow({ children: [
-      dCell(dat,  AP.DAT,  { center: true }),
-      dCell(aufg, AP.AUFG),
-      dCell(gp,   AP.GP,   { center: true }),
-      dCell(ib,   AP.IB,   { center: true }),
-      dCell(erl,  AP.ERL,  { center: true }),
-    ]}))
+    ...buildApRows()
   ]
 });
 
@@ -425,6 +554,7 @@ const gddContent = [
     ['3.7',  'Animationssystem',                   true],
     ['3.8',  'Audio-Konzept',                      true],
     ['3.9',  'Typografie',                         true],
+    ['3.10', 'Produktionswerkzeuge (Pixel Art)',   true],
   ].map(([nr, title, indent]) => new Paragraph({
     spacing: { after: 60, line: SPACING, lineRule: 'auto' },
     indent: { left: indent ? 360 : 0 },
@@ -745,6 +875,19 @@ const gddContent = [
     ],
     [2300, 1700, 3937]
   ),
+
+  h2('3.10  Produktionswerkzeuge (Pixel Art)'),
+  body('Alle Sprites wurden manuell mit Pixelorama gezeichnet — einem Open-Source-Pixelart-Editor. Quelldateien haben die Endung .pxo. Weitere Informationen und Download: https://pixelorama.org/'),
+  body('Einzelne Sprites wurden mit Adobe Photoshop zusammengesetzt, zum Beispiel beim Erstellen von Spritesheets aus Einzelteilen. Diese Dateien sind an der Endung .psd erkennbar.'),
+  tableN(
+    ['Software', 'Verwendung', 'Erkennbar an'],
+    [
+      ['Pixelorama',        'Erstellung aller Pixel-Art-Sprites (manuell gezeichnet)', '.pxo Quelldatei'],
+      ['Adobe Photoshop',   'Zusammensetzen von Sprites / Spritesheets',               '.psd Datei'],
+    ],
+    [2000, 4337, 1600]
+  ),
+  note('Vollständige Liste welche Datei mit welchem Tool erstellt wurde folgt im Medienkatalog am Projektende.'),
 ];
 ACTIVE_CW = CONTENT_W;
 

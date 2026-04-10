@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-03-21T12:00:00.000Z"
+last_updated: "2026-04-06T12:00:00.000Z"
 progress:
   total_phases: 7
   completed_phases: 5
@@ -13,8 +13,8 @@ progress:
 
 # State: Soggy Moggy
 
-**Last updated:** 2026-03-21
-**Updated by:** L2 background assets integrated (rocket tower + sea landing); L2 level planning on hold pending further design decisions
+**Last updated:** 2026-04-06
+**Updated by:** Cat spritesheet migration complete; lighthouse renderer implemented; branch feature/04.2-l2-lighthouse created; Arbeitsprotokoll updated through 06.04
 
 ---
 
@@ -22,7 +22,7 @@ progress:
 
 **Core Value:** A playable, complete gameplay loop: cat jumps up, level-specific hazards rise from below (smog/flood/electricity), tension builds — the game feels real from first play.
 
-**Current Focus:** Phase 5 (Push + HUD) — planning next. Manual jump already implemented on feature/asset-restructure-mechanics branch.
+**Current Focus:** Phase 04.2 (L2 Lighthouse Redesign) — in progress on branch feature/04.2-l2-lighthouse. Renderer implemented, platform sprites + platform concept next.
 
 **Stack:** Vanilla JavaScript ES2022+ + HTML Canvas 2D (480x640) + Web Audio API + GitHub Pages
 
@@ -30,14 +30,14 @@ progress:
 
 ## Current Position
 
-**Active Phase:** 5 — Push + HUD (NOT STARTED — planning next)
-**Active Plan:** none — phase 04.1 complete, phase 5 plan pending
-**Phase Status:** Phases 1–4 and 04.1 complete — mechanics restructure branch in progress
+**Active Phase:** 04.2 — L2 Lighthouse Redesign (IN PROGRESS — renderer done, plan pending)
+**Active Plan:** none — phase plan not yet created; renderer WIP committed on branch
+**Phase Status:** Phases 1–4, 04.1 complete — Phase 04.2 in progress on feature branch
 
 ```
-Progress: [x][x][x][x][x][ ][ ][ ]  5/8 phases complete (incl. 04.1)
-           P1  P2  P3  P4 04.1 P5  P6  P7
-           Phases 1-4 + 04.1 complete; Phase 5 (Push+HUD) next
+Progress: [x][x][x][x][x][~][ ][ ][ ]  5/8 complete + 04.2 in progress
+           P1  P2  P3  P4 04.1 04.2 P5  P6  P7
+           Phases 1-4 + 04.1 complete; 04.2 lighthouse in progress
 ```
 
 ---
@@ -51,6 +51,7 @@ Progress: [x][x][x][x][x][ ][ ][ ]  5/8 phases complete (incl. 04.1)
 | 3 | Game World | Complete | 3/3 |
 | 4 | Flood + Lives | Complete | 2/2 |
 | 04.1 | Visual Concept | Complete | 2/2 |
+| 04.2 | L2 Lighthouse Redesign | In progress | 0/? |
 | 5 | Push + HUD | Not started | 0/? |
 | 6 | Audio | Not started | 0/? |
 | 7 | Hosting | Not started | 0/? |
@@ -96,7 +97,7 @@ Progress: [x][x][x][x][x][ ][ ][ ]  5/8 phases complete (incl. 04.1)
 | Camera one-way gate: if (newCameraY < cameraY) | cameraY can only decrease — when player falls, newCameraY increases, condition fails, camera holds | Phase 2 |
 | Fall detection after updateCamera() | Fall check uses cameraY + canvas.height; must use current frame cameraY, not stale value | Phase 2 |
 | Height formula: 528 - maxHeightReached | 528 = player start world Y; maxHeightReached stores minimum Y seen; result = pixels climbed | Phase 2 |
-| Push effect on hazard: item hits hazard → splash + bonus points | Level 2 confirmed; L1/L3 stubs for later | Phase 5 |
+| Push item spawn system DROPPED from MVP | PUSH-02/03 deferred as nice-to-have; Kletter-Kiste (L3 single puzzle box) is the only push element in MVP | Phase 5 |
 | Lives system over instant death | More forgiving; makes the push mechanic feel more meaningful | Phase 4 |
 | Working title: Soggy Moggy | Renamed from "Cat Flood Jumper" | — |
 | Player = Stuffed Cat | Not a real/live cat — specific visual character with floppy limbs, button eyes, stitched seams | Phase 04.1 |
@@ -203,9 +204,9 @@ None.
 
 **Repository:** `C:/Users/Teilnehmer/Desktop/Schule/PRG/Abschlussprojekt_SRH_26`
 **Planning files:** `.planning/`
-**Last session:** 2026-03-21
-**Next action:** L2 background integrated but planning on hold (further design decisions needed). Focus: finish `feature/asset-restructure-mechanics` branch, merge, then `/gsd:plan-phase 5` — Push + HUD.
+**Last session:** 2026-04-06
+**Next action:** Phase 04.2 lighthouse renderer is implemented. Next: `/gsd:plan-phase 04.2` to create the phase plan, then execute platform sprite work + L2 platform concept.
 
 ---
 *State initialized: 2026-03-03 after roadmap creation*
-*Updated: 2026-03-06 after 04-02-PLAN.md execution*
+*Updated: 2026-04-06 — cat spritesheet migration + lighthouse renderer + branch created*
