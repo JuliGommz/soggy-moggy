@@ -89,17 +89,22 @@ function resetHazard(level) {
 }
 
 // ---------------------------------------------------------------------------
-// SECTION 4 — takeDamage()
-// The iframeTimer guard is checked by the caller (updateHazard), not here.
+// SECTION 4 — takeDamage(cause)
+// cause ∈ { 'hazard' (default), 'wasp' } — routed to showLifeLost() for the
+// correct bubble variant. The iframeTimer guard is checked by the caller
+// (updateHazard / enemies.js / fall-off-bottom in main.js), not here.
 // ---------------------------------------------------------------------------
-function takeDamage() {
+function takeDamage(cause) {
   GameState.lives   -= 1;
   hazard.iframeTimer = IFRAME_DURATION;
   hazard.flashTimer  = FLASH_DURATION;
   if (GameState.lives <= 0) {
     saveHighScore(GameState.score + GameState.killBonus);
     GameState.phase = GamePhase.GAMEOVER;
+    return; // skip life-lost bubble — GAMEOVER screen takes over
   }
+  // Non-fatal hit: show life-lost bubble (auto-dismiss, pauses physics for 1.2s)
+  if (typeof showLifeLost === 'function') showLifeLost(cause || 'hazard');
 }
 
 // ---------------------------------------------------------------------------
@@ -151,7 +156,7 @@ function updateHazard(dt) {
   // L1 smog stops near the level top (22px below levelGoalY) — matches red line in building.
   // Other levels use the wider 300px safety margin.
   if (GameState.levelGoalY !== undefined) {
-    const capOffset = (GameState.level === 1) ? 22 : 0;
+    const capOffset = (GameState.level === 1 || GameState.level === 2) ? 22 : 0;
     if (hazard.y < GameState.levelGoalY + capOffset) {
       hazard.y = GameState.levelGoalY + capOffset;
     }
@@ -169,7 +174,7 @@ function updateHazard(dt) {
   const playerBottom = player.y + player.h;
   const collisionY   = hazard.y - HAZARD_COLLISION_MARGIN;
   if (playerBottom >= collisionY && hazard.iframeTimer <= 0) {
-    takeDamage();
+    takeDamage('hazard');
     if (GameState.phase === GamePhase.PLAYING) {
       respawnAboveWater(); // teleport to nearest safe platform above hazard
     }

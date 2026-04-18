@@ -158,6 +158,9 @@ function update(dt) {
         resetGame();
         resetBalloon(); // called after resetGame → resetPlatforms → finishTrigger is set
         spawnEnemies(); // called after resetPlatforms so platforms array is ready
+        // Override: show LEVEL_INTRO bubble before gameplay starts
+        GameState.phase = GamePhase.LEVEL_INTRO;
+        showLevelStart(GameState.level);
       }
       if (keys.push) {
         keys.push = false;
@@ -174,10 +177,46 @@ function update(dt) {
         resetGame(GameState.devCursor);
         resetBalloon();
         spawnEnemies();
+        GameState.phase = GamePhase.LEVEL_INTRO;
+        showLevelStart(GameState.level);
+      }
+      break;
+
+    case GamePhase.LEVEL_INTRO:
+      // Bubble overlay shown before each level. Press ENTER / Space / Z to dismiss.
+      updateDialogue(dt);
+      // Swallow ESC during the bubble — otherwise a held/bleed ESC hops straight
+      // through PLAYING on the next frame and slams into PAUSED.
+      if (keys.escape) keys.escape = false;
+      if (keys.enter || keys.jump || keys.push) {
+        keys.enter = false;
+        keys.jump  = false;
+        keys.push  = false;
+        if (advanceDialogue()) GameState.phase = GamePhase.PLAYING;
+      }
+      break;
+
+    case GamePhase.LEVEL_OUTRO:
+      // Bubble overlay shown after finish-trigger, before LEVEL_COMPLETE menu.
+      updateDialogue(dt);
+      // Swallow ESC — LEVEL_COMPLETE reads ESC as "back to menu" or similar,
+      // so we don't want a stray ESC skipping past the stats screen.
+      if (keys.escape) keys.escape = false;
+      if (keys.enter || keys.jump || keys.push) {
+        keys.enter = false;
+        keys.jump  = false;
+        keys.push  = false;
+        if (advanceDialogue()) {
+          GameState.menuCursor = 0;
+          GameState.phase      = GamePhase.LEVEL_COMPLETE;
+        }
       }
       break;
 
     case GamePhase.PLAYING:
+      // Life-lost dialogue (transient) pauses physics — tick dialogue timer only.
+      if (isDialogueBlocking()) { updateDialogue(dt); break; }
+
       // ESC → pause
       if (keys.escape) {
         keys.escape          = false;
@@ -202,11 +241,11 @@ function update(dt) {
       // killBonus is tracked separately and revealed at level complete
       GameState.score = Math.max(0, PLAYER_START_Y - GameState.maxHeightReached);
 
-      // Finish trigger: player must stand on finish platform and press Z (push key)
+      // Finish trigger: player must stand on the finish platform (identity check, not X-overlap)
+      // and press Z (push key). Identity check prevents false triggers when player stands on any
+      // platform that happens to overlap the finish-trigger X-range (e.g. jalousies under the roof).
       if (GameState.finishState === 'idle' && GameState.finishTrigger) {
-        const ft = GameState.finishTrigger;
-        const overlapsX = player.x < ft.x + ft.w && player.x + player.w > ft.x;
-        if (player.onGround && overlapsX && keys.push) {
+        if (player.onGround && player.onPlatform?.isFinish && keys.push) {
           keys.push             = false;
           GameState.finishState = 'activating';
           GameState.finishAnimTimer = 1.5; // seconds of animation before level complete screen
@@ -224,13 +263,15 @@ function update(dt) {
           keys.enter = false;
           keys.jump  = false;
           GameState.finishState = 'done';
-          GameState.phase       = GamePhase.LEVEL_COMPLETE;
+          // Route through LEVEL_OUTRO bubble before showing the stats menu.
+          GameState.phase = GamePhase.LEVEL_OUTRO;
+          showLevelEnd(GameState.level);
         }
       }
 
       // Fall-off-bottom: costs one life, respawns at camera top
       if (player.y > GameState.cameraY + canvas.height && hazard.iframeTimer <= 0) {
-        takeDamage();
+        takeDamage('hazard');
         if (GameState.phase === GamePhase.PLAYING) {
           player.y  = GameState.cameraY + 60; // respawn near top of camera view
           player.vy = JUMP_VELOCITY;           // auto-bounce on respawn
@@ -254,8 +295,10 @@ function update(dt) {
         keys.enter = false;
         switch (GameState.menuCursor) {
           case 0: GameState.phase = GamePhase.PLAYING; break; // Continuar
-          case 1: restartLevel(); resetBalloon(); spawnEnemies(); break; // Reiniciar nivel
-          case 2: resetGame();    resetBalloon(); spawnEnemies(); break; // Reiniciar juego
+          case 1: restartLevel(); resetBalloon(); spawnEnemies();
+                  GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Reiniciar nivel
+          case 2: resetGame();    resetBalloon(); spawnEnemies();
+                  GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Reiniciar juego
           case 3: GameState.phase = GamePhase.START;             break; // Menú principal
         }
       }
@@ -268,11 +311,16 @@ function update(dt) {
         keys.enter = false;
         switch (GameState.menuCursor) {
           case 0: // Siguiente nivel — if on last level, go to start
-            if (GameState.level < 3) { startNextLevel(); resetBalloon(); spawnEnemies(); }
+            if (GameState.level < 3) {
+              startNextLevel(); resetBalloon(); spawnEnemies();
+              GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level);
+            }
             else GameState.phase = GamePhase.START;
             break;
-          case 1: restartLevel(); resetBalloon(); spawnEnemies(); break; // Reiniciar nivel
-          case 2: resetGame();    resetBalloon(); spawnEnemies(); break; // Reiniciar juego
+          case 1: restartLevel(); resetBalloon(); spawnEnemies();
+                  GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Reiniciar nivel
+          case 2: resetGame();    resetBalloon(); spawnEnemies();
+                  GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Reiniciar juego
           case 3: GameState.phase = GamePhase.START;             break; // Menú principal
         }
       }
@@ -301,14 +349,19 @@ function render() {
   ctx.translate(0, -GameState.cameraY); // cameraY is 0 in Phase 1; camera added in Phase 2
 
   // 4. Draw world-space objects
-  if (GameState.phase === GamePhase.PLAYING || GameState.phase === GamePhase.LEVEL_COMPLETE || GameState.phase === GamePhase.PAUSED) {
+  const _drawWorld = (
+    GameState.phase === GamePhase.PLAYING        ||
+    GameState.phase === GamePhase.LEVEL_COMPLETE ||
+    GameState.phase === GamePhase.PAUSED         ||
+    GameState.phase === GamePhase.LEVEL_INTRO    ||
+    GameState.phase === GamePhase.LEVEL_OUTRO
+  );
+  if (_drawWorld) {
     renderPlatforms(ctx);  // draw platforms before player (player renders on top)
     renderEnemies(ctx);    // enemies behind player — stomp is clearer when player overlaps on top
     renderBalloon(ctx);
     renderPlayer(ctx);
     if (GameState.finishTrigger) _renderFinishTrigger(ctx);
-  }
-  if (GameState.phase === GamePhase.PLAYING || GameState.phase === GamePhase.LEVEL_COMPLETE || GameState.phase === GamePhase.PAUSED) {
     renderHazard(ctx);
   }
 
@@ -317,6 +370,9 @@ function render() {
 
   // 6. Draw HUD — ALWAYS in screen space (after ctx.restore)
   renderHUD();
+
+  // 7. Dialogue overlay — drawn LAST so bubbles sit on top of HUD + world
+  renderDialogue(ctx);
 }
 
 // ── Finish trigger visual ────────────────────────────────────────────────────
@@ -383,10 +439,10 @@ function _renderFinishTrigger(ctx) {
 
   ctx.restore();
 
-  // [Z] prompt — only shown when player is standing on the finish platform (idle state)
+  // [Z] prompt — only shown when player is standing on the finish platform (idle state).
+  // Identity check via onPlatform.isFinish — consistent with trigger logic above.
   if (GameState.finishState === 'idle') {
-    const overlapsX = player.x < ft.x + ft.w && player.x + player.w > ft.x;
-    if (player.onGround && overlapsX) {
+    if (player.onGround && player.onPlatform?.isFinish) {
       ctx.fillStyle = '#ffffff';
       ctx.font      = '14px monospace';
       ctx.textAlign = 'center';

@@ -27,6 +27,10 @@
   <script src="src/background.js"></script>
   <!-- enemies.js: wasp enemy system — patrol/sting/stomp mechanics, all 3 levels -->
   <script src="src/enemies.js"></script>
+  <!-- font.js: bitmap font renderer — must load before dialogue.js -->
+  <script src="src/font.js"></script>
+  <!-- dialogue.js: content table + bubble overlay + lifecycle — depends on font.js + game-state.js -->
+  <script src="src/dialogue.js"></script>
   <!-- main.js last: orchestrates canvas init, game loop, update + render dispatch -->
   <script src="src/main.js"></script>
 </body>

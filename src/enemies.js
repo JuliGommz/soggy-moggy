@@ -232,7 +232,7 @@ function updateEnemies(dt) {
       const hitX    = sx < player.x + player.w && sx + _STING_W > player.x;
       const hitY    = sy < player.y + player.h && sy + _STING_H > player.y;
       if (hitX && hitY) {
-        takeDamage();          // -1 life, flash, game-over check
+        takeDamage('wasp');    // -1 life, flash, game-over check; 'wasp' → AYAYAYAY bubble
         _waspIframe = _WASP_IFRAME;
         // Wasp survives — knock it away from the player (rigid-body flee)
         w.vx          = -w.vx * 1.6;  // reverse + speed burst

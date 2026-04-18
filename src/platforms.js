@@ -237,17 +237,6 @@ function generateLevelPlatforms(level) {
     // goalY stays at −4008 for hazard-cap / tile-count math; finish is deliberately above it.
   }
 
-  // Level 1: invisible collider for the building roof top surface.
-  // Roof drawn at levelGoalY - 56; building_roof.png content starts at y=21 (PIL scan)
-  // → walkable surface at levelGoalY - 35. Full canvas width — cat can land anywhere on the roof.
-  if (level === 1) {
-    platforms.push({
-      x: 0, y: Math.floor(GameState.levelGoalY) - 35, w: 480, h: PLATFORM_H,
-      type: 'normal', state: 'intact', crumbleTimer: 0,
-      row: 0, winVariants: undefined, invisible: true,
-    });
-  }
-
   // Finish platform — the interactive finish object (pinwheel / bell / lever) is rendered on top.
   // L1: sits on the roof surface (levelGoalY − 35), visible, right side.
   // L2: visible, at levelGoalY, right side (shaft roof).
@@ -266,6 +255,21 @@ function generateLevelPlatforms(level) {
     invisible: !finVis, isFinish: true,
   });
   GameState.finishTrigger = { x: finX, y: finY, w: FIN_W, h: PLATFORM_H };
+
+  // Level 1: invisible collider for the building roof top surface.
+  // Roof drawn at levelGoalY - 56; building_roof.png content starts at y=21 (PIL scan)
+  // → walkable surface at levelGoalY - 35. Full canvas width — cat can land anywhere on the roof.
+  // IMPORTANT: Pushed AFTER the finish platform so that, when player lands in the finish X-range
+  // (x=360..460), the finish-platform collision fires first (same Y) — sets vy=0, blocking this
+  // roof collider from winning the identity check. Without this order, onPlatform would always
+  // reference the roof (no isFinish flag) and the Z trigger would never fire. Same pattern L2 uses.
+  if (level === 1) {
+    platforms.push({
+      x: 0, y: Math.floor(GameState.levelGoalY) - 35, w: 480, h: PLATFORM_H,
+      type: 'normal', state: 'intact', crumbleTimer: 0,
+      row: 0, winVariants: undefined, invisible: true,
+    });
+  }
 
   // Level 2: invisible structural colliders derived from PIL pixel analysis.
   // All use one-way collision (blocks from above only) — cat can jump up freely through any gap.
@@ -288,6 +292,10 @@ function generateLevelPlatforms(level) {
     // PIL bounds: y=301–320, x=210–262. Collider sits at the display's top edge.
     platforms.push({ x: 210, y: 301, w: 52,  h: 8, type: 'normal', state: 'intact', crumbleTimer: 0, row: 0, winVariants: undefined, invisible: true });
 
+    // CHR — Right elevator-wall handle top surface (yellow bar with red top edge).
+    // PIL scan elevator.png: handle x=342..479, top_y=459. Invisible one-way platform.
+    platforms.push({ x: 342, y: 459, w: 138, h: 8, type: 'normal', state: 'intact', crumbleTimer: 0, row: 0, winVariants: undefined, invisible: true });
+
     // C3 — Shaft exit ceiling (world y=goalY+80): flanking exit hatch (ShaftTop row 255).
     // Cat can only exit through center gap x=138–337.
     platforms.push({ x: 0,   y: goalY + 80, w: 138, h: 8, type: 'normal', state: 'intact', crumbleTimer: 0, row: 0, winVariants: undefined, invisible: true });
@@ -305,6 +313,7 @@ function generateLevelPlatforms(level) {
   for (let i = 1; i <= slotCount; i++) {
     if (level === 1 && (i < 3 || i % 2 === 0)) continue; // only odd slots i≥3 get a platform — must match window condition exactly
     const worldY  = PLAYER_START_Y - i * GAP_PX;
+    if (level === 2 && worldY >= 24) continue; // elevator interior: only invisible colliders (C1/C2/C404); shaft platforms start above C2 (y<24)
     const w       = PLATFORM_MIN_W + Math.random() * (PLATFORM_MAX_W - PLATFORM_MIN_W);
     let type;
     if (level === 3) {
@@ -354,7 +363,8 @@ function generateLevelPlatforms(level) {
 // One-way collision: player lands on platform top only.
 // Passing through from below and side contact are intentionally ignored.
 function checkPlatformCollisions() {
-  player.onGround = false; // reset each frame — set true below if on a platform
+  player.onGround   = false; // reset each frame — set true below if on a platform
+  player.onPlatform = null;  // reset each frame — set to platform ref below on landing
 
   const prevBottom = player.prevY + player.h;
   const currBottom = player.y    + player.h;
@@ -366,9 +376,10 @@ function checkPlatformCollisions() {
     const movingDown = player.vy > 0;
 
     if (overlapX && wasAbove && nowBelow && movingDown) {
-      player.y        = p.y - player.h;  // snap to surface
-      player.vy       = 0;               // stop falling — wait for manual jump
-      player.onGround = true;
+      player.y          = p.y - player.h;  // snap to surface
+      player.vy         = 0;               // stop falling — wait for manual jump
+      player.onGround   = true;
+      player.onPlatform = p;               // track identity for finish-trigger + future push-box mechanics
 
       // Crumble state machine: each landing advances the state one step
       if (p.type === 'crumble') {

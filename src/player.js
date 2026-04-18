@@ -77,6 +77,7 @@ const player = {
   vy:      0,
   prevY:       528,   // y position before this frame's physics — used by one-way collision
   onGround:      false, // true when standing on a platform — set by checkPlatformCollisions()
+  onPlatform:    null,  // reference to platform object under feet (null if airborne) — used for finish-trigger identity check
   flipped:       false, // true = sprite mirrored via ctx.scale(-1,1) to face right
   bounceTimer:   0,     // seconds remaining to show jump animation frames after a jump
   pushTimer:     0,     // seconds remaining to show push sprite after Z press
@@ -94,6 +95,7 @@ function resetPlayer() {
   player.vy    = 0;
   player.prevY      = spawnY;
   player.onGround      = false;
+  player.onPlatform    = null;
   player.flipped    = false;
   player.bounceTimer   = 0;
   player.pushTimer     = 0;
