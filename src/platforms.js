@@ -64,6 +64,39 @@ _platSheet.src = 'PixelArt/platforms/level1_city/jalousie_sheet.png';
 const _winSheet = new Image();
 _winSheet.src = 'PixelArt/backgrounds/level1_city/windows.png';
 
+// ── Level 2 shaft platform sprites ───────────────────────────────────────────
+// Atlas coords measured via PIL connected-component scan on 2026-04-20.
+// Sheet: jump_plattforms.png, 480 × 258 px. 9 opaque regions found, all sh=24.
+const _l2PlatSheet = new Image();
+_l2PlatSheet.src = 'PixelArt/platforms/level2_lift/jump_plattforms.png';
+
+// 9-variant atlas: 3 positions (l/c/r) × 3 sizes (L/M/S).
+//   l = left   (anchored to left shaft wall, depth faces right)
+//   c = center (symmetric, floats in shaft centre)
+//   r = right  (anchored to right shaft wall, depth faces left)
+//   L / M / S  = large / medium / small  (within each position group, sorted by measured sw)
+//
+// Anchoring rule used to derive gameX, measured from pipes_mid.png (tubes):
+//   left  tube occupies x=  0..61  → shaft interior starts at x= 62
+//   right tube occupies x=418..479 → shaft interior ends   at x=417
+//   l* → gameX = 62                       (flush with inner edge of left tube)
+//   c* → gameX = 240 − floor(gameW / 2)  (centred on shaft mid-line x=240)
+//   r* → gameX = 418 − gameW              (right edge flush with right tube)
+//
+// gameW == sw (no horizontal scale). sh is both source-sample AND render height
+// (no vertical scale) so nothing can stretch-bleed at sprite edges.
+const _L2_VARIANTS = {
+  cL: { sx: 179, sy:  13, sw: 115, sh: 24, gameX: 182, gameW: 115 },
+  cM: { sx: 186, sy:  53, sw: 100, sh: 24, gameX: 190, gameW: 100 },
+  cS: { sx: 194, sy:  91, sw:  87, sh: 24, gameX: 196, gameW:  87 },
+  lL: { sx:  72, sy: 144, sw: 124, sh: 24, gameX:  62, gameW: 124 },
+  lM: { sx:  72, sy: 183, sw: 107, sh: 24, gameX:  62, gameW: 107 },
+  lS: { sx:  72, sy: 222, sw:  87, sh: 24, gameX:  62, gameW:  87 },
+  rL: { sx: 274, sy: 144, sw: 124, sh: 24, gameX: 294, gameW: 124 },
+  rM: { sx: 291, sy: 183, sw: 107, sh: 24, gameX: 311, gameW: 107 },
+  rS: { sx: 311, sy: 222, sw:  87, sh: 24, gameX: 331, gameW:  87 },
+};
+
 const _WS = {
   // Coordinates from PIL alpha-scan (non-purple, non-transparent pixel bounds per quadrant):
   //   A-column scanned from x=79 onward — excludes row-label ("1","2") purple left border
@@ -310,10 +343,55 @@ function generateLevelPlatforms(level) {
   // Level 1: every platform must sit over a window — skip slots 1 and 2 from bottom
   // (those rows have no windows per design).  All remaining slots get a platform + window.
   const slotCount = Math.floor(levelHeight / GAP_PX);
+  let _l2SlotIdx  = 0; // counts shaft slots processed (0 = first slot above elevator interior)
   for (let i = 1; i <= slotCount; i++) {
     if (level === 1 && (i < 3 || i % 2 === 0)) continue; // only odd slots i≥3 get a platform — must match window condition exactly
     const worldY  = PLAYER_START_Y - i * GAP_PX;
-    if (level === 2 && worldY >= 24) continue; // elevator interior: only invisible colliders (C1/C2/C404); shaft platforms start above C2 (y<24)
+
+    // ── Level 2 shaft platform generation ────────────────────────────────────
+    if (level === 2) {
+      if (worldY >= 24) continue; // elevator interior zone: handled by invisible colliders only
+
+      // 6-slot cycle: L · C · SKIP · R · C · SKIP
+      // 4 platforms per 6 slots — ~20 % fewer than the previous pass, ~43 % fewer
+      // than the original PAIR cycle. Alternates 120-px (tap) and 240-px (held)
+      // jumps so the player must modulate jump strength every single hop.
+      // No position type repeats within 240 px vertical (= max jump) → no straight
+      // column climb. Every transition also forces lateral movement:
+      //   L→C        120 px,  3 px overlap on right edges  (right nudge)
+      //   C→skip→R   240 px,  4 px overlap on right edges  (held jump + right)
+      //   R→C        120 px,  4 px overlap on left  edges  (left  nudge)
+      //   C→skip→L   240 px,  3 px overlap on left  edges  (held jump + left)
+      const shaftSlot  = _l2SlotIdx++;
+      const shaftFrac  = shaftSlot / Math.max(1, slotCount - 5); // 0=shaft entry, 1=near roof
+      const sizeKey    = shaftFrac < 0.40 ? 'L' : shaftFrac < 0.75 ? 'M' : 'S';
+      const cycle      = shaftSlot % 6;
+
+      let variantIds;
+      if      (cycle === 0) variantIds = ['l' + sizeKey];       // 0 → left
+      else if (cycle === 1) variantIds = ['c' + sizeKey];       // 1 → center
+      else if (cycle === 3) variantIds = ['r' + sizeKey];       // 3 → right
+      else if (cycle === 4) variantIds = ['c' + sizeKey];       // 4 → center
+      else                  variantIds = [];                    // 2, 5 → skip
+
+      for (const vid of variantIds) {
+        const v = _L2_VARIANTS[vid];
+        platforms.push({
+          x:            v.gameX,
+          y:            Math.floor(worldY),
+          w:            v.gameW,
+          h:            PLATFORM_H,
+          type:         'normal',
+          state:        'intact',
+          crumbleTimer: 0,
+          row:          0,
+          winVariants:  undefined,
+          l2Variant:    vid,
+        });
+      }
+      continue; // skip general generation below
+    }
+    // ─────────────────────────────────────────────────────────────────────────
     const w       = PLATFORM_MIN_W + Math.random() * (PLATFORM_MAX_W - PLATFORM_MIN_W);
     let type;
     if (level === 3) {
@@ -457,6 +535,21 @@ function renderPlatforms(ctx) {
 // Transparent slat gaps show the canvas/background through — no base fill added.
 function _renderPlatformSprite(ctx, p) {
   if (p.invisible) return;  // decoration-backed platforms: visual is handled by the background asset
+
+  // Level 2 shaft platforms: fixed-position sprites from jump_plattforms.png
+  if (p.l2Variant) {
+    const v  = _L2_VARIANTS[p.l2Variant];
+    const dx = Math.floor(p.x);
+    const dy = Math.floor(p.y);
+    if (!_l2PlatSheet.complete || _l2PlatSheet.naturalWidth === 0) {
+      ctx.fillStyle = '#4a4455'; // dark grey-purple fallback while image loads
+      ctx.fillRect(dx, dy, p.w, PLATFORM_H);
+      return;
+    }
+    // Source sh == destination sh → no vertical stretch; prevents any edge bleed on scale.
+    ctx.drawImage(_l2PlatSheet, v.sx, v.sy, v.sw, v.sh, dx, dy, v.gameW, v.sh);
+    return;
+  }
 
   // Finish platform: draw as a golden-highlighted slab to distinguish it visually
   // L1: roof sprite is the visual base — no slab drawn (pinwheel + [Z] prompt is enough)
