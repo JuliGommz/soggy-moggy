@@ -80,7 +80,13 @@ const hazard = {
 // Generic entry point called by game-state.js on reset/level-start.
 // ---------------------------------------------------------------------------
 function resetHazard(level) {
-  hazard.y           = player.y + 120; // starts 120px below player spawn — just off screen bottom
+  // Start far enough below the camera that the upward-spiking electricity bolts /
+  // smog plume / wave crests are NOT visible at level start. Electricity layer 3
+  // gradient starts at baseY-30 and sine displacement reaches baseY-46 — so we
+  // need at least ~60 px of hidden slack below the screen bottom.
+  // player.y spawn = 528, canvas = 640, cameraY = 0 → screen bottom at world-y 640.
+  // player.y + 200 = 728 → 88 px below screen → top of electricity ≈ y 678, safely hidden.
+  hazard.y           = player.y + 200;
   hazard.speed       = HAZARD_BASE_SPEED * (1 + (level - 1) * HAZARD_LEVEL_SCALE);
   hazard.time        = 0;
   hazard.iframeTimer = 0;
@@ -148,9 +154,12 @@ function updateHazard(dt) {
     hazard.fadeAlpha = Math.max(0, hazard.fadeAlpha - dt / 1.2);
   }
 
-  // Visibility clamp: hazard can never fall more than 10px below the screen bottom.
-  // Prevents the surface from lagging off-screen when the camera scrolls up faster than the hazard rises.
-  hazard.y = Math.min(hazard.y, GameState.cameraY + canvas.height + 10);
+  // Visibility clamp: hazard can never fall more than 100px below the screen bottom.
+  // Prevents the surface from lagging off-screen when the camera scrolls up faster
+  // than the hazard rises. The +100 slack (was +10) lets the level-start offset of
+  // 200px below player spawn survive the first tick without being yanked up into
+  // view — the electricity bolts must stay fully hidden until the hazard rises in.
+  hazard.y = Math.min(hazard.y, GameState.cameraY + canvas.height + 100);
 
   // Top cap: applied AFTER visibility clamp so it always takes final precedence.
   // L1 smog stops near the level top (22px below levelGoalY) — matches red line in building.
