@@ -421,31 +421,44 @@ function _drawL3Back(ctx, camShift) {
   ctx.drawImage(_bgL3ShaftTop, 0, Math.round(goalY + cs) - 175);
 }
 
-// Draws Level 3 pipe/cable layer (bg-mid layer, 0.90x parallax).
-// Slightly slower scroll than shaft walls — gives visual depth.
-// Uses same section structure: bottom → tiled middle → top cap.
+// Draws Level 3 pipe/cable layer (bg-mid layer, 1.0x parallax — locked to world).
+//
+// IMPORTANT: pipes exist ONLY in the shaft, not in the elevator interior.
+// The elevator has its own walls (rendered in elevator.png via _drawL3Back)
+// and the cat is confined to canvas edges there; the orange tubes would
+// visually and physically contradict that if painted over the elevator.
+//
+// Therefore _bgL3PipesBot is intentionally NOT drawn — it paints tubes
+// across world-y 0..640, which is the elevator interior.
+// Instead, pipes_mid tiles are anchored so the FIRST tile's bottom edge
+// sits at world-y 96 (the elevator ceiling — C1 collider top). Subsequent
+// tiles stack upward. The pipes_top cap closes the run below the roof.
+//
+// PARALLAX NOTE: previously this layer used FACTOR=0.90 for a subtle depth
+// effect, but that made the pipes drift upward relative to the elevator
+// ceiling (1.0 parallax) as the camera rose — ~10 % of camShift per frame,
+// producing a visible 15–40 px gap between pipe-bottom and ceiling.
+// Using FACTOR=1.0 locks pipes to world space so the seam stays sealed.
 function _drawL3Mid(ctx, camShift) {
-  if (!_bgL3PipesBot.complete || _bgL3PipesBot.naturalWidth === 0) return;
   if (!_bgL3PipesMid.complete || _bgL3PipesMid.naturalWidth === 0) return;
   if (!_bgL3PipesTop.complete || _bgL3PipesTop.naturalWidth === 0) return;
 
-  const FACTOR = 0.90;
-  const cs     = Math.round(camShift * FACTOR);
-  const goalY  = (GameState.levelGoalY !== undefined) ? GameState.levelGoalY : -5000;
+  const cs    = Math.round(camShift);                                      // 1.0x parallax
+  const goalY = (GameState.levelGoalY !== undefined) ? GameState.levelGoalY : -5000;
 
-  // Pipes bottom at parallax-adjusted ground position
-  ctx.drawImage(_bgL3PipesBot, 0, cs);
-
-  // Pipes middle — tile upward from above bottom section
-  for (let wy = -BG_H; wy > goalY * FACTOR - BG_H; wy -= BG_H) {
+  // Pipes middle — first tile bottom anchored to world-y 96 (elevator ceiling).
+  //   wy = world-y of the tile's TOP edge.
+  //   tile bottom at wy + BG_H. For first tile: wy + BG_H = 96 → wy = 96 − BG_H.
+  // Tiles extend upward (wy -= BG_H each step) until they pass the goalY cap.
+  for (let wy = 96 - BG_H; wy > goalY - BG_H; wy -= BG_H) {
     const sy = wy + cs;
     if (sy > BG_H)     continue;
     if (sy + BG_H < 0) break;
     ctx.drawImage(_bgL3PipesMid, 0, sy);
   }
 
-  // Pipes top — same 175-row transparent header; align content-top to parallax-adjusted levelGoalY
-  ctx.drawImage(_bgL3PipesTop, 0, Math.round((goalY + camShift) * FACTOR) - 175);
+  // Pipes top — same 175-row transparent header; align content-top to levelGoalY.
+  ctx.drawImage(_bgL3PipesTop, 0, Math.round(goalY + camShift) - 175);
 }
 
 // Draws building_wall.png in world space (factor 1.0 — no parallax drift).
