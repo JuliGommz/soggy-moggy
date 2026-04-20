@@ -73,8 +73,8 @@ const _DEATH_DURATION   = 0.5; // seconds for the shrink/fade death animation
 
 // ── DYNAMIC SPAWN COUNTS ─────────────────────────────────────────────────────
 // Indexed by level. Change ONLY if level definitions change (see header comment).
-// L1 city: 5 | L2 shaft: 7 | L3 lighthouse: 10
-const _WASP_COUNT = [0, 5, 7, 10]; // index 0 unused (no level 0)
+// L1 city: 10 | L2 shaft: 15 | L3 lighthouse: 20
+const _WASP_COUNT = [0, 10, 15, 20]; // index 0 unused (no level 0)
 
 // ── State ─────────────────────────────────────────────────────────────────────
 const enemies      = [];  // active enemy objects — cleared on each spawnEnemies() call
