@@ -10,8 +10,8 @@
 - [x] **LOOP-01**: Player's cat jumps on manual input (Space/left-click) while `onGround === true` — no auto-jump
 - [x] **LOOP-02**: Player can move cat left and right using arrow keys or A/D keys
 - [x] **LOOP-03**: Platforms are procedurally generated as the player climbs higher
-- [ ] **LOOP-04**: Camera scrolls upward with the player and never scrolls back down
-- [ ] **LOOP-05**: Player falling below the bottom edge of the camera costs 1 life
+- [x] **LOOP-04**: Camera scrolls upward with the player and never scrolls back down
+- [x] **LOOP-05**: Player falling below the bottom edge of the camera costs 1 life
 - [x] **LOOP-06**: Player score equals the maximum height reached within the current level
 - [x] **LOOP-07**: Score is displayed in real-time on the HUD during gameplay
 
@@ -20,7 +20,7 @@
 - [x] **LEVEL-01**: Each level has a defined height goal — reaching it completes the level (not a game over)
 - [x] **LEVEL-02**: Level-complete screen displays the score for that level and transitions to the next level
 - [x] **LEVEL-03**: Platforms are procedurally generated within each level's bounded height range (not infinite)
-- [ ] **LEVEL-04**: Flood speed resets or adjusts per level to create escalating difficulty across levels
+- [x] **LEVEL-04**: Flood speed resets or adjusts per level to create escalating difficulty across levels
 
 ### Screens & Flow
 
@@ -30,16 +30,16 @@
 
 ### Flood Mechanic
 
-- [ ] **FLOOD-01**: Rising water level chases the player upward from below
-- [ ] **FLOOD-02**: Water speed increases over time, creating escalating difficulty
-- [ ] **FLOOD-03**: Touching the water costs 1 life (not instant game over)
-- [ ] **FLOOD-04**: Water displays as an animated wave (sine-wave ripple on the surface)
+- [x] **FLOOD-01**: Rising water level chases the player upward from below
+- [x] **FLOOD-02**: Water speed increases over time, creating escalating difficulty
+- [x] **FLOOD-03**: Touching the water costs 1 life (not instant game over)
+- [x] **FLOOD-04**: Water displays as an animated wave (sine-wave ripple on the surface). NOTE: L1 smog / L2 electricity verwenden dieselbe hazard.js-Logik; Wave ist L3-spezifisch.
 
 ### Lives System
 
-- [ ] **LIFE-01**: Player starts with 3 lives, displayed as hearts on the HUD
-- [ ] **LIFE-02**: Player receives a brief visual indicator (screen flash) when taking damage
-- [ ] **LIFE-03**: Losing all 3 lives triggers the game over screen
+- [x] **LIFE-01**: Player starts with 3 lives, displayed as hearts on the HUD
+- [x] **LIFE-02**: Player receives a brief visual indicator (screen flash) when taking damage
+- [x] **LIFE-03**: Losing all 3 lives triggers the game over screen
 
 ### Push Mechanic
 
@@ -57,10 +57,10 @@
 ### Visual & Audio
 
 - [x] **VIS-01**: Cat character is a simple hand-drawn static sprite (not a colored rectangle)
-- [x] **VIS-02**: Jump sound plays on every platform bounce
-- [x] **VIS-03**: Damage sound plays when player takes water damage
-- [x] **VIS-04**: Game over audio sting plays when all lives are lost
-- [x] **VIS-05**: Background music loop plays during gameplay
+- [ ] **VIS-02**: Jump sound plays on every platform bounce (Phase 6 — nicht implementiert)
+- [ ] **VIS-03**: Damage sound plays when player takes water damage (Phase 6 — nicht implementiert)
+- [ ] **VIS-04**: Game over audio sting plays when all lives are lost (Phase 6 — nicht implementiert)
+- [ ] **VIS-05**: Background music loop plays during gameplay (Phase 6 — nicht implementiert)
 
 ### Hosting
 
@@ -110,24 +110,24 @@
 | LOOP-01 | Phase 2 | Complete (02-01) |
 | LOOP-02 | Phase 2 | Complete (02-01) |
 | LOOP-03 | Phase 3 | Complete |
-| LOOP-04 | Phase 2 | Pending |
-| LOOP-05 | Phase 2 | Pending |
+| LOOP-04 | Phase 2 | Complete |
+| LOOP-05 | Phase 2 | Complete |
 | LOOP-06 | Phase 3 | Complete (03-03) |
 | LOOP-07 | Phase 3 | Complete (03-03) |
 | LEVEL-01 | Phase 3 | Complete (03-03) |
 | LEVEL-02 | Phase 3 | Complete (03-03) |
 | LEVEL-03 | Phase 3 | Complete |
-| LEVEL-04 | Phase 4 | Pending |
+| LEVEL-04 | Phase 4 | Complete |
 | SCRN-01 | Phase 3 | Complete (03-03) |
 | SCRN-02 | Phase 3 | Complete (03-03) |
 | SCRN-03 | Phase 3 | Complete (03-01) |
-| FLOOD-01 | Phase 4 | Pending |
-| FLOOD-02 | Phase 4 | Pending |
-| FLOOD-03 | Phase 4 | Pending |
-| FLOOD-04 | Phase 4 | Pending |
-| LIFE-01 | Phase 4 | Pending |
-| LIFE-02 | Phase 4 | Pending |
-| LIFE-03 | Phase 4 | Pending |
+| FLOOD-01 | Phase 4 | Complete |
+| FLOOD-02 | Phase 4 | Complete |
+| FLOOD-03 | Phase 4 | Complete |
+| FLOOD-04 | Phase 4 | Complete |
+| LIFE-01 | Phase 4 | Complete |
+| LIFE-02 | Phase 4 | Complete |
+| LIFE-03 | Phase 4 | Complete |
 | PUSH-01 | Mechanics branch | Complete |
 | PUSH-02 | — | DROPPED (MVP) |
 | PUSH-03 | — | DROPPED (MVP) |
@@ -136,12 +136,12 @@
 | PLAT-02 | Phase 3 | Complete |
 | PLAT-03 | Phase 3 | Complete |
 | VIS-01 | Phase 04.1 | Complete |
-| VIS-02 | Phase 04.1 | Complete |
-| VIS-03 | Phase 04.1 | Complete |
-| VIS-04 | Phase 04.1 | Complete |
-| VIS-05 | Phase 04.1 | Complete |
-| HOST-01 | Phase 6 | Pending |
-| HOST-02 | Phase 6 | Pending |
+| VIS-02 | Phase 6 | Pending |
+| VIS-03 | Phase 6 | Pending |
+| VIS-04 | Phase 6 | Pending |
+| VIS-05 | Phase 6 | Pending |
+| HOST-01 | Phase 7 | Pending |
+| HOST-02 | Phase 7 | Pending |
 
 **Coverage:**
 - v1 requirements: 34 total
@@ -150,4 +150,4 @@
 
 ---
 *Requirements defined: 2026-03-03*
-*Last updated: 2026-03-30 — updated title; LOOP-01 corrected to manual jump; VIS-01–05 moved to Phase 04.1*
+*Last updated: 2026-04-21 — Drift-Fix: LOOP-04/05, LEVEL-04, FLOOD-01..04, LIFE-01..03 auf Complete gesetzt (waren fälschlich Pending). VIS-02..05 auf Pending zurückgesetzt (waren fälschlich Complete — Phase 6 Audio nicht implementiert). HOST-01/02 Mapping Phase 6 → Phase 7 korrigiert.*
