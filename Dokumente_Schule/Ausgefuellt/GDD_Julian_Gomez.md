@@ -4,7 +4,7 @@
 **Verfasser:** Julian Gomez
 **Schule:** SRH Fachschulen, Fachrichtung Game & Multimedia Design (GME-24.01)
 **Rahmenthema:** 3 — Casual Webgame „Plush Toy Combat"
-**Abgabedatum:** 22.04.2026
+**Abgabedatum:** verschoben (neues Datum ausstehend; ursprünglich 22.04.2026)
 **Dokumentversion:** 1.0
 
 ---
@@ -102,8 +102,8 @@ Das Spiel enthält drei vollständige Spiellevel, je mit eigenem visuellen Thema
 | Level | Titel | Setting | Besondere Gefahr |
 |---|---|---|---|
 | 1 | La Ciudad | Stadtgebäude, Jalousien | Steigender Smog |
-| 2 | El Mar Abierto | Offener See, Masten/Stege | Steigende Flut (Sinuswelle) |
-| 3 | El Pozo Eléctrico | Aufzugschacht | Steigende Elektrizität (3-Schicht-Blitze) |
+| 2 | El Pozo Eléctrico | Aufzugschacht, Fahrstuhlkabine | Steigende Elektrizität (3-Schicht-Blitze) |
+| 3 | El Mar Abierto | Offener See, Leuchtturm | Steigende Flut (Sinuswelle) |
 
 ---
 
@@ -176,17 +176,18 @@ Bei Landung: `vy = 0`, `onGround = true`.
 
 - Taste Z / Rechtsklick löst Push-Aktion aus
 - Sprite-Wechsel: `push_rise` (am Boden oder kurz nach Sprung) / `push_peak` (in der Luft) — bereits implementiert
-- **MVP-Scope:** Kein generisches Item-Spawn-System. Einziges Push-Objekt im MVP ist die Kletter-Kiste in L3 Szene 1 (Elevator) — ein einzelnes, vorplatziertes Puzzle-Element das als Sprungstein zur Decken-Luke dient
+- **MVP-Scope:** Kein generisches Item-Spawn-System. Einziges Push-Objekt im MVP ist die Kletter-Kiste in L2 Szene 1 (Elevator) — ein einzelnes, vorplatziertes Puzzle-Element das als Sprungstein zur Decken-Luke dient
 - Score-Objekte, Bonus-Objekte und kulturelle Objekte (lateinamerikanische Elemente) sind als Nice-to-Have zurückgestellt
 
 ### 2.6 Plattformen
 
 **Plattformtypen:**
 
-| Typ | Verhalten | Visuell |
-|---|---|---|
-| Normal | Stabil, dauerhaft | Levelthema-Sprite (z.B. Jalousie) |
-| Brüchig (Crumble) | Beginnt zu bröckeln nach Landung, verschwindet nach kurzer Zeit | Rissig gelb → Zerbröckelnd gelb (Zeile 4) |
+| Typ | Verhalten | Visuell | Level |
+|---|---|---|---|
+| Normal | Stabil, dauerhaft | Levelthema-Sprite (z.B. Jalousie) | Alle |
+| Brüchig (Crumble) | Beginnt zu bröckeln nach Landung, verschwindet nach kurzer Zeit | Rissig gelb → Zerbröckelnd gelb (Zeile 4) | Alle |
+| Sinkend (Cloud-Sink) | Sinkt langsam wenn Katze darauf steht (max. 60 px), steigt danach automatisch zurück. Katze wird mit der Plattform nach unten gezogen. | Wolken-Sprite (L3 Leuchtturm-Setting) | L3 |
 
 **Generierung:**
 - Plattformen werden prozedural generiert (Endlos-Scroll nach oben)
@@ -201,8 +202,8 @@ Bei Landung: `vy = 0`, `onGround = true`.
 Jedes Level hat eine eigene, stetig steigende Gefahr. Alle drei Gefahren teilen dieselbe Physik (Anstiegsgeschwindigkeit, Beschleunigung, Kollisionserkennung), unterscheiden sich aber visuell:
 
 - **Level 1 (Smog):** Geschichtete Gradientenbänder mit Kosinus-Wölbung am oberen Rand und Glüheffekt
-- **Level 2 (Flut):** Sinuswellen-Animation in WATER-1 (#2a5fa8)
-- **Level 3 (Elektrizität):** Drei unabhängige Blitzschichten mit unterschiedlichen Frequenzen, Ankerpunkten und pulsierender Transparenz
+- **Level 2 (Elektrizität):** Drei unabhängige Blitzschichten mit unterschiedlichen Frequenzen, Ankerpunkten und pulsierender Transparenz
+- **Level 3 (Flut):** Sinuswellen-Animation in WATER-1 (#2a5fa8)
 - Kontakt mit der Gefahr = Leben verlieren
 - Die Gefahr existiert in Weltkoordinaten; die Kamera folgt dem Spieler nach oben
 - **Obergrenze:** L1-Smog stoppt 22 px unterhalb des Dachs (visuell bündig). L2/L3 steigen bis auf `levelGoalY` — die Gefahr füllt den gesamten Schacht/Turm
@@ -211,9 +212,10 @@ Jedes Level hat eine eigene, stetig steigende Gefahr. Alle drei Gefahren teilen 
 ### 2.8 Leben & Scheitern
 
 - **Start-Leben:** 3 (dargestellt als Herz-Icons im HUD)
-- **Verlust eines Lebens:** Kontakt mit Flut ODER Herunterfallen unter den Bildschirmrand
+- **Verlust eines Lebens:** Kontakt mit der Gefahr ODER Herunterfallen unter den Bildschirmrand ODER Kontakt mit dem Wespenstachel
 - **Game Over:** Bei 0 Leben
 - **Respawn:** Aktuell kein Mid-Level-Respawn (direkter Game Over bei 0 Leben)
+- **Zusatzleben (Ballon-Kollektible):** Ein steigender Ballon erscheint in jedem Level. Kontakt mit Z-Taste / Rechtsklick (Pfote muss untere 40 % des Ballons berühren) gibt ein zusätzliches Leben. Der Ballon bewegt sich mit horizontaler Sinusbewegung (50 px Amplitude, 1,8 s Periode) und steigt mit 120 px/s. Wird er nicht gefangen, bevor er `levelGoalY` erreicht, verschwindet er.
 
 ### 2.9 Punkte & Fortschritt
 
@@ -231,11 +233,30 @@ Jedes Level hat eine eigene, stetig steigende Gefahr. Alle drei Gefahren teilen 
 
 ### 2.11 Gegner & Gefahren pro Level
 
+**Gefahren (Hazard-System):**
+
 | Level | Gefahr | Beschreibung |
 |---|---|---|
-| 1 (Stadt) | Steigender Smog | Geschichtete Gradientenbänder mit Kosinus-Wölbung; steigt kontinuierlich |
-| 2 (Meer) | Steigende Flut | Sinuswellen-Animation; Flutstieg schneller als Level 1 |
-| 3 (Aufzugschacht) | Steigende Elektrizität | 3-Schicht-Blitze mit unabhängigen Frequenzen und pulsierender Transparenz |
+| 1 (Stadt) | Steigender Smog | Geschichtete Gradientenbänder mit Kosinus-Wölbung; steigt bis 22 px unterhalb des Zieldachs |
+| 2 (Aufzugschacht) | Steigende Elektrizität | 3-Schicht-Blitze mit unabhängigen Frequenzen und pulsierender Transparenz; steigt bis `levelGoalY` |
+| 3 (Offener See) | Steigende Flut | Sinuswellen-Animation; steigt bis `levelGoalY`; thematisch passend zum Leuchtturm-Setting |
+
+**Wespen-Gegner (implementiert, `src/enemies.js`):**
+
+Wespen patrouillieren horizontal auf festen Y-Positionen (Welt-Koordinaten). Sie folgen einem einfachen Zustands-Automaten: Patrol → Reverse → Patrol. Zusätzlich schwingen sie vertikal mit kleiner Sinusamplitude (20 px, 1,5 Hz).
+
+| Level | Anzahl Wespen | Verhalten |
+|---|---|---|
+| 1 (Stadt) | 5 | Patrol 4–8 s, dann Richtungswechsel |
+| 2 (Aufzugschacht) | 7 | Wie L1, höhere Dichte im engen Schacht |
+| 3 (Offener See) | 10 | Höchste Anzahl, maximale Schwierigkeit |
+
+**Wespen-Interaktionen:**
+
+| Interaktion | Auslöser | Ergebnis |
+|---|---|---|
+| Stich | Wespenstachel (Hitbox am Hinterleib) trifft Katze | Katze: −1 Leben + 1,2 s Unverwundbarkeitszeit; Wespe: kurze Knockback-Bewegung, überlebt |
+| Stomp | Katze landet auf dem oberen Bereich der Wespe (Stomp-Hitbox: 12 px) | Wespe: Schrumpf-/Ausblend-Animation über 0,5 s, dann entfernt; Katze: kleiner Abprallsprung |
 
 ### 2.12 Levelstruktur im Detail
 
@@ -245,22 +266,23 @@ Jedes Level hat eine eigene, stetig steigende Gefahr. Alle drei Gefahren teilen 
 - Einstiegslevel, niedrigste Schwierigkeit
 - Führt Sprung- und Bewegungsmechanik ein; Gefahr: steigender Smog
 
-**Level 2 — El Mar Abierto (Offener See):**
-- Setting: Leuchtturm an einer felsigen Küste am offenen Meer (ersetzt Raketen-Setting; Entscheidung 30.03.2026)
-- Plattformthema: Felsvorsprünge, Wellenbrecherstufen, evtl. Leiterstangen am Turm
+**Level 2 — El Pozo Eléctrico (Aufzugschacht):**
+- Start: Spieler steht im Fahrstuhl (Erdgeschoss). Die Katze klettert durch eine Decken-Luke in den Schacht.
+- Decken-Mechanik: Nur die Luke (x=164–311) ist durchdringbar — der Rest der Fahrstuhldecke hat unsichtbare Kollider. Gleiches Prinzip am oberen Schachtausgang (x=138–337).
+- Schachtboden: Linke und rechte Randbereiche begehbar. Die mittlere Öffnung (x=172–300) hat keinen Boden — Katze fällt zurück in den Fahrstuhl und verliert ein Leben.
+- 404-Display: Der Fahrstuhl zeigt ein „404"-Display über den Türen; die Oberkante dient als unsichtbare Plattform (y=301, x=210–262).
+- Hintergrund: Fahrstuhl-Sprite (Erdgeschoss) → Schacht-Boden-Sprite (überlappt Fahrstuhldecke nahtlos) → getilede Schacht-Wände (alternierend) → Schacht-Top mit goldenem Balken
+- Parallax-Mid-Layer: Kabel/Rohr-Sprites (0,9×-Faktor) hinter den Schachtwänden
+- Gefahr: Steigende Elektrizität als 3-Schicht-Blitzsystem; erreicht `levelGoalY`
+- Kletter-Kiste (Phase 5): Einzelnes vorplatziertes Puzzle-Objekt; kann mit Z in Position geschoben werden, um die Luke zu erreichen
+
+**Level 3 — El Mar Abierto (Offener See / Leuchtturm):**
+- Setting: Leuchtturm an einer felsigen Küste am offenen Meer (ersetzt ursprüngliches Raketen-Setting; Entscheidung 30.03.2026)
+- Start: Spieler steht auf dem Meeresgrund / Startplattform. Ziel: Spitze des Leuchtturms.
+- Plattformthema: Felsvorsprünge, Wellenbrecherstufen, Balkone am Turm
 - Hintergrund: Weite See, Horizont, Sonne mit Puls-Animation; Leuchtturm als zentrale vertikale Struktur (Stein/Backstein)
 - Shared-Layers (Himmel, Wolken) bleiben unverändert
-- Gefahr: Steigende Flut (Sinuswellen-Darstellung); steigt bis `levelGoalY` — passt thematisch besser zum Leuchtturm als zur Rakete
-- Pixel-Art Redesign: Phase 04.2
-
-**Level 3 — El Pozo Eléctrico (Aufzugschacht):**
-- Start: Spieler steht im Fahrstuhl (Erdgeschoss). Die Katze klettert durch eine Decken-Luke in den Schacht.
-- Decken-Mechanik: Nur die Luke (x=138–337) ist durchdringbar — der Rest der Fahrstuhldecke hat unsichtbare Kollider. Gleiches Prinzip am oberen Schachtausgang.
-- Schachtboden: Linke und rechte Randbereiche begehbar. Die mittlere Öffnung (x=172–300) hat keinen Boden — Katze fällt zurück in den Fahrstuhl und verliert ein Leben.
-- Dach: Nach dem Verlassen des Schachts kann die Katze frei auf dem Dachelement laufen; Hebel befindet sich auf dem Dach.
-- Hintergrund: Fahrstuhl-Sprite (Boden) → Schacht-Boden-Sprite (überlappt Fahrstuhldecke nahtlos) → getilede Schacht-Wände → Schacht-Top mit goldenem Balken und Dachelement
-- Parallax-Mid-Layer: Kabel/Rohr-Sprites (0,9×-Faktor) hinter den Schachtwänden
-- Steigende Elektrizität als 3-Schicht-Blitzsystem; erreicht `levelGoalY`
+- Gefahr: Steigende Flut (Sinuswellen-Darstellung); steigt bis `levelGoalY` — thematisch passend zum Leuchtturm-Setting
 
 ---
 
@@ -382,7 +404,13 @@ Horizontaler Drift bei 15 px/s (bright) und 4,5 px/s (stars) — kreiert ein leb
 - 3-teiliges Rendering: linke Kappe + gekachelte Mitte + rechte Kappe
 - Zufällige Zeile pro Plattform bei Generierung (aus Zeilen 1,2,3,5,6)
 
-Weitere Plattform-Designs für Level 2 und 3 werden in späteren Phasen erstellt.
+**Level 3 — Wolken (Leuchtturm/Offener See):**
+- Plattformtyp: Cloud-Sink (sinkende Wolken)
+- 3-Type-Mix bei Generierung: normal, crumble, cloud-sink
+- Cloud-Sink-Plattform sinkt mit dem Gewicht der Katze (max. 60 px), steigt dann eigenständig zurück
+- Katze wird aktiv nach unten mitgezogen — erzeugt Zeitdruck in Kombination mit der steigenden Flut
+
+Plattform-Design für Level 2 (Aufzugschacht) wird in Phase 5 erstellt (unsichtbare Kollider bereits implementiert).
 
 ### 3.6 UI & HUD
 
@@ -471,21 +499,23 @@ Welche Datei mit welchem Tool erstellt wurde, wird im **Medienkatalog** am Proje
 
 ```
 src/
-├── main.js          — Hauptschleife, Initialisierung, Render-Orchestrierung
+├── main.js          — Hauptschleife, Initialisierung, Render-Orchestrierung, Ballon-Kollektible
 ├── game-state.js    — Zustandsmaschine (GamePhase, GameState)
 ├── input.js         — Tastatur-/Mauslistener
 ├── player.js        — Spielerfigur, Sprung, Sprite-Logik, Wurf
-├── platforms.js     — Plattformgenerierung, Kollision, Sprite-Rendering
-├── hazards.js       — Hazard-System (Smog, Flut, Elektrizität)
-└── background.js    — Parallax-Hintergrundsystem, Crossfade
+├── platforms.js     — Plattformgenerierung, Kollision, Sprite-Rendering, unsichtbare Kollider (L2/L3)
+├── hazards.js       — Hazard-System (Smog, Elektrizität, Flut) — eines pro Level
+├── enemies.js       — Wespen-System (Patrol, Stomp, Knockback, Spawn pro Level)
+└── background.js    — Parallax-Hintergrundsystem, Crossfade, Level-spezifische Renderer
 ```
 
 **Update-Reihenfolge pro Frame (load-bearing):**
 1. `updatePlayer(dt)`
 2. `updatePlatforms(dt)`
 3. `checkPlatformCollisions()`
-4. `updateCamera()`
-5. Render (Welt dann HUD)
+4. `updateEnemies(dt)` — muss nach Kollisionsprüfung laufen (liest `player.prevY`)
+5. `updateCamera()`
+6. Render (Welt dann HUD)
 
 **Zeitschritt:**
 - Semi-fixes System: `dt = min(elapsed, 50)` in ms
@@ -494,4 +524,4 @@ src/
 ---
 
 *Dokument erstellt: März 2026*
-*Letzte Aktualisierung: 16.03.2026*
+*Letzte Aktualisierung: 16.04.2026*

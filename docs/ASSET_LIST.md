@@ -1,7 +1,7 @@
 # Soggy Moggy — Asset List
 
 **Created:** 2026-03-09 (Phase 04.1)
-**Updated:** 2026-03-30 — naming convention sync (snake_case, collectibles folder)
+**Updated:** 2026-04-21 — Phase-8 Doku-Sync: Level-Ordner umbenannt (L2 Shaft / L3 Sea), `characters/` + `ui/hud/` Gruppen, L2 shaft Jump-Platform Sheet ergänzt
 **Purpose:** Source of truth for all game assets. Every asset, its real filename, status, and where it's used in code.
 
 ---
@@ -64,28 +64,31 @@ Building composition sprites loaded in `src/background.js` for L1 background ren
 
 ---
 
-## Level 2 — Offener See / Open Sea (`PixelArt/backgrounds/level2_see/`)
+## Level 2 — Aufzugschacht / Elevator Shaft (`PixelArt/backgrounds/level_2_shaft/`)
+
+> **Hinweis (2026-04-21):** L2 und L3 wurden im Cleanup getauscht. Früher war L2=Offener See, L3=Aufzugschacht. Jetzt: L2=Aufzug, L3=Offener See.
 
 | Asset | File | Status | Notes |
 |-------|------|--------|-------|
-| Sea launchpad / shore | `sea_launchpad.png` | wired | Shoreline background — keep for now, review in Phase 04.2 |
-| Sun | `sun.png` | wired | Sun element |
-| Rocket sprites (all) | ~~rocket_bottom, rocket_mid_top, rocket_top, rocket_scaffolding_*~~ | RETIRED | Replaced by Lighthouse in Phase 04.2 |
-| Lighthouse building | — | needs-draw | Phase 04.2 — central vertical structure, stone/brick |
-| Lighthouse surroundings | — | needs-draw | Phase 04.2 — rocks, sea, environment |
-| L2 platform sprites | — | needs-draw | Phase 5 — rocky ledges / wave-breaker steps (new concept) |
+| Elevator interior | `elevator.png` | wired | Starting area (world bottom) |
+| Shaft bg bottom | `shaft_bg_bottom.png` | wired | Shaft bottom section |
+| Shaft bg mid (var 1) | `shaft_bg_mid1.png` | wired | Shaft mid section variant 1 |
+| Shaft bg mid (var 2) | `shaft_bg_mid2.png` | wired | Shaft mid section variant 2 |
+| Shaft bg top | `shaft_bg_top.png` | wired | Shaft top + golden bar + hatch |
+| Pipes bottom | `pipes_bottom.png` | wired | Mid-layer pipes, bottom segment (first pipe above elevator ceiling) |
+| Pipes mid | `pipes_mid.png` | wired | Mid-layer pipes, repeating tile |
+| Pipes top | `pipes_top.png` | wired | Mid-layer pipes, top segment |
 
 ---
 
-## Level 3 — Aufzugschacht / Elevator Shaft
+## Level 3 — Offener See / Leuchtturm (`PixelArt/backgrounds/level_3_sea/`)
 
 | Asset | File | Status | Notes |
 |-------|------|--------|-------|
-| Elevator cabin | `PixelArt/_wip/Elevator.pxo` | WIP (no PNG) | Starting area |
-| Elevator shaft | `PixelArt/_wip/Elevator_shaft.pxo` | WIP (no PNG) | Main climbing area |
-| Shaft backwall | `PixelArt/_wip/Elevator_shaft_Backwall.pxo` | WIP (no PNG) | Background layer |
-| Wall-step platforms | — | needs-draw | Ledge steps on shaft walls |
-| Mid-layer (cables/pipes) | — | needs-draw | Parallax mid-layer, Julian's concept |
+| Sea launchpad / shore | `sea_launchpad.png` | wired | Shoreline background |
+| Sun | `sun.png` | wired | Sun element with pulse animation |
+| Lighthouse sheet | `lighthouse_sheet.png` | wired | 9-sprite sheet (base, mid_1–mid_7, top cap) |
+| Rocket sprites (all) | ~~rocket_bottom, rocket_mid_top, rocket_top, rocket_scaffolding_*~~ | REMOVED (Phase 6 code-cleanup 2026-04-21) | Rocket-Subsystem aus `background.js` entfernt |
 
 ---
 
@@ -95,8 +98,8 @@ Building composition sprites loaded in `src/background.js` for L1 background ren
 |-------|------|--------|-------|
 | Jalousie sprite sheet (L1) | `platforms/level1_city/jalousie_sheet.png` | wired | 3-part: capL + tiled mid + capR, 7 rows |
 | Jalousie parts reference | `platforms/level1_city/jalousie_parts.png` | exists | Reference sheet |
-| L2 platforms | — | needs-draw | Rocket tower arms |
-| L3 platforms | — | needs-draw | Shaft wall ledge steps |
+| L2 shaft jump-platforms | `platforms/level_2_lift/jump_plattforms.png` | wired | 480x258 sheet, 9 variants (L/C/R × L/M/S size tiers); see MEMORY.md „L2 Shaft Platforms" |
+| L3 platforms | — | canvas-drawn | Lighthouse bridges drawn in `src/platforms.js` L3 branch (no sprite) |
 
 ---
 
@@ -161,11 +164,8 @@ Building composition sprites loaded in `src/background.js` for L1 background ren
 
 | Asset | Priority | Notes |
 |-------|----------|-------|
-| L2 platform sprites | Phase 5 | Lighthouse platform elements (rocky ledges / wave-breaker steps) |
-| L3 shaft background PNG exports | Phase 5 | PXO files exist in _wip/ |
-| L3 wall-step platform sprites | Phase 5 | Ledge steps on shaft walls |
-| L3 mid-layer (cables/pipes) | Phase 5 | Julian's concept, confirmed |
-| Pushable object sprites | Phase 5 | 3 types (score, bonus, cultural) |
+| Dialogue bubble PNGs (8 stk) | Blocker vor Abgabe | `PixelArt/thought_bubbles/dialogues/` — l1_intro.png … life_wasp.png; Text in Illustrator gebacken |
+| Pushable object sprites | Post-deadline | 3 types (score, bonus, cultural) — nicht im MVP |
 | Cultural element sprites | TBD | Latin American/Colombian themed |
 | Title screen art | TBD | Custom artwork for start screen |
 

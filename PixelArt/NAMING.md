@@ -42,7 +42,7 @@ PixelArt/
 └── _dev/                   Dev tools, inspiration, archive — NOT subject to this convention
 ```
 
-**Rule:** Level folders are named `levelN_theme` (e.g., `level2_see`). New levels follow the same pattern.
+**Rule:** Level folders are named `level_N_theme` (e.g., `level_2_shaft`, `level_3_sea`). Level 1 uses the legacy form `level1_city` for historical consistency. New levels follow the `level_N_theme` pattern.
 
 **Rule:** `_` prefix = excluded from game-content convention. These folders are for internal dev use only.
 
@@ -60,7 +60,7 @@ The **folder provides context** — never repeat the folder name inside the file
 
 | Do | Do Not |
 |---|---|
-| `level3_shaft/shaft_bg_bottom.png` | `level3_shaft/elevator_shaft_background_bottom.png` |
+| `level_2_shaft/shaft_bg_bottom.png` | `level_2_shaft/elevator_shaft_background_bottom.png` |
 | `collectibles/balloon.png` | `collectibles/extra-life-balloon.png` |
 | `level1_city/building_roof.png` | `level1_city/Building_Roof.png` |
 
@@ -117,13 +117,14 @@ entrance_garbage.png    — entrance area decoration
 building_roof.png       — rooftop at level goal
 ```
 
-### `backgrounds/level2_see/`
+### `backgrounds/level_3_sea/`
 ```
 sun.png                 — sun sprite with pulse animation
 lighthouse_sheet.png    — sheet: 9 sprites (base, mid_1–mid_7, top cap)
+sea_launchpad.png       — shoreline background
 ```
 
-### `backgrounds/level3_shaft/`
+### `backgrounds/level_2_shaft/`
 ```
 elevator.png            — elevator interior (world bottom)
 shaft_bg_bottom.png     — shaft bottom section
@@ -139,6 +140,11 @@ pipes_top.png           — mid-layer pipes (bg-mid, top segment)
 ```
 jalousie_sheet.png      — sprite sheet: 7 rows (intact variants 1-3/5-6, cracked row 4)
 jalousie_parts.png      — individual parts reference
+```
+
+### `platforms/level_2_lift/`
+```
+jump_plattforms.png     — sheet: 9 variants (L/C/R × L/M/S size tiers), 480x258
 ```
 
 ### `collectibles/`

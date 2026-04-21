@@ -1,5 +1,8 @@
 # L2 Cloud Platforms Implementation Plan
 
+> **Superseded (2026-04-21)** — this implementation plan was never fully executed. Level assignments were swapped (L2 is now the elevator shaft, L3 is the open sea), and the cloud / sinking-cloud mechanics were dropped in favour of the 9-variant shaft jump-platform sheet.
+> See MEMORY.md section „L2 Shaft Platforms" + `src/platforms.js` atlas coords for the current implementation. Kept as historical record only.
+
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
 **Goal:** Replace the L2 sea-green placeholder platforms with three cloud types: stable (normal), sinking (new weight-based mechanic), and disappearing (existing crumble reskin).

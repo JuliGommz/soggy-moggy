@@ -1,5 +1,7 @@
 # Phase 3 — Asset-Gruppen `characters/` und `ui/` anlegen
 
+> **Status (2026-04-21):** Ausgeführt. Siehe Cleanup-Commit-Serie auf `chore/project-cleanup-2026-04-21`. Kept as executed-plan record.
+
 **Erstellt:** 2026-04-21
 **Branch:** `chore/project-cleanup-2026-04-21`
 **Teil von:** `docs/plans/2026-04-21-project-cleanup.md` — Phase 3

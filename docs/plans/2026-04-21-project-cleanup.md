@@ -1,5 +1,7 @@
 # Project Cleanup Plan — Soggy Moggy
 
+> **Status (2026-04-21):** Phasen 0–7 ausgeführt auf Branch `chore/project-cleanup-2026-04-21` (Commits f430034 Phase 1 … c26d972 Phase 7). Phase 8 (Doku-Sync) ist dieser Commit. Phase 9 (README + Medienkatalog + Selbstständigkeitserklärung + USB-Ordner) steht noch aus.
+
 **Erstellt:** 2026-04-21
 **Ziel:** Projekt-weite Hygiene auf akademischem Best-Practice-Niveau vor Abgabe. Ordnerstruktur, Asset-Archivierung, Code-Cleanup, Doku-Sync.
 **Ausgangspunkt:** Audit abgeschlossen (JS-Code, HTML/Assets, docs/plans) am 2026-04-21 via drei parallele Agents. Keine Regressions in laufenden Features zugelassen.
