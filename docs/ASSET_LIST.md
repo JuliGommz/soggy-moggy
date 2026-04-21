@@ -15,19 +15,19 @@
 
 ---
 
-## Cat Character Sprites (`PixelArt/cat/`)
+## Cat Character Sprites (`PixelArt/characters/cat/`)
 
 All frames loaded in `src/player.js` and wired to the frame selection logic.
 
 | Frame | File | Size | Status |
 |-------|------|------|--------|
-| Idle (standing) | `PixelArt/cat/idle.png` | 64x64 | wired |
-| Rise (ascending) | `PixelArt/cat/rise.png` | 64x64 | wired |
-| Peak (airborne) | `PixelArt/cat/peak.png` | 64x64 | wired |
-| Push rise (Z, low) | `PixelArt/cat/push_rise.png` | 64x64 | wired |
-| Push peak (Z, high) | `PixelArt/cat/push_peak.png` | 64x64 | wired |
-| Walk frame 1 | `PixelArt/cat/walk_1.png` | 64x64 | wired |
-| Walk frame 2 | `PixelArt/cat/walk_2.png` | 64x64 | wired |
+| Idle (standing) | `PixelArt/characters/cat/idle.png` | 64x64 | wired |
+| Rise (ascending) | `PixelArt/characters/cat/rise.png` | 64x64 | wired |
+| Peak (airborne) | `PixelArt/characters/cat/peak.png` | 64x64 | wired |
+| Push rise (Z, low) | `PixelArt/characters/cat/push_rise.png` | 64x64 | wired |
+| Push peak (Z, high) | `PixelArt/characters/cat/push_peak.png` | 64x64 | wired |
+| Walk frame 1 | `PixelArt/characters/cat/walk_1.png` | 64x64 | wired |
+| Walk frame 2 | `PixelArt/characters/cat/walk_2.png` | 64x64 | wired |
 
 Rendering: 96x96 display (3x hitbox 32x32), bottom-aligned, `player.flipped` triggers ctx.scale(-1,1) for right-facing.
 
@@ -105,8 +105,20 @@ Building composition sprites loaded in `src/background.js` for L1 background ren
 | Asset | File | Status | Notes |
 |-------|------|--------|-------|
 | Balloon extra-life | `balloon.png` | wired | 150x220 source, drawn 70x106; Lissajous bob pattern |
-| HUD lives icon | `life_icon.png` | wired | 20x16 per life in HUD (top-right) |
-| Plush cat reference | `life_plush.png` | exists | Reference for balloon sub-zone |
+
+## UI / HUD Assets (`PixelArt/ui/hud/`)
+
+| Asset | File | Status | Notes |
+|-------|------|--------|-------|
+| HUD lives icon | `life_icon.png` | wired | 20x16 per life in HUD (top-right + game-over screen) |
+| Plush cat reference | `life_plush.png` | exists | Reference for balloon sub-zone (not loaded by game) |
+
+## Wasp Enemy Sprites (`PixelArt/characters/wasp/`)
+
+| Asset | File | Status | Notes |
+|-------|------|--------|-------|
+| Wasp sheet | `wasp_sheet.png` | wired | 252x44, 4 frames of 63x44; loaded in `src/enemies.js` |
+| Wasp frame references | `einzel_sprites/wasp_body*.png` | exists | Individual frames, not loaded by game |
 
 ---
 

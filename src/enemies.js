@@ -35,7 +35,7 @@
 
 // ── Asset ────────────────────────────────────────────────────────────────────
 const _waspSheet = new Image();
-_waspSheet.src = 'PixelArt/enemy_wasp/wasp_sheet.png';
+_waspSheet.src = 'PixelArt/characters/wasp/wasp_sheet.png';
 
 // ── Sprite constants ─────────────────────────────────────────────────────────
 const _WASP_FRAME_W  = 63;      // source frame width  (252px sheet / 4 frames)

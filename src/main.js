@@ -37,7 +37,7 @@
 //             player, updatePlayer, renderPlayer, resetPlayer (player.js)
 
 // ── HUD lives icon ──────────────────────────────────────────────────────────
-const _hudLifeIcon = new Image(); _hudLifeIcon.src = 'PixelArt/collectibles/life_icon.png';
+const _hudLifeIcon = new Image(); _hudLifeIcon.src = 'PixelArt/ui/hud/life_icon.png';
 
 // ── Balloon extra-life collectible ──────────────────────────────────────────
 const _sprExtraLife = new Image(); _sprExtraLife.src = 'PixelArt/collectibles/balloon.png';

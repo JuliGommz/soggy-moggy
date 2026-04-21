@@ -35,7 +35,7 @@
 // ── Sprite loading ───────────────────────────────────────────────────────────
 // Paths relative to index.html (project root)
 // Cat animation spritesheet (animation_sheet.png: 7 sprites left→right)
-const _catSheet = new Image(); _catSheet.src = 'PixelArt/cat/animation_sheet.png';
+const _catSheet = new Image(); _catSheet.src = 'PixelArt/characters/cat/animation_sheet.png';
 // dy = transparent_rows_at_bottom × 2.0 (DH/sh scale) — aligns visual feet to hitbox bottom
 // idle/rise/walk/pushRise: content y=19–52 → 11 transparent rows below → dy = 11×2 = 22
 // pushPeak/peak:           content y=8–55  →  8 transparent rows below → dy =  8×2 = 16

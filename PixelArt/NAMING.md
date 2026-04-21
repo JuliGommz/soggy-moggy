@@ -21,15 +21,23 @@ This ensures the asset paths work identically on Windows (local dev) and Linux (
 
 ```
 PixelArt/
-├── cat/                    Player character sprites
+├── characters/
+│   ├── cat/                Player character sprites
+│   └── wasp/               Wasp enemy sprites
 ├── backgrounds/
 │   ├── shared/             Shared across all levels (sky, clouds, stars)
 │   ├── level1_city/        Level 1 — La Ciudad
-│   ├── level2_see/         Level 2 — El Mar Abierto
-│   └── level3_shaft/       Level 3 — El Pozo Eléctrico
+│   ├── level_2_shaft/      Level 2 — El Pozo Eléctrico (Aufzugschacht)
+│   └── level_3_sea/        Level 3 — El Mar Abierto (Leuchtturm/See)
 ├── platforms/
-│   └── level1_city/        Level 1 platform sprite sheets
-├── collectibles/           Pickups, HUD icons, life items
+│   ├── level1_city/        Level 1 platform sprite sheets
+│   └── level_2_lift/       Level 2 shaft jump-platform sheet
+├── collectibles/           Spawnbare In-Game-Pickups (balloon)
+├── ui/
+│   └── hud/                HUD-Elemente (Herzen)
+├── thought_bubbles/        Dialogue-Bubble-Assets
+├── fonts/                  Bitmap-Fonts + Illustrator-Quelldateien
+├── _archive/               Archivierte Assets (siehe README darin)
 ├── _wip/                   Work in progress — NOT subject to this convention
 └── _dev/                   Dev tools, inspiration, archive — NOT subject to this convention
 ```
@@ -80,10 +88,16 @@ Every `.pxo` source file shares the **exact same base name** as its exported `.p
 
 ## Current Game Assets
 
-### `cat/`
+### `characters/cat/`
 ```
 animation_sheet.png     — sheet: 7 sprites (all animation poses)
 einzel_sprites/         — individual source PNGs (reference, not loaded by game)
+```
+
+### `characters/wasp/`
+```
+wasp_sheet.png          — sheet: 4 frames (252x44, 4x 63x44)
+einzel_sprites/         — individual frame PNGs (reference, not loaded by game)
 ```
 
 ### `backgrounds/shared/`
@@ -129,9 +143,13 @@ jalousie_parts.png      — individual parts reference
 
 ### `collectibles/`
 ```
-balloon.png             — floating cat+balloon extra life collectible
+balloon.png             — floating cat+balloon extra life collectible (in-game pickup)
+```
+
+### `ui/hud/`
+```
 life_icon.png           — HUD life counter icon (small, top-right)
-life_plush.png          — larger plush variant (reference/preview)
+life_plush.png          — larger plush variant (reference/preview, not loaded by game)
 ```
 
 ---
