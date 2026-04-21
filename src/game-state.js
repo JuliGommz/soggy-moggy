@@ -34,10 +34,10 @@
 const GamePhase = Object.freeze({
   START:          'start',
   DEV_SELECT:     'dev_select',
-  LEVEL_INTRO:    'level_intro',    // bubble + fonts shown before each level begins
+  LEVEL_INTRO:    'level_intro',    // bubble shown before each level begins
   PLAYING:        'playing',
   PAUSED:         'paused',
-  LEVEL_OUTRO:    'level_outro',    // bubble + fonts shown after finish-trigger, before LEVEL_COMPLETE menu
+  LEVEL_OUTRO:    'level_outro',    // bubble shown after finish-trigger, before LEVEL_COMPLETE menu
   LEVEL_COMPLETE: 'level_complete',
   GAMEOVER:       'gameover',
 });
