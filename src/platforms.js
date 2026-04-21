@@ -68,7 +68,7 @@ _winSheet.src = 'PixelArt/backgrounds/level1_city/windows.png';
 // Atlas coords measured via PIL connected-component scan on 2026-04-20.
 // Sheet: jump_plattforms.png, 480 × 258 px. 9 opaque regions found, all sh=24.
 const _l2PlatSheet = new Image();
-_l2PlatSheet.src = 'PixelArt/platforms/level2_lift/jump_plattforms.png';
+_l2PlatSheet.src = 'PixelArt/platforms/level_2_lift/jump_plattforms.png';
 
 // 9-variant atlas: 3 positions (l/c/r) × 3 sizes (L/M/S).
 //   l = left   (anchored to left shaft wall, depth faces right)

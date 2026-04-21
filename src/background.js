@@ -48,24 +48,24 @@ const _bgL1TrashBin = new Image(); _bgL1TrashBin.src = 'PixelArt/backgrounds/lev
 const _bgL1Door     = new Image(); _bgL1Door.src     = 'PixelArt/backgrounds/level1_city/building_door.png';
 const _bgL1Cornice  = new Image(); _bgL1Cornice.src  = 'PixelArt/backgrounds/level1_city/cornice.png';
 const _bgL1Roof     = new Image(); _bgL1Roof.src     = 'PixelArt/backgrounds/level1_city/building_roof.png';
-const _bgL2Sun      = new Image(); _bgL2Sun.src      = 'PixelArt/backgrounds/level2_see/sun.png';
-const _bgL2Landing  = new Image(); _bgL2Landing.src  = 'PixelArt/backgrounds/level2_see/sea_launchpad.png';
-const _bgL2Bottom   = new Image(); _bgL2Bottom.src   = 'PixelArt/backgrounds/level2_see/rocket_bottom.png';
-const _bgL2MidTop   = new Image(); _bgL2MidTop.src   = 'PixelArt/backgrounds/level2_see/rocket_mid_top.png';
-const _bgL2ScaffBot = new Image(); _bgL2ScaffBot.src = 'PixelArt/backgrounds/level2_see/rocket_scaffolding_bottom.png';
-const _bgL2ScaffMid = new Image(); _bgL2ScaffMid.src = 'PixelArt/backgrounds/level2_see/rocket_scaffolding_mid.png';
+const _bgL2Sun      = new Image(); _bgL2Sun.src      = 'PixelArt/backgrounds/level_3_sea/sun.png';
+const _bgL2Landing  = new Image(); _bgL2Landing.src  = 'PixelArt/backgrounds/level_3_sea/sea_launchpad.png';
+const _bgL2Bottom   = new Image(); _bgL2Bottom.src   = 'PixelArt/backgrounds/level_3_sea/rocket_bottom.png';
+const _bgL2MidTop   = new Image(); _bgL2MidTop.src   = 'PixelArt/backgrounds/level_3_sea/rocket_mid_top.png';
+const _bgL2ScaffBot = new Image(); _bgL2ScaffBot.src = 'PixelArt/backgrounds/level_3_sea/rocket_scaffolding_bottom.png';
+const _bgL2ScaffMid = new Image(); _bgL2ScaffMid.src = 'PixelArt/backgrounds/level_3_sea/rocket_scaffolding_mid.png';
 // Lighthouse (Phase 04.2) — replaces rocket system
-const _bgL2LhSheet = new Image(); _bgL2LhSheet.src = 'PixelArt/backgrounds/level2_see/lighthouse_sheet.png';
+const _bgL2LhSheet = new Image(); _bgL2LhSheet.src = 'PixelArt/backgrounds/level_3_sea/lighthouse_sheet.png';
 
 // ── Level 3 assets (bg-back: shaft wall; bg-mid: pipes) ───────────────────────
-const _bgL3Elevator    = new Image(); _bgL3Elevator.src    = 'PixelArt/backgrounds/level3_shaft/elevator.png';
-const _bgL3ShaftBot    = new Image(); _bgL3ShaftBot.src    = 'PixelArt/backgrounds/level3_shaft/shaft_bg_bottom.png';
-const _bgL3ShaftMid1   = new Image(); _bgL3ShaftMid1.src   = 'PixelArt/backgrounds/level3_shaft/shaft_bg_mid1.png';
-const _bgL3ShaftMid2   = new Image(); _bgL3ShaftMid2.src   = 'PixelArt/backgrounds/level3_shaft/shaft_bg_mid2.png';
-const _bgL3ShaftTop    = new Image(); _bgL3ShaftTop.src    = 'PixelArt/backgrounds/level3_shaft/shaft_bg_top.png';
-const _bgL3PipesBot    = new Image(); _bgL3PipesBot.src    = 'PixelArt/backgrounds/level3_shaft/pipes_bottom.png';
-const _bgL3PipesMid    = new Image(); _bgL3PipesMid.src    = 'PixelArt/backgrounds/level3_shaft/pipes_mid.png';
-const _bgL3PipesTop    = new Image(); _bgL3PipesTop.src    = 'PixelArt/backgrounds/level3_shaft/pipes_top.png';
+const _bgL3Elevator    = new Image(); _bgL3Elevator.src    = 'PixelArt/backgrounds/level_2_shaft/elevator.png';
+const _bgL3ShaftBot    = new Image(); _bgL3ShaftBot.src    = 'PixelArt/backgrounds/level_2_shaft/shaft_bg_bottom.png';
+const _bgL3ShaftMid1   = new Image(); _bgL3ShaftMid1.src   = 'PixelArt/backgrounds/level_2_shaft/shaft_bg_mid1.png';
+const _bgL3ShaftMid2   = new Image(); _bgL3ShaftMid2.src   = 'PixelArt/backgrounds/level_2_shaft/shaft_bg_mid2.png';
+const _bgL3ShaftTop    = new Image(); _bgL3ShaftTop.src    = 'PixelArt/backgrounds/level_2_shaft/shaft_bg_top.png';
+const _bgL3PipesBot    = new Image(); _bgL3PipesBot.src    = 'PixelArt/backgrounds/level_2_shaft/pipes_bottom.png';
+const _bgL3PipesMid    = new Image(); _bgL3PipesMid.src    = 'PixelArt/backgrounds/level_2_shaft/pipes_mid.png';
+const _bgL3PipesTop    = new Image(); _bgL3PipesTop.src    = 'PixelArt/backgrounds/level_2_shaft/pipes_top.png';
 
 // rocket_mid_top.png sprite regions (PIL alpha-scan verified):
 //   3 sprites, all sw=74px, sh=270px content (sy=24: 24px transparent top padding in source).
