@@ -329,16 +329,16 @@ function _drawL3Back(ctx, camShift) {
 
 // Draws Level 3 pipe/cable layer (bg-mid layer, 1.0x parallax — locked to world).
 //
-// IMPORTANT: pipes exist ONLY in the shaft, not in the elevator interior.
-// The elevator has its own walls (rendered in elevator.png via _drawL3Back)
-// and the cat is confined to canvas edges there; the orange tubes would
-// visually and physically contradict that if painted over the elevator.
+// Stacking from ground up (all 1.0x parallax, locked to world):
+//   1. pipes_bottom — bottom edge anchored to world-y 96 (elevator ceiling).
+//      Visible content is the pipe end-caps/flanges emerging from the ceiling;
+//      upper portion of the tile is transparent tube content.
+//   2. pipes_mid    — tiled upward from pipes_bottom's top edge until goalY.
+//   3. pipes_top    — caps the run below the roof (175-row transparent header).
 //
-// Therefore _bgL3PipesBot is intentionally NOT drawn — it paints tubes
-// across world-y 0..640, which is the elevator interior.
-// Instead, pipes_mid tiles are anchored so the FIRST tile's bottom edge
-// sits at world-y 96 (the elevator ceiling — C1 collider top). Subsequent
-// tiles stack upward. The pipes_top cap closes the run below the roof.
+// Pipes are drawn only ABOVE the elevator ceiling (world-y < 96) so they never
+// paint over the elevator interior (world-y 0..640), which has its own walls
+// rendered in elevator.png via _drawL3Back.
 //
 // PARALLAX NOTE: previously this layer used FACTOR=0.90 for a subtle depth
 // effect, but that made the pipes drift upward relative to the elevator
@@ -346,17 +346,27 @@ function _drawL3Back(ctx, camShift) {
 // producing a visible 15–40 px gap between pipe-bottom and ceiling.
 // Using FACTOR=1.0 locks pipes to world space so the seam stays sealed.
 function _drawL3Mid(ctx, camShift) {
+  if (!_bgL3PipesBot.complete || _bgL3PipesBot.naturalWidth === 0) return;
   if (!_bgL3PipesMid.complete || _bgL3PipesMid.naturalWidth === 0) return;
   if (!_bgL3PipesTop.complete || _bgL3PipesTop.naturalWidth === 0) return;
 
   const cs    = Math.round(camShift);                                      // 1.0x parallax
   const goalY = (GameState.levelGoalY !== undefined) ? GameState.levelGoalY : -5000;
 
-  // Pipes middle — first tile bottom anchored to world-y 96 (elevator ceiling).
-  //   wy = world-y of the tile's TOP edge.
-  //   tile bottom at wy + BG_H. For first tile: wy + BG_H = 96 → wy = 96 − BG_H.
+  // Pipes bottom — tile bottom anchored to world-y 96 (elevator ceiling).
+  //   tile top world-y = 96 − BG_H = −544.
+  {
+    const sy = (96 - BG_H) + cs;
+    if (sy <= BG_H && sy + BG_H >= 0) {
+      ctx.drawImage(_bgL3PipesBot, 0, sy);
+    }
+  }
+
+  // Pipes middle — stack upward starting ABOVE pipes_bottom's top edge.
+  //   first mid tile bottom = pipes_bottom top = 96 − BG_H.
+  //   → first mid tile top = 96 − 2·BG_H.
   // Tiles extend upward (wy -= BG_H each step) until they pass the goalY cap.
-  for (let wy = 96 - BG_H; wy > goalY - BG_H; wy -= BG_H) {
+  for (let wy = 96 - 2 * BG_H; wy > goalY - BG_H; wy -= BG_H) {
     const sy = wy + cs;
     if (sy > BG_H)     continue;
     if (sy + BG_H < 0) break;
