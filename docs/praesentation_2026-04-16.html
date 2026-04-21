@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gato Sin Botas — GDD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P:wght@400&family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:       #0d1520;
+      --night:    #2e3a5c;
+      --sky:      #7eb8c9;
+      --platform: #5a7a3a;
+      --water:    #2a5fa8;
+      --cat:      #b09070;
+      --gold:     #f1c40f;
+      --red:      #e74c3c;
+      --green:    #2ecc71;
+      --white:    #f0f4f8;
+      --dim:      #9ab0c4;   /* heller als vorher — besser lesbar auf Displaylicht */
+      --card:     rgba(46,58,92,0.55);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'IBM Plex Mono', monospace;
+      line-height: 1.75;
+    }
+
+    /* ── Layout ─────────────────────────────────────────────────────── */
+    .wrap {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 0 48px;
+    }
+
+    section {
+      padding: 64px 0;
+      border-bottom: 1px solid rgba(126,184,201,.12);
+    }
+    section:last-child { border-bottom: none; }
+
+    /* ── Typography ─────────────────────────────────────────────────── */
+    .label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--sky);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 20px;
+      color: var(--gold);
+      line-height: 1.65;
+      margin-bottom: 32px;
+    }
+
+    p {
+      font-size: 15px;
+      color: var(--dim);
+      line-height: 1.85;
+    }
+
+    p + p { margin-top: 14px; }
+
+    strong { color: var(--white); font-weight: 700; }
+
+    /* ── Components ─────────────────────────────────────────────────── */
+    .rule {
+      width: 48px;
+      height: 3px;
+      background: var(--sky);
+      margin: 12px 0 32px;
+    }
+
+    .card {
+      background: var(--card);
+      border-left: 3px solid var(--sky);
+      padding: 24px 28px;
+    }
+
+    .tag {
+      display: inline-block;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      padding: 6px 12px;
+      letter-spacing: 1px;
+    }
+    .tag-sky   { background: rgba(126,184,201,.12); color: var(--sky);   border: 1px solid rgba(126,184,201,.3); }
+    .tag-gold  { background: rgba(241,196,15,.1);   color: var(--gold);  border: 1px solid rgba(241,196,15,.3); }
+    .tag-green { background: rgba(46,204,113,.1);   color: var(--green); border: 1px solid rgba(46,204,113,.3); }
+    .tag-red   { background: rgba(231,76,60,.12);   color: var(--red);   border: 1px solid rgba(231,76,60,.3); }
+    .tag-cat   { background: rgba(176,144,112,.12); color: var(--cat);   border: 1px solid rgba(176,144,112,.3); }
+    .tag-dim   { background: rgba(154,176,196,.08); color: var(--dim);   border: 1px solid rgba(154,176,196,.2); }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 10px; }
+
+    /* ── Grid helpers ───────────────────────────────────────────────── */
+    .col2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+    .col3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+    }
+
+    /* ── Hero ───────────────────────────────────────────────────────── */
+    #hero {
+      padding: 88px 0 96px;
+      position: relative;
+      background: linear-gradient(160deg, #0d1520 0%, var(--night) 60%, #162848 100%);
+      border-bottom: none;
+      overflow: hidden;
+    }
+
+    #hero .wrap { position: relative; z-index: 2; }
+
+    .stars {
+      position: absolute; inset: 0; z-index: 1;
+      background-image:
+        radial-gradient(2px 2px at 11% 14%, rgba(255,255,255,.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 24% 7%,  rgba(255,255,255,.5) 0%, transparent 100%),
+        radial-gradient(2px 2px at 43% 20%, rgba(255,255,255,.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 61% 9%,  rgba(255,255,255,.4) 0%, transparent 100%),
+        radial-gradient(2px 2px at 78% 16%, rgba(255,255,255,.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 89% 4%,  rgba(255,255,255,.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 6%  38%, rgba(255,255,255,.3) 0%, transparent 100%),
+        radial-gradient(2px 2px at 52% 32%, rgba(255,255,255,.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 74% 40%, rgba(255,255,255,.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 33% 55%, rgba(255,255,255,.2) 0%, transparent 100%),
+        radial-gradient(2px 2px at 91% 52%, rgba(255,255,255,.3) 0%, transparent 100%);
+    }
+
+    .hero-super {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      color: var(--sky);
+      letter-spacing: 4px;
+      margin-bottom: 24px;
+    }
+    .hero-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(36px, 5vw, 60px);
+      color: var(--white);
+      line-height: 1.4;
+      margin-bottom: 14px;
+    }
+    .hero-sub {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 14px;
+      color: var(--gold);
+      margin-bottom: 32px;
+    }
+    .hero-pitch {
+      max-width: 660px;
+      font-size: 15px;
+      color: var(--dim);
+      line-height: 1.9;
+      border-left: 3px solid var(--gold);
+      padding: 18px 24px;
+      background: rgba(241,196,15,.05);
+      margin-bottom: 36px;
+    }
+
+    .hero-border {
+      position: absolute; bottom: 0; left: 0;
+      width: 100%; height: 4px;
+      background: linear-gradient(90deg, var(--water), var(--sky), var(--water));
+      z-index: 1;
+    }
+
+    /* ── Core Loop ──────────────────────────────────────────────────── */
+    .loop-steps {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 32px;
+    }
+    .loop-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(126,184,201,.1);
+    }
+    .loop-step:last-child { border-bottom: none; }
+    .loop-n {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      color: var(--sky);
+      min-width: 32px;
+      padding-top: 3px;
+    }
+    .loop-text { font-size: 14px; color: var(--dim); line-height: 1.75; }
+    .loop-text strong { color: var(--white); }
+
+    .feeling-block {
+      background: rgba(241,196,15,.06);
+      border: 1px solid rgba(241,196,15,.22);
+      padding: 28px 30px;
+    }
+    .feeling-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 14px;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    /* ── Controls ───────────────────────────────────────────────────── */
+    .ctrl-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .ctrl-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(126,184,201,.1);
+      font-size: 14px;
+    }
+    .ctrl-table tr:last-child td { border-bottom: none; }
+    .ctrl-table .action { color: var(--white); font-weight: 700; }
+    .ctrl-table .kb {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      color: var(--sky);
+      background: rgba(126,184,201,.12);
+      border: 1px solid rgba(126,184,201,.25);
+      padding: 6px 12px;
+      display: inline-block;
+    }
+    .ctrl-table .alt { color: var(--dim); font-size: 13px; }
+
+    /* ── Features ───────────────────────────────────────────────────── */
+    .feat-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .feat-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 15px 20px;
+      background: var(--card);
+      border-left: 3px solid transparent;
+    }
+    .feat-item.in   { border-color: var(--green); }
+    .feat-item.out  { border-color: rgba(154,176,196,.35); }
+    .feat-item.todo { border-color: var(--gold); }
+    .feat-icon {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+    .feat-item.in   .feat-icon { color: var(--green); }
+    .feat-item.out  .feat-icon { color: var(--dim); }
+    .feat-item.todo .feat-icon { color: var(--gold); }
+    .feat-name { font-size: 14px; color: var(--white); font-weight: 600; }
+    .feat-note { font-size: 12px; color: var(--dim); margin-top: 4px; }
+
+    /* ── Levels ─────────────────────────────────────────────────────── */
+    .level-card {
+      background: var(--card);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      overflow: hidden;
+    }
+    .level-card:nth-child(1) { border-top: 3px solid var(--platform); }
+    .level-card:nth-child(2) { border-top: 3px solid var(--gold); }
+    .level-card:nth-child(3) { border-top: 3px solid #4a90d9; }
+
+    .level-screenshot {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      object-position: center bottom;
+      display: block;
+      image-rendering: auto;
+    }
+
+    .level-body {
+      padding: 22px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .level-num {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      color: var(--dim);
+    }
+    .level-name {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 11px;
+      color: var(--white);
+      line-height: 1.7;
+    }
+    .level-detail { font-size: 13px; color: var(--dim); line-height: 1.65; }
+    .level-detail strong { color: var(--white); display: block; margin-bottom: 2px; }
+    .hazard {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      padding: 6px 11px;
+      display: inline-block;
+      margin-top: 4px;
+    }
+    .level-card:nth-child(1) .hazard { background: rgba(90,122,58,.2);  color: var(--platform); border: 1px solid rgba(90,122,58,.4); }
+    .level-card:nth-child(2) .hazard { background: rgba(241,196,15,.1); color: var(--gold);     border: 1px solid rgba(241,196,15,.3); }
+    .level-card:nth-child(3) .hazard { background: rgba(74,144,217,.15);color: #7eb8e8;          border: 1px solid rgba(74,144,217,.35); }
+
+    /* ── Art & Tech ─────────────────────────────────────────────────── */
+    .tech-row {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 12px;
+      padding: 12px 18px;
+      border-bottom: 1px solid rgba(126,184,201,.08);
+      font-size: 14px;
+      align-items: baseline;
+    }
+    .tech-row:last-child { border-bottom: none; }
+    .tech-key { color: var(--dim); font-size: 13px; }
+    .tech-val { color: var(--white); }
+
+    .palette {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    .swatch { width: 32px; height: 32px; display: inline-block; }
+
+    /* ── To-Do ──────────────────────────────────────────────────────── */
+    #todo {
+      background: linear-gradient(180deg, var(--bg) 0%, #090f18 100%);
+    }
+
+    .todo-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .todo-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 20px 24px;
+      background: var(--card);
+      border-left: 3px solid var(--gold);
+    }
+    .todo-dot {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 11px;
+      color: var(--gold);
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+    .todo-text { font-size: 14px; color: var(--white); font-weight: 600; }
+    .todo-note { font-size: 12px; color: var(--dim); margin-top: 5px; }
+
+    /* ── Medien ─────────────────────────────────────────────────────── */
+    #media { background: #0b1219; }
+
+    img { image-rendering: pixelated; image-rendering: crisp-edges; }
+
+    .media-group {
+      margin-bottom: 48px;
+    }
+    .media-group:last-child { margin-bottom: 0; }
+
+    .media-group-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      color: var(--sky);
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    .sprite-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: flex-end;
+    }
+
+    .sprite-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sprite-frame {
+      background: rgba(46,58,92,0.6);
+      border: 1px solid rgba(126,184,201,.15);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sprite-frame img {
+      display: block;
+      width: auto;
+      height: 128px;
+    }
+
+    .sprite-frame.sm img { height: 80px; }
+    .sprite-frame.lg img { height: 160px; }
+
+    .sprite-caption {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      color: var(--dim);
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .bg-strip {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .bg-item {
+      background: rgba(46,58,92,0.6);
+      border: 1px solid rgba(126,184,201,.15);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .bg-item img {
+      display: block;
+      width: 200px;
+      height: 120px;
+      object-fit: cover;
+      object-position: top left;
+    }
+
+    .bg-item .sprite-caption {
+      padding: 8px 10px;
+      background: rgba(13,21,32,.7);
+      text-align: left;
+    }
+
+    /* ── Lightbox ───────────────────────────────────────────────────── */
+    #lb {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5,9,16,.96);
+      z-index: 9999;
+      cursor: zoom-out;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+    }
+    #lb.open { display: flex; }
+    #lb-img {
+      max-width: 90vw;
+      max-height: 84vh;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      box-shadow: 0 0 0 1px rgba(126,184,201,.2);
+    }
+    #lb-caption {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      color: var(--dim);
+      letter-spacing: 2px;
+    }
+    #lb-close {
+      position: absolute;
+      top: 20px; right: 28px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 14px;
+      color: var(--dim);
+      cursor: pointer;
+      line-height: 1;
+    }
+    #lb-close:hover { color: var(--white); }
+
+    .zoomable { cursor: zoom-in; }
+    .zoomable:hover { border-color: rgba(126,184,201,.4) !important; }
+
+    /* ── Sprite catalog grid ─────────────────────────────────────────── */
+    .cat-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: flex-end;
+    }
+
+    .cat-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cat-frame {
+      background: rgba(46,58,92,0.55);
+      border: 1px solid rgba(126,184,201,.15);
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color .15s;
+    }
+
+    .cat-frame img {
+      display: block;
+      width: auto;
+    }
+
+    .cat-frame.h96  img { height: 96px; }
+    .cat-frame.h128 img { height: 128px; }
+    .cat-frame.h160 img { height: 160px; }
+    .cat-frame.h64  img { height: 64px; }
+    .cat-frame.h48  img { height: 48px; }
+    .cat-frame.wide img { height: 56px; width: auto; max-width: 340px; }
+    .cat-frame.bg-tile img {
+      width: 160px;
+      height: 96px;
+      object-fit: contain;
+      object-position: center;
+    }
+
+    /* Wide flat sprites (e.g. cornice) */
+    .cat-frame.strip {
+      padding: 10px 12px;
+      width: 100%;
+      max-width: 480px;
+    }
+    .cat-frame.strip img {
+      width: 100%;
+      height: auto;
+      min-height: 12px;
+      object-fit: contain;
+    }
+
+    .cat-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      color: var(--dim);
+      letter-spacing: 1px;
+      text-align: center;
+      max-width: 120px;
+    }
+
+    .sheet-row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+
+    .sheet-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .sheet-frame {
+      background: rgba(46,58,92,0.55);
+      border: 1px solid rgba(126,184,201,.15);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color .15s;
+    }
+
+    .sheet-frame img {
+      display: block;
+      height: 56px;
+      width: auto;
+      max-width: 480px;
+    }
+
+    /* ── Alternating section backgrounds ────────────────────────────── */
+    #loop   { background: var(--bg); }
+    #controls { background: #0b1219; }
+    #features { background: var(--bg); }
+    #levels { background: #0b1219; }
+    #art    { background: var(--bg); }
+    #todo   { background: linear-gradient(180deg, #0b1219 0%, #090f18 100%); }
+
+    /* ── Responsive ─────────────────────────────────────────────────── */
+    @media (max-width: 860px) {
+      .wrap { padding: 0 28px; }
+      .col2, .col3 { grid-template-columns: 1fr; }
+      h2 { font-size: 16px; }
+      .hero-title { font-size: 28px; }
+    }
+
+    /* ── Footer ─────────────────────────────────────────────────────── */
+    #footer {
+      padding: 40px 0;
+      border-top: 1px solid rgba(126,184,201,.1);
+      border-bottom: none;
+    }
+    .footer-meta {
+      font-size: 13px;
+      color: var(--dim);
+      line-height: 2.2;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HERO ───────────────────────────────────────────────────────────── -->
+<section id="hero">
+  <div class="stars"></div>
+
+  <div class="wrap">
+    <p class="hero-super">SRH · Abschlussprojekt · Game &amp; Multimedia Design</p>
+    <h1 class="hero-title">Gato Sin Botas</h1>
+    <p class="hero-sub">»Soggy Moggy«</p>
+
+    <p class="hero-pitch">
+      Ein vertikaler Plattformer, in dem der Spieler eine Katze steuert, die vor einer stetig steigenden Bedrohung nach oben flieht. Im Gegensatz zu klassischen Endlos-Springern springt die Figur nur auf aktive Eingabe — jede Plattform ist eine bewusste Entscheidung.
+    </p>
+
+    <div class="tags">
+      <span class="tag tag-sky">Browser · HTML5</span>
+      <span class="tag tag-gold">Vanilla JS · Kein Framework</span>
+      <span class="tag tag-green">3 Level</span>
+      <span class="tag tag-red">Abgabe 22.04.2026</span>
+    </div>
+  </div>
+
+  <div class="hero-border"></div>
+</section>
+
+<!-- ── CORE LOOP ──────────────────────────────────────────────────────── -->
+<section id="loop">
+  <div class="wrap">
+    <p class="label">Gameplay</p>
+    <h2>Core Loop &amp; Spielgefühl</h2>
+    <div class="rule"></div>
+
+    <div class="col2">
+      <div>
+        <div class="loop-steps">
+          <div class="loop-step">
+            <span class="loop-n">01</span>
+            <p class="loop-text"><strong>Springen.</strong> Manuell, auf aktive Eingabe. Kein Autosprung.</p>
+          </div>
+          <div class="loop-step">
+            <span class="loop-n">02</span>
+            <p class="loop-text"><strong>Ausweichen.</strong> Die Gefahr steigt von unten. Wer zu langsam ist, stirbt.</p>
+          </div>
+          <div class="loop-step">
+            <span class="loop-n">03</span>
+            <p class="loop-text"><strong>Überleben.</strong> Timing entscheidet. Gezielter Sprung schlägt riskanter Sprung.</p>
+          </div>
+          <div class="loop-step">
+            <span class="loop-n">04</span>
+            <p class="loop-text"><strong>Nächstes Level.</strong> Wer alle drei abschließt, gewinnt.</p>
+          </div>
+        </div>
+
+        <div class="tags" style="margin-top:8px;">
+          <span class="tag tag-sky">START</span>
+          <span style="color:var(--dim); font-size:11px; align-self:center;">→</span>
+          <span class="tag tag-green">PLAYING</span>
+          <span style="color:var(--dim); font-size:11px; align-self:center;">→</span>
+          <span class="tag tag-gold">LEVEL COMPLETE</span>
+          <span style="color:var(--dim); font-size:11px; align-self:center;">→</span>
+          <span class="tag tag-red">GAME OVER</span>
+        </div>
+      </div>
+
+      <div class="feeling-block">
+        <p class="feeling-label">» Cozy Danger «</p>
+        <p>Die Welt ist warm und verspielt gestaltet. Die steigende Bedrohung baut kontinuierlich Spannung auf, ohne die Atmosphäre in Richtung Horror zu kippen.</p>
+        <p style="margin-top:14px;">Spaß steht ab der ersten Sekunde im Vordergrund. Der Schwierigkeitsgrad steigt mit jedem Level spürbar an.</p>
+        <div class="tags" style="margin-top:20px;">
+          <span class="tag tag-gold">Warm</span>
+          <span class="tag tag-green">Zugänglich</span>
+          <span class="tag tag-sky">Spannend</span>
+          <span class="tag tag-cat">Verspielt</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── STEUERUNG ──────────────────────────────────────────────────────── -->
+<section id="controls">
+  <div class="wrap">
+    <p class="label">Eingabe</p>
+    <h2>Steuerung &amp; Figur</h2>
+    <div class="rule"></div>
+
+    <div class="col2" style="align-items:stretch;">
+      <div class="card" style="border-color:var(--sky); display:flex; flex-direction:column; justify-content:space-between;">
+        <div>
+          <p style="font-family:'Press Start 2P',monospace; font-size:9px; color:var(--sky); margin-bottom:18px; letter-spacing:2px;">STEUERUNG</p>
+          <table class="ctrl-table">
+            <tr>
+              <td class="action">Bewegen</td>
+              <td><span class="kb">A / D</span></td>
+              <td class="alt">oder Pfeiltasten</td>
+            </tr>
+            <tr>
+              <td class="action">Springen</td>
+              <td><span class="kb">SPACE</span></td>
+              <td class="alt">oder Linksklick</td>
+            </tr>
+            <tr>
+              <td class="action">Aktion</td>
+              <td><span class="kb">Z</span></td>
+              <td class="alt">oder Rechtsklick</td>
+            </tr>
+          </table>
+        </div>
+        <p style="margin-top:20px; font-size:12px; color:var(--dim);">Keine Diagonaleingabe. Bewegung ist direkt und sofort.</p>
+      </div>
+
+      <div class="card" style="border-color:var(--cat);">
+        <p style="font-family:'Press Start 2P',monospace; font-size:9px; color:var(--cat); margin-bottom:18px; letter-spacing:2px;">SPIELERFIGUR</p>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div class="tech-row" style="padding:8px 0; border-color:rgba(176,144,112,.1);">
+            <span class="tech-key">Typ</span>
+            <span class="tech-val">Katze als Plüschtier</span>
+          </div>
+          <div class="tech-row" style="padding:8px 0; border-color:rgba(176,144,112,.1);">
+            <span class="tech-key">Merkmale</span>
+            <span class="tech-val">Knopfaugen · Nähte · übergroßer Kopf</span>
+          </div>
+          <div class="tech-row" style="padding:8px 0; border-color:rgba(176,144,112,.1);">
+            <span class="tech-key">Hitbox</span>
+            <span class="tech-val">32 × 32 px Weltkoordinaten</span>
+          </div>
+          <div class="tech-row" style="padding:8px 0; border-color:rgba(176,144,112,.1);">
+            <span class="tech-key">Posen</span>
+            <span class="tech-val">7 animierte Sprites</span>
+          </div>
+        </div>
+        <div class="tags" style="margin-top:16px; gap:6px;">
+          <span class="tag tag-cat" style="font-size:7px;">Idle</span>
+          <span class="tag tag-cat" style="font-size:7px;">Walk 1/2</span>
+          <span class="tag tag-cat" style="font-size:7px;">Rise</span>
+          <span class="tag tag-cat" style="font-size:7px;">Peak</span>
+          <span class="tag tag-cat" style="font-size:7px;">Push Rise</span>
+          <span class="tag tag-cat" style="font-size:7px;">Push Peak</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES ───────────────────────────────────────────────────────── -->
+<section id="features">
+  <div class="wrap">
+    <p class="label">Scope</p>
+    <h2>Features</h2>
+    <div class="rule"></div>
+
+    <div class="col2">
+      <div>
+        <p style="font-family:'Press Start 2P',monospace; font-size:8px; color:var(--green); letter-spacing:2px; margin-bottom:16px;">IN SCOPE</p>
+        <div class="feat-list">
+          <div class="feat-item in">
+            <span class="feat-icon">✓</span>
+            <div>
+              <div class="feat-name">3 eigenständige Level</div>
+              <div class="feat-note">Smog · Elektrizität · Flut</div>
+            </div>
+          </div>
+          <div class="feat-item in">
+            <span class="feat-icon">✓</span>
+            <div>
+              <div class="feat-name">Manuelles Sprungsystem</div>
+              <div class="feat-note">Space / Linksklick</div>
+            </div>
+          </div>
+          <div class="feat-item in">
+            <span class="feat-icon">✓</span>
+            <div>
+              <div class="feat-name">Pfoten-Aktion</div>
+              <div class="feat-note">Ballon fangen · Wespen besiegen</div>
+            </div>
+          </div>
+          <div class="feat-item in">
+            <span class="feat-icon">✓</span>
+            <div>
+              <div class="feat-name">Wespengegner</div>
+              <div class="feat-note">Stomp · Stich · pro Level skaliert</div>
+            </div>
+          </div>
+          <div class="feat-item in">
+            <span class="feat-icon">✓</span>
+            <div>
+              <div class="feat-name">Ballonkollektible</div>
+              <div class="feat-note">Extraleben · Fang per Aktion-Taste</div>
+            </div>
+          </div>
+          <div class="feat-item in">
+            <span class="feat-icon">✓</span>
+            <div>
+              <div class="feat-name">Parallax-Hintergrund · HUD · Neustart</div>
+              <div class="feat-note">5 Schichten · Leben · Score</div>
+            </div>
+          </div>
+          <div class="feat-item in">
+            <span class="feat-icon">✓</span>
+            <div>
+              <div class="feat-name">Lokale Score-Speicherung</div>
+              <div class="feat-note">localStorage · SRH-Pflichtanforderung</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <p style="font-family:'Press Start 2P',monospace; font-size:8px; color:var(--dim); letter-spacing:2px; margin-bottom:16px;">OUT OF SCOPE</p>
+        <div class="feat-list">
+          <div class="feat-item out">
+            <span class="feat-icon">✕</span>
+            <div>
+              <div class="feat-name">Externe Bibliotheken</div>
+              <div class="feat-note">Kein Framework, kein Build-Tool</div>
+            </div>
+          </div>
+          <div class="feat-item out">
+            <span class="feat-icon">✕</span>
+            <div>
+              <div class="feat-name">Mobile Touch-Steuerung</div>
+              <div class="feat-note">Nur Desktop-Browser</div>
+            </div>
+          </div>
+          <div class="feat-item out">
+            <span class="feat-icon">✕</span>
+            <div>
+              <div class="feat-name">Server-seitige Highscores</div>
+              <div class="feat-note">Kein Backend · lokale Speicherung ist IN Scope</div>
+            </div>
+          </div>
+          <div class="feat-item out">
+            <span class="feat-icon">✕</span>
+            <div>
+              <div class="feat-name">Mehrspielermodus</div>
+              <div class="feat-note">Single Player</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── LEVEL ──────────────────────────────────────────────────────────── -->
+<section id="levels">
+  <div class="wrap">
+    <p class="label">Level</p>
+    <h2>Levelübersicht</h2>
+    <div class="rule"></div>
+
+    <div class="col3">
+      <div class="level-card">
+        <img class="level-screenshot" src="../screenshots/Levels/Level1.1.png" alt="Level 1 Screenshot">
+        <div class="level-body">
+          <span class="level-num">LEVEL 01</span>
+          <span class="level-name">La Ciudad</span>
+          <p class="level-detail"><strong>Setting</strong><br>Stadtgebäude · Jalousienplattformen · Dächer</p>
+          <p class="level-detail"><strong>Gegner</strong><br>1 Wespe</p>
+          <span class="hazard">Steigender Smog</span>
+        </div>
+      </div>
+
+      <div class="level-card">
+        <img class="level-screenshot" src="../screenshots/Levels/Level3.1.png" alt="Level 2 Screenshot">
+        <div class="level-body">
+          <span class="level-num">LEVEL 02</span>
+          <span class="level-name">El Cubo Eléctrico</span>
+          <p class="level-detail"><strong>Setting</strong><br>Aufzugschacht · Fahrstuhlkabine · Rohre</p>
+          <p class="level-detail"><strong>Gegner</strong><br>2 Wespen</p>
+          <span class="hazard">Steigende Elektrizität</span>
+        </div>
+      </div>
+
+      <div class="level-card">
+        <img class="level-screenshot" src="../screenshots/Screenshot%202026-03-31%20145334.png" alt="Level 3 Screenshot">
+        <div class="level-body">
+          <span class="level-num">LEVEL 03</span>
+          <span class="level-name">El Faro</span>
+          <p class="level-detail"><strong>Setting</strong><br>Offener See · Leuchtturm · Felsvorsprünge</p>
+          <p class="level-detail"><strong>Gegner</strong><br>4 Wespen</p>
+          <span class="hazard">Steigende Flut</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── MEDIEN ─────────────────────────────────────────────────────────── -->
+<section id="media">
+  <div class="wrap">
+    <p class="label">Pixel Art Assets</p>
+    <h2>Sprite-Katalog</h2>
+    <div class="rule"></div>
+    <p style="font-size:13px; color:var(--dim); margin-bottom:48px;">Alle Sprites sind klickbar zum Vergrößern.</p>
+
+    <!-- ── Spielerfigur ── -->
+    <div class="media-group">
+      <p class="media-group-label">Spielerfigur — 7 Einzelposen</p>
+      <div class="cat-grid">
+        <div class="cat-card">
+          <div class="cat-frame h128 zoomable" data-src="../PixelArt/cat/einzel_sprites/idle.png" data-cap="Idle"><img src="../PixelArt/cat/einzel_sprites/idle.png" alt="Idle"></div>
+          <span class="cat-label">Idle</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame h128 zoomable" data-src="../PixelArt/cat/einzel_sprites/walk_1.png" data-cap="Walk 1"><img src="../PixelArt/cat/einzel_sprites/walk_1.png" alt="Walk 1"></div>
+          <span class="cat-label">Walk 1</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame h128 zoomable" data-src="../PixelArt/cat/einzel_sprites/walk_2.png" data-cap="Walk 2"><img src="../PixelArt/cat/einzel_sprites/walk_2.png" alt="Walk 2"></div>
+          <span class="cat-label">Walk 2</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame h128 zoomable" data-src="../PixelArt/cat/einzel_sprites/rise.png" data-cap="Rise"><img src="../PixelArt/cat/einzel_sprites/rise.png" alt="Rise"></div>
+          <span class="cat-label">Rise</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame h128 zoomable" data-src="../PixelArt/cat/einzel_sprites/peak.png" data-cap="Peak"><img src="../PixelArt/cat/einzel_sprites/peak.png" alt="Peak"></div>
+          <span class="cat-label">Peak</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame h128 zoomable" data-src="../PixelArt/cat/einzel_sprites/push_rise.png" data-cap="Push Rise"><img src="../PixelArt/cat/einzel_sprites/push_rise.png" alt="Push Rise"></div>
+          <span class="cat-label">Push Rise</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame h128 zoomable" data-src="../PixelArt/cat/einzel_sprites/push_peak.png" data-cap="Push Peak"><img src="../PixelArt/cat/einzel_sprites/push_peak.png" alt="Push Peak"></div>
+          <span class="cat-label">Push Peak</span>
+        </div>
+      </div>
+      <div class="sheet-row" style="margin-top:20px;">
+        <div class="sheet-card">
+          <div class="sheet-frame zoomable" data-src="../PixelArt/cat/animation_sheet.png" data-cap="Cat — Animation Sheet"><img src="../PixelArt/cat/animation_sheet.png" alt="Cat Sheet"></div>
+          <span class="cat-label">Animation Sheet</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Gegner ── -->
+    <div class="media-group">
+      <p class="media-group-label">Gegner — Wespe (4 Animationsframes)</p>
+      <div class="cat-grid">
+        <div class="cat-card">
+          <div class="cat-frame h96 zoomable" data-src="../PixelArt/enemy_wasp/einzel_sprites/wasp_body.png" data-cap="Wespe Frame 1"><img src="../PixelArt/enemy_wasp/einzel_sprites/wasp_body.png" alt="Wasp 1"></div>
+          <span class="cat-label">Frame 1</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame h96 zoomable" data-src="../PixelArt/enemy_wasp/einzel_sprites/wasp_body2.png" data-cap="Wespe Frame 2"><img src="../PixelArt/enemy_wasp/einzel_sprites/wasp_body2.png" alt="Wasp 2"></div>
+          <span class="cat-label">Frame 2</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame h96 zoomable" data-src="../PixelArt/enemy_wasp/einzel_sprites/wasp_body3.png" data-cap="Wespe Frame 3"><img src="../PixelArt/enemy_wasp/einzel_sprites/wasp_body3.png" alt="Wasp 3"></div>
+          <span class="cat-label">Frame 3</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame h96 zoomable" data-src="../PixelArt/enemy_wasp/einzel_sprites/wasp_body4.png" data-cap="Wespe Frame 4"><img src="../PixelArt/enemy_wasp/einzel_sprites/wasp_body4.png" alt="Wasp 4"></div>
+          <span class="cat-label">Frame 4</span>
+        </div>
+      </div>
+      <div class="sheet-row" style="margin-top:20px;">
+        <div class="sheet-card">
+          <div class="sheet-frame zoomable" data-src="../PixelArt/enemy_wasp/wasp_sheet.png" data-cap="Wespe — Sprite Sheet"><img src="../PixelArt/enemy_wasp/wasp_sheet.png" alt="Wasp Sheet"></div>
+          <span class="cat-label">Sprite Sheet</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Collectibles ── -->
+    <div class="media-group">
+      <p class="media-group-label">Collectibles</p>
+      <div class="cat-grid">
+        <div class="cat-card">
+          <div class="cat-frame h128 zoomable" data-src="../PixelArt/collectibles/balloon.png" data-cap="Ballon — Extraleben"><img src="../PixelArt/collectibles/balloon.png" alt="Balloon"></div>
+          <span class="cat-label">Ballon</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame h128 zoomable" data-src="../PixelArt/collectibles/life_plush.png" data-cap="Extraleben (Plüsch)"><img src="../PixelArt/collectibles/life_plush.png" alt="Life Plush"></div>
+          <span class="cat-label">Leben (Plüsch)</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame h96 zoomable" data-src="../PixelArt/collectibles/life_icon.png" data-cap="Leben — HUD Icon"><img src="../PixelArt/collectibles/life_icon.png" alt="Life Icon"></div>
+          <span class="cat-label">Leben (HUD)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Shared ── -->
+    <div class="media-group">
+      <p class="media-group-label">Shared — Himmel &amp; Atmosphäre</p>
+      <div class="cat-grid">
+        <div class="cat-card">
+          <div class="cat-frame bg-tile zoomable" data-src="../PixelArt/backgrounds/shared/sky_day.png" data-cap="Taghimmel"><img src="../PixelArt/backgrounds/shared/sky_day.png" alt="Sky Day"></div>
+          <span class="cat-label">sky_day</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame bg-tile zoomable" data-src="../PixelArt/backgrounds/shared/sky_night.png" data-cap="Nachthimmel"><img src="../PixelArt/backgrounds/shared/sky_night.png" alt="Sky Night"></div>
+          <span class="cat-label">sky_night</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame bg-tile zoomable" data-src="../PixelArt/backgrounds/shared/stars.png" data-cap="Sterne"><img src="../PixelArt/backgrounds/shared/stars.png" alt="Stars"></div>
+          <span class="cat-label">stars</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame bg-tile zoomable" data-src="../PixelArt/backgrounds/shared/clouds_bright.png" data-cap="Wolken (Hell)"><img src="../PixelArt/backgrounds/shared/clouds_bright.png" alt="Clouds Bright"></div>
+          <span class="cat-label">clouds_bright</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame bg-tile zoomable" data-src="../PixelArt/backgrounds/shared/clouds_dark.png" data-cap="Wolken (Dunkel)"><img src="../PixelArt/backgrounds/shared/clouds_dark.png" alt="Clouds Dark"></div>
+          <span class="cat-label">clouds_dark</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame bg-tile zoomable" data-src="../PixelArt/backgrounds/level_3_sea/sun.png" data-cap="Sonne"><img src="../PixelArt/backgrounds/level_3_sea/sun.png" alt="Sun"></div>
+          <span class="cat-label">sun</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Level 1 ── -->
+    <div class="media-group">
+      <p class="media-group-label">Level 1 — La Ciudad</p>
+      <div class="cat-grid">
+        <div class="cat-card">
+          <div class="cat-frame bg-tile zoomable" data-src="../PixelArt/backgrounds/level1_city/building_wall.png" data-cap="L1 Gebäudewand"><img src="../PixelArt/backgrounds/level1_city/building_wall.png" alt="Building Wall"></div>
+          <span class="cat-label">building_wall</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame bg-tile zoomable" data-src="../PixelArt/backgrounds/level1_city/windows.png" data-cap="L1 Fenster"><img src="../PixelArt/backgrounds/level1_city/windows.png" alt="Windows"></div>
+          <span class="cat-label">windows</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame bg-tile zoomable" data-src="../PixelArt/backgrounds/level1_city/building_door.png" data-cap="L1 Eingang"><img src="../PixelArt/backgrounds/level1_city/building_door.png" alt="Building Door"></div>
+          <span class="cat-label">building_door</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame h96 zoomable" data-src="../PixelArt/backgrounds/level1_city/entrance_garbage.png" data-cap="L1 Eingang Müll"><img src="../PixelArt/backgrounds/level1_city/entrance_garbage.png" alt="Entrance Garbage"></div>
+          <span class="cat-label">entrance_garbage</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame h96 zoomable" data-src="../PixelArt/backgrounds/level1_city/trash_bin.png" data-cap="L1 Mülleimer"><img src="../PixelArt/backgrounds/level1_city/trash_bin.png" alt="Trash Bin"></div>
+          <span class="cat-label">trash_bin</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame bg-tile zoomable" data-src="../PixelArt/backgrounds/level1_city/building_roof.png" data-cap="L1 Dach"><img src="../PixelArt/backgrounds/level1_city/building_roof.png" alt="Building Roof"></div>
+          <span class="cat-label">building_roof</span>
+        </div>
+      </div>
+      <!-- Cornice: sehr breites, flaches Sprite — eigene Zeile -->
+      <div style="margin-top:14px;">
+        <div class="cat-card" style="width:100%; max-width:480px;">
+          <div class="cat-frame strip zoomable" data-src="../PixelArt/backgrounds/level1_city/cornice.png" data-cap="L1 Sims / Cornice"><img src="../PixelArt/backgrounds/level1_city/cornice.png" alt="Cornice"></div>
+          <span class="cat-label">cornice</span>
+        </div>
+      </div>
+      <div class="sheet-row" style="margin-top:20px;">
+        <div class="sheet-card">
+          <div class="sheet-frame zoomable" data-src="../PixelArt/platforms/level1_city/jalousie_sheet.png" data-cap="Jalousie — Sprite Sheet"><img src="../PixelArt/platforms/level1_city/jalousie_sheet.png" alt="Jalousie Sheet"></div>
+          <span class="cat-label">Jalousie Sheet</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Level 2 ── -->
+    <div class="media-group">
+      <p class="media-group-label">Level 2 — El Cubo Eléctrico</p>
+      <div class="cat-grid">
+        <div class="cat-card">
+          <div class="cat-frame bg-tile zoomable" data-src="../PixelArt/backgrounds/level_2_shaft/elevator.png" data-cap="L2 Fahrstuhlkabine"><img src="../PixelArt/backgrounds/level_2_shaft/elevator.png" alt="Elevator"></div>
+          <span class="cat-label">elevator</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame bg-tile zoomable" data-src="../PixelArt/backgrounds/level_2_shaft/shaft_bg_bottom.png" data-cap="L2 Schacht — Unten"><img src="../PixelArt/backgrounds/level_2_shaft/shaft_bg_bottom.png" alt="Shaft Bottom"></div>
+          <span class="cat-label">shaft_bg_bottom</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame bg-tile zoomable" data-src="../PixelArt/backgrounds/level_2_shaft/shaft_bg_mid1.png" data-cap="L2 Schacht — Mitte 1"><img src="../PixelArt/backgrounds/level_2_shaft/shaft_bg_mid1.png" alt="Shaft Mid 1"></div>
+          <span class="cat-label">shaft_bg_mid1</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame bg-tile zoomable" data-src="../PixelArt/backgrounds/level_2_shaft/shaft_bg_mid2.png" data-cap="L2 Schacht — Mitte 2"><img src="../PixelArt/backgrounds/level_2_shaft/shaft_bg_mid2.png" alt="Shaft Mid 2"></div>
+          <span class="cat-label">shaft_bg_mid2</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame bg-tile zoomable" data-src="../PixelArt/backgrounds/level_2_shaft/shaft_bg_top.png" data-cap="L2 Schacht — Oben"><img src="../PixelArt/backgrounds/level_2_shaft/shaft_bg_top.png" alt="Shaft Top"></div>
+          <span class="cat-label">shaft_bg_top</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame bg-tile zoomable" data-src="../PixelArt/backgrounds/level_2_shaft/pipes_bottom.png" data-cap="L2 Rohre — Unten"><img src="../PixelArt/backgrounds/level_2_shaft/pipes_bottom.png" alt="Pipes Bottom"></div>
+          <span class="cat-label">pipes_bottom</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame bg-tile zoomable" data-src="../PixelArt/backgrounds/level_2_shaft/pipes_mid.png" data-cap="L2 Rohre — Mitte"><img src="../PixelArt/backgrounds/level_2_shaft/pipes_mid.png" alt="Pipes Mid"></div>
+          <span class="cat-label">pipes_mid</span>
+        </div>
+        <div class="cat-card">
+          <div class="cat-frame bg-tile zoomable" data-src="../PixelArt/backgrounds/level_2_shaft/pipes_top.png" data-cap="L2 Rohre — Oben"><img src="../PixelArt/backgrounds/level_2_shaft/pipes_top.png" alt="Pipes Top"></div>
+          <span class="cat-label">pipes_top</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Level 3 ── -->
+    <div class="media-group">
+      <p class="media-group-label">Level 3 — El Faro</p>
+      <div class="sheet-row">
+        <div class="sheet-card">
+          <div class="sheet-frame zoomable" data-src="../PixelArt/backgrounds/level_3_sea/lighthouse_sheet.png" data-cap="El Faro — Sprite Sheet"><img src="../PixelArt/backgrounds/level_3_sea/lighthouse_sheet.png" alt="Lighthouse Sheet"></div>
+          <span class="cat-label">Sprite Sheet</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── ART & TECH ─────────────────────────────────────────────────────── -->
+<section id="art">
+  <div class="wrap">
+    <p class="label">Stil &amp; Technik</p>
+    <h2>Art Direction &amp; Tech</h2>
+    <div class="rule"></div>
+
+    <div class="col2">
+      <div>
+        <div class="card" style="margin-bottom:20px;">
+          <div class="tech-row">
+            <span class="tech-key">Stil</span>
+            <span class="tech-val">Pixel Art · 64px-Basis · keine schwarzen Outlines</span>
+          </div>
+          <div class="tech-row">
+            <span class="tech-key">Farben</span>
+            <span class="tech-val">16-Farben-Palette · fest definiert</span>
+          </div>
+          <div class="tech-row">
+            <span class="tech-key">Formen</span>
+            <span class="tech-val">Weich für Figur · hart für Architektur</span>
+          </div>
+          <div class="tech-row" style="border:none;">
+            <span class="tech-key">Stimmung</span>
+            <span class="tech-val">Cozy Danger · satt · gesättigt</span>
+          </div>
+        </div>
+        <div class="palette">
+          <span class="swatch" style="background:#0d1520;" title="BG"></span>
+          <span class="swatch" style="background:#2e3a5c;" title="Night"></span>
+          <span class="swatch" style="background:#7eb8c9;" title="Sky"></span>
+          <span class="swatch" style="background:#5a7a3a;" title="Platform"></span>
+          <span class="swatch" style="background:#2a5fa8;" title="Water"></span>
+          <span class="swatch" style="background:#b09070;" title="Cat"></span>
+          <span class="swatch" style="background:#f1c40f;" title="Gold"></span>
+          <span class="swatch" style="background:#e74c3c;" title="Red"></span>
+          <span class="swatch" style="background:#2ecc71;" title="Green"></span>
+          <span class="swatch" style="background:#f0f4f8;" title="White"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="tech-row">
+          <span class="tech-key">Sprache</span>
+          <span class="tech-val">Vanilla JS ES2022+ · HTML5</span>
+        </div>
+        <div class="tech-row">
+          <span class="tech-key">Rendering</span>
+          <span class="tech-val">HTML Canvas 2D · 480 × 640 px</span>
+        </div>
+        <div class="tech-row">
+          <span class="tech-key">Physik</span>
+          <span class="tech-val">Semi-fixes Zeitschrittmodell · Delta-Cap 50 ms</span>
+        </div>
+        <div class="tech-row">
+          <span class="tech-key">Kamera</span>
+          <span class="tech-val">ctx.translate(0, −cameraY)</span>
+        </div>
+        <div class="tech-row">
+          <span class="tech-key">Kollision</span>
+          <span class="tech-val">One-way AABB · 3-Bedingungen</span>
+        </div>
+        <div class="tech-row" style="border:none;">
+          <span class="tech-key">Hosting</span>
+          <span class="tech-val">GitHub Pages</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TO-DO ──────────────────────────────────────────────────────────── -->
+<section id="todo">
+  <div class="wrap">
+    <p class="label">Bis zur Abgabe</p>
+    <h2>Was noch kommt</h2>
+    <div class="rule"></div>
+
+    <div class="todo-list">
+
+      <div class="todo-item">
+        <span class="todo-dot">○</span>
+        <div>
+          <div class="todo-text">Musik + SFX</div>
+          <div class="todo-note">Phase 6 · Web Audio API</div>
+        </div>
+      </div>
+
+      <div class="todo-item">
+        <span class="todo-dot">○</span>
+        <div>
+          <div class="todo-text">UI: Struktur &amp; Sprache einheitlich</div>
+          <div class="todo-note">Alle Screens · Spanisch durchgängig</div>
+        </div>
+      </div>
+
+      <div class="todo-item">
+        <span class="todo-dot">○</span>
+        <div>
+          <div class="todo-text">Sprites: Sprungplattformen Level 2 &amp; 3</div>
+          <div class="todo-note">Aufzugschacht · Leuchtturm</div>
+        </div>
+      </div>
+
+      <div class="todo-item">
+        <span class="todo-dot">○</span>
+        <div>
+          <div class="todo-text">Sprites: Sprachblasen + Pixelart-Alphabet</div>
+          <div class="todo-note">Für In-Game-Text und Dialoge</div>
+        </div>
+      </div>
+
+      <div class="todo-item">
+        <span class="todo-dot">○</span>
+        <div>
+          <div class="todo-text">Sprites: Cat-Buddha — Abschlusssequenz</div>
+          <div class="todo-note">Story-abhängig · wird nach Narrative-Entscheidung umgesetzt</div>
+        </div>
+      </div>
+
+      <div class="todo-item">
+        <span class="todo-dot">○</span>
+        <div>
+          <div class="todo-text">Sprite-Katalog: Sheets für L1 &amp; L2</div>
+          <div class="todo-note">Sprite Sheets für La Ciudad und El Cubo Eléctrico — gleiche Darstellung wie Leuchtturm</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────────────── -->
+<section id="footer">
+  <div class="wrap">
+    <p class="footer-meta">
+      Julian Gomez &nbsp;·&nbsp; SRH Fachschulen GME-24.01<br>
+      Abgabe 22.04.2026 &nbsp;·&nbsp; Vanilla JS + HTML Canvas 2D
+    </p>
+  </div>
+</section>
+
+<!-- ── LIGHTBOX ────────────────────────────────────────────────────────── -->
+<div id="lb">
+  <span id="lb-close">✕</span>
+  <img id="lb-img" src="" alt="">
+  <span id="lb-caption"></span>
+</div>
+
+<script>
+  const lb     = document.getElementById('lb');
+  const lbImg  = document.getElementById('lb-img');
+  const lbCap  = document.getElementById('lb-caption');
+
+  document.querySelectorAll('.zoomable').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      lbImg.src   = el.dataset.src;
+      lbCap.textContent = el.dataset.cap || '';
+      lb.classList.add('open');
+    });
+  });
+
+  lb.addEventListener('click', () => lb.classList.remove('open'));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') lb.classList.remove('open');
+  });
+</script>
+
+</body>
+</html>
