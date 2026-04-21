@@ -34,80 +34,95 @@
 // ════════════════════════════════════════════════════════════════════════════
 
 // ── Font source images ───────────────────────────────────────────────────────
+// Both atlases processed in Illustrator: transparent bg, banner rows removed
+// on title font, cropped to alphabet grid only. Exports are vector-sourced
+// at 576 px width (10 cols × 4 rows for title, 7 cols × 4 rows for body).
 const _sprFontTitle = new Image();
-_sprFontTitle.src = 'PixelArt/fonts/Letter_alphabet_pixel_retro_video_game_style.png';
+_sprFontTitle.src = 'PixelArt/fonts/alphabet_pixel_retro_video_game_style.png';
 
 const _sprFontBody = new Image();
-_sprFontBody.src = 'PixelArt/fonts/alphabet.png';
+_sprFontBody.src = 'PixelArt/fonts/alphabet_black_230px.png';
 
 // ── Bubble sheet ─────────────────────────────────────────────────────────────
 const _sprBubbles = new Image();
 _sprBubbles.src = 'PixelArt/thought_bubbles/thought-bubbles.png';
 
 // ── Title font grid ──────────────────────────────────────────────────────────
-// Vecteezy "letter-alphabet-pixel-retro-video-game-style"
-// Source JPG preview shows:
-//   Row 1–2: decorative "GAME" / "ALPHABET" banner (SKIP)
-//   Row 3:   A B C D E F G H I   (9 cols)
-//   Row 4:   J K L M N O P Q R
-//   Row 5:   S T U V W X Y Z ? !
-//   Row 6:   1 2 3 4 5 6 7 8 9 0
-// ASSUMPTION: source PNG is 9 cols × 6 rows of uniform cells.
-// ⚠ IF GLYPHS ARE CLIPPED OR SHIFTED: open Letter_alphabet_pixel_retro_video_game_style.png
-//   in Aseprite → measure one cell → update CELL_W_TITLE, CELL_H_TITLE, START_Y_TITLE.
+// Vecteezy "letter-alphabet-pixel-retro-video-game-style" — banner rows
+// removed in Illustrator, exported as clean 10-col × 4-row alphabet grid:
+//   Row 1: A B C D E F G H I _      (9 glyphs + 1 empty cell)
+//   Row 2: J K L M N O P Q R _      (9 glyphs + 1 empty cell)
+//   Row 3: S T U V W X Y Z ? !      (10 glyphs)
+//   Row 4: 1 2 3 4 5 6 7 8 9 0      (10 digits)
+// cellW/cellH computed from naturalWidth/naturalHeight at load.
 const _TITLE_CONFIG = {
-  cellW:      120,  // tune: true pixel width of one source cell
-  cellH:      120,  // tune: true pixel height of one source cell
-  cols:       9,
-  rows:       6,
+  cols:       10,
+  rows:       4,
   startX:     0,
-  startY:     240, // tune: skip decorative rows 1–2 (2 × cellH)
-  // Cell index order, left→right, top→bottom, starting at row 3 of source:
-  order:      'ABCDEFGHIJKLMNOPQRSTUVWXYZ?!1234567890',
-  advance:    100, // slight tighter than cellW for compact layout
-  lineHeight: 120,
-  spaceWidth: 50,
+  startY:     0,
+  order:      'ABCDEFGHI JKLMNOPQR STUVWXYZ?!1234567890',
+  // cellW, cellH, advance, lineHeight, spaceWidth filled in by _finalizeFontConfig()
 };
 
 // ── Body font grid ───────────────────────────────────────────────────────────
-// Vecteezy "vector-pixel-alphabet-set" — 4 color variants in 2×2 layout on one sheet.
-// Each variant has A–Z in a 7-col × 4-row arrangement (7+7+6+6 = 26, last 2 cells empty).
-// We use ONE variant — the top-left (white on dark bg) — as our default body font.
-// To switch to the teal/black/outline variant, change START_X / START_Y to the other quadrant.
+// Vecteezy "vector-pixel-alphabet-set" — source keyed to transparent bg,
+// cropped to a single color variant. 7 cols × 4 rows, last 2 cells empty.
 const _BODY_CONFIG = {
-  cellW:      64,
-  cellH:      64,
   cols:       7,
   rows:       4,
   startX:     0,
   startY:     0,
-  // 7×4 = 28 cells; A–Z = 26; last 2 empty. ' ' marks empty cells.
-  order:      'ABCDEFGHIJKLMNOPQRSTUVWXYZ  ',
-  advance:    56,
-  lineHeight: 70,
-  spaceWidth: 28,
+  // Image layout: row 0 ABCDEFG, row 1 HIJKLMN, row 2 OPQRST_, row 3 UVWXYZ_
+  // (last cell of rows 2 & 3 is empty — mark with spaces at positions 20 & 27)
+  order:      'ABCDEFGHIJKLMNOPQRST UVWXYZ ',
+  // cellW, cellH, advance, lineHeight, spaceWidth filled in by _finalizeFontConfig()
 };
 
+// Derive cell metrics from the loaded image. `decoRows` = rows at the top to
+// skip via startY (for a title banner); 0 for a clean alphabet-only sheet.
+// cellW/cellH stay fractional — drawImage accepts non-integer source rects and
+// Math.round on the final destination keeps blits pixel-aligned. Floor'ing here
+// would accumulate drift across columns (eg 576/10 = 57.6 → col 9 off by 5.4px).
+function _finalizeFontConfig(img, cfg, decoRows) {
+  cfg.cellW      = img.naturalWidth  / cfg.cols;
+  cfg.cellH      = img.naturalHeight / cfg.rows;
+  if (decoRows) cfg.startY = decoRows * cfg.cellH;
+  cfg.advance    = cfg.cellW * 0.88; // slight kerning overlap
+  cfg.lineHeight = cfg.cellH * 1.05;
+  cfg.spaceWidth = cfg.cellW * 0.5;
+
+}
+
 // Register fonts on image load — fontIsReady() checks will gate rendering until ready.
-_sprFontTitle.addEventListener('load', () => loadFont('title', _sprFontTitle, _TITLE_CONFIG));
-_sprFontBody .addEventListener('load', () => loadFont('body',  _sprFontBody,  _BODY_CONFIG));
+_sprFontTitle.addEventListener('load', () => {
+  _finalizeFontConfig(_sprFontTitle, _TITLE_CONFIG, 0);
+  loadFont('title', _sprFontTitle, _TITLE_CONFIG);
+});
+_sprFontBody.addEventListener('load', () => {
+  _finalizeFontConfig(_sprFontBody, _BODY_CONFIG, 0);
+  loadFont('body', _sprFontBody, _BODY_CONFIG);
+});
 
 // Also register immediately if already cached (covers Firefox fast-load edge case)
-if (_sprFontTitle.complete && _sprFontTitle.naturalWidth > 0) loadFont('title', _sprFontTitle, _TITLE_CONFIG);
-if (_sprFontBody .complete && _sprFontBody .naturalWidth > 0) loadFont('body',  _sprFontBody,  _BODY_CONFIG);
+if (_sprFontTitle.complete && _sprFontTitle.naturalWidth > 0) {
+  _finalizeFontConfig(_sprFontTitle, _TITLE_CONFIG, 0);
+  loadFont('title', _sprFontTitle, _TITLE_CONFIG);
+}
+if (_sprFontBody.complete && _sprFontBody.naturalWidth > 0) {
+  _finalizeFontConfig(_sprFontBody, _BODY_CONFIG, 0);
+  loadFont('body', _sprFontBody, _BODY_CONFIG);
+}
 
 // ── Bubble atlas ─────────────────────────────────────────────────────────────
-// Source sheet thought-bubbles.png shows 5 shapes in a 3-row arrangement:
-//   Row 1 (top):    small rounded  |  wide rounded
-//   Row 2 (middle): small rounded  |  wide rounded
-//   Row 3 (bottom): burst (spiky)
-// ⚠ COORDINATES BELOW ARE ESTIMATES based on the preview. If bubble clips or
-//   shows padding, open thought-bubbles.png in Aseprite, measure precise
-//   bounds, and update sx/sy/w/h. Only 5 entries to tune.
+// thought-bubbles.png layout (3 rows):
+//   Row 1 (y~4):   small1 (sx~8)  | wide1 (sx~240)
+//   Row 2 (y~130): small2 (sx~8)  | wide2 (sx~240)
+//   Row 3 (y~270): burst (spans full width)
+// MEASURE IN ASEPRITE if clipping/padding appears.
 const _BUBBLES = {
-  small1: { sx:   8, sy:   4, w: 200, h: 100 },
-  small2: { sx: 240, sy:   4, w: 240, h: 100 },
-  wide1:  { sx:   8, sy: 130, w: 200, h: 110 },
+  small1: { sx:   8, sy:   4, w: 200, h: 110 },
+  wide1:  { sx: 240, sy:   4, w: 240, h: 110 },
+  small2: { sx:   8, sy: 130, w: 200, h: 110 },
   wide2:  { sx: 240, sy: 130, w: 240, h: 110 },
   burst:  { sx:   8, sy: 270, w: 240, h: 240 },
 };
@@ -132,16 +147,16 @@ const _DIALOGUE = {
     // [0] unused (levels are 1-indexed)
     null,
     // [1] Level 1 — Stadt (smog)
-    { title: 'ALERTA CIUDADANA!', body: 'NIVELES ALTOS DE CONTAMINACION EN LA CIUDAD', bubble: 'wide2' },
+    { title: 'ALERTA CIUDADANA!', body: 'NIVELES ALTOS DE CONTAMINACIÓN EN LA CIUDAD', bubble: 'wide2' },
     // [2] Level 2 — Aufzugschacht (electricity)
-    { title: 'ATENCION!',         body: 'ASCENSOR FUERA DE SERVICIO MANTENGA LA CALMA', bubble: 'wide2' },
+    { title: 'ATENCIÓN!',         body: 'ASCENSOR FUERA DE SERVICIO MANTENGA LA CALMA', bubble: 'wide2' },
     // [3] Level 3 — Leuchtturm (flood)
-    { title: 'ATENCION!',         body: 'MAREA ALTA TOME DISTANCIA DEL MAR',            bubble: 'wide2' },
+    { title: 'ATENCIÓN!',         body: 'MAREA ALTA TOME DISTANCIA DEL MAR',            bubble: 'wide2' },
   ],
   levelEnd: [
     null,
     // [1] end of L1
-    { title: 'QUE NUEVE VIDAS?!', body: 'COUGH COUGH',            bubble: 'small2' },
+    { title: 'QUÉ NUEVE VIDAS?!', body: 'COUGH COUGH',            bubble: 'small2' },
     // [2] end of L2
     { title: 'UFF!',              body: 'SALVADO POR LA CAMPANA', bubble: 'wide1'  },
     // [3] end of L3 — final victory
@@ -278,65 +293,59 @@ function renderDialogue(ctx) {
   const canvasW = 480;
   const canvasH = 640;
 
-  // Dark overlay for intro/outro to separate bubble from gameplay behind it.
-  // Life-lost stays un-dimmed — it's a quick reaction, not a full screen event.
   if (_active.kind !== 'lifeLost') {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
     ctx.fillRect(0, 0, canvasW, canvasH);
   }
 
   const bubbleDef = _BUBBLES[_active.entry.bubble] || _BUBBLES.wide1;
-
-  // Bubble draw size: scale up for visibility on 480×640 canvas.
-  // Integer scale keeps pixel-crisp edges (expert rec: no 1.5×).
-  const scale = 1;
-  const bw = bubbleDef.w * scale;
-  const bh = bubbleDef.h * scale;
-
-  // Center on canvas, slightly above middle (more balanced with bubble tail pointing down).
+  // Burst source rect is too narrow for the spiky shape; use full sheet width
+  // and remaining sheet height from sy downward. Other bubbles use their def.
+  const srcW = (bubbleDef === _BUBBLES.burst) ? _sprBubbles.naturalWidth : bubbleDef.w;
+  const srcH = (bubbleDef === _BUBBLES.burst) ? (_sprBubbles.naturalHeight - bubbleDef.sy) : bubbleDef.h;
+  const bw = Math.min(srcW, canvasW);
+  const bh = Math.min(srcH, Math.round(canvasH * 0.55));
   const bx = Math.round((canvasW - bw) / 2);
   const by = Math.round((canvasH - bh) / 2 - 40);
 
-  // Draw bubble
-  ctx.drawImage(_sprBubbles, bubbleDef.sx, bubbleDef.sy, bubbleDef.w, bubbleDef.h,
+  ctx.drawImage(_sprBubbles, bubbleDef.sx, bubbleDef.sy, srcW, srcH,
                               bx, by, bw, bh);
 
-  // ── Text layout inside bubble ─────────────────────────────────────────────
-  // Leave ~12% margin on each side (tail + rounded corners eat some room).
-  const marginX  = Math.round(bw * 0.14);
-  const marginY  = Math.round(bh * 0.12);
+  // ── Text inside bubble (atlas fonts via font.js) ─────────────────────────
+  const marginX  = Math.round(bw * 0.12);
+  const marginY  = Math.round(bh * 0.14);
   const textMaxW = bw - marginX * 2;
+  const cx       = bx + Math.round(bw / 2);
+  let   cy       = by + marginY;
 
-  const cx = bx + Math.round(bw / 2);
-  let   cy = by + marginY;
+  const isLifeLost = _active.kind === 'lifeLost';
+
+  // Scales computed from target glyph height — source atlas can be any resolution.
+  const titleTargetPx = isLifeLost ? 26 : 20;
+  const bodyTargetPx  = isLifeLost ? 18 : 14;
 
   const rawTitle = _active.entry.title || '';
-  const rawBody  = _active.entry.body  || '';
-  const titleStr = normalizeText(rawTitle);
-  const bodyStr  = normalizeText(rawBody);
-
-  // Title first — larger, if present.
-  // Title font glyphs are large (cellH=120); use scale < 1 via repeated down-scale
-  // is not possible with integer-only rule. Instead we use the raw size and rely
-  // on the cell dimensions being tuned appropriately.
-  // Solution: render title at scale=1 (but pick a small cell size in config).
-  if (titleStr && fontIsReady('title')) {
-    const titleScale = _active.kind === 'lifeLost' ? 0.5 : 0.4; // half-res for fit
-    // Note: drawText supports fractional scale — we bend the "integer only" rule here
-    // specifically for bitmap sheets that come native-huge. Acceptable because the
-    // source is already high-res; down-scaling stays crisp enough with imageSmoothingEnabled=false.
-    const measured = measureText('title', titleStr, { maxWidth: textMaxW, scale: titleScale });
-    drawText(ctx, 'title', titleStr, cx, cy, { maxWidth: textMaxW, scale: titleScale, align: 'center' });
-    cy += measured.h + 6;
+  if (rawTitle && fontIsReady('title')) {
+    const titleScale = titleTargetPx / _TITLE_CONFIG.cellH;
+    const res = drawText(ctx, 'title', normalizeText(rawTitle), cx, cy, {
+      scale:    titleScale,
+      align:    'center',
+      maxWidth: textMaxW,
+    });
+    cy += res.h + 4;
   }
 
-  // Body — smaller, below title. Only if bodyStr non-empty AND body font ready.
-  if (bodyStr && fontIsReady('body')) {
-    const bodyScale = _active.kind === 'lifeLost' ? 0.6 : 0.5;
-    drawText(ctx, 'body', bodyStr, cx, cy, { maxWidth: textMaxW, scale: bodyScale, align: 'center' });
+  const rawBody = _active.entry.body || '';
+  if (rawBody && fontIsReady('body')) {
+    const bodyScale = bodyTargetPx / _BODY_CONFIG.cellH;
+    drawText(ctx, 'body', normalizeText(rawBody), cx, cy, {
+      scale:    bodyScale,
+      align:    'center',
+      maxWidth: textMaxW,
+    });
   }
 
-  // ── Dismiss hint for intro/outro (bottom of canvas) ───────────────────────
+  // ── Dismiss hint (canvas text by design — not an atlas font) ─────────────
   if (_active.dismissible) {
     ctx.fillStyle = '#f1c40f';
     ctx.font      = '14px monospace';
