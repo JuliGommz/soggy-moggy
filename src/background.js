@@ -49,12 +49,7 @@ const _bgL1Door     = new Image(); _bgL1Door.src     = 'PixelArt/backgrounds/lev
 const _bgL1Cornice  = new Image(); _bgL1Cornice.src  = 'PixelArt/backgrounds/level1_city/cornice.png';
 const _bgL1Roof     = new Image(); _bgL1Roof.src     = 'PixelArt/backgrounds/level1_city/building_roof.png';
 const _bgL2Sun      = new Image(); _bgL2Sun.src      = 'PixelArt/backgrounds/level_3_sea/sun.png';
-const _bgL2Landing  = new Image(); _bgL2Landing.src  = 'PixelArt/backgrounds/level_3_sea/sea_launchpad.png';
-const _bgL2Bottom   = new Image(); _bgL2Bottom.src   = 'PixelArt/backgrounds/level_3_sea/rocket_bottom.png';
-const _bgL2MidTop   = new Image(); _bgL2MidTop.src   = 'PixelArt/backgrounds/level_3_sea/rocket_mid_top.png';
-const _bgL2ScaffBot = new Image(); _bgL2ScaffBot.src = 'PixelArt/backgrounds/level_3_sea/rocket_scaffolding_bottom.png';
-const _bgL2ScaffMid = new Image(); _bgL2ScaffMid.src = 'PixelArt/backgrounds/level_3_sea/rocket_scaffolding_mid.png';
-// Lighthouse (Phase 04.2) — replaces rocket system
+// Lighthouse (Phase 04.2) — replaces the earlier rocket-tower prototype
 const _bgL2LhSheet = new Image(); _bgL2LhSheet.src = 'PixelArt/backgrounds/level_3_sea/lighthouse_sheet.png';
 
 // ── Level 3 assets (bg-back: shaft wall; bg-mid: pipes) ───────────────────────
@@ -67,16 +62,6 @@ const _bgL3PipesBot    = new Image(); _bgL3PipesBot.src    = 'PixelArt/backgroun
 const _bgL3PipesMid    = new Image(); _bgL3PipesMid.src    = 'PixelArt/backgrounds/level_2_shaft/pipes_mid.png';
 const _bgL3PipesTop    = new Image(); _bgL3PipesTop.src    = 'PixelArt/backgrounds/level_2_shaft/pipes_top.png';
 
-// rocket_mid_top.png sprite regions (PIL alpha-scan verified):
-//   3 sprites, all sw=74px, sh=270px content (sy=24: 24px transparent top padding in source).
-//   rocket_bottom.png content cx = (184+299)/2 = 241.5 → drawX = 241 − 37 = 204
-const _RKT_SPRITES = [
-  { sx:  24, sy: 24, sw: 74, sh: 270 }, // 0: mid tile A (left   sprite in sheet)
-  { sx: 126, sy: 24, sw: 74, sh: 270 }, // 1: mid tile B (center sprite in sheet)
-  { sx: 247, sy: 24, sw: 74, sh: 270 }, // 2: rocket top (right  sprite in sheet)
-];
-const _RKT_DRAW_X = 204; // screen x: centers 74px shaft over rocket bottom content (cx=241)
-const _RKT_MID_H  = 270; // content height per tile — vertical tiling step
 const _LH_MID_H   = 577; // lighthouse mid tile content height (rows 30–607 = 578px, step=577)
 // dyo = draw-Y offset in px: shifts each tile down to close art-side seam gaps.
 // Computed from PIL content bounds so every seam is pixel-perfect (error=0).
@@ -261,85 +246,6 @@ function _drawL2Sun(ctx, camShift, rawAlt) {
   ctx.globalAlpha  = sunAlpha;
   ctx.drawImage(_bgL2Sun, drawX, drawY, drawSize, drawSize);
   ctx.globalAlpha  = savedAlpha;
-}
-
-// Draws Level 2 scaffolding behind the rocket tower (world-speed 1.0x).
-// ScaffBot drawn once at world origin; ScaffMid tiles upward with 529px content step.
-// Must be called BEFORE _drawL2Elements so scaffolding appears behind the rocket.
-//
-// ScaffMid content: rows 93–622 (529px). First tile wy=−622 places content-bottom
-// at screen cs (= ScaffBot's image top), connecting the two layers seamlessly.
-const _SCAF_STEP  = 529; // ScaffMid content height (rows 93–622)
-const _SCAF_START = -622; // wy of first ScaffMid tile — content-bottom lands at screen cs
-
-function _drawL2Scaffolding(ctx, camShift) {
-  if (!_bgL2ScaffBot.complete || _bgL2ScaffBot.naturalWidth === 0) return;
-  if (!_bgL2ScaffMid.complete || _bgL2ScaffMid.naturalWidth === 0) return;
-
-  const cs    = Math.round(camShift);
-  const goalY = (GameState.levelGoalY !== undefined) ? GameState.levelGoalY : -5000;
-
-  // Scaffold bottom — once at world origin
-  ctx.drawImage(_bgL2ScaffBot, 0, cs);
-
-  // Scaffold mid — tile upward until level goal
-  for (let wy = _SCAF_START; wy > goalY; wy -= _SCAF_STEP) {
-    const sy = wy + cs;
-    if (sy > BG_H)       continue; // below viewport
-    if (sy + BG_H < 0)   break;    // above viewport — all further tiles too
-    ctx.drawImage(_bgL2ScaffMid, 0, sy);
-  }
-}
-
-// Draws Level 2 rocket launch tower and sea landing area.
-// All parts are drawn at parallax factor 1.0 (world-speed, same as L1 building wall).
-//
-// Layer stacking (bottom to top of draw order):
-//   1. sea_launchpad.png  — full-width sea/dock image at world origin
-//   2. rocket_bottom.png  — full-width base, overlaid on landing area
-//   3. Mid shaft tiles    — _RKT_SPRITES[0/1] alternating, tile upward to level goal
-//   4. Rocket top         — _RKT_SPRITES[2], content bottom at levelGoalY
-//
-// Mid tile start: wy = -_RKT_MID_H so tile's content BOTTOM aligns with
-//   the TOP of rocket_bottom.png (image y=0 at screen y=cs).
-function _drawL2Elements(ctx, camShift) {
-  if (!_bgL2Landing.complete || _bgL2Landing.naturalWidth === 0) return;
-  if (!_bgL2Bottom.complete  || _bgL2Bottom.naturalWidth  === 0) return;
-  if (!_bgL2MidTop.complete  || _bgL2MidTop.naturalWidth  === 0) return;
-
-  const cs    = Math.round(camShift);
-  const goalY = (GameState.levelGoalY !== undefined) ? GameState.levelGoalY : -5000;
-
-  // Scaffolding — drawn first so it sits behind the rocket tower
-  _drawL2Scaffolding(ctx, camShift);
-
-  // Sea / launch pad — full-width image drawn once at world-space origin
-  ctx.drawImage(_bgL2Landing, 0, cs);
-
-  // Rocket bottom — full-width, overlaid on sea (content at x=184–299, y=0–534)
-  ctx.drawImage(_bgL2Bottom, 0, cs);
-
-  // Mid shaft — tile A/B alternating upward from above rocket bottom to level goal
-  let tileIdx = 0;
-  for (let wy = -_RKT_MID_H; wy > goalY - _RKT_MID_H; wy -= _RKT_MID_H) {
-    const sy = wy + cs;
-    if (sy > BG_H)            continue; // entirely below viewport
-    if (sy + _RKT_MID_H < 0) break;    // entirely above viewport — all further tiles too
-    const spr = _RKT_SPRITES[tileIdx % 2];
-    ctx.drawImage(_bgL2MidTop, spr.sx, spr.sy, spr.sw, spr.sh,
-                               _RKT_DRAW_X, sy, spr.sw, spr.sh);
-    tileIdx++;
-  }
-
-  // Rocket top — caps the shaft; snap bottom to the last mid tile's top edge to
-  // eliminate overlap. lastTileWy = nearest multiple of _RKT_MID_H at or below goalY.
-  const topSpr     = _RKT_SPRITES[2];
-  const lastTileWy = -(Math.ceil(-goalY / _RKT_MID_H)) * _RKT_MID_H;
-  const topScrY    = Math.round(lastTileWy + cs) - topSpr.sh;
-  if (topScrY < BG_H && topScrY + topSpr.sh > -BG_H) {
-    ctx.drawImage(_bgL2MidTop, topSpr.sx, topSpr.sy, topSpr.sw, topSpr.sh,
-                               _RKT_DRAW_X, topScrY, topSpr.sw, topSpr.sh);
-  }
 }
 
 // Draws Level 2 lighthouse — replaces rocket tower (Phase 04.2).
