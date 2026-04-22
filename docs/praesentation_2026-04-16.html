@@ -654,8 +654,10 @@
       .col2 { grid-template-columns: 1fr 1fr !important; gap: 16px !important; }
       .col3 { grid-template-columns: 1fr 1fr 1fr !important; gap: 10px !important; }
 
-      /* Jede neue Section startet auf neuer Seite (außer Hero als Titelseite) */
-      #loop, #controls, #features, #levels, #media, #art, #todo, #footer {
+      /* Jede neue Section startet auf neuer Seite (außer Hero als Titelseite
+         und Footer, der an das To-Do anschließt, um keine fast-leere
+         Abschlussseite zu erzeugen) */
+      #loop, #controls, #features, #levels, #media, #art, #todo {
         break-before: page;
         page-break-before: always;
       }
@@ -664,6 +666,19 @@
       h2, .label, .media-group-label, .feeling-label {
         break-after: avoid;
         page-break-after: avoid;
+      }
+
+      /* Orphans/Widows — Fließtext nicht mit 1–2 Zeilen umbrechen */
+      p, .loop-text, .level-detail, .feat-note, .todo-note {
+        orphans: 3;
+        widows: 3;
+      }
+
+      /* Footer kompakt und ohne eigene Seite — schließt an To-Do an */
+      #footer {
+        padding: 8mm 0 4mm;
+        border-top: 1px solid rgba(126,184,201,.2);
+        margin-top: 10mm;
       }
 
       /* WICHTIG: KEIN break-inside: avoid auf .col2 / .col3 / .media-group /
