@@ -2,7 +2,7 @@
 
 **Project:** Soggy Moggy
 **Created:** 2026-03-03
-**Updated:** 2026-04-21 — 04.3 nahezu fertig (Elevator Sprite, Colliders, Shaft-Platforms, Wall-Confinement, Dialogue-System-Code), Wasp-Count bumped 10/15/20, Deadline 22.04.2026 um wenige Tage verschoben.
+**Updated:** 2026-04-22 — PR #1 merged: English-only migration + dialogue font stack finalization + 04.3 L2 elevator. master is the single active branch. Hybrid font stack live in `src/dialogue.js` (yellow bitmap atlas for titles, BlockCraft.otf for body). Next: author 8 English dialogue texts + wire into bubble rendering (Phase 5 HUD).
 **Depth:** Standard (7 phases + 04.1)
 **Coverage:** 45/45 v1 requirements mapped
 
@@ -16,7 +16,7 @@
 - [x] **Phase 4: Flood + Lives** - Rising water with escalating speed, lives system (3 hearts), damage feedback, animated wave
 - [x] **Phase 04.1: Visual Concept** - Art style, color palette, style guide, asset list, sprite exports (completed 2026-03-09)
 - [x] **Phase 04.2: L2 Lighthouse Redesign** - Lighthouse background, parallax layers, cloud mechanics, L2 level redesign — shipped on branch, merged to master (completed ~2026-04-07)
-- [x] **Phase 04.3: L2 Elevator Interior** - Elevator sprite, invisible colliders (C1/C2/C404/CHR), 404 display platform, Shaft-Platform-Atlas + Zigzag-Generation, Horizontal-Wall-Confinement, Dialogue-System-Code — branch feature/04.3-l2-elevator-interior (code ready; offen: Dialogue-PNG-Assets aus Illustrator + Smoke-Test + Merge zu master)
+- [x] **Phase 04.3: L2 Elevator Interior** - Elevator sprite, invisible colliders (C1/C2/C404/CHR), 404 display platform, Shaft-Platform-Atlas + Zigzag-Generation, Horizontal-Wall-Confinement, Dialogue-System-Code — merged to master via PR #1 (2026-04-22).
 - [x] **Phase 05-e: Wasp Enemy System** - Patrol + stomp mechanics, 10/15/20 wasps per level (bumped 2026-04-20 von 5/7/10), stinger/stomp interactions, scoring — merged to master (completed 2026-04-07). Known Issues: Sprite zu klein (~2× scale nötig), L2 Top-Sprite fehlt.
 - [ ] **Phase 5: Push + HUD** - Kletter-Kiste puzzle (L2 Elevator), NPC patrolling creature, balloon chase mechanic, English speech bubbles, level platform sprites (L2+L3)
 - [ ] **Phase 6: Audio** - Jump SFX, damage SFX, game over sting, background music loop, push/impact sound
@@ -34,7 +34,7 @@
 | 4. Flood + Lives | 2/2 | Complete | 2026-03-10 |
 | 04.1 Visual Concept | 2/2 | Complete | 2026-03-09 |
 | 04.2 L2 Lighthouse | — (shipped outside GSD) | Complete | ~2026-04-07 |
-| 04.3 L2 Elevator Interior | — (shipped outside GSD) | Code ready, PNG-Assets + Smoke-Test offen | - |
+| 04.3 L2 Elevator Interior | — (shipped outside GSD) | Complete — merged PR #1 | 2026-04-22 |
 | 05-e Wasp Enemy System | — (shipped outside GSD) | Complete | 2026-04-07 |
 | 5. Push + HUD | 0/? | Not started | - |
 | 6. Audio | 0/? | Not started | - |

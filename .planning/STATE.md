@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-04-22T12:00:00.000Z"
+last_updated: "2026-04-22T18:00:00.000Z"
 progress:
   total_phases: 9
   completed_phases: 7
@@ -13,8 +13,8 @@ progress:
 
 # State: Soggy Moggy
 
-**Last updated:** 2026-04-22
-**Updated by:** English-only migration Phase 1 complete: sole official title is now "Soggy Moggy" (Gato Sin Botas retired). Source-file headers, title screen string, planning docs, PixelArt READMEs, and school-doc titles all updated. `Dokumente_Schule/` subfolders renamed (Ausgefuellt → Completed, Vorlagen → Templates, Einreichung → Submission) + dep references patched (.gitignore, .claude/run-phase8.ps1, project-cleanup plan). Pending: Translator Agent phase to convert remaining in-game Spanish/German strings (HUD labels, menu options, level names Stadt/Aufzugschacht/Offener See, dialogue texts) to English. See `.planning/logs/2026-04-21-english-migration-audit.md`.
+**Last updated:** 2026-04-22 (evening)
+**Updated by:** Cleanup branch `chore/project-cleanup-2026-04-21` (22 commits) merged to master via PR #1. All four previously-active branches now deleted (local + origin). Single active branch: master. Included in this merge: English migration phases 1+2 (title rename, folder restructure, in-game strings translated, level names), dialogue font stack finalization (hybrid: YELLOW bitmap atlas for titles + BlockCraft.otf for body), obsolete artifact archival (black-LCD bitmap attempt, one-shot scripts, glyph extractor). Master now at `a923506`.
 
 ---
 
@@ -22,14 +22,24 @@ progress:
 
 **Core Value:** A playable, complete gameplay loop: cat jumps up, level-specific hazards rise from below (smog/flood/electricity), tension builds — the game feels real from first play.
 
-**Current Focus:** English migration + dialogue font stack finalized (2026-04-22). Architecture:
+**Current Focus:** Dialogue integration (Phase 5 HUD). Font stack is live on master:
 - **Title text:** YELLOW_FONT bitmap atlas, inlined in `src/dialogue.js` SECTION 1.5, rendered by `drawYellowText()`.
 - **Body text:** BlockCraft.otf via `@font-face` in `index.html`, rendered by `drawBodyText()` using native `ctx.fillText`.
-- The second bitmap attempt (black LCD-style on 7x4 grid) was abandoned and archived after row-bleed and spacing issues; BlockCraft.otf replaces it.
 
-**Open:** bubble SHAPE rendering (empty speech-bubble backgrounds). Decision pending between exporting 8 PNG shapes from `PixelArt/thought_bubbles/dialogue_bubbles.ai` or drawing shapes in code. Once decided, author 8 English dialogue texts and wire them into renderDialogue().
+**Open (unblocking Phase 5):**
+1. Bubble shape rendering — export 8 empty PNG shapes from `PixelArt/thought_bubbles/dialogue_bubbles.ai` OR draw shapes in code. Decision pending.
+2. Author 8 English dialogue texts (3 intros, 3 outros, 2 life-lost) as strings in `src/dialogue.js`.
+3. Wire `renderDialogue()` to use `drawYellowText` (title) + `drawBodyText` (body) on top of bubble shape, with line-wrapping.
+4. Remove `renderFontSmokeTest()` call from `main.js:543` and `renderFontSmokeTest()` definition from `src/dialogue.js` before final submission.
 
-Wasp enemy system already on master. L2 elevator interior on feature/04.3-l2-elevator-interior, partial.
+**Open (school submission formalities):**
+- BlockCraft.otf source + license TODO in `Dokumente_Schule/Completed/Medienkatalog.md:101` — blocker for Selbstständigkeitserklärung.
+- README.md at repo root (SCHOOL-05).
+- Gameplay video (SCHOOL-06).
+- Selbstständigkeitserklärung (SCHOOL-07).
+- USB-Abgabe-Struktur (SCHOOL-08).
+
+Wasp enemy system, L2 lighthouse, L2 elevator interior all shipped to master.
 
 **Stack:** Vanilla JavaScript ES2022+ + HTML Canvas 2D (480x640) + Web Audio API + GitHub Pages
 
@@ -216,14 +226,16 @@ None.
 
 **Repository:** `C:/Users/Teilnehmer/Desktop/Schule/PRG/Abschlussprojekt_SRH_26`
 **Planning files:** `.planning/`
-**Last session:** 2026-04-22 (English migration phase 1)
+**Last session:** 2026-04-22 (evening — cleanup branch merged to master, docs synced)
 **Next action:**
-1. Decide bubble-shape source: export 8 empty bubble PNGs from `dialogue_bubbles.ai`, or draw shapes in code.
-2. Author 8 English dialogue texts (3 intros, 3 outros, 2 life-lost) as strings in `src/dialogue.js`.
-3. Wire `renderDialogue()` to use `drawYellowText` (title) + `drawBodyText` (body) on top of bubble shape.
-4. Browser smoke test, then merge feature/04.3-l2-elevator-interior → master.
-5. Plan Phase 5 (Push + HUD) via `/gsd-plan-phase 5`.
+1. **BlockCraft.otf license** — fill in the TODO in `Dokumente_Schule/Completed/Medienkatalog.md:101`. Blocker for Selbstständigkeitserklärung.
+2. **Bubble shape decision** — export 8 empty bubble PNGs from `dialogue_bubbles.ai`, or draw shapes in code. Blocks dialogue integration.
+3. **Author 8 English dialogue texts** (3 intros, 3 outros, 2 life-lost) as strings in `src/dialogue.js`.
+4. **Wire renderDialogue()** to use `drawYellowText` (title) + `drawBodyText` (body) on top of bubble shape. Add line-wrapping in `drawBodyText`.
+5. **Remove `renderFontSmokeTest()`** from `src/dialogue.js` and its call site in `src/main.js:543` before submission.
+6. **School formalities** — README.md at repo root (SCHOOL-05), gameplay video (SCHOOL-06), Selbstständigkeitserklärung (SCHOOL-07), USB structure (SCHOOL-08).
+7. Plan Phase 5 (Push + HUD) formally via `/gsd-plan-phase 5` if needed.
 
 ---
 *State initialized: 2026-03-03 after roadmap creation*
-*Updated: 2026-04-22 (afternoon) — English migration Phases 1+2 shipped, dialogue font stack finalized (hybrid YELLOW bitmap title + BlockCraft OTF body), black-bitmap experiment archived; pending: bubble shapes + 8 English dialogue texts + integration.*
+*Updated: 2026-04-22 (evening) — Cleanup branch merged to master via PR #1. Single active branch: master @ a923506. 4 stale branches deleted local+origin. Font stack live, dialogue integration + smoke-test removal + school formalities remain.*

@@ -1,6 +1,6 @@
 # Gameplay Video — Script
 
-**Project:** Soggy Moggy / Gato Sin Botas
+**Project:** Soggy Moggy
 **Author:** Julian Gomez
 **Date:** 21.04.2026
 **Audience:** Lecturer at SRH Fachschulen, Game & Multimedia Design
@@ -15,7 +15,7 @@ Total draft length: approx. 2:35. Buffer is included; scenes can be shortened if
 
 ### Scene 1 — Title card (0:00–0:03)
 
-- **Visual:** Black screen, then the title "Gato Sin Botas" fades in centered. Below it a smaller line: "Abschlussprojekt SRH Fachschulen, Julian Gomez, 2026".
+- **Visual:** Black screen, then the title "Soggy Moggy" fades in centered. Below it a smaller line: "Abschlussprojekt SRH Fachschulen, Julian Gomez, 2026".
 - **Narration:** none.
 - **Notes:** Short cut, no jingle. If music is wanted, fade it in softly from here.
 
@@ -23,12 +23,12 @@ Total draft length: approx. 2:35. Buffer is included; scenes can be shortened if
 
 - **Visual:** Start screen of the game, then a zoom or cut to the upper part of the start screen. Followed by a brief look at the level selection behavior (pressing Enter).
 - **Narration (draft):**
-  "Soggy Moggy, titled Gato Sin Botas in the game, is a vertical platformer that runs in the browser. A stuffed cat jumps from platform to platform while fleeing a hazard that rises from below. The game runs without any framework, entirely in Vanilla JavaScript."
+  "Soggy Moggy is a vertical platformer that runs in the browser. A stuffed cat jumps from platform to platform while fleeing a hazard that rises from below. The game runs without any framework, entirely in Vanilla JavaScript."
 - **Notes:** Deliver the text calmly, around 15 seconds. The image shows the start screen throughout; no gameplay movement yet.
 
 ### Scene 3 — Level 1 Gameplay (0:18–0:48)
 
-- **Visual:** Live gameplay in Level 1 "La Ciudad". Show: the jump mechanic, the run animation, the smog hazard rising from below. Near the end, pass by or stomp a wasp.
+- **Visual:** Live gameplay in Level 1 "The City". Show: the jump mechanic, the run animation, the smog hazard rising from below. Near the end, pass by or stomp a wasp.
 - **Narration (draft):**
   "In the first level the player moves through a city building and jumps on roller shutters. The jump is manual, no auto-jump. Smog rises beneath the character and costs a life on contact. Wasps patrol the platforms, and jumping on one from above takes it out."
 - **Notes:** 30 seconds of clean gameplay footage, tidy inputs, avoid dying if possible. If a life is lost, do not cut; just keep playing calmly.

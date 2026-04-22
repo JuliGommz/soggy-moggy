@@ -1,6 +1,6 @@
 # docs/plans — Planning Index
 
-Chronological overview of all planning documents for the project **Soggy Moggy / Gato Sin Botas**.
+Chronological overview of all planning documents for the project **Soggy Moggy**.
 
 ## Status Legend
 

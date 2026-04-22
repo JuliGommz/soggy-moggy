@@ -1,4 +1,4 @@
-# USB Submission Structure — Soggy Moggy / Gato Sin Botas
+# USB Submission Structure — Soggy Moggy
 
 **Author:** Julian Gomez
 **Date:** 21.04.2026

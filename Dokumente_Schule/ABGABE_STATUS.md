@@ -1,7 +1,7 @@
-# Submission Status: Soggy Moggy / Gato Sin Botas
+# Submission Status: Soggy Moggy
 
-**Last updated:** 2026-04-22
-**Branch:** chore/project-cleanup-2026-04-21
+**Last updated:** 2026-04-22 (evening)
+**Branch:** master (cleanup PR #1 merged 2026-04-22; all feature branches deleted)
 **Deadline:** postponed, new date pending (as of 21.04.2026)
 **Purpose of this file:** Give future Claude sessions an immediate overview of what is done and what is still missing. Check here before starting any new session.
 

@@ -1,4 +1,4 @@
-# Soggy Moggy — Gato Sin Botas
+# Soggy Moggy
 
 A vertical platformer in the browser. A stuffed cat jumps from platform to platform, fleeing a rising threat from below. Three levels, three hazards: smog in the city, electricity in the elevator shaft, flooding at the lighthouse.
 
@@ -82,7 +82,11 @@ Full planning index: [`docs/plans/README.md`](docs/plans/README.md)
 
 **Fonts**
 
-Bitmap font graphics: Vecteezy.com (Free License, attribution required). The active font assets `alphabet_pixel_retro_video_game_style.png` and `alphabet_black_230px.png` in `PixelArt/fonts/` are based on this source. Older versions are archived in `PixelArt/fonts/Archive/`.
+Title font (bitmap): `PixelArt/fonts/alphabet_pixel_retro_video_game_style.png`, derived from Vecteezy.com (Free License, attribution required). Used as YELLOW_FONT atlas in `src/dialogue.js` for dialogue titles.
+
+Body font: `PixelArt/fonts/BlockCraft.otf`, loaded via `@font-face` in `index.html`, used by `drawBodyText()` for dialogue body text. (Source + license: see `Dokumente_Schule/Completed/Medienkatalog.md`.)
+
+Older and experimental fonts (black-LCD attempt, Vecteezy source files) are archived in `PixelArt/fonts/Archive/`.
 
 **Pixel Art**
 
