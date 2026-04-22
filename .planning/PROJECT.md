@@ -1,4 +1,6 @@
-# Soggy Moggy (in-game: Gato Sin Botas)
+# Soggy Moggy
+
+> **Language policy (2026-04-21):** All in-game content, code identifiers, comments, and documentation use English only. The sole official title is **Soggy Moggy** — the previous Spanish in-game title "Gato Sin Botas" is retired. German level names (Stadt, Aufzugschacht, Offener See, Freizeitpark) are also migrating to English. Translation of all remaining non-English text is handled in the next phase by a dedicated translator agent. Exception: German prose in formal SRH school submission documents (`Dokumente_Schule/Completed/`) stays German because SRH requires it.
 
 ## What This Is
 

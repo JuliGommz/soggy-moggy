@@ -1,6 +1,6 @@
 # PixelArt
 
-Alle Sprite- und Hintergrund-Assets des Spiels **Soggy Moggy / Gato Sin Botas**.
+Alle Sprite- und Hintergrund-Assets des Spiels **Soggy Moggy**.
 Erstellt mit **Pixelorama** (`.pxo`-Quelldateien) und Adobe Illustrator (`.ai`).
 
 ## Ordnerstruktur

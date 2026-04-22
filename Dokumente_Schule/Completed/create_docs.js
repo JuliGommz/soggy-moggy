@@ -507,7 +507,7 @@ const gddContent = [
   new Paragraph({ spacing: { after: 120 }, alignment: AlignmentType.CENTER,
     children: [new TextRun({ text: 'Soggy Moggy', bold: true, font: FONT, size: 36, color: '2C4770' })] }),
   new Paragraph({ spacing: { after: 160 }, alignment: AlignmentType.CENTER,
-    children: [new TextRun({ text: 'Gato Sin Botas', font: FONT, size: 28, color: '888888' })] }),
+    children: [new TextRun({ text: 'Soggy Moggy', font: FONT, size: 28, color: '888888' })] }),
   new Paragraph({
     spacing: { before: 0, after: 320 },
     border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: 'CCCCCC', space: 4 } },
@@ -573,7 +573,7 @@ const gddContent = [
   h2('1.1  Projektübersicht'),
   infoTable([
     ['Projekttitel (intern)',  'Soggy Moggy'],
-    ['Spieltitel (im Spiel)', 'Gato Sin Botas'],
+    ['Spieltitel (im Spiel)', 'Soggy Moggy'],
     ['Genre',                 'Casual Vertical Platformer'],
     ['Plattform',             'Web-Browser (HTML5, kein Plugin erforderlich)'],
     ['Auflösung',             '480 x 640 Pixel, Hochformat (Portrait)'],
@@ -586,7 +586,7 @@ const gddContent = [
   gap(),
 
   h2('1.2  Spielidee & Kernaussage'),
-  body('Gato Sin Botas ist ein vertikaler Plattformer. Der Spieler steuert eine ausgestopfte Katze, die vor einer stetig steigenden Flut nach oben flieht. Anders als in klassischen Endlos-Springern wie Doodle Jump springt die Figur nicht automatisch, sondern nur auf direkte Eingabe des Spielers.'),
+  body('Soggy Moggy ist ein vertikaler Plattformer. Der Spieler steuert eine ausgestopfte Katze, die vor einer stetig steigenden Flut nach oben flieht. Anders als in klassischen Endlos-Springern wie Doodle Jump springt die Figur nicht automatisch, sondern nur auf direkte Eingabe des Spielers.'),
   body('Diese Entscheidung macht jeden Sprung zu einem bewussten Akt und gibt dem Spieler vollständige Kontrolle über das Timing. Das Spiel ist in drei eigenständige Level unterteilt, jedes mit eigenem visuellem Thema und eigener Kernmechanik. Die Atmosphäre folgt dem Prinzip Cozy Danger: Die Welt wirkt warm und verspielt, die steigende Gefahr erzeugt aber kontinuierlich wachsenden Druck.'),
   gap(),
 

@@ -1,7 +1,7 @@
 # PixelArt/_archive
 
 Dieser Ordner enthält Arbeitsdateien und Quelldateien, die im Rahmen des
-Schulabschlussprojekts **Soggy Moggy / Gato Sin Botas** (SRH, April 2026)
+Schulabschlussprojekts **Soggy Moggy** (SRH, April 2026)
 archiviert wurden.
 
 ## Was ist hier archiviert?

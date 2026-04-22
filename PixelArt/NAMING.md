@@ -1,5 +1,5 @@
 # PixelArt Asset Naming Convention
-**Project:** Soggy Moggy / Gato Sin Botas
+**Project:** Soggy Moggy
 **Last updated:** 25.03.2026
 
 ---

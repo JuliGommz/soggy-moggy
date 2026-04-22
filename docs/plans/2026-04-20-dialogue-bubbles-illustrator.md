@@ -1,5 +1,7 @@
 # Dialogue Bubbles — Manual Illustrator Production Plan
 
+> **Language note (2026-04-21 later):** All Spanish dialogue texts listed in this document (`ATENCIÓN!`, `CONTAMINACIÓN`, `QUÉ NUEVE VIDAS?!`, etc.) are superseded by English translations handled via a dedicated translator agent. The 8 bubble trigger keys (l1_intro, l2_intro, …, life_wasp) stay the same. Treat the Spanish text snippets here as placeholders only.
+>
 > **Partially superseded (2026-04-21)** — the Illustrator workflow (8 artboards, one .ai file, PNG export per trigger) is still the active production pipeline. However:
 > - Artboard sizes changed from the full 480×640 canvas to bubble-sized artboards (wide2/wide1 = 240×110, small2 = 200×110, burst = 240×240).
 > - Output path is `PixelArt/thought_bubbles/dialogues/` with trigger-based filenames (l1_intro.png … life_wasp.png).

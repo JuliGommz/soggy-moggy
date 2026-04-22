@@ -2,7 +2,7 @@
 ====================================================================
 * main.js - Entry point: canvas, game loop, update, render
 ====================================================================
-* Project: Soggy Moggy (in-game: Gato Sin Botas)
+* Project: Soggy Moggy
 * Course: PRG Abschlussprojekt — SRH Fachschulen
 * Developer: Julian Gomez
 * Date: 2026-03-04
@@ -523,7 +523,7 @@ function renderHUD() {
 
     ctx.fillStyle = '#ffffff';
     ctx.font      = '36px monospace';
-    ctx.fillText('GATO SIN BOTAS', canvas.width / 2, 220);
+    ctx.fillText('SOGGY MOGGY', canvas.width / 2, 220);
 
     ctx.font = '16px monospace';
     ctx.fillStyle = '#cccccc';

@@ -131,7 +131,7 @@
 **Deliverables:**
 - `docs/STYLE_GUIDE.md` Sprite-Dimensionen aktualisiert (Cat, Wasp, Platforms L1/L2/L3, Hazards).
 - Ältere `docs/plans/*.md` die durch spätere Dokumente abgelöst wurden bekommen Superseded-Banner.
-- `Dokumente_Schule/Ausgefuellt/GDD_Julian_Gomez.md` Deadline angepasst.
+- `Dokumente_Schule/Completed/GDD_Julian_Gomez.md` Deadline angepasst.
 - `docs/plans/README.md` Index-Datei mit Kurz-Beschreibung pro Plan, sortiert nach Datum.
 
 ---

@@ -1,4 +1,4 @@
-# Requirements: Soggy Moggy (Gato Sin Botas)
+# Requirements: Soggy Moggy
 
 **Defined:** 2026-03-03
 **Core Value:** A playable, complete gameplay loop: cat jumps up, water rises below, tension builds — the game feels real from first play.

@@ -2,7 +2,7 @@
 ====================================================================
 * game-state.js - Shared game state, phase enum, score & high score
 ====================================================================
-* Project: Soggy Moggy (in-game: Gato Sin Botas)
+* Project: Soggy Moggy
 * Course: PRG Abschlussprojekt — SRH Fachschulen
 * Developer: Julian Gomez
 * Date: 2026-03-04

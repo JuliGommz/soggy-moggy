@@ -1,5 +1,5 @@
 # Game Design Document
-## Soggy Moggy — Gato Sin Botas
+## Soggy Moggy
 
 **Verfasser:** Julian Gomez
 **Schule:** SRH Fachschulen, Fachrichtung Game & Multimedia Design (GME-24.01)
@@ -54,7 +54,7 @@
 | Feld | Wert |
 |---|---|
 | Projekttitel (intern) | Soggy Moggy |
-| Spieltitel (im Spiel) | Gato Sin Botas |
+| Spieltitel (im Spiel) | Soggy Moggy |
 | Genre | Casual Vertical Platformer |
 | Plattform | Web-Browser (HTML5) |
 | Auflösung | 480 × 640 px (Hochformat) |
@@ -64,7 +64,7 @@
 
 ### 1.2 Spielidee & Kernaussage
 
-Gato Sin Botas ist ein vertikaler Plattformer, in dem der Spieler eine ausgestopfte Katze steuert, die vor einer stetig steigenden Flut nach oben flieht. Im Gegensatz zu klassischen Endlos-Springern (Doodle Jump, etc.) springt die Figur **nicht automatisch**, sondern nur auf aktive Eingabe des Spielers. Das schafft eine direkte, greifbare Kontrolle und macht jede Plattform zu einer bewussten Entscheidung.
+Soggy Moggy ist ein vertikaler Plattformer, in dem der Spieler eine ausgestopfte Katze steuert, die vor einer stetig steigenden Flut nach oben flieht. Im Gegensatz zu klassischen Endlos-Springern (Doodle Jump, etc.) springt die Figur **nicht automatisch**, sondern nur auf aktive Eingabe des Spielers. Das schafft eine direkte, greifbare Kontrolle und macht jede Plattform zu einer bewussten Entscheidung.
 
 Die Atmosphäre vermittelt „cozy danger": Die Spielwelt ist warm und verspielt gestaltet, die Bedrohung durch die Flut baut aber kontinuierlich Spannung auf. Das Spiel ist in drei thematisch unterschiedliche Level gegliedert, die jeweils eigene Plattformtypen und Gefahren einführen.
 
@@ -127,7 +127,7 @@ Das Spiel verwendet eine klar definierte Zustandsmaschine mit drei Hauptzuständ
   [Neustart] ────────────────────┘
 ```
 
-**Start-Screen:** Zeigt Spieltitel „Gato Sin Botas", Steuerungshinweise, Start-Aufforderung.
+**Start-Screen:** Zeigt Spieltitel „Soggy Moggy", Steuerungshinweise, Start-Aufforderung.
 **Spielend:** Alle Spielmechaniken aktiv; HUD sichtbar.
 **Game Over:** Highscore-Anzeige, Neustart-Option; Neustart ohne Seitenreload.
 
@@ -417,7 +417,7 @@ Plattform-Design für Level 2 (Aufzugschacht) wird in Phase 5 erstellt (unsichtb
 **Sprache:** Alle UI-Texte in Spanisch.
 
 **Start-Screen:**
-- Titel: „Gato Sin Botas" (groß, zentriert)
+- Titel: „Soggy Moggy" (groß, zentriert)
 - Untertitel / Spielanleitung: kurze Steuerungsübersicht
 - Startaufforderung: z.B. „Presiona ESPACIO para jugar"
 

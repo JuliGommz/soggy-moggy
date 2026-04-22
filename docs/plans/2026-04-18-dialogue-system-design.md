@@ -4,7 +4,7 @@
 > Phase 5 of the cleanup dropped the bitmap-font pipeline entirely. The current system loads 8 pre-rendered PNGs from `PixelArt/thought_bubbles/dialogues/` (text baked in Illustrator) and renders them via `drawImage`.
 > See Phase 5 commit + `src/dialogue.js` + MEMORY.md section „Static bubble PNG approach" for the current state. Kept as historical record only.
 
-**Project:** Soggy Moggy / Gato Sin Botas
+**Project:** Soggy Moggy
 **Date:** 2026-04-18
 **Last updated:** 2026-04-20 (font atlas debugging session — filenames, auto-compute, pending cleanup)
 **Deadline:** 2026-04-22

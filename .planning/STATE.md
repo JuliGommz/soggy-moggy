@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-04-16T00:00:00.000Z"
+last_updated: "2026-04-22T00:00:00.000Z"
 progress:
   total_phases: 9
   completed_phases: 7
@@ -13,8 +13,8 @@ progress:
 
 # State: Soggy Moggy
 
-**Last updated:** 2026-04-20 (second session of the day)
-**Updated by:** L2 shaft platform atlas integration attempted — jump_plattforms.png wired up (9 variants, 6-slot generation cycle). Generation + collision logic CORRECT. Atlas coords WRONG, rendering BROKEN and WIP. Blocker: jump_plattforms.png pixel bounds must be measured in Pixelorama before any further tweaks. See MEMORY.md "Session 20.04.2026 (later) — L2 Shaft Platforms" for full context + next-step checklist.
+**Last updated:** 2026-04-22
+**Updated by:** English-only migration Phase 1 complete: sole official title is now "Soggy Moggy" (Gato Sin Botas retired). Source-file headers, title screen string, planning docs, PixelArt READMEs, and school-doc titles all updated. `Dokumente_Schule/` subfolders renamed (Ausgefuellt → Completed, Vorlagen → Templates, Einreichung → Submission) + dep references patched (.gitignore, .claude/run-phase8.ps1, project-cleanup plan). Pending: Translator Agent phase to convert remaining in-game Spanish/German strings (HUD labels, menu options, level names Stadt/Aufzugschacht/Offener See, dialogue texts) to English. See `.planning/logs/2026-04-21-english-migration-audit.md`.
 
 ---
 
@@ -22,7 +22,7 @@ progress:
 
 **Core Value:** A playable, complete gameplay loop: cat jumps up, level-specific hazards rise from below (smog/flood/electricity), tension builds — the game feels real from first play.
 
-**Current Focus:** Phase 04.3 (L2 Elevator Interior) + Dialogue System — in progress on branch feature/04.3-l2-elevator-interior. Elevator sprite, invisible colliders (C1/C2/C404/C3), and 404 display platform committed. Dialogue system architecture complete (src/font.js + src/dialogue.js); font atlas debugging done; 4 code cleanup items pending before browser test. Wasp enemy system (05-enemies-wasp) already merged to master.
+**Current Focus:** English-only migration in progress. Phase 1 (title rename, doc updates, folder restructure) complete on branch `chore/project-cleanup-2026-04-21`. Phase 2 (Translator Agent for in-game strings) pending. After Phase 2: revisit Dialogue System — Julian wants to retry the bitmap-font-atlas approach (previously failed with manual mapping; this time using tool-generated atlas, gelb-rot font for titles, schwarz font for body). Pre-rendered PNG bubble approach (src/dialogue.js) is the current production fallback but will be replaced. Wasp enemy system already on master. L2 elevator interior (sprite + colliders + dialogue code) on feature/04.3-l2-elevator-interior, partial.
 
 **Stack:** Vanilla JavaScript ES2022+ + HTML Canvas 2D (480x640) + Web Audio API + GitHub Pages
 
@@ -112,8 +112,9 @@ Progress: [x][x][x][x][x][x][x][~][ ][ ][ ]
 | MVP-first approach | Core loop must work before polish; clear MVP boundary established | All phases |
 | Visual Concept phase (04.1) | Expert-agent-driven art direction before Phase 5 sprite work; placed after MVP is proven | Phase 04.1 |
 | Cat sprite direction: grey-pink, 3-frame jump | Grey-pink coloring; down/middle/high frames driven by bounceTimer in player.js; hitbox 32x32, drawn 96x96 | Phase 04.1 |
-| Game language: Spanish | All UI text, screen titles, HUD labels in Spanish for the dramaturgical layer | Phase 5 |
-| 3-level structure: Stadt, Aufzugschacht, Offener See | ORDER SWAPPED 07.04.2026 — L1=Stadt(Smog), L2=Schacht(Elektrizität), L3=See(Flut); L4 Freizeitpark DROPPED | Phase 5 |
+| ~~Game language: Spanish~~ — SUPERSEDED 2026-04-21 | Original decision: All UI in Spanish for dramaturgical layer. Replaced by English-only policy to simplify font-atlas implementation (no special chars) and project coherence. | Phase 5 |
+| Game language: English (from 2026-04-21) | Sole language for in-game UI, code identifiers, comments, and project docs. Exception: German prose in formal SRH school submissions stays German. | Migration phase |
+| 3-level structure: City, Elevator Shaft, Open Sea (German names Stadt/Aufzugschacht/Offener See migrating to English in Translator phase) | ORDER SWAPPED 07.04.2026 — L1=City(Smog), L2=Shaft(Electricity), L3=Sea(Flood); L4 Amusement Park DROPPED | Phase 5 |
 | Level-specific parallax per level | bg_far is always the setting silhouette; bg_mid/bg_near slots filled with level-specific sprites; clouds/stars reused across levels | Phase 5 |
 | Danger per level: L1=Smog, L2=Elektrizität, L3=Flut | Swapped 07.04.2026 — shaft gets electricity, sea/lighthouse gets flood; all three renderers in hazards.js | Phase 4 |
 | Wasp enemy system (src/enemies.js) | Patrol + stomp mechanic; 5/7/10 wasps per level; stinger=damage+knockback, stomp=kill+bounce; merged to master 07.04.2026 | Phase 05-e |
@@ -183,9 +184,9 @@ Progress: [x][x][x][x][x][x][x][~][ ][ ][ ]
 
 ### School Formality Todos (deadline 22.04.2026)
 
-- [x] **SCHOOL-01** — Projektplan: `Dokumente_Schule/Ausgefuellt/Projektplan_Julian_Gomez.docx` — DONE
-- [x] **SCHOOL-02** — Arbeitsprotokoll: `Dokumente_Schule/Ausgefuellt/Arbeitsprotokoll_Julian_Gomez.docx` — DONE (needs daily updates)
-- [x] **SCHOOL-03** — GDD: `Dokumente_Schule/Ausgefuellt/GDD_Julian_Gomez.md` + `.docx` — DONE
+- [x] **SCHOOL-01** — Projektplan: `Dokumente_Schule/Completed/Projektplan_Julian_Gomez.docx` — DONE
+- [x] **SCHOOL-02** — Arbeitsprotokoll: `Dokumente_Schule/Completed/Arbeitsprotokoll_Julian_Gomez.docx` — DONE (needs daily updates)
+- [x] **SCHOOL-03** — GDD: `Dokumente_Schule/Completed/GDD_Julian_Gomez.md` + `.docx` — DONE
 - [ ] **SCHOOL-04** — Create Medienkatalog — list all third-party assets, Claude Code AI usage (with prompts), pixel art tools, any external references
 - [ ] **SCHOOL-05** — Create README.md at repo root — name, asset list, startup instructions, where each requirement is met
 - [ ] **SCHOOL-06** — Gameplay video — recorded after game is feature-complete (Phase 5 area)
@@ -208,13 +209,13 @@ None.
 
 **Repository:** `C:/Users/Teilnehmer/Desktop/Schule/PRG/Abschlussprojekt_SRH_26`
 **Planning files:** `.planning/`
-**Last session:** 2026-04-20
+**Last session:** 2026-04-22 (English migration phase 1)
 **Next action:**
-1. Fix dialogue.js — 4 items: update font src refs to new filenames + remove TEMP DEBUG code
-2. Browser smoke test — 7 steps from design doc `Testing plan`
-3. Merge feature/04.3-l2-elevator-interior → master
-4. Plan Phase 5 (Push + HUD) via `/gsd-plan-phase 5`
+1. Translator Agent phase: convert in-game Spanish strings (`¡PELIGRO!`, `NIVEL x COMPLETADO`, `Altura/Avispas/Total/Mejor/Vidas`, menu options, dialogue prompts) and German level names (Stadt/Aufzugschacht/Offener See/Freizeitpark) and remaining Spanish code comments. Also `index.html` `lang="de"` → `lang="en"`.
+2. Retake Dialogue System with bitmap-font-atlas approach (tool-generated this time): gelb-rot alphabet for titles, schwarz for body text, English content only.
+3. After dialogue: browser smoke test, merge feature/04.3-l2-elevator-interior → master.
+4. Plan Phase 5 (Push + HUD) via `/gsd-plan-phase 5`.
 
 ---
 *State initialized: 2026-03-03 after roadmap creation*
-*Updated: 2026-04-20 — dialogue font atlas debugging complete; pending code cleanup logged; next actions defined*
+*Updated: 2026-04-22 — English-only migration Phase 1 complete (title, planning docs, school doc titles, folder rename); Phase 2 Translator Agent + Dialogue System retake pending*

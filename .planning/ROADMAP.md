@@ -1,4 +1,4 @@
-# Roadmap: Soggy Moggy (in-game: Gato Sin Botas)
+# Roadmap: Soggy Moggy
 
 **Project:** Soggy Moggy
 **Created:** 2026-03-03
@@ -18,7 +18,7 @@
 - [x] **Phase 04.2: L2 Lighthouse Redesign** - Lighthouse background, parallax layers, cloud mechanics, L2 level redesign — shipped on branch, merged to master (completed ~2026-04-07)
 - [x] **Phase 04.3: L2 Elevator Interior** - Elevator sprite, invisible colliders (C1/C2/C404/CHR), 404 display platform, Shaft-Platform-Atlas + Zigzag-Generation, Horizontal-Wall-Confinement, Dialogue-System-Code — branch feature/04.3-l2-elevator-interior (code ready; offen: Dialogue-PNG-Assets aus Illustrator + Smoke-Test + Merge zu master)
 - [x] **Phase 05-e: Wasp Enemy System** - Patrol + stomp mechanics, 10/15/20 wasps per level (bumped 2026-04-20 von 5/7/10), stinger/stomp interactions, scoring — merged to master (completed 2026-04-07). Known Issues: Sprite zu klein (~2× scale nötig), L2 Top-Sprite fehlt.
-- [ ] **Phase 5: Push + HUD** - Kletter-Kiste puzzle (L2 Elevator), NPC patrolling creature, balloon chase mechanic, Spanish speech bubbles, level platform sprites (L2+L3)
+- [ ] **Phase 5: Push + HUD** - Kletter-Kiste puzzle (L2 Elevator), NPC patrolling creature, balloon chase mechanic, English speech bubbles, level platform sprites (L2+L3)
 - [ ] **Phase 6: Audio** - Jump SFX, damage SFX, game over sting, background music loop, push/impact sound
 - [ ] **Phase 7: Hosting** - GitHub Pages deployment, shareable URL, final browser smoke test
 
@@ -137,7 +137,7 @@ Plans:
 **Plans:** TBD (estimated 2)
 
 ### Phase 5: Push + HUD
-**Goal:** L3 has a functional Kletter-Kiste puzzle, a patrolling NPC creature adds risk to platforms, balloon chase mechanic is active, and Spanish speech bubbles react to key game events.
+**Goal:** L3 has a functional Kletter-Kiste puzzle, a patrolling NPC creature adds risk to platforms, balloon chase mechanic is active, and English speech bubbles react to key game events.
 **Depends on:** Phase 04.2, Phase 04.1
 **Requirements:** PUSH-01, HUD-01, HUD-02, HUD-03, VIS-06, VIS-08, NPC-01
 **Note:** Manual jump (Space key, onGround gate), variable jump, walk animation, finish trigger system, balloon collectible, and 3 hazard renderers were all implemented on the feature/asset-restructure-mechanics branch before Phase 5 planning.
