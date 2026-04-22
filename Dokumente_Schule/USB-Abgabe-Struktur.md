@@ -1,36 +1,36 @@
-# USB-Abgabe-Struktur — Soggy Moggy / Gato Sin Botas
+# USB Submission Structure — Soggy Moggy / Gato Sin Botas
 
-**Verfasser:** Julian Gomez
-**Stand:** 21.04.2026
-**Zweck:** Empfohlene Ordnerstruktur für den USB-Stick, der zusammen mit den schriftlichen Dokumenten bei der SRH Fachschule eingereicht wird. Diese Datei ist Orientierung für Julian, damit das Zusammenstellen auf dem Stick schnell und ohne Umkopieren abläuft.
+**Author:** Julian Gomez
+**Date:** 21.04.2026
+**Purpose:** Recommended folder structure for the USB stick submitted together with the written documents to SRH Fachschule. This file is a guide for Julian so that assembling the stick is fast and requires no repeated copying.
 
 ---
 
-## Top-Level-Struktur
+## Top-Level Structure
 
 ```
 USB_Abgabe_Julian_Gomez_2026/
-├── 01_Spiel/                         Lauffähige Browser-Version
+├── 01_Spiel/                         Playable browser version
 │   ├── index.html
-│   ├── src/                          Quellcode (JavaScript)
-│   ├── PixelArt/                     Assets (nur produktive PNGs, keine _wip/_archive)
-│   ├── docs/                         Projektinterne Doku (Style Guide, Asset-Liste, Pläne)
-│   └── README.md                     Start-Anleitung (aus Repo-Wurzel)
+│   ├── src/                          Source code (JavaScript)
+│   ├── PixelArt/                     Assets (production PNGs only, no _wip/_archive)
+│   ├── docs/                         Project-internal documentation (Style Guide, Asset List, Plans)
+│   └── README.md                     Getting-started guide (from repo root)
 │
-├── 02_Dokumente/                     Schulunterlagen
+├── 02_Dokumente/                     School documents
 │   ├── Themeneinreichung_Julian_Gomez.pdf
 │   ├── Projektplan_Julian_Gomez.docx
 │   ├── Arbeitsprotokoll_Julian_Gomez.docx
-│   ├── GDD_Julian_Gomez.docx         (Word-Version)
-│   ├── GDD_Julian_Gomez.md           (Markdown-Version, parallel)
-│   ├── Medienkatalog.md              (aus Dokumente_Schule/)
-│   └── Selbststaendigkeitserklaerung_Julian_Gomez.pdf   (unterschrieben, gescannt)
+│   ├── GDD_Julian_Gomez.docx         (Word version)
+│   ├── GDD_Julian_Gomez.md           (Markdown version, parallel)
+│   ├── Medienkatalog.md              (from Dokumente_Schule/)
+│   └── Selbststaendigkeitserklaerung_Julian_Gomez.pdf   (signed, scanned)
 │
-├── 03_Video/                         Gameplay-Präsentation
+├── 03_Video/                         Gameplay presentation
 │   ├── Gameplay_SoggyMoggy_2026-04.mp4
-│   └── video_script.md               (Sprecher-Text als Nachweis)
+│   └── video_script.md               (narration text as evidence)
 │
-├── 04_Screenshots/                   Auswahl aus Screenshots/Levels/
+├── 04_Screenshots/                   Selection from Screenshots/Levels/
 │   ├── Level1.1.png
 │   ├── Level1.2.png
 │   ├── Level2.1.png
@@ -38,44 +38,44 @@ USB_Abgabe_Julian_Gomez_2026/
 │   ├── Level3.1.png
 │   └── Level3.2.png
 │
-└── 05_Quellen_Repo/                  Vollständiger Repo-Snapshot
-    └── Abschlussprojekt_SRH_26/      (kompletter Git-Stand, inkl. .git falls erlaubt)
+└── 05_Quellen_Repo/                  Full repo snapshot
+    └── Abschlussprojekt_SRH_26/      (complete git state, including .git if permitted)
 ```
 
-## Was wohin gehört
+## What Goes Where
 
-- **01_Spiel** ist die spielbare Version. Nur das, was für `index.html` im Browser nötig ist: `src/`, produktive `PixelArt/`-Ordner, `docs/` als Referenz, die README als Einstieg. `PixelArt/_wip/`, `PixelArt/_dev/`, `PixelArt/_archive/` und `.pxo/.ai/.psd`-Quellen werden hier nicht mitkopiert, um den Ordner klein zu halten.
-- **02_Dokumente** sind die Prüfungsunterlagen für den Dozenten. Die PDFs sind die Abgabeversionen, die Markdown-Dateien liegen als Klartext-Backup daneben.
-- **03_Video** enthält das Gameplay-Video sowie das zugehörige Skript als Nachweis für die eigene Textarbeit.
-- **04_Screenshots** gibt dem Dozenten einen schnellen visuellen Eindruck ohne dass er das Spiel starten muss.
-- **05_Quellen_Repo** ist der vollständige Repository-Stand inklusive `_archive/`- und `_dev/`-Ordnern. Falls die Schule das `.git`-Verzeichnis ausgeschlossen wissen will, wird stattdessen ein ZIP des Arbeitsverzeichnisses abgelegt.
+- **01_Spiel** is the playable version. Only what `index.html` needs in the browser: `src/`, production `PixelArt/` folders, `docs/` as reference, and the README as the entry point. `PixelArt/_wip/`, `PixelArt/_dev/`, `PixelArt/_archive/`, and `.pxo/.ai/.psd` source files are not copied here, to keep the folder small.
+- **02_Dokumente** are the exam documents for the lecturer. The PDFs are the submission versions; the Markdown files sit alongside them as plain-text backups.
+- **03_Video** contains the gameplay video and the accompanying script as evidence of Julian's own written work.
+- **04_Screenshots** gives the lecturer a quick visual impression without having to launch the game.
+- **05_Quellen_Repo** is the full repository state including `_archive/` and `_dev/` folders. If the school wants the `.git` directory excluded, a ZIP of the working directory is placed here instead.
 
-## Namenskonvention
+## Naming Convention
 
-- Alle Ordnernamen deutsch, ohne Leerzeichen, mit Nummern-Präfix (`01_`, `02_`, …) für stabile Sortierung.
-- Alle Dokumente tragen Julian Gomez als Namen, damit die Zuordnung auch nach dem Umpacken eindeutig bleibt.
-- Gameplay-Video bekommt das Monat-Datum-Kürzel im Dateinamen, damit beim Nachliefern einer neuen Fassung die alte ersichtlich bleibt.
+- All folder names without spaces, with a number prefix (`01_`, `02_`, ...) for stable sorting.
+- All documents include Julian Gomez as the name so the attribution stays clear even after repacking.
+- The gameplay video gets a month-date suffix in the filename so that a replacement version is clearly distinguishable from the original.
 
-## Checkliste
+## Checklist
 
-[ ] 01_Spiel/ — `index.html` startet im Browser ohne Fehler
-[ ] 01_Spiel/src/ — alle `.js`-Dateien vorhanden
-[ ] 01_Spiel/PixelArt/ — nur produktive Assets, keine `_wip/_dev/_archive`
+[ ] 01_Spiel/ — `index.html` starts in the browser without errors
+[ ] 01_Spiel/src/ — all `.js` files present
+[ ] 01_Spiel/PixelArt/ — production assets only, no `_wip/_dev/_archive`
 [ ] 01_Spiel/docs/ — `STYLE_GUIDE.md`, `ASSET_LIST.md`, `plans/README.md`
-[ ] 01_Spiel/README.md — aktuelle Fassung aus Repo-Wurzel
+[ ] 01_Spiel/README.md — current version from repo root
 [ ] 02_Dokumente/Themeneinreichung_Julian_Gomez.pdf
 [ ] 02_Dokumente/Projektplan_Julian_Gomez.docx
-[ ] 02_Dokumente/Arbeitsprotokoll_Julian_Gomez.docx — Stand Abgabetag
+[ ] 02_Dokumente/Arbeitsprotokoll_Julian_Gomez.docx — updated to submission day
 [ ] 02_Dokumente/GDD_Julian_Gomez.docx + .md
 [ ] 02_Dokumente/Medienkatalog.md
-[ ] 02_Dokumente/Selbststaendigkeitserklaerung_Julian_Gomez.pdf — unterschrieben
-[ ] 03_Video/Gameplay_SoggyMoggy_2026-04.mp4 — 2–4 Minuten
+[ ] 02_Dokumente/Selbststaendigkeitserklaerung_Julian_Gomez.pdf — signed
+[ ] 03_Video/Gameplay_SoggyMoggy_2026-04.mp4 — 2 to 4 minutes
 [ ] 03_Video/video_script.md
-[ ] 04_Screenshots/ — Level1.1 bis Level3.2
-[ ] 05_Quellen_Repo/Abschlussprojekt_SRH_26/ — letzter Commit-Stand
-[ ] USB-Stick virenscannt
-[ ] USB-Stick beschriftet mit Name und Abgabedatum
+[ ] 04_Screenshots/ — Level1.1 through Level3.2
+[ ] 05_Quellen_Repo/Abschlussprojekt_SRH_26/ — latest commit state
+[ ] USB stick virus-scanned
+[ ] USB stick labelled with name and submission date
 
-## Hinweis
+## Note
 
-Das genaue Abgabedatum ist verschoben (Stand 21.04.2026 noch ausstehend). Der Stick wird erst final zusammengestellt, sobald das neue Datum feststeht und das Arbeitsprotokoll bis zu diesem Datum gepflegt ist.
+The exact submission date has been postponed (as of 21.04.2026, new date still pending). The stick will only be assembled finally once the new date is confirmed and the work log has been kept up to that day.

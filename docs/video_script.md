@@ -1,77 +1,77 @@
-# Gameplay-Video — Skript
+# Gameplay Video — Script
 
-**Projekt:** Soggy Moggy / Gato Sin Botas
-**Verfasser:** Julian Gomez
-**Stand:** 21.04.2026
-**Zielgruppe:** Dozent der SRH Fachschulen, Fachrichtung Game & Multimedia Design
-**Länge (vorgeschlagen):** 2 bis 4 Minuten
-**Tonalität:** neutral-dokumentarisch (Default). Der Sprecher-Text ist als Entwurf zu verstehen und kann von Julian nach Gusto angepasst werden, zum Beispiel in Richtung Trailer oder locker-persönlich.
-
----
-
-## Szenen-Gliederung
-
-Gesamtlänge im Entwurf: ca. 2:35. Puffer ist eingeplant, Szenen können gekürzt werden, falls das Video insgesamt kürzer werden soll.
-
-### Szene 1 — Titelkarte (0:00–0:03)
-
-- **Visual:** Schwarzes Bild, dann Einblendung des Schriftzugs „Gato Sin Botas" mittig. Darunter kleiner Zusatz „Abschlussprojekt SRH Fachschulen, Julian Gomez, 2026".
-- **Sprecher-Text:** keiner.
-- **Hinweise:** kurzer Schnitt, kein Jingle. Falls Musik gewünscht, ab hier leise einblenden.
-
-### Szene 2 — Projektvorstellung (0:03–0:18)
-
-- **Visual:** Start-Screen des Spiels, dann Zoom oder Cut auf den oberen Teil des Start-Screens. Danach kurzer Blick auf das Level-Auswahl-Verhalten (Enter drücken).
-- **Sprecher-Text (Entwurf):**
-  „Soggy Moggy, im Spiel Gato Sin Botas, ist ein vertikaler Plattformer, der im Browser läuft. Eine ausgestopfte Katze springt von Plattform zu Plattform und flieht vor einer Gefahr, die von unten steigt. Das Spiel läuft ohne Framework, komplett in Vanilla JavaScript."
-- **Hinweise:** Text ruhig sprechen, ca. 15 Sekunden. Parallel zeigt das Bild den Startbildschirm, keine Spielbewegung.
-
-### Szene 3 — Level 1 Gameplay (0:18–0:48)
-
-- **Visual:** Live-Gameplay in Level 1 „La Ciudad". Zeigen: Sprung-Mechanik, Laufanimation, Hazard-Smog, der von unten nachzieht. Gegen Ende eine Wespe passieren oder stompen.
-- **Sprecher-Text (Entwurf):**
-  „Im ersten Level läuft der Spieler durch ein Stadtgebäude und springt auf Jalousien. Der Sprung ist manuell, keine Automatik. Unter der Spielfigur steigt Smog, der beim Kontakt ein Leben kostet. Wespen patrouillieren, und wer ihnen von oben auf den Rücken springt, schaltet sie aus."
-- **Hinweise:** 30 Sekunden reine Spielaufnahme, saubere Eingaben, möglichst kein Sterben. Falls Leben verloren wird, nicht schneiden, sondern ruhig weiterspielen.
-
-### Szene 4 — Level 2 Gameplay (0:48–1:18)
-
-- **Visual:** Level 2 „El Pozo Eléctrico". Zeigen: Start im Fahrstuhl, Wechsel durch die Decken-Luke in den Schacht, Klettern zwischen den Rohren, Elektrizität als Gefahr am unteren Bildrand.
-- **Sprecher-Text (Entwurf):**
-  „Im zweiten Level startet die Katze im Fahrstuhl. Nur die Decken-Luke in der Mitte ist durchlässig, alles andere stoppt die Figur. Oben folgt der Aufzugschacht mit einem eigenen Plattform-Set. Die Gefahr ist hier Elektrizität, dargestellt als drei pulsierende Blitzschichten."
-- **Hinweise:** 30 Sekunden. Wenn möglich, eine Ballon-Szene mitspielen, damit die Z-Taste / Rechtsklick-Aktion gezeigt wird.
-
-### Szene 5 — Level 3 Gameplay (1:18–1:48)
-
-- **Visual:** Level 3 „El Mar Abierto". Zeigen: Leuchtturm, Brücken zwischen Felsvorsprüngen, Sonne mit Puls-Animation, steigende Flut als Sinuswelle.
-- **Sprecher-Text (Entwurf):**
-  „Im dritten Level spielt die Szene am offenen Meer vor einem Leuchtturm. Die Flut steigt kontinuierlich und verkürzt den Raum. Wolkenplattformen sinken, wenn die Katze darauf steht, das erzeugt Zeitdruck in Kombination mit der Welle."
-- **Hinweise:** 30 Sekunden. Finale Zielplattform oben möglichst erreichen, damit der Level-Complete-Screen kurz zu sehen ist.
-
-### Szene 6 — Technik-Kurzblick (1:48–2:03)
-
-- **Visual:** kurzer Split zwischen Code-Editor (eine `.js`-Datei, zum Beispiel `src/platforms.js`) und dem laufenden Spiel. Alternativ: Screencapture der Ordnerstruktur `src/`.
-- **Sprecher-Text (Entwurf):**
-  „Das Spiel läuft vollständig im Browser, ohne Build-Schritt. Rendering über die Canvas-2D-API, Auflösung 480 mal 640 Pixel. Keine Frameworks, keine externen Bibliotheken. Alle Pixel-Art-Sprites wurden in Pixelorama gezeichnet."
-- **Hinweise:** 15 Sekunden, kein Scroll durch langen Code, nur kurz Atmosphäre zeigen.
-
-### Szene 7 — Credits (2:03–2:13)
-
-- **Visual:** Einfache Textkarte mit drei Zeilen: „Design und Code: Julian Gomez", „Fonts: Vecteezy.com", „SRH Fachschulen GME-24.01, Abschlussprojekt 2026".
-- **Sprecher-Text:** keiner.
-- **Hinweise:** statische Karte, ca. 10 Sekunden, dann langsamer Blend zu Schwarz.
+**Project:** Soggy Moggy / Gato Sin Botas
+**Author:** Julian Gomez
+**Date:** 21.04.2026
+**Audience:** Lecturer at SRH Fachschulen, Game & Multimedia Design
+**Suggested length:** 2 to 4 minutes
+**Tone:** Neutral and documentary (default). The narration text is a draft and can be adjusted by Julian to taste, for example toward a trailer style or something more casual and personal.
 
 ---
 
-## Allgemeine Aufnahme-Hinweise
+## Scene Breakdown
 
-- Canvas im Browser-Fenster passend zur nativen Auflösung (480 × 640) aufzeichnen, damit keine Skalierungsartefakte entstehen.
-- Aufnahme idealerweise mit OBS, 60 fps, MP4-H.264.
-- Mikrofon: leiser Raum, kein Rauschen. Nachträglich normalisieren reicht.
-- Falls der Sprecher-Text nicht gewünscht ist: Kärtchen mit Kurztexten einblenden statt Voice-Over. Inhalt der Kärtchen entspricht den Kern-Sätzen oben.
-- Kein Musik-Bett mit Lizenzproblemen. Entweder stille Aufnahme oder selbstgemachte Web-Audio-Sounds (Phase 6).
+Total draft length: approx. 2:35. Buffer is included; scenes can be shortened if the overall video needs to be tighter.
 
-## Offene Punkte
+### Scene 1 — Title card (0:00–0:03)
 
-1. Aufnahme-Setup (Kamera des Spiels, Mikrofon) noch nicht final getestet.
-2. Wenn Audio aus dem Spiel selbst mitläuft (ab Phase 6), kann der Sprecher-Text leiser gemischt oder ganz weggelassen werden.
-3. Datum der Videoaufnahme abhängig vom neuen Abgabetermin.
+- **Visual:** Black screen, then the title "Gato Sin Botas" fades in centered. Below it a smaller line: "Abschlussprojekt SRH Fachschulen, Julian Gomez, 2026".
+- **Narration:** none.
+- **Notes:** Short cut, no jingle. If music is wanted, fade it in softly from here.
+
+### Scene 2 — Project introduction (0:03–0:18)
+
+- **Visual:** Start screen of the game, then a zoom or cut to the upper part of the start screen. Followed by a brief look at the level selection behavior (pressing Enter).
+- **Narration (draft):**
+  "Soggy Moggy, titled Gato Sin Botas in the game, is a vertical platformer that runs in the browser. A stuffed cat jumps from platform to platform while fleeing a hazard that rises from below. The game runs without any framework, entirely in Vanilla JavaScript."
+- **Notes:** Deliver the text calmly, around 15 seconds. The image shows the start screen throughout; no gameplay movement yet.
+
+### Scene 3 — Level 1 Gameplay (0:18–0:48)
+
+- **Visual:** Live gameplay in Level 1 "La Ciudad". Show: the jump mechanic, the run animation, the smog hazard rising from below. Near the end, pass by or stomp a wasp.
+- **Narration (draft):**
+  "In the first level the player moves through a city building and jumps on roller shutters. The jump is manual, no auto-jump. Smog rises beneath the character and costs a life on contact. Wasps patrol the platforms, and jumping on one from above takes it out."
+- **Notes:** 30 seconds of clean gameplay footage, tidy inputs, avoid dying if possible. If a life is lost, do not cut; just keep playing calmly.
+
+### Scene 4 — Level 2 Gameplay (0:48–1:18)
+
+- **Visual:** Level 2 "El Pozo Eléctrico". Show: starting in the elevator, moving through the ceiling hatch into the shaft, climbing between the pipes, electricity as the hazard at the bottom of the screen.
+- **Narration (draft):**
+  "In the second level the cat starts inside the elevator. Only the ceiling hatch in the center is passable; everything else stops the character. Above it comes the elevator shaft with its own platform set. The hazard here is electricity, shown as three pulsing lightning layers."
+- **Notes:** 30 seconds. If possible, include a balloon scene to show the Z key / right-click action.
+
+### Scene 5 — Level 3 Gameplay (1:18–1:48)
+
+- **Visual:** Level 3 "El Mar Abierto". Show: the lighthouse, bridges between rocky ledges, the sun with its pulse animation, rising flood as a sine wave.
+- **Narration (draft):**
+  "In the third level the scene takes place at the open sea in front of a lighthouse. The tide rises continuously and shrinks the available space. Cloud platforms sink when the cat stands on them, adding time pressure on top of the rising wave."
+- **Notes:** 30 seconds. Reach the final goal platform at the top if possible so the level-complete screen is briefly visible.
+
+### Scene 6 — Technical glimpse (1:48–2:03)
+
+- **Visual:** A brief split between the code editor (one `.js` file, for example `src/platforms.js`) and the running game. Alternative: a screen capture of the `src/` folder structure.
+- **Narration (draft):**
+  "The game runs entirely in the browser with no build step. Rendering uses the Canvas 2D API at a resolution of 480 by 640 pixels. No frameworks, no external libraries. All pixel art sprites were drawn in Pixelorama."
+- **Notes:** 15 seconds; no scrolling through long code, just a brief atmospheric shot.
+
+### Scene 7 — Credits (2:03–2:13)
+
+- **Visual:** A simple text card with three lines: "Design and Code: Julian Gomez", "Fonts: Vecteezy.com", "SRH Fachschulen GME-24.01, Abschlussprojekt 2026".
+- **Narration:** none.
+- **Notes:** Static card, around 10 seconds, then a slow blend to black.
+
+---
+
+## General Recording Notes
+
+- Record the canvas in the browser window at the native resolution (480 x 640) to avoid scaling artifacts.
+- Ideally record with OBS, 60 fps, MP4-H.264.
+- Microphone: quiet room, no background noise. Post-normalization is sufficient.
+- If narration is not wanted: display short text cards instead of voice-over. The card content matches the key sentences above.
+- No licensed music bed. Either a silent recording or self-made Web Audio sounds (Phase 6).
+
+## Open Points
+
+1. Recording setup (game capture, microphone) not yet finally tested.
+2. If in-game audio is included (from Phase 6 onward), the narration can be mixed lower or dropped entirely.
+3. Date of the recording depends on the new submission deadline.

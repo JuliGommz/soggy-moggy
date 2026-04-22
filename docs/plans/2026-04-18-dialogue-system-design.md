@@ -1,8 +1,11 @@
 # Dialogue System — Design Doc
 
-> **Superseded (2026-04-21)** — this document describes the earlier bitmap-font dialogue approach (font atlas, `src/font.js`, `drawText`, `normalizeText`, per-character rendering).
-> Phase 5 of the cleanup dropped the bitmap-font pipeline entirely. The current system loads 8 pre-rendered PNGs from `PixelArt/thought_bubbles/dialogues/` (text baked in Illustrator) and renders them via `drawImage`.
-> See Phase 5 commit + `src/dialogue.js` + MEMORY.md section „Static bubble PNG approach" for the current state. Kept as historical record only.
+> **Superseded (2026-04-22, final)** — this document describes the first bitmap-font dialogue attempt (full font atlas, `src/font.js`, `drawText`, `normalizeText`, per-character rendering). That pipeline was abandoned mid-way and replaced twice:
+>
+> 1. **2026-04-21** — switched to pre-rendered PNG bubbles with text baked in Illustrator (see `2026-04-20-dialogue-bubbles-illustrator.md`).
+> 2. **2026-04-22** — pivoted to a hybrid font stack: yellow-red bitmap atlas for titles (inlined in `src/dialogue.js` SECTION 1.5), BlockCraft.otf via `@font-face` for body text. The second bitmap attempt (`alphabet_black_230px.png`, 7x4 grid) was abandoned due to row-bleed and inconsistent spacing.
+>
+> Current source of truth: `src/dialogue.js` SECTION 1.5 (YELLOW_FONT atlas + drawYellowText + drawBodyText) and `index.html` `@font-face` block. Kept as historical record only — do not follow the instructions below.
 
 **Project:** Soggy Moggy
 **Date:** 2026-04-18

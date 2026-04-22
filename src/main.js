@@ -540,6 +540,9 @@ function renderHUD() {
     ctx.fillText('Z — dev level select', canvas.width / 2, 470);
 
     ctx.textAlign = 'left'; // always reset after centered rendering
+
+    // DEBUG: bitmap-font smoke test (remove once dialogue bubbles use fonts)
+    if (typeof renderFontSmokeTest === 'function') renderFontSmokeTest(ctx);
   }
 
   // ── DEV SELECT screen ─────────────────────────────────────────────────────

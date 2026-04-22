@@ -48,6 +48,138 @@ const _PLACEHOLDER_SIZE = {
 };
 
 // ════════════════════════════════════════════════════════════════════════════
+// SECTION 1.5 — TITLE + BODY TEXT RENDERING (hybrid font stack)
+// ════════════════════════════════════════════════════════════════════════════
+// Two fonts, two delivery methods — picked after iterating through several
+// failed approaches (see .planning/logs/ + docs/plans/2026-04-18*.md history):
+//
+//   TITLE  — YELLOW_FONT: yellow-red pixel-art bitmap atlas.
+//     Atlas data is inlined as a JS object (mirror of the generated JSON)
+//     so no runtime fetch is needed — works on file:// without CORS. The
+//     source PNG is loaded as a regular <img>. drawYellowText() uses
+//     per-glyph x/y/w/h/xadv for proportional-width rendering.
+//
+//   BODY   — BlockCraft.otf loaded via @font-face declaration in index.html.
+//     drawBodyText() uses native ctx.fillText with the 'BlockCraft' family
+//     (monospace fallback while the OTF loads). No bitmap atlas, no cell
+//     math. Chosen because an earlier attempt at a second bitmap atlas
+//     (alphabet_black_230px.png, 7x4 grid) gave inconsistent spacing and
+//     row-bleed artifacts — archived under PixelArt/fonts/Archive/.
+//
+// Both renderers are additive — callers draw text AFTER the bubble background.
+
+const YELLOW_FONT = {
+  img: (() => { const i = new Image(); i.src = 'PixelArt/fonts/alphabet_pixel_retro_video_game_style.png'; return i; })(),
+  lineHeight: 171,
+  chars: {
+    '0': {x:    0, y: 863, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    '1': {x:   41, y: 648, w:  65, h: 147, xoff: 0, yoff:  0, xadv:  67},
+    '2': {x:  217, y: 648, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    '3': {x:  445, y: 648, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    '4': {x:  686, y: 648, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    '5': {x:  924, y: 648, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    '6': {x: 1167, y: 648, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    '7': {x: 1415, y: 648, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    '8': {x: 1647, y: 648, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    '9': {x: 1899, y: 648, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    'A': {x:    0, y:   0, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    'B': {x:  217, y:   0, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    'C': {x:  445, y:   0, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    'D': {x:  686, y:   0, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    'E': {x:  924, y:   0, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    'F': {x: 1167, y:   0, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    'G': {x: 1415, y:   0, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    'H': {x: 1647, y:   0, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    'I': {x: 1905, y:   0, w: 135, h: 147, xoff: 0, yoff:  0, xadv: 137},
+    'J': {x:    0, y: 216, w: 147, h: 147, xoff: 0, yoff: 12, xadv: 149},
+    'K': {x:  212, y: 216, w: 158, h: 147, xoff: 0, yoff: 12, xadv: 160},
+    'L': {x:  445, y: 216, w: 147, h: 147, xoff: 0, yoff: 12, xadv: 149},
+    'M': {x:  674, y: 216, w: 171, h: 147, xoff: 0, yoff: 12, xadv: 173},
+    'N': {x:  924, y: 216, w: 147, h: 147, xoff: 0, yoff: 12, xadv: 149},
+    'O': {x: 1167, y: 216, w: 147, h: 147, xoff: 0, yoff: 12, xadv: 149},
+    'P': {x: 1415, y: 216, w: 147, h: 147, xoff: 0, yoff: 12, xadv: 149},
+    'Q': {x: 1647, y: 204, w: 147, h: 171, xoff: 0, yoff:  0, xadv: 149},
+    'R': {x: 1899, y: 216, w: 147, h: 147, xoff: 0, yoff: 12, xadv: 149},
+    'S': {x:    0, y: 432, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    'T': {x:  223, y: 432, w: 136, h: 147, xoff: 0, yoff:  0, xadv: 138},
+    'U': {x:  445, y: 432, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    'V': {x:  686, y: 432, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    'W': {x:  913, y: 432, w: 170, h: 147, xoff: 0, yoff:  0, xadv: 172},
+    'X': {x: 1167, y: 432, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    'Y': {x: 1409, y: 432, w: 159, h: 147, xoff: 0, yoff:  0, xadv: 161},
+    'Z': {x: 1647, y: 432, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    '?': {x: 1899, y: 432, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
+    '!': {x:  259, y: 863, w:  64, h: 147, xoff: 0, yoff:  0, xadv:  66},
+  },
+};
+
+// Body font is BlockCraft.otf — loaded via @font-face in index.html.
+// No bitmap atlas, no cell math. drawBodyText() uses native ctx.fillText
+// with 'BlockCraft' family + 'monospace' fallback so text still shows if
+// the OTF hasn't finished loading yet.
+
+// Draw one uppercase string with the yellow (title) font.
+// scale = destination-pixels per source-pixel. 0.15 maps 147px glyphs → ~22px on canvas.
+function drawYellowText(ctx, text, x, y, scale = 0.15) {
+  const f = YELLOW_FONT;
+  if (!f.img.complete || !f.img.naturalWidth) return 0;
+  let cx = x;
+  for (const ch of text.toUpperCase()) {
+    if (ch === ' ') { cx += 50 * scale; continue; }
+    const g = f.chars[ch];
+    if (!g) { cx += 70 * scale; continue; }
+    ctx.drawImage(
+      f.img,
+      g.x, g.y, g.w, g.h,
+      Math.round(cx + g.xoff * scale),
+      Math.round(y  + g.yoff * scale),
+      Math.round(g.w * scale),
+      Math.round(g.h * scale),
+    );
+    cx += g.xadv * scale;
+  }
+  return cx - x;
+}
+
+// Draw body text using BlockCraft (OTF) via native ctx.fillText.
+// pxSize = font size in canvas pixels. color defaults to near-black
+// for good contrast on light bubble backgrounds.
+function drawBodyText(ctx, text, x, y, pxSize = 18, color = '#111') {
+  ctx.save();
+  ctx.fillStyle    = color;
+  ctx.font         = pxSize + 'px "BlockCraft", monospace';
+  ctx.textBaseline = 'top';
+  ctx.textAlign    = 'left';
+  ctx.fillText(text, x, y);
+  ctx.restore();
+}
+
+// Font smoke test — renders sample YELLOW_FONT and BlockCraft.otf text on
+// the START screen so both font delivery paths can be visually verified.
+// Called from main.js renderStart(). Safe to remove once dialogue bubbles
+// are fully wired to use drawYellowText + drawBodyText.
+function renderFontSmokeTest(ctx) {
+  ctx.save();
+  // Title font (yellow bitmap) on dark background
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+  ctx.fillRect(10, 480, 460, 45);
+  ctx.fillStyle = '#888';
+  ctx.font      = '10px monospace';
+  ctx.fillText('title (yellow bitmap):', 14, 492);
+  drawYellowText(ctx, 'SOGGY MOGGY', 14, 495, 0.16);
+  // Body font (BlockCraft OTF) on light background
+  ctx.fillStyle = '#eee';
+  ctx.fillRect(10, 530, 460, 100);
+  ctx.fillStyle = '#555';
+  ctx.font      = '10px monospace';
+  ctx.fillText('body (BlockCraft OTF):', 14, 542);
+  drawBodyText(ctx, 'The quick brown cat jumps', 14, 548, 18);
+  drawBodyText(ctx, 'over the rising flood 123?!', 14, 575, 18);
+  drawBodyText(ctx, 'MEOW MEOW - PHEW! YIKES!', 14, 602, 18);
+  ctx.restore();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
 // SECTION 2 — TRIGGER KEYS (which bubble shows when)
 // ════════════════════════════════════════════════════════════════════════════
 

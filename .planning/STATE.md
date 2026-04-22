@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-04-22T00:00:00.000Z"
+last_updated: "2026-04-22T12:00:00.000Z"
 progress:
   total_phases: 9
   completed_phases: 7
@@ -22,7 +22,14 @@ progress:
 
 **Core Value:** A playable, complete gameplay loop: cat jumps up, level-specific hazards rise from below (smog/flood/electricity), tension builds — the game feels real from first play.
 
-**Current Focus:** English-only migration in progress. Phase 1 (title rename, doc updates, folder restructure) complete on branch `chore/project-cleanup-2026-04-21`. Phase 2 (Translator Agent for in-game strings) pending. After Phase 2: revisit Dialogue System — Julian wants to retry the bitmap-font-atlas approach (previously failed with manual mapping; this time using tool-generated atlas, gelb-rot font for titles, schwarz font for body). Pre-rendered PNG bubble approach (src/dialogue.js) is the current production fallback but will be replaced. Wasp enemy system already on master. L2 elevator interior (sprite + colliders + dialogue code) on feature/04.3-l2-elevator-interior, partial.
+**Current Focus:** English migration + dialogue font stack finalized (2026-04-22). Architecture:
+- **Title text:** YELLOW_FONT bitmap atlas, inlined in `src/dialogue.js` SECTION 1.5, rendered by `drawYellowText()`.
+- **Body text:** BlockCraft.otf via `@font-face` in `index.html`, rendered by `drawBodyText()` using native `ctx.fillText`.
+- The second bitmap attempt (black LCD-style on 7x4 grid) was abandoned and archived after row-bleed and spacing issues; BlockCraft.otf replaces it.
+
+**Open:** bubble SHAPE rendering (empty speech-bubble backgrounds). Decision pending between exporting 8 PNG shapes from `PixelArt/thought_bubbles/dialogue_bubbles.ai` or drawing shapes in code. Once decided, author 8 English dialogue texts and wire them into renderDialogue().
+
+Wasp enemy system already on master. L2 elevator interior on feature/04.3-l2-elevator-interior, partial.
 
 **Stack:** Vanilla JavaScript ES2022+ + HTML Canvas 2D (480x640) + Web Audio API + GitHub Pages
 
@@ -211,11 +218,12 @@ None.
 **Planning files:** `.planning/`
 **Last session:** 2026-04-22 (English migration phase 1)
 **Next action:**
-1. Translator Agent phase: convert in-game Spanish strings (`¡PELIGRO!`, `NIVEL x COMPLETADO`, `Altura/Avispas/Total/Mejor/Vidas`, menu options, dialogue prompts) and German level names (Stadt/Aufzugschacht/Offener See/Freizeitpark) and remaining Spanish code comments. Also `index.html` `lang="de"` → `lang="en"`.
-2. Retake Dialogue System with bitmap-font-atlas approach (tool-generated this time): gelb-rot alphabet for titles, schwarz for body text, English content only.
-3. After dialogue: browser smoke test, merge feature/04.3-l2-elevator-interior → master.
-4. Plan Phase 5 (Push + HUD) via `/gsd-plan-phase 5`.
+1. Decide bubble-shape source: export 8 empty bubble PNGs from `dialogue_bubbles.ai`, or draw shapes in code.
+2. Author 8 English dialogue texts (3 intros, 3 outros, 2 life-lost) as strings in `src/dialogue.js`.
+3. Wire `renderDialogue()` to use `drawYellowText` (title) + `drawBodyText` (body) on top of bubble shape.
+4. Browser smoke test, then merge feature/04.3-l2-elevator-interior → master.
+5. Plan Phase 5 (Push + HUD) via `/gsd-plan-phase 5`.
 
 ---
 *State initialized: 2026-03-03 after roadmap creation*
-*Updated: 2026-04-22 — English-only migration Phase 1 complete (title, planning docs, school doc titles, folder rename); Phase 2 Translator Agent + Dialogue System retake pending*
+*Updated: 2026-04-22 (afternoon) — English migration Phases 1+2 shipped, dialogue font stack finalized (hybrid YELLOW bitmap title + BlockCraft OTF body), black-bitmap experiment archived; pending: bubble shapes + 8 English dialogue texts + integration.*

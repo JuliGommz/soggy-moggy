@@ -1,0 +1,29 @@
+chore: archive obsolete font/dialogue artifacts after BlockCraft.otf pivot
+
+After the 2026-04-22 dialogue-font finalization (hybrid YELLOW_FONT bitmap
+atlas + BlockCraft.otf OTF), these artifacts are no longer used at runtime
+and are moved to clearly-labeled archive folders:
+
+PixelArt/fonts/ -> PixelArt/fonts/Archive/
+- alphabet_black_230px.png  (second bitmap attempt; row-bleed issues)
+- alphabet_black.ai         (Illustrator source for the above)
+- alphabet_yellow_red.json  (atlas now inlined in src/dialogue.js)
+
+tools/ -> tools/_archive/
+- glyph-extractor.html      (one-shot browser pixel scanner; atlas built)
+
+.claude/ -> .claude/_executed/
+- run-english-migration.ps1      (phase 1 driver; executed)
+- run-english-migration-fix.ps1  (phase 1 fix-up; executed)
+- run-commit.ps1                 (phase 1 commit helper; executed)
+- run-commit-phase2.ps1          (phase 2 commit helper; executed)
+- commit-message.txt             (phase 1 message template)
+- commit-message-phase2.txt      (phase 2 message template)
+
+Documentation updates accompanying this archival (same commit):
+- src/dialogue.js             SECTION 1.5 header describes the hybrid
+- .planning/STATE.md          Current Focus + Next action reflect reality
+- docs/plans/2026-04-18-*.md  Superseded banner updated to final state
+- docs/plans/2026-04-20-*.md  Superseded banner (text-baked-in approach)
+- Dokumente_Schule/Medienkatalog.md   font entries reflect active usage
+  + new BlockCraft.otf row (license TODO flagged)

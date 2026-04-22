@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gato Sin Botas — GDD</title>
+  <title>Soggy Moggy — GDD</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P:wght@400&family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
@@ -618,6 +618,104 @@
       color: var(--dim);
       line-height: 2.2;
     }
+
+    /* ── Print / PDF ────────────────────────────────────────────────── */
+    @page {
+      size: A4;
+      margin: 14mm 12mm;
+    }
+
+    @media print {
+      html, body {
+        background: var(--bg) !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      body { font-size: 11px; line-height: 1.55; background: var(--bg) !important; }
+
+      .wrap { max-width: 100%; padding: 0 8mm; }
+
+      /* Einheitlicher Hintergrund im Druck, damit Leerraum am Seitenende nicht zwischen Farbtönen springt */
+      #hero, #loop, #controls, #features, #levels, #art, #todo, #media, #footer {
+        background: var(--bg) !important;
+      }
+
+      section {
+        padding: 6mm 0 4mm;
+        border-bottom: none;
+      }
+      #hero {
+        padding: 10mm 0 8mm;
+      }
+
+      /* Responsive-Kollaps aus der 860px-Media-Query im Druck überstimmen.
+         A4-Portrait ist nur ~794px breit, greift also sonst dort. */
+      .col2 { grid-template-columns: 1fr 1fr !important; gap: 16px !important; }
+      .col3 { grid-template-columns: 1fr 1fr 1fr !important; gap: 10px !important; }
+
+      /* Jede neue Section startet auf neuer Seite (außer Hero als Titelseite) */
+      #loop, #controls, #features, #levels, #media, #art, #todo, #footer {
+        break-before: page;
+        page-break-before: always;
+      }
+
+      /* Überschriften nicht allein am Seitenende */
+      h2, .label, .media-group-label, .feeling-label {
+        break-after: avoid;
+        page-break-after: avoid;
+      }
+
+      /* WICHTIG: KEIN break-inside: avoid auf .col2 / .col3 / .media-group /
+         .todo-list / .feat-list / .loop-steps — sonst springt der gesamte
+         Container auf die nächste Seite und lässt die Titelseite leer. */
+
+      /* Nur einzelne atomare Kinder sollen zusammenhalten */
+      .level-card, .card, .feeling-block, .todo-item, .feat-item,
+      .cat-card, .sheet-card, .bg-item, .loop-step, .tech-row {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      h2 { font-size: 15px; margin-bottom: 12px; }
+      .hero-title { font-size: 34px; }
+      .hero-sub   { font-size: 12px; }
+      .hero-pitch { font-size: 11px; padding: 10px 14px; }
+
+      p, .loop-text, .feat-note, .level-detail, .tech-val, .tech-key,
+      .ctrl-table td, .todo-text, .todo-note, .footer-meta {
+        font-size: 11px;
+        line-height: 1.55;
+      }
+
+      /* Level-Screenshots im Druck klein halten — vorher contain+260px
+         produzierte riesige, verzerrte Karten. Jetzt fix 110px cover, damit
+         alle drei Level-Karten sauber nebeneinander auf eine A4-Seite passen. */
+      .level-screenshot {
+        width: 100%;
+        height: 110px;
+        object-fit: cover;
+        object-position: center;
+        background: #0b1219;
+      }
+
+      /* Level-Karten-Innenraum im Druck kompakter */
+      .level-body { padding: 12px 10px; gap: 8px; }
+      .level-name { font-size: 9px; }
+      .level-num  { font-size: 8px; }
+      .hazard     { font-size: 7px; padding: 4px 7px; }
+
+      /* Medien-Grids etwas kompakter */
+      .cat-frame.h128 img { height: 80px; }
+      .cat-frame.h96  img { height: 64px; }
+      .cat-frame.bg-tile img { width: 120px; height: 72px; }
+      .sheet-frame img { height: 42px; }
+
+      /* Interaktion ausblenden */
+      #lb, #lb-close { display: none !important; }
+      .zoomable { cursor: default; }
+      .zoomable:hover { border-color: rgba(126,184,201,.15) !important; }
+    }
   </style>
 </head>
 <body>
@@ -628,18 +726,18 @@
 
   <div class="wrap">
     <p class="hero-super">SRH · Abschlussprojekt · Game &amp; Multimedia Design</p>
-    <h1 class="hero-title">Gato Sin Botas</h1>
-    <p class="hero-sub">»Soggy Moggy«</p>
+    <h1 class="hero-title">Soggy Moggy</h1>
+    <p class="hero-sub">Vertikaler Plattformer</p>
 
     <p class="hero-pitch">
-      Ein vertikaler Plattformer, in dem der Spieler eine Katze steuert, die vor einer stetig steigenden Bedrohung nach oben flieht. Im Gegensatz zu klassischen Endlos-Springern springt die Figur nur auf aktive Eingabe — jede Plattform ist eine bewusste Entscheidung.
+      Ein vertikaler Plattformer, in dem der Spieler eine Katze steuert, die vor einer stetig steigenden Bedrohung nach oben flieht. Im Gegensatz zu klassischen Endlos-Springern springt die Figur nur auf aktive Eingabe. Jede Plattform ist eine bewusste Entscheidung.
     </p>
 
     <div class="tags">
       <span class="tag tag-sky">Browser · HTML5</span>
       <span class="tag tag-gold">Vanilla JS · Kein Framework</span>
       <span class="tag tag-green">3 Level</span>
-      <span class="tag tag-red">Abgabe 22.04.2026</span>
+      <span class="tag tag-red">Abgabe: verschoben</span>
     </div>
   </div>
 
@@ -677,7 +775,11 @@
         <div class="tags" style="margin-top:8px;">
           <span class="tag tag-sky">START</span>
           <span style="color:var(--dim); font-size:11px; align-self:center;">→</span>
+          <span class="tag tag-dim">LEVEL INTRO</span>
+          <span style="color:var(--dim); font-size:11px; align-self:center;">→</span>
           <span class="tag tag-green">PLAYING</span>
+          <span style="color:var(--dim); font-size:11px; align-self:center;">→</span>
+          <span class="tag tag-dim">LEVEL OUTRO</span>
           <span style="color:var(--dim); font-size:11px; align-self:center;">→</span>
           <span class="tag tag-gold">LEVEL COMPLETE</span>
           <span style="color:var(--dim); font-size:11px; align-self:center;">→</span>
@@ -825,6 +927,13 @@
               <div class="feat-note">localStorage · SRH-Pflichtanforderung</div>
             </div>
           </div>
+          <div class="feat-item todo">
+            <span class="feat-icon">~</span>
+            <div>
+              <div class="feat-name">Dialogsystem</div>
+              <div class="feat-note">Intro- und Outro-Sprachblase pro Level · Code fertig · PNG-Assets offen</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -877,9 +986,9 @@
         <img class="level-screenshot" src="../screenshots/Levels/Level1.1.png" alt="Level 1 Screenshot">
         <div class="level-body">
           <span class="level-num">LEVEL 01</span>
-          <span class="level-name">La Ciudad</span>
+          <span class="level-name">City</span>
           <p class="level-detail"><strong>Setting</strong><br>Stadtgebäude · Jalousienplattformen · Dächer</p>
-          <p class="level-detail"><strong>Gegner</strong><br>1 Wespe</p>
+          <p class="level-detail"><strong>Gegner</strong><br>10 Wespen</p>
           <span class="hazard">Steigender Smog</span>
         </div>
       </div>
@@ -888,9 +997,9 @@
         <img class="level-screenshot" src="../screenshots/Levels/Level3.1.png" alt="Level 2 Screenshot">
         <div class="level-body">
           <span class="level-num">LEVEL 02</span>
-          <span class="level-name">El Cubo Eléctrico</span>
+          <span class="level-name">Elevator Shaft</span>
           <p class="level-detail"><strong>Setting</strong><br>Aufzugschacht · Fahrstuhlkabine · Rohre</p>
-          <p class="level-detail"><strong>Gegner</strong><br>2 Wespen</p>
+          <p class="level-detail"><strong>Gegner</strong><br>15 Wespen</p>
           <span class="hazard">Steigende Elektrizität</span>
         </div>
       </div>
@@ -899,9 +1008,9 @@
         <img class="level-screenshot" src="../screenshots/Screenshot%202026-03-31%20145334.png" alt="Level 3 Screenshot">
         <div class="level-body">
           <span class="level-num">LEVEL 03</span>
-          <span class="level-name">El Faro</span>
+          <span class="level-name">Open Sea</span>
           <p class="level-detail"><strong>Setting</strong><br>Offener See · Leuchtturm · Felsvorsprünge</p>
-          <p class="level-detail"><strong>Gegner</strong><br>4 Wespen</p>
+          <p class="level-detail"><strong>Gegner</strong><br>20 Wespen</p>
           <span class="hazard">Steigende Flut</span>
         </div>
       </div>
@@ -1039,7 +1148,7 @@
 
     <!-- ── Level 1 ── -->
     <div class="media-group">
-      <p class="media-group-label">Level 1 — La Ciudad</p>
+      <p class="media-group-label">Level 1 — City</p>
       <div class="cat-grid">
         <div class="cat-card">
           <div class="cat-frame bg-tile zoomable" data-src="../PixelArt/backgrounds/level1_city/building_wall.png" data-cap="L1 Gebäudewand"><img src="../PixelArt/backgrounds/level1_city/building_wall.png" alt="Building Wall"></div>
@@ -1083,7 +1192,7 @@
 
     <!-- ── Level 2 ── -->
     <div class="media-group">
-      <p class="media-group-label">Level 2 — El Cubo Eléctrico</p>
+      <p class="media-group-label">Level 2 — Elevator Shaft</p>
       <div class="cat-grid">
         <div class="cat-card">
           <div class="cat-frame bg-tile zoomable" data-src="../PixelArt/backgrounds/level_2_shaft/elevator.png" data-cap="L2 Fahrstuhlkabine"><img src="../PixelArt/backgrounds/level_2_shaft/elevator.png" alt="Elevator"></div>
@@ -1122,7 +1231,7 @@
 
     <!-- ── Level 3 ── -->
     <div class="media-group">
-      <p class="media-group-label">Level 3 — El Faro</p>
+      <p class="media-group-label">Level 3 — Open Sea</p>
       <div class="sheet-row">
         <div class="sheet-card">
           <div class="sheet-frame zoomable" data-src="../PixelArt/backgrounds/level_3_sea/lighthouse_sheet.png" data-cap="El Faro — Sprite Sheet"><img src="../PixelArt/backgrounds/level_3_sea/lighthouse_sheet.png" alt="Lighthouse Sheet"></div>
@@ -1217,7 +1326,23 @@
       <div class="todo-item">
         <span class="todo-dot">○</span>
         <div>
-          <div class="todo-text">Musik + SFX</div>
+          <div class="todo-text">Dialogblasen fertigstellen</div>
+          <div class="todo-note">8 PNGs aus Illustrator exportieren · Intro und Outro pro Level + 2 Life-Events</div>
+        </div>
+      </div>
+
+      <div class="todo-item">
+        <span class="todo-dot">○</span>
+        <div>
+          <div class="todo-text">Gameplay-Video aufnehmen</div>
+          <div class="todo-note">Drehbuch liegt vor · OBS · 60 fps · ca. 2 bis 4 Minuten</div>
+        </div>
+      </div>
+
+      <div class="todo-item">
+        <span class="todo-dot">○</span>
+        <div>
+          <div class="todo-text">Musik und Soundeffekte</div>
           <div class="todo-note">Phase 6 · Web Audio API</div>
         </div>
       </div>
@@ -1225,40 +1350,24 @@
       <div class="todo-item">
         <span class="todo-dot">○</span>
         <div>
-          <div class="todo-text">UI: Struktur &amp; Sprache einheitlich</div>
-          <div class="todo-note">Alle Screens · Spanisch durchgängig</div>
+          <div class="todo-text">GitHub-Pages-Hosting</div>
+          <div class="todo-note">Phase 7 · nach Audio</div>
         </div>
       </div>
 
       <div class="todo-item">
         <span class="todo-dot">○</span>
         <div>
-          <div class="todo-text">Sprites: Sprungplattformen Level 2 &amp; 3</div>
-          <div class="todo-note">Aufzugschacht · Leuchtturm</div>
+          <div class="todo-text">Selbstständigkeitserklärung</div>
+          <div class="todo-note">SRH-Formular drucken, unterschreiben, scannen</div>
         </div>
       </div>
 
       <div class="todo-item">
         <span class="todo-dot">○</span>
         <div>
-          <div class="todo-text">Sprites: Sprachblasen + Pixelart-Alphabet</div>
-          <div class="todo-note">Für In-Game-Text und Dialoge</div>
-        </div>
-      </div>
-
-      <div class="todo-item">
-        <span class="todo-dot">○</span>
-        <div>
-          <div class="todo-text">Sprites: Cat-Buddha — Abschlusssequenz</div>
-          <div class="todo-note">Story-abhängig · wird nach Narrative-Entscheidung umgesetzt</div>
-        </div>
-      </div>
-
-      <div class="todo-item">
-        <span class="todo-dot">○</span>
-        <div>
-          <div class="todo-text">Sprite-Katalog: Sheets für L1 &amp; L2</div>
-          <div class="todo-note">Sprite Sheets für La Ciudad und El Cubo Eléctrico — gleiche Darstellung wie Leuchtturm</div>
+          <div class="todo-text">Offene Code-Issues</div>
+          <div class="todo-note">L2 C3 Collider · Wespensprite 2× skalieren · L2 Hazard-Cap prüfen</div>
         </div>
       </div>
 
@@ -1271,7 +1380,7 @@
   <div class="wrap">
     <p class="footer-meta">
       Julian Gomez &nbsp;·&nbsp; SRH Fachschulen GME-24.01<br>
-      Abgabe 22.04.2026 &nbsp;·&nbsp; Vanilla JS + HTML Canvas 2D
+      Abgabe: verschoben &nbsp;·&nbsp; Vanilla JS + HTML Canvas 2D
     </p>
   </div>
 </section>

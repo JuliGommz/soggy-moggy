@@ -1,85 +1,85 @@
-# Abgabe-Status: Soggy Moggy / Gato Sin Botas
+# Submission Status: Soggy Moggy / Gato Sin Botas
 
-**Letztes Update:** 2026-04-22
+**Last updated:** 2026-04-22
 **Branch:** chore/project-cleanup-2026-04-21
-**Deadline:** verschoben, neues Datum ausstehend (Stand 21.04.2026)
-**Zweck dieser Datei:** Zukünftigen Claude-Sessions sofortigen Überblick geben, was fertig ist und was noch fehlt. Vor jeder neuen Session hier schauen.
+**Deadline:** postponed, new date pending (as of 21.04.2026)
+**Purpose of this file:** Give future Claude sessions an immediate overview of what is done and what is still missing. Check here before starting any new session.
 
 ---
 
-## Pflichtdokumente
+## Required Documents
 
-| Dokument | Pfad | Status | Notizen |
+| Document | Path | Status | Notes |
 |---|---|---|---|
-| Themeneinreichung | `Dokumente_Schule/Einreichung/Themeneinreichung_Julian_Gomez.pdf` | Vorhanden | Eingereicht und abgestempelt |
-| Projektplan | `Dokumente_Schule/Ausgefuellt/Projektplan_Julian_Gomez.docx` | Vorhanden | Stand Anfang Projekt |
-| Arbeitsprotokoll | `Dokumente_Schule/Ausgefuellt/Arbeitsprotokoll_Julian_Gomez.docx` | Täglich aktualisieren | Muss bis Abgabetag fortlaufend geführt sein |
-| GDD (Word) | `Dokumente_Schule/Ausgefuellt/GDD_Julian_Gomez.docx` | Vorhanden | Word-Version für Schulabgabe |
-| GDD (Markdown) | `Dokumente_Schule/Ausgefuellt/GDD_Julian_Gomez.md` | Vorhanden, Phase 8 synced | Deadline auf „verschoben" gesetzt |
-| Medienkatalog | `Dokumente_Schule/Medienkatalog.md` | Vorhanden (Phase 9) | Alle Assets verifiziert gegen Dateisystem-Stand 21.04.2026 |
-| USB-Abgabe-Struktur | `Dokumente_Schule/USB-Abgabe-Struktur.md` | Vorhanden (Phase 9) | Checkliste für den finalen Stick |
-| README | `README.md` | Vorhanden (Phase 9) | Vecteezy-Attribution, Controls, Starten, Credits |
-| Video-Skript | `docs/video_script.md` | Vorhanden (Phase 9) | 7 Szenen, ca. 2:35 min geplant |
-| Selbstständigkeitserklärung | nicht im Repo | BLOCKIERT | Handunterschrift erforderlich, muss manuell ausgefüllt und gescannt werden |
-| Gameplay-Video | nicht im Repo | FEHLT | Noch nicht aufgenommen; Skript liegt in `docs/video_script.md` |
+| Topic submission | `Dokumente_Schule/Einreichung/Themeneinreichung_Julian_Gomez.pdf` | Present | Submitted and stamped |
+| Project plan | `Dokumente_Schule/Ausgefuellt/Projektplan_Julian_Gomez.docx` | Present | State at project start |
+| Work log | `Dokumente_Schule/Ausgefuellt/Arbeitsprotokoll_Julian_Gomez.docx` | Update daily | Must be kept continuously up to submission day |
+| GDD (Word) | `Dokumente_Schule/Ausgefuellt/GDD_Julian_Gomez.docx` | Present | Word version for school submission |
+| GDD (Markdown) | `Dokumente_Schule/Ausgefuellt/GDD_Julian_Gomez.md` | Present, Phase 8 synced | Deadline set to "postponed" |
+| Media catalogue | `Dokumente_Schule/Medienkatalog.md` | Present (Phase 9) | All assets verified against filesystem state 21.04.2026 |
+| USB submission structure | `Dokumente_Schule/USB-Abgabe-Struktur.md` | Present (Phase 9) | Checklist for the final stick |
+| README | `README.md` | Present (Phase 9) | Vecteezy attribution, controls, how to run, credits |
+| Video script | `docs/video_script.md` | Present (Phase 9) | 7 scenes, approx. 2:35 min planned |
+| Declaration of independence | not in repo | BLOCKED | Handwritten signature required; must be filled out manually and scanned |
+| Gameplay video | not in repo | MISSING | Not yet recorded; script is in `docs/video_script.md` |
 
 ---
 
-## Code-Status
+## Code Status
 
-| Bereich | Status | Notizen |
+| Area | Status | Notes |
 |---|---|---|
-| L1 Gameplay | Fertig (Phases 1–4) | Stadt, Smog, Jalousie-Plattformen, 10 Wespen |
-| L2 Gameplay | Fertig (Phase 04.3) | Aufzugschacht, Elektrizität, Pipe-Rendering, 15 Wespen |
-| L3 Gameplay | Fertig | Leuchtturm, Flut, Brücken-Collider, 20 Wespen |
-| Dialogue-System | Teilweise | `src/dialogue.js` fertig; 8 PNG-Bubbles fehlen noch (Illustrator-Export ausstehend) |
-| Dialogue PNGs | FEHLEN | `PixelArt/thought_bubbles/dialogues/*.png` — alle 8 leer (Ordner da, `.gitkeep`). Quelle: `PixelArt/thought_bubbles/dialogue_bubbles.ai` |
-| Dialogue Smoke-Test | Noch offen | 7-Schritt-Test in `docs/plans/2026-04-18-dialogue-system-design.md` |
-| Audio | Phase 6 geplant | Keine Assets, keine Implementierung |
-| GitHub Pages Hosting | Phase 7 geplant | Noch nicht deployed |
-| Wasp-Sprite-Scaling | Bekanntes Problem | Sprite zu klein (ca. 2× zu skalieren); L2 fehlt Top-Wasp-Sprite |
-| L2 C3 Collider | Bekanntes Problem | Katze passiert Schacht-Oberseite bei goalY+80 — kein Fix bisher |
-| Linker Aufzug-Griff CHL | Bekanntes Problem | Rechts (CHR) erledigt, links (PIL x=0..98 y=464) fehlt |
+| L1 Gameplay | Done (Phases 1–4) | City, smog, jalousie platforms, 10 wasps |
+| L2 Gameplay | Done (Phase 04.3) | Elevator shaft, electricity, pipe rendering, 15 wasps |
+| L3 Gameplay | Done | Lighthouse, flood, bridge colliders, 20 wasps |
+| Dialogue system | Partial | `src/dialogue.js` done; 8 PNG bubbles still missing (Illustrator export pending) |
+| Dialogue PNGs | MISSING | `PixelArt/thought_bubbles/dialogues/*.png` — all 8 empty (folder exists, `.gitkeep`). Source: `PixelArt/thought_bubbles/dialogue_bubbles.ai` |
+| Dialogue smoke test | Still open | 7-step test in `docs/plans/2026-04-18-dialogue-system-design.md` |
+| Audio | Phase 6 planned | No assets, no implementation |
+| GitHub Pages hosting | Phase 7 planned | Not yet deployed |
+| Wasp sprite scaling | Known issue | Sprite too small (needs approx. 2x scale); L2 missing top wasp sprite |
+| L2 C3 collider | Known issue | Cat passes through shaft top at goalY+80 — no fix yet |
+| Left elevator handle CHL | Known issue | Right side (CHR) done; left side (PIL x=0..98 y=464) missing |
 
 ---
 
-## Offene Punkte (nach Priorität)
+## Open Items (by priority)
 
-1. **Dialogue PNGs exportieren** — Illustrator `dialogue_bubbles.ai` öffnen, 8 Artboards als PNG exportieren nach `PixelArt/thought_bubbles/dialogues/`. Dateinamen: `l1_intro`, `l2_intro`, `l3_intro`, `l1_outro`, `l2_outro`, `l3_outro`, `life_hazard`, `life_wasp`.
-2. **Dialogue Smoke-Test** — 7 Schritte in `docs/plans/2026-04-18-dialogue-system-design.md` durchführen, nachdem PNGs da sind.
-3. **Gameplay-Video aufnehmen** — Skript in `docs/video_script.md`. OBS, 60 fps, MP4. Länge: 2–4 Minuten.
-4. **Selbstständigkeitserklärung** — Formular der SRH ausdrucken, handschriftlich unterzeichnen, einscannen, als PDF in `Dokumente_Schule/Ausgefuellt/` ablegen.
-5. **Arbeitsprotokoll** — täglich pflegen bis Abgabetag.
-6. **L2 C3 Collider fixen** — eigenes Ticket/Session.
-7. **Wasp-Sprite 2× skalieren** — eigenes Ticket/Session.
-8. **L2 Hazard-Cap prüfen** — aktuell 22px, Empfehlung 60–80px ausprobieren.
-9. **Audio (Phase 6)** — nach Dialogue-PNGs und Video.
-10. **GitHub Pages (Phase 7)** — nach Phase 6.
+1. **Export dialogue PNGs** — open Illustrator `dialogue_bubbles.ai`, export 8 artboards as PNG to `PixelArt/thought_bubbles/dialogues/`. Filenames: `l1_intro`, `l2_intro`, `l3_intro`, `l1_outro`, `l2_outro`, `l3_outro`, `life_hazard`, `life_wasp`.
+2. **Dialogue smoke test** — run the 7 steps in `docs/plans/2026-04-18-dialogue-system-design.md` once the PNGs are in place.
+3. **Record gameplay video** — script in `docs/video_script.md`. OBS, 60 fps, MP4. Length: 2 to 4 minutes.
+4. **Declaration of independence** — print the SRH form, sign by hand, scan, save as PDF in `Dokumente_Schule/Ausgefuellt/`.
+5. **Work log** — keep updated daily until submission day.
+6. **Fix L2 C3 collider** — separate ticket/session.
+7. **Scale wasp sprite 2x** — separate ticket/session.
+8. **Check L2 hazard cap** — currently 22px; try 60–80px.
+9. **Audio (Phase 6)** — after dialogue PNGs and video.
+10. **GitHub Pages (Phase 7)** — after Phase 6.
 
 ---
 
-## Cleanup-Phasen-Überblick
+## Cleanup Phases Overview
 
-| Phase | Beschreibung | Status |
+| Phase | Description | Status |
 |---|---|---|
-| 0 | Safety Net (Tag, Branch) | Branch existiert; Tag `pre-cleanup-2026-04-21` — Status unklar |
-| 1 | Archive-Infrastruktur (`_archive/`) | Erledigt |
-| 2 | Level-Ordner umbenennen (L2/L3 Swap) | Erledigt |
-| 3 | Neue Gruppen `characters/` + `ui/` | Erledigt |
-| 4 | Fonts archivieren | Erledigt |
-| 5 | thought_bubbles archivieren + PNG-Migration vorbereiten | Erledigt |
-| 6 | Code-Cleanup (Rocket, keys.shoot, console.log) | Erledigt |
-| 7 | pipes_bottom Fix | Erledigt |
-| 8 | Doku-Sync | Erledigt |
-| 9 | Schul-Abgabe-Artefakte | Erledigt (dieser Commit) |
+| 0 | Safety net (tag, branch) | Branch exists; tag `pre-cleanup-2026-04-21` — status unclear |
+| 1 | Archive infrastructure (`_archive/`) | Done |
+| 2 | Rename level folders (L2/L3 swap) | Done |
+| 3 | New groups `characters/` + `ui/` | Done |
+| 4 | Archive fonts | Done |
+| 5 | Archive thought_bubbles + prepare PNG migration | Done |
+| 6 | Code cleanup (Rocket, keys.shoot, console.log) | Done |
+| 7 | pipes_bottom fix | Done |
+| 8 | Documentation sync | Done |
+| 9 | School submission artefacts | Done (this commit) |
 
 ---
 
-## Nächste Schritte (erste Session nach dieser hier)
+## Next Steps (first session after this one)
 
-1. Illustrator öffnen, `dialogue_bubbles.ai` fertigstellen, 8 PNGs exportieren.
-2. PNGs in `PixelArt/thought_bubbles/dialogues/` ablegen, committen.
-3. Dialogue Smoke-Test ausführen (7 Schritte).
-4. Danach: Gameplay-Video aufnehmen.
-5. Danach: Selbstständigkeitserklärung unterschreiben und scannen.
-6. USB-Stick nach Checkliste in `Dokumente_Schule/USB-Abgabe-Struktur.md` zusammenstellen.
+1. Open Illustrator, finish `dialogue_bubbles.ai`, export 8 PNGs.
+2. Place PNGs in `PixelArt/thought_bubbles/dialogues/`, commit.
+3. Run the dialogue smoke test (7 steps).
+4. After that: record the gameplay video.
+5. After that: sign and scan the declaration of independence.
+6. Assemble the USB stick following the checklist in `Dokumente_Schule/USB-Abgabe-Struktur.md`.

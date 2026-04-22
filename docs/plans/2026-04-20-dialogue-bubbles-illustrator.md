@@ -1,13 +1,12 @@
 # Dialogue Bubbles — Manual Illustrator Production Plan
 
-> **Language note (2026-04-21 later):** All Spanish dialogue texts listed in this document (`ATENCIÓN!`, `CONTAMINACIÓN`, `QUÉ NUEVE VIDAS?!`, etc.) are superseded by English translations handled via a dedicated translator agent. The 8 bubble trigger keys (l1_intro, l2_intro, …, life_wasp) stay the same. Treat the Spanish text snippets here as placeholders only.
+> **Superseded (2026-04-22, final)** — the "pre-rendered PNG with text baked in Illustrator" idea was dropped. Current production architecture uses a hybrid font stack rendered at runtime (see `src/dialogue.js` SECTION 1.5):
+> - **Title text:** YELLOW_FONT bitmap atlas, data inlined in `src/dialogue.js` (mirror of `alphabet_yellow_red.json`).
+> - **Body text:** BlockCraft.otf via `@font-face` (declared in `index.html`) + native `ctx.fillText`.
 >
-> **Partially superseded (2026-04-21)** — the Illustrator workflow (8 artboards, one .ai file, PNG export per trigger) is still the active production pipeline. However:
-> - Artboard sizes changed from the full 480×640 canvas to bubble-sized artboards (wide2/wide1 = 240×110, small2 = 200×110, burst = 240×240).
-> - Output path is `PixelArt/thought_bubbles/dialogues/` with trigger-based filenames (l1_intro.png … life_wasp.png).
-> - The dim overlay (55% black) is now drawn in code, NOT baked into the PNG.
-> - Bitmap-font (`font.js`) removal already happened in Phase 5 — ignore the „remove font.js" steps, they are done.
-> Current truth: `docs/plans/2026-04-21-project-cleanup.md` Phase 5 + MEMORY.md „Static bubble PNG approach".
+> Open: the 8 bubble SHAPES (empty bubble backgrounds without text) may still be exported from `PixelArt/thought_bubbles/dialogue_bubbles.ai` as PNGs to provide shaped speech-bubble backgrounds underneath the dynamic text. Decision pending. If not exported, simple rectangle backgrounds will be used.
+>
+> The language note below is obsolete too — English dialogue texts will be authored directly in code (SECTION 1.5 call sites), not baked into PNGs.
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
