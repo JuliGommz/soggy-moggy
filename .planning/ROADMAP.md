@@ -148,7 +148,7 @@ Plans:
   2. L3 Scene 1 (Elevator): a pre-placed Kletter-Kiste can be pushed with Z into position; cat can jump on it to reach the ceiling hatch
   3. NPC creature spawns on select platforms, patrols full platform width, reverses at edges, contact with cat triggers takeDamage()
   4. Balloon rises upward at chase speed — disappears if it reaches levelGoalY before being caught
-  5. A speech bubble appears on damage, level-complete, and game-over events — Spanish phrase, fades cleanly
+  5. A speech bubble appears on damage, level-complete, and game-over events — English phrase, fades cleanly
 **Plans:** TBD (estimated 5–6)
 
 ### Phase 6: Audio
@@ -215,9 +215,9 @@ Plans:
 | PUSH-01 | Manual jump from ground (Space + onGround gate) | Phase 5 |
 | PUSH-02 | Push mechanic + item physics (Z key, proximity, gravity) | Phase 5 |
 | PUSH-03 | Push score feedback + hazard interaction (floating text, splash, stubs) | Phase 5 |
-| HUD-01 | Spanish speech bubble system (shapes, lifecycle, positioning) | Phase 5 |
+| HUD-01 | English speech bubble system (shapes, lifecycle, positioning) | Phase 5 |
 | HUD-02 | Event-to-bubble mapping (damage, level complete, push, game over) | Phase 5 |
-| HUD-03 | Game title: Gato sin Botas on start/gameover screens | Phase 5 |
+| HUD-03 | Game title: Soggy Moggy on start/gameover screens | Phase 5 |
 | AUDIO-01 | Jump sound effect | Phase 6 |
 | AUDIO-02 | Damage sound effect (water contact) | Phase 6 |
 | AUDIO-03 | Game over audio sting | Phase 6 |

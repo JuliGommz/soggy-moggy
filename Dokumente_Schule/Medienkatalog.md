@@ -1,4 +1,4 @@
-# Media Catalogue — Soggy Moggy / Gato Sin Botas
+# Media Catalogue — Soggy Moggy
 
 **Author:** Julian Gomez
 **Date:** 21.04.2026
