@@ -1,8 +1,8 @@
-# Roadmap: Soggy Moggy (in-game: Gato Sin Botas)
+# Roadmap: Soggy Moggy
 
 **Project:** Soggy Moggy
 **Created:** 2026-03-03
-**Updated:** 2026-03-21 — Doc consistency audit: fixed stale criteria (auto-bounce→manual jump, 4→3 levels, danger types)
+**Updated:** 2026-04-21 — 04.3 nahezu fertig (Elevator Sprite, Colliders, Shaft-Platforms, Wall-Confinement, Dialogue-System-Code), Wasp-Count bumped 10/15/20, Deadline 22.04.2026 um wenige Tage verschoben.
 **Depth:** Standard (7 phases + 04.1)
 **Coverage:** 45/45 v1 requirements mapped
 
@@ -15,8 +15,10 @@
 - [x] **Phase 3: Game World** - Procedural platforms (normal + crumbling), level structure (height goal + level-complete screen + progression), screens (start/game over), score system, LocalStorage high score
 - [x] **Phase 4: Flood + Lives** - Rising water with escalating speed, lives system (3 hearts), damage feedback, animated wave
 - [x] **Phase 04.1: Visual Concept** - Art style, color palette, style guide, asset list, sprite exports (completed 2026-03-09)
-- [ ] **Phase 04.2: L2 Lighthouse Redesign** - Replace rocket setting with lighthouse; new pixel art; rewrite background.js L2 section; new platform concept (rocky ledges / wave-breaker steps)
-- [ ] **Phase 5: Push + HUD** - Kletter-Kiste puzzle (L3), NPC patrolling creature, balloon chase mechanic, Spanish speech bubbles, level platform sprites (L2+L3)
+- [x] **Phase 04.2: L2 Lighthouse Redesign** - Lighthouse background, parallax layers, cloud mechanics, L2 level redesign — shipped on branch, merged to master (completed ~2026-04-07)
+- [x] **Phase 04.3: L2 Elevator Interior** - Elevator sprite, invisible colliders (C1/C2/C404/CHR), 404 display platform, Shaft-Platform-Atlas + Zigzag-Generation, Horizontal-Wall-Confinement, Dialogue-System-Code — branch feature/04.3-l2-elevator-interior (code ready; offen: Dialogue-PNG-Assets aus Illustrator + Smoke-Test + Merge zu master)
+- [x] **Phase 05-e: Wasp Enemy System** - Patrol + stomp mechanics, 10/15/20 wasps per level (bumped 2026-04-20 von 5/7/10), stinger/stomp interactions, scoring — merged to master (completed 2026-04-07). Known Issues: Sprite zu klein (~2× scale nötig), L2 Top-Sprite fehlt.
+- [ ] **Phase 5: Push + HUD** - Kletter-Kiste puzzle (L2 Elevator), NPC patrolling creature, balloon chase mechanic, English speech bubbles, level platform sprites (L2+L3)
 - [ ] **Phase 6: Audio** - Jump SFX, damage SFX, game over sting, background music loop, push/impact sound
 - [ ] **Phase 7: Hosting** - GitHub Pages deployment, shareable URL, final browser smoke test
 
@@ -31,7 +33,9 @@
 | 3. Game World | 3/3 | Complete | 2026-03-06 |
 | 4. Flood + Lives | 2/2 | Complete | 2026-03-10 |
 | 04.1 Visual Concept | 2/2 | Complete | 2026-03-09 |
-| 04.2 L2 Lighthouse | 0/? | Not started | - |
+| 04.2 L2 Lighthouse | — (shipped outside GSD) | Complete | ~2026-04-07 |
+| 04.3 L2 Elevator Interior | — (shipped outside GSD) | Code ready, PNG-Assets + Smoke-Test offen | - |
+| 05-e Wasp Enemy System | — (shipped outside GSD) | Complete | 2026-04-07 |
 | 5. Push + HUD | 0/? | Not started | - |
 | 6. Audio | 0/? | Not started | - |
 | 7. Hosting | 0/? | Not started | - |
@@ -133,7 +137,7 @@ Plans:
 **Plans:** TBD (estimated 2)
 
 ### Phase 5: Push + HUD
-**Goal:** L3 has a functional Kletter-Kiste puzzle, a patrolling NPC creature adds risk to platforms, balloon chase mechanic is active, and Spanish speech bubbles react to key game events.
+**Goal:** L3 has a functional Kletter-Kiste puzzle, a patrolling NPC creature adds risk to platforms, balloon chase mechanic is active, and English speech bubbles react to key game events.
 **Depends on:** Phase 04.2, Phase 04.1
 **Requirements:** PUSH-01, HUD-01, HUD-02, HUD-03, VIS-06, VIS-08, NPC-01
 **Note:** Manual jump (Space key, onGround gate), variable jump, walk animation, finish trigger system, balloon collectible, and 3 hazard renderers were all implemented on the feature/asset-restructure-mechanics branch before Phase 5 planning.
@@ -144,7 +148,7 @@ Plans:
   2. L3 Scene 1 (Elevator): a pre-placed Kletter-Kiste can be pushed with Z into position; cat can jump on it to reach the ceiling hatch
   3. NPC creature spawns on select platforms, patrols full platform width, reverses at edges, contact with cat triggers takeDamage()
   4. Balloon rises upward at chase speed — disappears if it reaches levelGoalY before being caught
-  5. A speech bubble appears on damage, level-complete, and game-over events — Spanish phrase, fades cleanly
+  5. A speech bubble appears on damage, level-complete, and game-over events — English phrase, fades cleanly
 **Plans:** TBD (estimated 5–6)
 
 ### Phase 6: Audio
@@ -211,9 +215,9 @@ Plans:
 | PUSH-01 | Manual jump from ground (Space + onGround gate) | Phase 5 |
 | PUSH-02 | Push mechanic + item physics (Z key, proximity, gravity) | Phase 5 |
 | PUSH-03 | Push score feedback + hazard interaction (floating text, splash, stubs) | Phase 5 |
-| HUD-01 | Spanish speech bubble system (shapes, lifecycle, positioning) | Phase 5 |
+| HUD-01 | English speech bubble system (shapes, lifecycle, positioning) | Phase 5 |
 | HUD-02 | Event-to-bubble mapping (damage, level complete, push, game over) | Phase 5 |
-| HUD-03 | Game title: Gato sin Botas on start/gameover screens | Phase 5 |
+| HUD-03 | Game title: Soggy Moggy on start/gameover screens | Phase 5 |
 | AUDIO-01 | Jump sound effect | Phase 6 |
 | AUDIO-02 | Damage sound effect (water contact) | Phase 6 |
 | AUDIO-03 | Game over audio sting | Phase 6 |

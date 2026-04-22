@@ -2,9 +2,9 @@
 Beipielarbeiten_U-Erkert/
 
 # School documents — keep handout + submission PDF, ignore the rest
-Dokumente_Schule/Einreichung/unpacked_check/
-Dokumente_Schule/Einreichung/*.docx
-Dokumente_Schule/Vorlagen/
+Dokumente_Schule/Submission/unpacked_check/
+Dokumente_Schule/Submission/*.docx
+Dokumente_Schule/Templates/
 
 # ─── GSD planning (private — not for public repo) ───────────────────────────
 .planning/

@@ -2,7 +2,7 @@
 ====================================================================
 * water.js - Rising hazard: physics, damage, respawn, level renderers
 ====================================================================
-* Project: Soggy Moggy (in-game: Gato Sin Botas)
+* Project: Soggy Moggy
 * Course: PRG Abschlussprojekt — SRH Fachschulen
 * Developer: Julian Gomez
 * Date: 2026-03-16
@@ -80,7 +80,13 @@ const hazard = {
 // Generic entry point called by game-state.js on reset/level-start.
 // ---------------------------------------------------------------------------
 function resetHazard(level) {
-  hazard.y           = player.y + 120; // starts 120px below player spawn — just off screen bottom
+  // Start far enough below the camera that the upward-spiking electricity bolts /
+  // smog plume / wave crests are NOT visible at level start. Electricity layer 3
+  // gradient starts at baseY-30 and sine displacement reaches baseY-46 — so we
+  // need at least ~60 px of hidden slack below the screen bottom.
+  // player.y spawn = 528, canvas = 640, cameraY = 0 → screen bottom at world-y 640.
+  // player.y + 200 = 728 → 88 px below screen → top of electricity ≈ y 678, safely hidden.
+  hazard.y           = player.y + 200;
   hazard.speed       = HAZARD_BASE_SPEED * (1 + (level - 1) * HAZARD_LEVEL_SCALE);
   hazard.time        = 0;
   hazard.iframeTimer = 0;
@@ -89,17 +95,22 @@ function resetHazard(level) {
 }
 
 // ---------------------------------------------------------------------------
-// SECTION 4 — takeDamage()
-// The iframeTimer guard is checked by the caller (updateHazard), not here.
+// SECTION 4 — takeDamage(cause)
+// cause ∈ { 'hazard' (default), 'wasp' } — routed to showLifeLost() for the
+// correct bubble variant. The iframeTimer guard is checked by the caller
+// (updateHazard / enemies.js / fall-off-bottom in main.js), not here.
 // ---------------------------------------------------------------------------
-function takeDamage() {
+function takeDamage(cause) {
   GameState.lives   -= 1;
   hazard.iframeTimer = IFRAME_DURATION;
   hazard.flashTimer  = FLASH_DURATION;
   if (GameState.lives <= 0) {
     saveHighScore(GameState.score + GameState.killBonus);
     GameState.phase = GamePhase.GAMEOVER;
+    return; // skip life-lost bubble — GAMEOVER screen takes over
   }
+  // Non-fatal hit: show life-lost bubble (auto-dismiss, pauses physics for 1.2s)
+  if (typeof showLifeLost === 'function') showLifeLost(cause || 'hazard');
 }
 
 // ---------------------------------------------------------------------------
@@ -143,15 +154,18 @@ function updateHazard(dt) {
     hazard.fadeAlpha = Math.max(0, hazard.fadeAlpha - dt / 1.2);
   }
 
-  // Visibility clamp: hazard can never fall more than 10px below the screen bottom.
-  // Prevents the surface from lagging off-screen when the camera scrolls up faster than the hazard rises.
-  hazard.y = Math.min(hazard.y, GameState.cameraY + canvas.height + 10);
+  // Visibility clamp: hazard can never fall more than 100px below the screen bottom.
+  // Prevents the surface from lagging off-screen when the camera scrolls up faster
+  // than the hazard rises. The +100 slack (was +10) lets the level-start offset of
+  // 200px below player spawn survive the first tick without being yanked up into
+  // view — the electricity bolts must stay fully hidden until the hazard rises in.
+  hazard.y = Math.min(hazard.y, GameState.cameraY + canvas.height + 100);
 
   // Top cap: applied AFTER visibility clamp so it always takes final precedence.
   // L1 smog stops near the level top (22px below levelGoalY) — matches red line in building.
   // Other levels use the wider 300px safety margin.
   if (GameState.levelGoalY !== undefined) {
-    const capOffset = (GameState.level === 1) ? 22 : 0;
+    const capOffset = (GameState.level === 1 || GameState.level === 2) ? 22 : 0;
     if (hazard.y < GameState.levelGoalY + capOffset) {
       hazard.y = GameState.levelGoalY + capOffset;
     }
@@ -169,7 +183,7 @@ function updateHazard(dt) {
   const playerBottom = player.y + player.h;
   const collisionY   = hazard.y - HAZARD_COLLISION_MARGIN;
   if (playerBottom >= collisionY && hazard.iframeTimer <= 0) {
-    takeDamage();
+    takeDamage('hazard');
     if (GameState.phase === GamePhase.PLAYING) {
       respawnAboveWater(); // teleport to nearest safe platform above hazard
     }

@@ -2,7 +2,7 @@
 ====================================================================
 * enemies.js - Wasp enemy system: patrol, sting, stomp
 ====================================================================
-* Project: Soggy Moggy (in-game: Gato Sin Botas)
+* Project: Soggy Moggy
 * Course: PRG Abschlussprojekt — SRH Fachschulen
 * Developer: Julian Gomez
 * Date: 2026-04-07
@@ -15,9 +15,9 @@
 *   Stomp (cat lands on top of wasp) → wasp dies with shrink/fade animation.
 *
 * DYNAMIC SPAWN COUNTS (must match level order — update if level order changes):
-*   Level 1 — Stadt        (city):       5 wasps
-*   Level 2 — Aufzugschacht (shaft):     7 wasps
-*   Level 3 — Offener See  (lighthouse): 10 wasps
+*   Level 1 — City           (city):       5 wasps
+*   Level 2 — Elevator Shaft (shaft):     7 wasps
+*   Level 3 — Open Sea       (lighthouse): 10 wasps
 *
 * AUTHORSHIP CLASSIFICATION:
 * [AI-ASSISTED]
@@ -35,7 +35,7 @@
 
 // ── Asset ────────────────────────────────────────────────────────────────────
 const _waspSheet = new Image();
-_waspSheet.src = 'PixelArt/enemy_wasp/wasp_sheet.png';
+_waspSheet.src = 'PixelArt/characters/wasp/wasp_sheet.png';
 
 // ── Sprite constants ─────────────────────────────────────────────────────────
 const _WASP_FRAME_W  = 63;      // source frame width  (252px sheet / 4 frames)
@@ -73,8 +73,8 @@ const _DEATH_DURATION   = 0.5; // seconds for the shrink/fade death animation
 
 // ── DYNAMIC SPAWN COUNTS ─────────────────────────────────────────────────────
 // Indexed by level. Change ONLY if level definitions change (see header comment).
-// L1 city: 5 | L2 shaft: 7 | L3 lighthouse: 10
-const _WASP_COUNT = [0, 5, 7, 10]; // index 0 unused (no level 0)
+// L1 city: 10 | L2 shaft: 15 | L3 lighthouse: 20
+const _WASP_COUNT = [0, 10, 15, 20]; // index 0 unused (no level 0)
 
 // ── State ─────────────────────────────────────────────────────────────────────
 const enemies      = [];  // active enemy objects — cleared on each spawnEnemies() call
@@ -232,7 +232,7 @@ function updateEnemies(dt) {
       const hitX    = sx < player.x + player.w && sx + _STING_W > player.x;
       const hitY    = sy < player.y + player.h && sy + _STING_H > player.y;
       if (hitX && hitY) {
-        takeDamage();          // -1 life, flash, game-over check
+        takeDamage('wasp');    // -1 life, flash, game-over check; 'wasp' → AYAYAYAY bubble
         _waspIframe = _WASP_IFRAME;
         // Wasp survives — knock it away from the player (rigid-body flee)
         w.vx          = -w.vx * 1.6;  // reverse + speed burst

@@ -2,7 +2,7 @@
 ====================================================================
 * player.js - Stuffed cat: physics, animation, sprite rendering
 ====================================================================
-* Project: Soggy Moggy (in-game: Gato Sin Botas)
+* Project: Soggy Moggy
 * Course: PRG Abschlussprojekt — SRH Fachschulen
 * Developer: Julian Gomez
 * Date: 2026-03-05
@@ -35,7 +35,7 @@
 // ── Sprite loading ───────────────────────────────────────────────────────────
 // Paths relative to index.html (project root)
 // Cat animation spritesheet (animation_sheet.png: 7 sprites left→right)
-const _catSheet = new Image(); _catSheet.src = 'PixelArt/cat/animation_sheet.png';
+const _catSheet = new Image(); _catSheet.src = 'PixelArt/characters/cat/animation_sheet.png';
 // dy = transparent_rows_at_bottom × 2.0 (DH/sh scale) — aligns visual feet to hitbox bottom
 // idle/rise/walk/pushRise: content y=19–52 → 11 transparent rows below → dy = 11×2 = 22
 // pushPeak/peak:           content y=8–55  →  8 transparent rows below → dy =  8×2 = 16
@@ -77,6 +77,7 @@ const player = {
   vy:      0,
   prevY:       528,   // y position before this frame's physics — used by one-way collision
   onGround:      false, // true when standing on a platform — set by checkPlatformCollisions()
+  onPlatform:    null,  // reference to platform object under feet (null if airborne) — used for finish-trigger identity check
   flipped:       false, // true = sprite mirrored via ctx.scale(-1,1) to face right
   bounceTimer:   0,     // seconds remaining to show jump animation frames after a jump
   pushTimer:     0,     // seconds remaining to show push sprite after Z press
@@ -94,6 +95,7 @@ function resetPlayer() {
   player.vy    = 0;
   player.prevY      = spawnY;
   player.onGround      = false;
+  player.onPlatform    = null;
   player.flipped    = false;
   player.bounceTimer   = 0;
   player.pushTimer     = 0;
@@ -136,6 +138,25 @@ function updatePlayer(dt) {
   if (keys.right) player.vx =  PLAYER_SPEED;
 
   player.x += player.vx * dt;
+
+  // Level 2: confine cat to physical walls (elevator interior + shaft cavity).
+  // Must run BEFORE the screen-wrap below so wrap becomes unreachable on L2
+  // (wrap still works on L1 / L3 because this block is L2-gated).
+  //   feet = player.y + player.h.
+  //   feet < 96  → entire cat above the elevator ceiling (C1) → shaft rules
+  //                clamp x to inner shaft cavity [62, 417 − player.w].
+  //                (62 / 417 are the opaque-pixel edges of the orange tubes
+  //                 in pipes_mid.png, measured via PIL.)
+  //   feet ≥ 96  → cat is standing in the elevator interior → elevator rules
+  //                clamp x to canvas edges [0, 480 − player.w].
+  // Zero vx on contact so the wall feels solid instead of sliding the cat.
+  if (GameState.level === 2) {
+    const inShaft = (player.y + player.h) < 96;
+    const minX    = inShaft ? 62  : 0;
+    const maxX    = inShaft ? 417 : 480;
+    if (player.x < minX)                { player.x = minX;            if (player.vx < 0) player.vx = 0; }
+    if (player.x + player.w > maxX)     { player.x = maxX - player.w; if (player.vx > 0) player.vx = 0; }
+  }
 
   // Push key (Z): latch pushTimer so animation holds for 250ms
   if (keys.push && player.pushTimer <= 0) player.pushTimer = 0.25;

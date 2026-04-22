@@ -1,0 +1,47 @@
+feat(i18n): English migration phase 1 + accumulated working-tree changes
+
+=== English-only migration phase 1 ===
+
+Title rename:
+- Sole official title is now "Soggy Moggy" (was: "Gato Sin Botas")
+- Updated in 9 source-file headers, title screen string
+  (src/main.js:526), planning docs (.planning/, docs/plans/),
+  PixelArt READMEs, school doc titles (GDD + create_docs.js).
+
+Folder restructure (Dokumente_Schule):
+- Ausgefuellt  -> Completed
+- Vorlagen     -> Templates (Move-Item; gitignored, not tracked)
+- Einreichung  -> Submission
+- Updated path references in .gitignore, .claude/run-phase8.ps1,
+  docs/plans/2026-04-21-project-cleanup.md.
+
+Planning + state:
+- New language-policy section in .planning/PROJECT.md.
+- STATE.md: superseded "Game language: Spanish", added "Game
+  language: English", school paths updated, next actions point
+  to Translator Agent phase + Dialogue System retake.
+- Session log: .planning/logs/2026-04-21-english-migration-audit.md
+
+Pending (next phase, not in this commit):
+- In-game Spanish strings -> English via Translator Agent
+- German level names -> English in same phase
+- index.html lang="de" -> lang="en"
+- Dialogue System retake with bitmap-font-atlas approach
+
+=== Accumulated working-tree additions ===
+
+Previously untracked files/changes now committed together:
+- PixelArt/_wip/*.pxo (Bubbles, Sprachblasen, bee, bee_body)
+- PixelArt/_dev/Inspiration/ (SpeechBubbles + wasp reference)
+- PixelArt/backgrounds/level_2_shaft/shaft_bg_plattforms.pxo
+- PixelArt/backgrounds/shared/clouds_bright.png (modified)
+- PixelArt/fonts/BlockCraft.otf
+- PixelArt/thought_bubbles/dialogue_bubbles.ai
+- PixelArt/thought_bubbles/thought_bubbles_v1/ (moved from _archive)
+- Screenshots/ (3 new PNGs)
+- README.md (new at repo root)
+- Dokumente_Schule: ABGABE_STATUS.md, Medienkatalog.md,
+  USB-Abgabe-Struktur.md, Submission/Themeneinreichung_Julian_Gomez.docx
+- docs/video_script.md
+- .claude/run-*.ps1 helpers + migration scripts
+- .claude/scheduled_tasks.lock (should likely be gitignored later)

@@ -1,5 +1,9 @@
 # L2 Cloud Platforms — Design
 
+> **Superseded (2026-04-21)** — this document describes an earlier L2 concept (cloud platforms / sinking clouds / lighthouse context).
+> L2 is now the elevator shaft („Pozo Eléctrico") with the 9-variant jump-platform sheet. L3 is the open sea / lighthouse level.
+> See MEMORY.md section „L2 Shaft Platforms" + `src/platforms.js` atlas coords for the current implementation. Kept as historical record only.
+
 **Date:** 2026-04-07
 **Branch:** feature/04.2-l2-lighthouse
 **Status:** Approved — ready for implementation

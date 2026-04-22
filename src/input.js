@@ -2,7 +2,7 @@
 ====================================================================
 * input.js - Keyboard and mouse input state map
 ====================================================================
-* Project: Soggy Moggy (in-game: Gato Sin Botas)
+* Project: Soggy Moggy
 * Course: PRG Abschlussprojekt — SRH Fachschulen
 * Developer: Julian Gomez
 * Date: 2026-03-04
@@ -17,11 +17,11 @@
 *
 * NOTES:
 * - keys object is global — polled by updatePlayer() and update() in main.js
-* - keys.jump and keys.shoot share Space/left-click — split in Phase 5
+* - keys.jump fires on Space/left-click
 * - contextmenu suppressed so right-click can be used as game input
 *
 * VERSION HISTORY:
-* - v1.0: Initial key map (left, right, jump, shoot, enter)
+* - v1.0: Initial key map (left, right, jump, enter)
 * - v1.1: Added push key (Z) for Phase 5 prep
 * - v1.2: Added mouse support (left = jump, right = push)
 * - v1.3: Left click fires keys.enter so START / LEVEL_COMPLETE / GAMEOVER screens respond to click
@@ -33,7 +33,6 @@ const keys = {
   left:     false,
   right:    false,
   jump:     false,
-  shoot:    false,
   push:     false,   // Phase 5: Z key — push/throw action
   enter:    false,
   menuUp:   false,   // ArrowUp   — menu navigation
@@ -45,7 +44,7 @@ document.addEventListener('keydown', (e) => {
   switch (e.code) {
     case 'ArrowLeft':  case 'KeyA': keys.left  = true;  break;
     case 'ArrowRight': case 'KeyD': keys.right = true;  break;
-    case 'Space':                   keys.jump  = true;  keys.shoot = true;  break;
+    case 'Space':                   keys.jump     = true;  break;
     case 'KeyZ':                    keys.push     = true;  break;
     case 'Enter':                   keys.enter    = true;  break;
     case 'ArrowUp':                 keys.menuUp   = true;  break;
@@ -58,7 +57,7 @@ document.addEventListener('keyup', (e) => {
   switch (e.code) {
     case 'ArrowLeft':  case 'KeyA': keys.left     = false; break;
     case 'ArrowRight': case 'KeyD': keys.right    = false; break;
-    case 'Space':                   keys.jump     = false; keys.shoot = false; break;
+    case 'Space':                   keys.jump     = false; break;
     case 'KeyZ':                    keys.push     = false; break;
     case 'Enter':                   keys.enter    = false; break;
     case 'ArrowUp':                 keys.menuUp   = false; break;
@@ -72,12 +71,12 @@ document.addEventListener('keyup', (e) => {
 document.addEventListener('contextmenu', (e) => e.preventDefault()); // suppress right-click menu
 
 document.addEventListener('mousedown', (e) => {
-  if (e.button === 0) { keys.jump = true;  keys.shoot = true; keys.enter = true; }  // left: jump + advance menus
+  if (e.button === 0) { keys.jump = true;  keys.enter = true; }  // left: jump + advance menus
   if (e.button === 2) { keys.push = true; }                                          // right: push/action
 });
 
 document.addEventListener('mouseup', (e) => {
-  if (e.button === 0) { keys.jump = false; keys.shoot = false; keys.enter = false; }
+  if (e.button === 0) { keys.jump = false; keys.enter = false; }
   if (e.button === 2) { keys.push = false; }
 });
 

@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-04-06T12:00:00.000Z"
+last_updated: "2026-04-22T12:00:00.000Z"
 progress:
-  total_phases: 7
-  completed_phases: 5
+  total_phases: 9
+  completed_phases: 7
   total_plans: 11
   completed_plans: 11
 ---
 
 # State: Soggy Moggy
 
-**Last updated:** 2026-04-06
-**Updated by:** Cat spritesheet migration complete; lighthouse renderer implemented; branch feature/04.2-l2-lighthouse created; Arbeitsprotokoll updated through 06.04
+**Last updated:** 2026-04-22
+**Updated by:** English-only migration Phase 1 complete: sole official title is now "Soggy Moggy" (Gato Sin Botas retired). Source-file headers, title screen string, planning docs, PixelArt READMEs, and school-doc titles all updated. `Dokumente_Schule/` subfolders renamed (Ausgefuellt → Completed, Vorlagen → Templates, Einreichung → Submission) + dep references patched (.gitignore, .claude/run-phase8.ps1, project-cleanup plan). Pending: Translator Agent phase to convert remaining in-game Spanish/German strings (HUD labels, menu options, level names Stadt/Aufzugschacht/Offener See, dialogue texts) to English. See `.planning/logs/2026-04-21-english-migration-audit.md`.
 
 ---
 
@@ -22,7 +22,14 @@ progress:
 
 **Core Value:** A playable, complete gameplay loop: cat jumps up, level-specific hazards rise from below (smog/flood/electricity), tension builds — the game feels real from first play.
 
-**Current Focus:** Phase 04.2 (L2 Lighthouse Redesign) — in progress on branch feature/04.2-l2-lighthouse. Renderer implemented, platform sprites + platform concept next.
+**Current Focus:** English migration + dialogue font stack finalized (2026-04-22). Architecture:
+- **Title text:** YELLOW_FONT bitmap atlas, inlined in `src/dialogue.js` SECTION 1.5, rendered by `drawYellowText()`.
+- **Body text:** BlockCraft.otf via `@font-face` in `index.html`, rendered by `drawBodyText()` using native `ctx.fillText`.
+- The second bitmap attempt (black LCD-style on 7x4 grid) was abandoned and archived after row-bleed and spacing issues; BlockCraft.otf replaces it.
+
+**Open:** bubble SHAPE rendering (empty speech-bubble backgrounds). Decision pending between exporting 8 PNG shapes from `PixelArt/thought_bubbles/dialogue_bubbles.ai` or drawing shapes in code. Once decided, author 8 English dialogue texts and wire them into renderDialogue().
+
+Wasp enemy system already on master. L2 elevator interior on feature/04.3-l2-elevator-interior, partial.
 
 **Stack:** Vanilla JavaScript ES2022+ + HTML Canvas 2D (480x640) + Web Audio API + GitHub Pages
 
@@ -30,31 +37,33 @@ progress:
 
 ## Current Position
 
-**Active Phase:** 04.2 — L2 Lighthouse Redesign (IN PROGRESS — renderer done, plan pending)
-**Active Plan:** none — phase plan not yet created; renderer WIP committed on branch
-**Phase Status:** Phases 1–4, 04.1 complete — Phase 04.2 in progress on feature branch
+**Active Phase:** 04.3 — L2 Elevator Interior + Dialogue System (IN PROGRESS — sprite + colliders done, dialogue architecture complete, 4 code items pending, branch open)
+**Active Plan:** none — work shipped directly on branch without GSD plan/execute cycle
+**Phase Status:** Phases 1–4, 04.1, 04.2, 04.3-partial, 05-enemies complete — next is Phase 5 (Push + HUD)
 
 ```
-Progress: [x][x][x][x][x][~][ ][ ][ ]  5/8 complete + 04.2 in progress
-           P1  P2  P3  P4 04.1 04.2 P5  P6  P7
-           Phases 1-4 + 04.1 complete; 04.2 lighthouse in progress
+Progress: [x][x][x][x][x][x][x][~][ ][ ][ ]
+           P1  P2  P3  P4 04.1 04.2 04.3  P5   P6  P7
+           04.2 + 04.3 shipped outside GSD; 05-enemies merged to master
 ```
 
 ---
 
 ## Phase Status
 
-| Phase | Name | Status | Plans Done |
-|-------|------|--------|------------|
-| 1 | Foundation | Complete | 2/2 |
-| 2 | Core Mechanics | Complete | 2/2 |
-| 3 | Game World | Complete | 3/3 |
-| 4 | Flood + Lives | Complete | 2/2 |
-| 04.1 | Visual Concept | Complete | 2/2 |
-| 04.2 | L2 Lighthouse Redesign | In progress | 0/? |
-| 5 | Push + HUD | Not started | 0/? |
-| 6 | Audio | Not started | 0/? |
-| 7 | Hosting | Not started | 0/? |
+| Phase | Name | Status | Plans Done | Notes |
+|-------|------|--------|------------|-------|
+| 1 | Foundation | Complete | 2/2 | |
+| 2 | Core Mechanics | Complete | 2/2 | |
+| 3 | Game World | Complete | 3/3 | |
+| 4 | Flood + Lives | Complete | 2/2 | |
+| 04.1 | Visual Concept | Complete | 2/2 | |
+| 04.2 | L2 Lighthouse Redesign | Shipped (no GSD plan) | 0/0 | Code in master; no PLAN/SUMMARY — shipped directly |
+| 04.3 | L2 Elevator Interior | In progress (no GSD plan) | 0/0 | Branch feature/04.3-l2-elevator-interior; sprite + colliders done |
+| 05-e | Wasp Enemy System | Shipped (no GSD plan) | 0/0 | Merged to master 07.04.2026 |
+| 5 | Push + HUD | Not started | 0/? | |
+| 6 | Audio | Not started | 0/? | |
+| 7 | Hosting | Not started | 0/? | |
 
 ---
 
@@ -97,7 +106,7 @@ Progress: [x][x][x][x][x][~][ ][ ][ ]  5/8 complete + 04.2 in progress
 | Camera one-way gate: if (newCameraY < cameraY) | cameraY can only decrease — when player falls, newCameraY increases, condition fails, camera holds | Phase 2 |
 | Fall detection after updateCamera() | Fall check uses cameraY + canvas.height; must use current frame cameraY, not stale value | Phase 2 |
 | Height formula: 528 - maxHeightReached | 528 = player start world Y; maxHeightReached stores minimum Y seen; result = pixels climbed | Phase 2 |
-| Push item spawn system DROPPED from MVP | PUSH-02/03 deferred as nice-to-have; Kletter-Kiste (L3 single puzzle box) is the only push element in MVP | Phase 5 |
+| Push item spawn system DROPPED from MVP | PUSH-02/03 deferred as nice-to-have; Kletter-Kiste (L2 Elevator, single puzzle box) is the only push element in MVP | Phase 5 |
 | Lives system over instant death | More forgiving; makes the push mechanic feel more meaningful | Phase 4 |
 | Working title: Soggy Moggy | Renamed from "Cat Flood Jumper" | — |
 | Player = Stuffed Cat | Not a real/live cat — specific visual character with floppy limbs, button eyes, stitched seams | Phase 04.1 |
@@ -110,10 +119,13 @@ Progress: [x][x][x][x][x][~][ ][ ][ ]  5/8 complete + 04.2 in progress
 | MVP-first approach | Core loop must work before polish; clear MVP boundary established | All phases |
 | Visual Concept phase (04.1) | Expert-agent-driven art direction before Phase 5 sprite work; placed after MVP is proven | Phase 04.1 |
 | Cat sprite direction: grey-pink, 3-frame jump | Grey-pink coloring; down/middle/high frames driven by bounceTimer in player.js; hitbox 32x32, drawn 96x96 | Phase 04.1 |
-| Game language: Spanish | All UI text, screen titles, HUD labels in Spanish for the dramaturgical layer | Phase 5 |
-| 3-level structure: Stadt, See, Aufzugschacht | Each level has unique parallax layers and danger mechanic; L4 Freizeitpark DROPPED for MVP | Phase 5 |
+| ~~Game language: Spanish~~ — SUPERSEDED 2026-04-21 | Original decision: All UI in Spanish for dramaturgical layer. Replaced by English-only policy to simplify font-atlas implementation (no special chars) and project coherence. | Phase 5 |
+| Game language: English (from 2026-04-21) | Sole language for in-game UI, code identifiers, comments, and project docs. Exception: German prose in formal SRH school submissions stays German. | Migration phase |
+| 3-level structure: City, Elevator Shaft, Open Sea (German names Stadt/Aufzugschacht/Offener See migrating to English in Translator phase) | ORDER SWAPPED 07.04.2026 — L1=City(Smog), L2=Shaft(Electricity), L3=Sea(Flood); L4 Amusement Park DROPPED | Phase 5 |
 | Level-specific parallax per level | bg_far is always the setting silhouette; bg_mid/bg_near slots filled with level-specific sprites; clouds/stars reused across levels | Phase 5 |
-| Danger per level: L1=Smog, L2=Flood, L3=Electricity | All three renderers implemented in water.js; hazard dispatcher per GameState.level | Phase 4 |
+| Danger per level: L1=Smog, L2=Elektrizität, L3=Flut | Swapped 07.04.2026 — shaft gets electricity, sea/lighthouse gets flood; all three renderers in hazards.js | Phase 4 |
+| Wasp enemy system (src/enemies.js) | Patrol + stomp mechanic; 5/7/10 wasps per level; stinger=damage+knockback, stomp=kill+bounce; merged to master 07.04.2026 | Phase 05-e |
+| Balloon collectible (src/main.js) | Extra life; caught with Z/right-click; paw must hit bottom 40% of sprite; rises at 120px/s with sine drift | Phase 05-e |
 | Prompting strategy documentation | Two-stage system: auto-maintained log throughout + analysis at project end | All phases |
 | Classic script tags (no ES6 modules) | Works on file:// without dev server; matches school example pattern (jumprun, scripteroids) | Phase 1 |
 | GamePhase as Object.freeze | Prevents accidental mutation of phase string constants | Phase 1 |
@@ -164,7 +176,7 @@ Progress: [x][x][x][x][x][~][ ][ ][ ]  5/8 complete + 04.2 in progress
 | Does the project need a pause key? | YES — Escape key pauses, implemented with menu (resume/restart/quit) |
 | Max jump height in pixels | Variable jump implemented; GAP_PX=120 confirmed reachable |
 | How many levels? | 3 levels (L4 Freizeitpark dropped for MVP, 16.03.2026) |
-| Danger per level? | L1=Smog, L2=Flood, L3=Electricity — all implemented |
+| Danger per level? | L1=Smog, L2=Elektrizität (Schacht), L3=Flut (Leuchtturm/See) — ORDER SWAPPED 07.04.2026 |
 
 ### Todos
 
@@ -179,9 +191,9 @@ Progress: [x][x][x][x][x][~][ ][ ][ ]  5/8 complete + 04.2 in progress
 
 ### School Formality Todos (deadline 22.04.2026)
 
-- [x] **SCHOOL-01** — Projektplan: `Dokumente_Schule/Ausgefuellt/Projektplan_Julian_Gomez.docx` — DONE
-- [x] **SCHOOL-02** — Arbeitsprotokoll: `Dokumente_Schule/Ausgefuellt/Arbeitsprotokoll_Julian_Gomez.docx` — DONE (needs daily updates)
-- [x] **SCHOOL-03** — GDD: `Dokumente_Schule/Ausgefuellt/GDD_Julian_Gomez.md` + `.docx` — DONE
+- [x] **SCHOOL-01** — Projektplan: `Dokumente_Schule/Completed/Projektplan_Julian_Gomez.docx` — DONE
+- [x] **SCHOOL-02** — Arbeitsprotokoll: `Dokumente_Schule/Completed/Arbeitsprotokoll_Julian_Gomez.docx` — DONE (needs daily updates)
+- [x] **SCHOOL-03** — GDD: `Dokumente_Schule/Completed/GDD_Julian_Gomez.md` + `.docx` — DONE
 - [ ] **SCHOOL-04** — Create Medienkatalog — list all third-party assets, Claude Code AI usage (with prompts), pixel art tools, any external references
 - [ ] **SCHOOL-05** — Create README.md at repo root — name, asset list, startup instructions, where each requirement is met
 - [ ] **SCHOOL-06** — Gameplay video — recorded after game is feature-complete (Phase 5 area)
@@ -204,9 +216,14 @@ None.
 
 **Repository:** `C:/Users/Teilnehmer/Desktop/Schule/PRG/Abschlussprojekt_SRH_26`
 **Planning files:** `.planning/`
-**Last session:** 2026-04-06
-**Next action:** Phase 04.2 lighthouse renderer is implemented. Next: `/gsd:plan-phase 04.2` to create the phase plan, then execute platform sprite work + L2 platform concept.
+**Last session:** 2026-04-22 (English migration phase 1)
+**Next action:**
+1. Decide bubble-shape source: export 8 empty bubble PNGs from `dialogue_bubbles.ai`, or draw shapes in code.
+2. Author 8 English dialogue texts (3 intros, 3 outros, 2 life-lost) as strings in `src/dialogue.js`.
+3. Wire `renderDialogue()` to use `drawYellowText` (title) + `drawBodyText` (body) on top of bubble shape.
+4. Browser smoke test, then merge feature/04.3-l2-elevator-interior → master.
+5. Plan Phase 5 (Push + HUD) via `/gsd-plan-phase 5`.
 
 ---
 *State initialized: 2026-03-03 after roadmap creation*
-*Updated: 2026-04-06 — cat spritesheet migration + lighthouse renderer + branch created*
+*Updated: 2026-04-22 (afternoon) — English migration Phases 1+2 shipped, dialogue font stack finalized (hybrid YELLOW bitmap title + BlockCraft OTF body), black-bitmap experiment archived; pending: bubble shapes + 8 English dialogue texts + integration.*

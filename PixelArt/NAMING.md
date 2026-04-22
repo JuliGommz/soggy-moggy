@@ -1,5 +1,5 @@
 # PixelArt Asset Naming Convention
-**Project:** Soggy Moggy / Gato Sin Botas
+**Project:** Soggy Moggy
 **Last updated:** 25.03.2026
 
 ---
@@ -21,20 +21,28 @@ This ensures the asset paths work identically on Windows (local dev) and Linux (
 
 ```
 PixelArt/
-├── cat/                    Player character sprites
+├── characters/
+│   ├── cat/                Player character sprites
+│   └── wasp/               Wasp enemy sprites
 ├── backgrounds/
 │   ├── shared/             Shared across all levels (sky, clouds, stars)
 │   ├── level1_city/        Level 1 — La Ciudad
-│   ├── level2_see/         Level 2 — El Mar Abierto
-│   └── level3_shaft/       Level 3 — El Pozo Eléctrico
+│   ├── level_2_shaft/      Level 2 — El Pozo Eléctrico (Aufzugschacht)
+│   └── level_3_sea/        Level 3 — El Mar Abierto (Leuchtturm/See)
 ├── platforms/
-│   └── level1_city/        Level 1 platform sprite sheets
-├── collectibles/           Pickups, HUD icons, life items
+│   ├── level1_city/        Level 1 platform sprite sheets
+│   └── level_2_lift/       Level 2 shaft jump-platform sheet
+├── collectibles/           Spawnbare In-Game-Pickups (balloon)
+├── ui/
+│   └── hud/                HUD-Elemente (Herzen)
+├── thought_bubbles/        Dialogue-Bubble-Assets
+├── fonts/                  Bitmap-Fonts + Illustrator-Quelldateien
+├── _archive/               Archivierte Assets (siehe README darin)
 ├── _wip/                   Work in progress — NOT subject to this convention
 └── _dev/                   Dev tools, inspiration, archive — NOT subject to this convention
 ```
 
-**Rule:** Level folders are named `levelN_theme` (e.g., `level2_see`). New levels follow the same pattern.
+**Rule:** Level folders are named `level_N_theme` (e.g., `level_2_shaft`, `level_3_sea`). Level 1 uses the legacy form `level1_city` for historical consistency. New levels follow the `level_N_theme` pattern.
 
 **Rule:** `_` prefix = excluded from game-content convention. These folders are for internal dev use only.
 
@@ -52,7 +60,7 @@ The **folder provides context** — never repeat the folder name inside the file
 
 | Do | Do Not |
 |---|---|
-| `level3_shaft/shaft_bg_bottom.png` | `level3_shaft/elevator_shaft_background_bottom.png` |
+| `level_2_shaft/shaft_bg_bottom.png` | `level_2_shaft/elevator_shaft_background_bottom.png` |
 | `collectibles/balloon.png` | `collectibles/extra-life-balloon.png` |
 | `level1_city/building_roof.png` | `level1_city/Building_Roof.png` |
 
@@ -80,10 +88,16 @@ Every `.pxo` source file shares the **exact same base name** as its exported `.p
 
 ## Current Game Assets
 
-### `cat/`
+### `characters/cat/`
 ```
 animation_sheet.png     — sheet: 7 sprites (all animation poses)
 einzel_sprites/         — individual source PNGs (reference, not loaded by game)
+```
+
+### `characters/wasp/`
+```
+wasp_sheet.png          — sheet: 4 frames (252x44, 4x 63x44)
+einzel_sprites/         — individual frame PNGs (reference, not loaded by game)
 ```
 
 ### `backgrounds/shared/`
@@ -103,13 +117,14 @@ entrance_garbage.png    — entrance area decoration
 building_roof.png       — rooftop at level goal
 ```
 
-### `backgrounds/level2_see/`
+### `backgrounds/level_3_sea/`
 ```
 sun.png                 — sun sprite with pulse animation
 lighthouse_sheet.png    — sheet: 9 sprites (base, mid_1–mid_7, top cap)
+sea_launchpad.png       — shoreline background
 ```
 
-### `backgrounds/level3_shaft/`
+### `backgrounds/level_2_shaft/`
 ```
 elevator.png            — elevator interior (world bottom)
 shaft_bg_bottom.png     — shaft bottom section
@@ -127,11 +142,20 @@ jalousie_sheet.png      — sprite sheet: 7 rows (intact variants 1-3/5-6, crack
 jalousie_parts.png      — individual parts reference
 ```
 
+### `platforms/level_2_lift/`
+```
+jump_plattforms.png     — sheet: 9 variants (L/C/R × L/M/S size tiers), 480x258
+```
+
 ### `collectibles/`
 ```
-balloon.png             — floating cat+balloon extra life collectible
+balloon.png             — floating cat+balloon extra life collectible (in-game pickup)
+```
+
+### `ui/hud/`
+```
 life_icon.png           — HUD life counter icon (small, top-right)
-life_plush.png          — larger plush variant (reference/preview)
+life_plush.png          — larger plush variant (reference/preview, not loaded by game)
 ```
 
 ---

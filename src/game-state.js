@@ -2,7 +2,7 @@
 ====================================================================
 * game-state.js - Shared game state, phase enum, score & high score
 ====================================================================
-* Project: Soggy Moggy (in-game: Gato Sin Botas)
+* Project: Soggy Moggy
 * Course: PRG Abschlussprojekt — SRH Fachschulen
 * Developer: Julian Gomez
 * Date: 2026-03-04
@@ -34,8 +34,10 @@
 const GamePhase = Object.freeze({
   START:          'start',
   DEV_SELECT:     'dev_select',
+  LEVEL_INTRO:    'level_intro',    // bubble shown before each level begins
   PLAYING:        'playing',
   PAUSED:         'paused',
+  LEVEL_OUTRO:    'level_outro',    // bubble shown after finish-trigger, before LEVEL_COMPLETE menu
   LEVEL_COMPLETE: 'level_complete',
   GAMEOVER:       'gameover',
 });

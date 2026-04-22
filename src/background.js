@@ -2,7 +2,7 @@
 ====================================================================
 * background.js - Parallax background: sky, clouds, stars
 ====================================================================
-* Project: Soggy Moggy (in-game: Gato Sin Botas)
+* Project: Soggy Moggy
 * Course: PRG Abschlussprojekt — SRH Fachschulen
 * Developer: Julian Gomez
 * Date: 2026-03-08
@@ -48,35 +48,20 @@ const _bgL1TrashBin = new Image(); _bgL1TrashBin.src = 'PixelArt/backgrounds/lev
 const _bgL1Door     = new Image(); _bgL1Door.src     = 'PixelArt/backgrounds/level1_city/building_door.png';
 const _bgL1Cornice  = new Image(); _bgL1Cornice.src  = 'PixelArt/backgrounds/level1_city/cornice.png';
 const _bgL1Roof     = new Image(); _bgL1Roof.src     = 'PixelArt/backgrounds/level1_city/building_roof.png';
-const _bgL2Sun      = new Image(); _bgL2Sun.src      = 'PixelArt/backgrounds/level2_see/sun.png';
-const _bgL2Landing  = new Image(); _bgL2Landing.src  = 'PixelArt/backgrounds/level2_see/sea_launchpad.png';
-const _bgL2Bottom   = new Image(); _bgL2Bottom.src   = 'PixelArt/backgrounds/level2_see/rocket_bottom.png';
-const _bgL2MidTop   = new Image(); _bgL2MidTop.src   = 'PixelArt/backgrounds/level2_see/rocket_mid_top.png';
-const _bgL2ScaffBot = new Image(); _bgL2ScaffBot.src = 'PixelArt/backgrounds/level2_see/rocket_scaffolding_bottom.png';
-const _bgL2ScaffMid = new Image(); _bgL2ScaffMid.src = 'PixelArt/backgrounds/level2_see/rocket_scaffolding_mid.png';
-// Lighthouse (Phase 04.2) — replaces rocket system
-const _bgL2LhSheet = new Image(); _bgL2LhSheet.src = 'PixelArt/backgrounds/level2_see/lighthouse_sheet.png';
+const _bgL2Sun      = new Image(); _bgL2Sun.src      = 'PixelArt/backgrounds/level_3_sea/sun.png';
+// Lighthouse (Phase 04.2) — replaces the earlier rocket-tower prototype
+const _bgL2LhSheet = new Image(); _bgL2LhSheet.src = 'PixelArt/backgrounds/level_3_sea/lighthouse_sheet.png';
 
 // ── Level 3 assets (bg-back: shaft wall; bg-mid: pipes) ───────────────────────
-const _bgL3Elevator    = new Image(); _bgL3Elevator.src    = 'PixelArt/backgrounds/level3_shaft/elevator.png';
-const _bgL3ShaftBot    = new Image(); _bgL3ShaftBot.src    = 'PixelArt/backgrounds/level3_shaft/shaft_bg_bottom.png';
-const _bgL3ShaftMid1   = new Image(); _bgL3ShaftMid1.src   = 'PixelArt/backgrounds/level3_shaft/shaft_bg_mid1.png';
-const _bgL3ShaftMid2   = new Image(); _bgL3ShaftMid2.src   = 'PixelArt/backgrounds/level3_shaft/shaft_bg_mid2.png';
-const _bgL3ShaftTop    = new Image(); _bgL3ShaftTop.src    = 'PixelArt/backgrounds/level3_shaft/shaft_bg_top.png';
-const _bgL3PipesBot    = new Image(); _bgL3PipesBot.src    = 'PixelArt/backgrounds/level3_shaft/pipes_bottom.png';
-const _bgL3PipesMid    = new Image(); _bgL3PipesMid.src    = 'PixelArt/backgrounds/level3_shaft/pipes_mid.png';
-const _bgL3PipesTop    = new Image(); _bgL3PipesTop.src    = 'PixelArt/backgrounds/level3_shaft/pipes_top.png';
+const _bgL3Elevator    = new Image(); _bgL3Elevator.src    = 'PixelArt/backgrounds/level_2_shaft/elevator.png';
+const _bgL3ShaftBot    = new Image(); _bgL3ShaftBot.src    = 'PixelArt/backgrounds/level_2_shaft/shaft_bg_bottom.png';
+const _bgL3ShaftMid1   = new Image(); _bgL3ShaftMid1.src   = 'PixelArt/backgrounds/level_2_shaft/shaft_bg_mid1.png';
+const _bgL3ShaftMid2   = new Image(); _bgL3ShaftMid2.src   = 'PixelArt/backgrounds/level_2_shaft/shaft_bg_mid2.png';
+const _bgL3ShaftTop    = new Image(); _bgL3ShaftTop.src    = 'PixelArt/backgrounds/level_2_shaft/shaft_bg_top.png';
+const _bgL3PipesBot    = new Image(); _bgL3PipesBot.src    = 'PixelArt/backgrounds/level_2_shaft/pipes_bottom.png';
+const _bgL3PipesMid    = new Image(); _bgL3PipesMid.src    = 'PixelArt/backgrounds/level_2_shaft/pipes_mid.png';
+const _bgL3PipesTop    = new Image(); _bgL3PipesTop.src    = 'PixelArt/backgrounds/level_2_shaft/pipes_top.png';
 
-// rocket_mid_top.png sprite regions (PIL alpha-scan verified):
-//   3 sprites, all sw=74px, sh=270px content (sy=24: 24px transparent top padding in source).
-//   rocket_bottom.png content cx = (184+299)/2 = 241.5 → drawX = 241 − 37 = 204
-const _RKT_SPRITES = [
-  { sx:  24, sy: 24, sw: 74, sh: 270 }, // 0: mid tile A (left   sprite in sheet)
-  { sx: 126, sy: 24, sw: 74, sh: 270 }, // 1: mid tile B (center sprite in sheet)
-  { sx: 247, sy: 24, sw: 74, sh: 270 }, // 2: rocket top (right  sprite in sheet)
-];
-const _RKT_DRAW_X = 204; // screen x: centers 74px shaft over rocket bottom content (cx=241)
-const _RKT_MID_H  = 270; // content height per tile — vertical tiling step
 const _LH_MID_H   = 577; // lighthouse mid tile content height (rows 30–607 = 578px, step=577)
 // dyo = draw-Y offset in px: shifts each tile down to close art-side seam gaps.
 // Computed from PIL content bounds so every seam is pixel-perfect (error=0).
@@ -263,85 +248,6 @@ function _drawL2Sun(ctx, camShift, rawAlt) {
   ctx.globalAlpha  = savedAlpha;
 }
 
-// Draws Level 2 scaffolding behind the rocket tower (world-speed 1.0x).
-// ScaffBot drawn once at world origin; ScaffMid tiles upward with 529px content step.
-// Must be called BEFORE _drawL2Elements so scaffolding appears behind the rocket.
-//
-// ScaffMid content: rows 93–622 (529px). First tile wy=−622 places content-bottom
-// at screen cs (= ScaffBot's image top), connecting the two layers seamlessly.
-const _SCAF_STEP  = 529; // ScaffMid content height (rows 93–622)
-const _SCAF_START = -622; // wy of first ScaffMid tile — content-bottom lands at screen cs
-
-function _drawL2Scaffolding(ctx, camShift) {
-  if (!_bgL2ScaffBot.complete || _bgL2ScaffBot.naturalWidth === 0) return;
-  if (!_bgL2ScaffMid.complete || _bgL2ScaffMid.naturalWidth === 0) return;
-
-  const cs    = Math.round(camShift);
-  const goalY = (GameState.levelGoalY !== undefined) ? GameState.levelGoalY : -5000;
-
-  // Scaffold bottom — once at world origin
-  ctx.drawImage(_bgL2ScaffBot, 0, cs);
-
-  // Scaffold mid — tile upward until level goal
-  for (let wy = _SCAF_START; wy > goalY; wy -= _SCAF_STEP) {
-    const sy = wy + cs;
-    if (sy > BG_H)       continue; // below viewport
-    if (sy + BG_H < 0)   break;    // above viewport — all further tiles too
-    ctx.drawImage(_bgL2ScaffMid, 0, sy);
-  }
-}
-
-// Draws Level 2 rocket launch tower and sea landing area.
-// All parts are drawn at parallax factor 1.0 (world-speed, same as L1 building wall).
-//
-// Layer stacking (bottom to top of draw order):
-//   1. sea_launchpad.png  — full-width sea/dock image at world origin
-//   2. rocket_bottom.png  — full-width base, overlaid on landing area
-//   3. Mid shaft tiles    — _RKT_SPRITES[0/1] alternating, tile upward to level goal
-//   4. Rocket top         — _RKT_SPRITES[2], content bottom at levelGoalY
-//
-// Mid tile start: wy = -_RKT_MID_H so tile's content BOTTOM aligns with
-//   the TOP of rocket_bottom.png (image y=0 at screen y=cs).
-function _drawL2Elements(ctx, camShift) {
-  if (!_bgL2Landing.complete || _bgL2Landing.naturalWidth === 0) return;
-  if (!_bgL2Bottom.complete  || _bgL2Bottom.naturalWidth  === 0) return;
-  if (!_bgL2MidTop.complete  || _bgL2MidTop.naturalWidth  === 0) return;
-
-  const cs    = Math.round(camShift);
-  const goalY = (GameState.levelGoalY !== undefined) ? GameState.levelGoalY : -5000;
-
-  // Scaffolding — drawn first so it sits behind the rocket tower
-  _drawL2Scaffolding(ctx, camShift);
-
-  // Sea / launch pad — full-width image drawn once at world-space origin
-  ctx.drawImage(_bgL2Landing, 0, cs);
-
-  // Rocket bottom — full-width, overlaid on sea (content at x=184–299, y=0–534)
-  ctx.drawImage(_bgL2Bottom, 0, cs);
-
-  // Mid shaft — tile A/B alternating upward from above rocket bottom to level goal
-  let tileIdx = 0;
-  for (let wy = -_RKT_MID_H; wy > goalY - _RKT_MID_H; wy -= _RKT_MID_H) {
-    const sy = wy + cs;
-    if (sy > BG_H)            continue; // entirely below viewport
-    if (sy + _RKT_MID_H < 0) break;    // entirely above viewport — all further tiles too
-    const spr = _RKT_SPRITES[tileIdx % 2];
-    ctx.drawImage(_bgL2MidTop, spr.sx, spr.sy, spr.sw, spr.sh,
-                               _RKT_DRAW_X, sy, spr.sw, spr.sh);
-    tileIdx++;
-  }
-
-  // Rocket top — caps the shaft; snap bottom to the last mid tile's top edge to
-  // eliminate overlap. lastTileWy = nearest multiple of _RKT_MID_H at or below goalY.
-  const topSpr     = _RKT_SPRITES[2];
-  const lastTileWy = -(Math.ceil(-goalY / _RKT_MID_H)) * _RKT_MID_H;
-  const topScrY    = Math.round(lastTileWy + cs) - topSpr.sh;
-  if (topScrY < BG_H && topScrY + topSpr.sh > -BG_H) {
-    ctx.drawImage(_bgL2MidTop, topSpr.sx, topSpr.sy, topSpr.sw, topSpr.sh,
-                               _RKT_DRAW_X, topScrY, topSpr.sw, topSpr.sh);
-  }
-}
-
 // Draws Level 2 lighthouse — replaces rocket tower (Phase 04.2).
 // Uses lighthouse_sheet.png: 9 elements — base, 7 mid tiles (tapering), top cap.
 // Base drawn once at world y=0; mid tiles by world position for consistent taper;
@@ -400,15 +306,15 @@ function _drawL3Back(ctx, camShift) {
   // Elevator car at world origin
   ctx.drawImage(_bgL3Elevator, 0, cs);
 
-  // Shaft bottom — shifted up by 268px so its bottom aligns with the elevator
-  // ceiling (Elevator.png row 268 = world y 268), eliminating the dark gap.
-  // cs + 268 - BG_H = cs - 372
-  ctx.drawImage(_bgL3ShaftBot, 0, cs + 268 - BG_H);
+  // Shaft bottom — shifted up by 96px so its bottom aligns with the elevator
+  // ceiling (Elevator.png row 96 = world y 96), eliminating the dark gap.
+  // cs + 96 - BG_H = cs - 544
+  ctx.drawImage(_bgL3ShaftBot, 0, cs + 96 - BG_H);
 
-  // Mid tiles — start at wy=−1012 (= −(BG_H*2 − 268)) so the first tile's
-  // bottom (world y −372) connects to ShaftBot's top — no gap after B1 shift.
+  // Mid tiles — start at wy=−1184 (= −(BG_H*2 − 96)) so the first tile's
+  // bottom (world y −544) connects to ShaftBot's top — no gap after B1 shift.
   let tileIdx = 0;
-  for (let wy = -(BG_H * 2 - 268); wy > goalY - BG_H; wy -= BG_H) {
+  for (let wy = -(BG_H * 2 - 96); wy > goalY - BG_H; wy -= BG_H) {
     const sy = wy + cs;
     if (sy > BG_H)         continue; // below viewport
     if (sy + BG_H < 0)     break;    // above viewport — all further tiles too
@@ -421,31 +327,54 @@ function _drawL3Back(ctx, camShift) {
   ctx.drawImage(_bgL3ShaftTop, 0, Math.round(goalY + cs) - 175);
 }
 
-// Draws Level 3 pipe/cable layer (bg-mid layer, 0.90x parallax).
-// Slightly slower scroll than shaft walls — gives visual depth.
-// Uses same section structure: bottom → tiled middle → top cap.
+// Draws Level 3 pipe/cable layer (bg-mid layer, 1.0x parallax — locked to world).
+//
+// Stacking from ground up (all 1.0x parallax, locked to world):
+//   1. pipes_bottom — bottom edge anchored to world-y 96 (elevator ceiling).
+//      Visible content is the pipe end-caps/flanges emerging from the ceiling;
+//      upper portion of the tile is transparent tube content.
+//   2. pipes_mid    — tiled upward from pipes_bottom's top edge until goalY.
+//   3. pipes_top    — caps the run below the roof (175-row transparent header).
+//
+// Pipes are drawn only ABOVE the elevator ceiling (world-y < 96) so they never
+// paint over the elevator interior (world-y 0..640), which has its own walls
+// rendered in elevator.png via _drawL3Back.
+//
+// PARALLAX NOTE: previously this layer used FACTOR=0.90 for a subtle depth
+// effect, but that made the pipes drift upward relative to the elevator
+// ceiling (1.0 parallax) as the camera rose — ~10 % of camShift per frame,
+// producing a visible 15–40 px gap between pipe-bottom and ceiling.
+// Using FACTOR=1.0 locks pipes to world space so the seam stays sealed.
 function _drawL3Mid(ctx, camShift) {
   if (!_bgL3PipesBot.complete || _bgL3PipesBot.naturalWidth === 0) return;
   if (!_bgL3PipesMid.complete || _bgL3PipesMid.naturalWidth === 0) return;
   if (!_bgL3PipesTop.complete || _bgL3PipesTop.naturalWidth === 0) return;
 
-  const FACTOR = 0.90;
-  const cs     = Math.round(camShift * FACTOR);
-  const goalY  = (GameState.levelGoalY !== undefined) ? GameState.levelGoalY : -5000;
+  const cs    = Math.round(camShift);                                      // 1.0x parallax
+  const goalY = (GameState.levelGoalY !== undefined) ? GameState.levelGoalY : -5000;
 
-  // Pipes bottom at parallax-adjusted ground position
-  ctx.drawImage(_bgL3PipesBot, 0, cs);
+  // Pipes bottom — tile bottom anchored to world-y 96 (elevator ceiling).
+  //   tile top world-y = 96 − BG_H = −544.
+  {
+    const sy = (96 - BG_H) + cs;
+    if (sy <= BG_H && sy + BG_H >= 0) {
+      ctx.drawImage(_bgL3PipesBot, 0, sy);
+    }
+  }
 
-  // Pipes middle — tile upward from above bottom section
-  for (let wy = -BG_H; wy > goalY * FACTOR - BG_H; wy -= BG_H) {
+  // Pipes middle — stack upward starting ABOVE pipes_bottom's top edge.
+  //   first mid tile bottom = pipes_bottom top = 96 − BG_H.
+  //   → first mid tile top = 96 − 2·BG_H.
+  // Tiles extend upward (wy -= BG_H each step) until they pass the goalY cap.
+  for (let wy = 96 - 2 * BG_H; wy > goalY - BG_H; wy -= BG_H) {
     const sy = wy + cs;
     if (sy > BG_H)     continue;
     if (sy + BG_H < 0) break;
     ctx.drawImage(_bgL3PipesMid, 0, sy);
   }
 
-  // Pipes top — same 175-row transparent header; align content-top to parallax-adjusted levelGoalY
-  ctx.drawImage(_bgL3PipesTop, 0, Math.round((goalY + camShift) * FACTOR) - 175);
+  // Pipes top — same 175-row transparent header; align content-top to levelGoalY.
+  ctx.drawImage(_bgL3PipesTop, 0, Math.round(goalY + camShift) - 175);
 }
 
 // Draws building_wall.png in world space (factor 1.0 — no parallax drift).

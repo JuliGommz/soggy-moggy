@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Glyph Extractor — Soggy Moggy</title>
+<style>
+  body { font-family: ui-sans-serif, system-ui; margin: 16px; background: #1a1a2e; color: #eee; }
+  h1 { font-size: 18px; margin: 0 0 8px; }
+  .row { display: flex; gap: 16px; align-items: flex-start; flex-wrap: nowrap; }
+  .panel { background: #242444; padding: 12px; border-radius: 6px; box-sizing: border-box; }
+  .panel.settings { width: 340px; flex-shrink: 0; }
+  .panel.preview  { flex: 1 1 0; min-width: 0; }
+  label { display: block; font-size: 12px; margin: 8px 0 4px; color: #bbb; }
+  input[type=text], input[type=number] { width: 100%; padding: 6px; background: #111; color: #eee; border: 1px solid #444; border-radius: 4px; font-family: monospace; box-sizing: border-box; }
+  button { background: #4a7a3a; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+  button:hover { background: #5a9a4a; }
+  button.secondary { background: #555; }
+  canvas { background: #111 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><rect width="8" height="8" fill="%23222"/><rect x="8" y="8" width="8" height="8" fill="%23222"/></svg>') repeat; image-rendering: pixelated; border: 1px solid #444; display: block; }
+  .canvas-wrap { overflow: auto; height: 85vh; max-width: 100%; border: 1px solid #333; background: #0a0a0a; }
+  pre { background: #111; padding: 8px; border-radius: 4px; overflow: auto; max-height: 300px; font-size: 11px; }
+  .warn { color: #fc5; }
+  .ok { color: #9f6; }
+  .err { color: #f66; }
+  .stat { font-size: 12px; color: #aaa; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<h1>Glyph Extractor — auto-detects glyph bounds in pixel alphabet PNGs</h1>
+
+<div class="row">
+  <div class="panel settings">
+    <label>1. Load alphabet PNG</label>
+    <input type="file" id="fileInput" accept="image/png">
+
+    <label>2. Characters in reading order (left-to-right, top-to-bottom)</label>
+    <input type="text" id="charMap" value="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?">
+
+    <label>3. Alpha threshold (pixel counts as glyph if alpha &ge; this)</label>
+    <input type="number" id="alphaThreshold" value="50" min="0" max="255">
+    <div class="stat">Low (30-80) for clean solid letters like yellow-red. High (180-220) for letters with glow/blur like black-LCD.</div>
+
+    <label>4. Brightness max (RGB average ≤ this counts as glyph; 255 = no filter)</label>
+    <input type="number" id="brightMax" value="255" min="0" max="255">
+    <div class="stat">Set to ~100 for black-on-white fonts with soft glow (filters the gray glow, keeps black letters). Leave 255 for transparent-background fonts.</div>
+
+    <label>5. Gap tolerance (merge glyph fragments separated by ≤ this many empty pixels)</label>
+    <input type="number" id="gapTol" value="0" min="0" max="20">
+    <div class="stat">0 for tight fonts. 3-6 for LCD/dotted fonts where a letter is made of disconnected pixel clusters.</div>
+
+    <label>6. Min row height / col width (filter out noise pixels)</label>
+    <input type="number" id="minSize" value="4" min="1">
+
+    <label>7. Grid mode — cols × rows (0 = off / auto-detect)</label>
+    <div style="display: flex; gap: 8px;">
+      <input type="number" id="gridCols" value="0" min="0" placeholder="cols">
+      <input type="number" id="gridRows" value="0" min="0" placeholder="rows">
+    </div>
+    <div class="stat">If your alphabet is on a uniform grid (e.g. 7 cells wide × 4 rows), set both values. Tool then divides image into cells, finds the letter inside each cell. Empty cells are skipped. Bypasses merge/split issues entirely.</div>
+
+    <label>8. Atlas name (used as image ref in output JSON)</label>
+    <input type="text" id="atlasName" value="alphabet_yellow_red">
+
+    <div style="margin-top:12px;">
+      <button id="scanBtn">Scan</button>
+      <button id="downloadBtn" class="secondary" disabled>Download JSON</button>
+    </div>
+
+    <div id="status" class="stat"></div>
+  </div>
+
+  <div class="panel preview">
+    <label>Preview (cyan boxes = detected glyphs, scrollable if big)</label>
+    <div class="canvas-wrap"><canvas id="preview"></canvas></div>
+  </div>
+</div>
+
+<div class="panel" style="margin-top:16px;">
+  <label>Output JSON</label>
+  <pre id="output">(scan first)</pre>
+</div>
+
+<script>
+const fileInput     = document.getElementById('fileInput');
+const charMapInput  = document.getElementById('charMap');
+const alphaInput    = document.getElementById('alphaThreshold');
+const brightInput   = document.getElementById('brightMax');
+const gapInput      = document.getElementById('gapTol');
+const minSizeInput  = document.getElementById('minSize');
+const gridColsInput = document.getElementById('gridCols');
+const gridRowsInput = document.getElementById('gridRows');
+const atlasNameInput = document.getElementById('atlasName');
+const scanBtn       = document.getElementById('scanBtn');
+const downloadBtn   = document.getElementById('downloadBtn');
+const statusEl      = document.getElementById('status');
+const outputEl      = document.getElementById('output');
+const preview       = document.getElementById('preview');
+const pctx          = preview.getContext('2d');
+
+let sourceImage = null;
+let lastJson    = null;
+
+fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => {
+    sourceImage = img;
+    preview.width = img.naturalWidth;
+    preview.height = img.naturalHeight;
+    pctx.imageSmoothingEnabled = false;
+    pctx.clearRect(0, 0, preview.width, preview.height);
+    pctx.drawImage(img, 0, 0);
+    statusEl.textContent = `Loaded: ${img.naturalWidth} x ${img.naturalHeight}px. Click Scan.`;
+    statusEl.className = 'stat ok';
+  };
+  img.onerror = () => { statusEl.textContent = 'Failed to load image.'; statusEl.className = 'stat err'; };
+  img.src = URL.createObjectURL(file);
+});
+
+scanBtn.addEventListener('click', () => {
+  if (!sourceImage) { statusEl.textContent = 'Load a PNG first.'; statusEl.className = 'stat err'; return; }
+  const chars     = Array.from(charMapInput.value);
+  const alphaMin  = parseInt(alphaInput.value, 10);
+  const brightMax = parseInt(brightInput.value, 10);
+  const gapTol    = parseInt(gapInput.value, 10);
+  const minSize   = parseInt(minSizeInput.value, 10);
+  const gridCols  = parseInt(gridColsInput.value, 10);
+  const gridRows  = parseInt(gridRowsInput.value, 10);
+  const gridMode  = gridCols > 0 && gridRows > 0;
+  const atlasName = atlasNameInput.value.trim() || 'alphabet';
+
+  const W = sourceImage.naturalWidth;
+  const H = sourceImage.naturalHeight;
+  const off = document.createElement('canvas');
+  off.width = W; off.height = H;
+  const octx = off.getContext('2d');
+  octx.imageSmoothingEnabled = false;
+  octx.drawImage(sourceImage, 0, 0);
+  const data = octx.getImageData(0, 0, W, H).data;
+
+  const hasPx = (x, y) => {
+    if (x < 0 || y < 0 || x >= W || y >= H) return false;
+    const i = (y * W + x) * 4;
+    if (data[i + 3] < alphaMin) return false;
+    if (brightMax < 255) {
+      const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
+      if (brightness > brightMax) return false;
+    }
+    return true;
+  };
+
+  // ─── GRID MODE: split into uniform cells, tighten bounds within each cell ───
+  let glyphsFromGrid = null;
+  let rowBandsFromGrid = null;
+  if (gridMode) {
+    const cellW = W / gridCols;
+    const cellH = H / gridRows;
+    glyphsFromGrid = [];
+    rowBandsFromGrid = [];
+    for (let r = 0; r < gridRows; r++) {
+      const ry0 = Math.floor(r * cellH);
+      const ry1 = Math.floor((r + 1) * cellH) - 1;
+      rowBandsFromGrid.push({ y0: ry0, y1: ry1 });
+      for (let c = 0; c < gridCols; c++) {
+        const cx0 = Math.floor(c * cellW);
+        const cx1 = Math.floor((c + 1) * cellW);
+        let xmin = cx1, xmax = cx0 - 1, ymin = ry1 + 1, ymax = ry0 - 1;
+        for (let y = ry0; y <= ry1; y++) {
+          for (let x = cx0; x < cx1; x++) {
+            if (hasPx(x, y)) {
+              if (x < xmin) xmin = x;
+              if (x > xmax) xmax = x;
+              if (y < ymin) ymin = y;
+              if (y > ymax) ymax = y;
+            }
+          }
+        }
+        if (xmax < xmin || ymax < ymin) continue;
+        const gw = xmax - xmin + 1, gh = ymax - ymin + 1;
+        if (gw < minSize || gh < minSize) continue;
+        glyphsFromGrid.push({ x: xmin, y: ymin, w: gw, h: gh, _row: r });
+      }
+    }
+  }
+
+  // 1. Find row bands: contiguous Y-ranges containing glyph pixels.
+  // gapTol forgives short empty stretches (for LCD-style fonts with dot gaps).
+  const rowBands = [];
+  let bandStart = -1, emptyRun = 0;
+  for (let y = 0; y < H; y++) {
+    let rowHas = false;
+    for (let x = 0; x < W; x++) { if (hasPx(x, y)) { rowHas = true; break; } }
+    if (rowHas) {
+      if (bandStart === -1) bandStart = y;
+      emptyRun = 0;
+    } else if (bandStart !== -1) {
+      emptyRun++;
+      if (emptyRun > gapTol) {
+        const end = y - emptyRun;
+        if (end - bandStart + 1 >= minSize) rowBands.push({ y0: bandStart, y1: end });
+        bandStart = -1; emptyRun = 0;
+      }
+    }
+  }
+  if (bandStart !== -1 && H - bandStart >= minSize) rowBands.push({ y0: bandStart, y1: H - 1 });
+
+  // 2. Within each row band, find glyph bounding boxes by scanning columns.
+  // gapTol forgives short empty column runs (merges LCD-dot clusters into one glyph).
+  const tightenY = (x0, x1, y0, y1) => {
+    let ymin = y1, ymax = y0;
+    for (let yy = y0; yy <= y1; yy++) {
+      for (let xx = x0; xx < x1; xx++) {
+        if (hasPx(xx, yy)) { if (yy < ymin) ymin = yy; if (yy > ymax) ymax = yy; }
+      }
+    }
+    return { ymin, ymax };
+  };
+  const glyphs = [];
+  for (const band of rowBands) {
+    let colStart = -1, emptyCols = 0;
+    for (let x = 0; x < W; x++) {
+      let colHas = false;
+      for (let y = band.y0; y <= band.y1; y++) { if (hasPx(x, y)) { colHas = true; break; } }
+      if (colHas) {
+        if (colStart === -1) colStart = x;
+        emptyCols = 0;
+      } else if (colStart !== -1) {
+        emptyCols++;
+        if (emptyCols > gapTol) {
+          const end = x - emptyCols;
+          if (end - colStart >= minSize) {
+            const t = tightenY(colStart, end, band.y0, band.y1);
+            glyphs.push({ x: colStart, y: t.ymin, w: end - colStart, h: t.ymax - t.ymin + 1 });
+          }
+          colStart = -1; emptyCols = 0;
+        }
+      }
+    }
+    if (colStart !== -1 && W - colStart >= minSize) {
+      const t = tightenY(colStart, W, band.y0, band.y1);
+      glyphs.push({ x: colStart, y: t.ymin, w: W - colStart, h: t.ymax - t.ymin + 1 });
+    }
+  }
+
+  // If grid mode produced results, use those instead of auto-detect output
+  if (gridMode && glyphsFromGrid) {
+    glyphs.length = 0;
+    for (const g of glyphsFromGrid) glyphs.push(g);
+    rowBands.length = 0;
+    for (const rb of rowBandsFromGrid) rowBands.push(rb);
+  }
+
+  // 3. Compute max glyph height = lineHeight
+  let lineHeight = 0;
+  for (const g of glyphs) if (g.h > lineHeight) lineHeight = g.h;
+
+  // 4. Assign chars. Use top of row band as baseline anchor for yoff.
+  const charsOut = {};
+  for (let i = 0; i < Math.min(chars.length, glyphs.length); i++) {
+    const ch = chars[i];
+    const g  = glyphs[i];
+    // Find row band for this glyph to compute yoff
+    const band = rowBands.find(b => g.y >= b.y0 && g.y <= b.y1) || rowBands[0];
+    charsOut[ch] = {
+      x: g.x, y: g.y, w: g.w, h: g.h,
+      xoff: 0,
+      yoff: g.y - band.y0,
+      xadv: g.w + 2,
+    };
+  }
+
+  // 5. Redraw preview with overlay
+  pctx.clearRect(0, 0, W, H);
+  pctx.drawImage(sourceImage, 0, 0);
+  // Cyan outline + translucent fill. High contrast on red/yellow alphabets.
+  // lineWidth = 3 so boxes stay visible even if canvas is zoomed out in browser.
+  pctx.strokeStyle = '#00eaff';
+  pctx.lineWidth   = 3;
+  pctx.fillStyle   = 'rgba(0, 234, 255, 0.12)';
+  for (const g of glyphs) {
+    pctx.fillRect(g.x, g.y, g.w, g.h);
+    pctx.strokeRect(g.x - 1, g.y - 1, g.w + 2, g.h + 2);
+  }
+  // Labels in a second pass so they sit above all boxes.
+  pctx.font = 'bold 14px monospace';
+  pctx.textBaseline = 'top';
+  for (let i = 0; i < glyphs.length; i++) {
+    const g   = glyphs[i];
+    const lbl = (i < chars.length ? chars[i] : '?') + ':' + i;
+    const tw  = pctx.measureText(lbl).width;
+    pctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+    pctx.fillRect(g.x, Math.max(0, g.y - 16), tw + 6, 16);
+    pctx.fillStyle = '#00eaff';
+    pctx.fillText(lbl, g.x + 3, Math.max(0, g.y - 15));
+  }
+
+  lastJson = {
+    image: atlasName + '.png',
+    lineHeight,
+    chars: charsOut,
+  };
+
+  outputEl.textContent = JSON.stringify(lastJson, null, 2);
+  downloadBtn.disabled = false;
+
+  const detected = glyphs.length;
+  const mapped   = Math.min(chars.length, glyphs.length);
+  const msg = `Detected ${detected} glyphs in ${rowBands.length} row(s). Mapped ${mapped} / ${chars.length} chars.`;
+  statusEl.textContent = msg + (detected === chars.length ? ' ✓ counts match.' : ' ⚠ counts differ — adjust threshold, minSize, or the char string.');
+  statusEl.className = 'stat ' + (detected === chars.length ? 'ok' : 'warn');
+});
+
+downloadBtn.addEventListener('click', () => {
+  if (!lastJson) return;
+  const name = atlasNameInput.value.trim() || 'alphabet';
+  const blob = new Blob([JSON.stringify(lastJson, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = name + '.json'; a.click();
+  URL.revokeObjectURL(url);
+});
+</script>
+
+</body>
+</html>

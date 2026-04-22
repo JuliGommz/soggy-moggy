@@ -2,7 +2,7 @@
 ====================================================================
 * main.js - Entry point: canvas, game loop, update, render
 ====================================================================
-* Project: Soggy Moggy (in-game: Gato Sin Botas)
+* Project: Soggy Moggy
 * Course: PRG Abschlussprojekt — SRH Fachschulen
 * Developer: Julian Gomez
 * Date: 2026-03-04
@@ -37,7 +37,7 @@
 //             player, updatePlayer, renderPlayer, resetPlayer (player.js)
 
 // ── HUD lives icon ──────────────────────────────────────────────────────────
-const _hudLifeIcon = new Image(); _hudLifeIcon.src = 'PixelArt/collectibles/life_icon.png';
+const _hudLifeIcon = new Image(); _hudLifeIcon.src = 'PixelArt/ui/hud/life_icon.png';
 
 // ── Balloon extra-life collectible ──────────────────────────────────────────
 const _sprExtraLife = new Image(); _sprExtraLife.src = 'PixelArt/collectibles/balloon.png';
@@ -158,6 +158,9 @@ function update(dt) {
         resetGame();
         resetBalloon(); // called after resetGame → resetPlatforms → finishTrigger is set
         spawnEnemies(); // called after resetPlatforms so platforms array is ready
+        // Override: show LEVEL_INTRO bubble before gameplay starts
+        GameState.phase = GamePhase.LEVEL_INTRO;
+        showLevelStart(GameState.level);
       }
       if (keys.push) {
         keys.push = false;
@@ -174,10 +177,46 @@ function update(dt) {
         resetGame(GameState.devCursor);
         resetBalloon();
         spawnEnemies();
+        GameState.phase = GamePhase.LEVEL_INTRO;
+        showLevelStart(GameState.level);
+      }
+      break;
+
+    case GamePhase.LEVEL_INTRO:
+      // Bubble overlay shown before each level. Press ENTER / Space / Z to dismiss.
+      updateDialogue(dt);
+      // Swallow ESC during the bubble — otherwise a held/bleed ESC hops straight
+      // through PLAYING on the next frame and slams into PAUSED.
+      if (keys.escape) keys.escape = false;
+      if (keys.enter || keys.jump || keys.push) {
+        keys.enter = false;
+        keys.jump  = false;
+        keys.push  = false;
+        if (advanceDialogue()) GameState.phase = GamePhase.PLAYING;
+      }
+      break;
+
+    case GamePhase.LEVEL_OUTRO:
+      // Bubble overlay shown after finish-trigger, before LEVEL_COMPLETE menu.
+      updateDialogue(dt);
+      // Swallow ESC — LEVEL_COMPLETE reads ESC as "back to menu" or similar,
+      // so we don't want a stray ESC skipping past the stats screen.
+      if (keys.escape) keys.escape = false;
+      if (keys.enter || keys.jump || keys.push) {
+        keys.enter = false;
+        keys.jump  = false;
+        keys.push  = false;
+        if (advanceDialogue()) {
+          GameState.menuCursor = 0;
+          GameState.phase      = GamePhase.LEVEL_COMPLETE;
+        }
       }
       break;
 
     case GamePhase.PLAYING:
+      // Life-lost dialogue (transient) pauses physics — tick dialogue timer only.
+      if (isDialogueBlocking()) { updateDialogue(dt); break; }
+
       // ESC → pause
       if (keys.escape) {
         keys.escape          = false;
@@ -202,11 +241,11 @@ function update(dt) {
       // killBonus is tracked separately and revealed at level complete
       GameState.score = Math.max(0, PLAYER_START_Y - GameState.maxHeightReached);
 
-      // Finish trigger: player must stand on finish platform and press Z (push key)
+      // Finish trigger: player must stand on the finish platform (identity check, not X-overlap)
+      // and press Z (push key). Identity check prevents false triggers when player stands on any
+      // platform that happens to overlap the finish-trigger X-range (e.g. jalousies under the roof).
       if (GameState.finishState === 'idle' && GameState.finishTrigger) {
-        const ft = GameState.finishTrigger;
-        const overlapsX = player.x < ft.x + ft.w && player.x + player.w > ft.x;
-        if (player.onGround && overlapsX && keys.push) {
+        if (player.onGround && player.onPlatform?.isFinish && keys.push) {
           keys.push             = false;
           GameState.finishState = 'activating';
           GameState.finishAnimTimer = 1.5; // seconds of animation before level complete screen
@@ -224,13 +263,15 @@ function update(dt) {
           keys.enter = false;
           keys.jump  = false;
           GameState.finishState = 'done';
-          GameState.phase       = GamePhase.LEVEL_COMPLETE;
+          // Route through LEVEL_OUTRO bubble before showing the stats menu.
+          GameState.phase = GamePhase.LEVEL_OUTRO;
+          showLevelEnd(GameState.level);
         }
       }
 
       // Fall-off-bottom: costs one life, respawns at camera top
       if (player.y > GameState.cameraY + canvas.height && hazard.iframeTimer <= 0) {
-        takeDamage();
+        takeDamage('hazard');
         if (GameState.phase === GamePhase.PLAYING) {
           player.y  = GameState.cameraY + 60; // respawn near top of camera view
           player.vy = JUMP_VELOCITY;           // auto-bounce on respawn
@@ -253,10 +294,12 @@ function update(dt) {
       if (keys.enter) {
         keys.enter = false;
         switch (GameState.menuCursor) {
-          case 0: GameState.phase = GamePhase.PLAYING; break; // Continuar
-          case 1: restartLevel(); resetBalloon(); spawnEnemies(); break; // Reiniciar nivel
-          case 2: resetGame();    resetBalloon(); spawnEnemies(); break; // Reiniciar juego
-          case 3: GameState.phase = GamePhase.START;             break; // Menú principal
+          case 0: GameState.phase = GamePhase.PLAYING; break; // Continue
+          case 1: restartLevel(); resetBalloon(); spawnEnemies();
+                  GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Restart level
+          case 2: resetGame();    resetBalloon(); spawnEnemies();
+                  GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Restart game
+          case 3: GameState.phase = GamePhase.START;             break; // Main menu
         }
       }
       break;
@@ -267,13 +310,18 @@ function update(dt) {
       if (keys.enter) {
         keys.enter = false;
         switch (GameState.menuCursor) {
-          case 0: // Siguiente nivel — if on last level, go to start
-            if (GameState.level < 3) { startNextLevel(); resetBalloon(); spawnEnemies(); }
+          case 0: // Next level — if on last level, go to start
+            if (GameState.level < 3) {
+              startNextLevel(); resetBalloon(); spawnEnemies();
+              GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level);
+            }
             else GameState.phase = GamePhase.START;
             break;
-          case 1: restartLevel(); resetBalloon(); spawnEnemies(); break; // Reiniciar nivel
-          case 2: resetGame();    resetBalloon(); spawnEnemies(); break; // Reiniciar juego
-          case 3: GameState.phase = GamePhase.START;             break; // Menú principal
+          case 1: restartLevel(); resetBalloon(); spawnEnemies();
+                  GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Restart level
+          case 2: resetGame();    resetBalloon(); spawnEnemies();
+                  GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Restart game
+          case 3: GameState.phase = GamePhase.START;             break; // Main menu
         }
       }
       break;
@@ -301,14 +349,19 @@ function render() {
   ctx.translate(0, -GameState.cameraY); // cameraY is 0 in Phase 1; camera added in Phase 2
 
   // 4. Draw world-space objects
-  if (GameState.phase === GamePhase.PLAYING || GameState.phase === GamePhase.LEVEL_COMPLETE || GameState.phase === GamePhase.PAUSED) {
+  const _drawWorld = (
+    GameState.phase === GamePhase.PLAYING        ||
+    GameState.phase === GamePhase.LEVEL_COMPLETE ||
+    GameState.phase === GamePhase.PAUSED         ||
+    GameState.phase === GamePhase.LEVEL_INTRO    ||
+    GameState.phase === GamePhase.LEVEL_OUTRO
+  );
+  if (_drawWorld) {
     renderPlatforms(ctx);  // draw platforms before player (player renders on top)
     renderEnemies(ctx);    // enemies behind player — stomp is clearer when player overlaps on top
     renderBalloon(ctx);
     renderPlayer(ctx);
     if (GameState.finishTrigger) _renderFinishTrigger(ctx);
-  }
-  if (GameState.phase === GamePhase.PLAYING || GameState.phase === GamePhase.LEVEL_COMPLETE || GameState.phase === GamePhase.PAUSED) {
     renderHazard(ctx);
   }
 
@@ -317,6 +370,9 @@ function render() {
 
   // 6. Draw HUD — ALWAYS in screen space (after ctx.restore)
   renderHUD();
+
+  // 7. Dialogue overlay — drawn LAST so bubbles sit on top of HUD + world
+  renderDialogue(ctx);
 }
 
 // ── Finish trigger visual ────────────────────────────────────────────────────
@@ -383,10 +439,10 @@ function _renderFinishTrigger(ctx) {
 
   ctx.restore();
 
-  // [Z] prompt — only shown when player is standing on the finish platform (idle state)
+  // [Z] prompt — only shown when player is standing on the finish platform (idle state).
+  // Identity check via onPlatform.isFinish — consistent with trigger logic above.
   if (GameState.finishState === 'idle') {
-    const overlapsX = player.x < ft.x + ft.w && player.x + player.w > ft.x;
-    if (player.onGround && overlapsX) {
+    if (player.onGround && player.onPlatform?.isFinish) {
       ctx.fillStyle = '#ffffff';
       ctx.font      = '14px monospace';
       ctx.textAlign = 'center';
@@ -448,7 +504,7 @@ function renderHUD() {
     // Header
     ctx.fillStyle = '#e74c3c';
     ctx.font      = '18px monospace';
-    ctx.fillText('¡PELIGRO!', canvas.width / 2, bannerY - 34);
+    ctx.fillText('DANGER!', canvas.width / 2, bannerY - 34);
 
     // Big countdown number
     ctx.fillStyle = '#f1c40f';
@@ -467,7 +523,7 @@ function renderHUD() {
 
     ctx.fillStyle = '#ffffff';
     ctx.font      = '36px monospace';
-    ctx.fillText('GATO SIN BOTAS', canvas.width / 2, 220);
+    ctx.fillText('SOGGY MOGGY', canvas.width / 2, 220);
 
     ctx.font = '16px monospace';
     ctx.fillStyle = '#cccccc';
@@ -484,12 +540,15 @@ function renderHUD() {
     ctx.fillText('Z — dev level select', canvas.width / 2, 470);
 
     ctx.textAlign = 'left'; // always reset after centered rendering
+
+    // DEBUG: bitmap-font smoke test (remove once dialogue bubbles use fonts)
+    if (typeof renderFontSmokeTest === 'function') renderFontSmokeTest(ctx);
   }
 
   // ── DEV SELECT screen ─────────────────────────────────────────────────────
   if (GameState.phase === GamePhase.DEV_SELECT) {
     const cx = canvas.width / 2;
-    const LEVEL_NAMES = ['', 'L1 — Stadt', 'L2 — Aufzugschacht', 'L3 — Offener See'];
+    const LEVEL_NAMES = ['', 'L1 — City', 'L2 — Elevator Shaft', 'L3 — Open Sea'];
 
     ctx.fillStyle = 'rgba(0,0,0,0.80)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -528,7 +587,7 @@ function renderHUD() {
 
   // ── LEVEL COMPLETE screen ─────────────────────────────────────────────────
   if (GameState.phase === GamePhase.LEVEL_COMPLETE) {
-    const LEVEL_NAMES = ['', 'Stadt', 'Aufzugschacht', 'Offener See', 'Freizeitpark'];
+    const LEVEL_NAMES = ['', 'City', 'Elevator Shaft', 'Open Sea', 'Amusement Park'];
     const cx = canvas.width / 2;
 
     ctx.fillStyle = 'rgba(0,0,0,0.72)';
@@ -538,7 +597,7 @@ function renderHUD() {
     // Title
     ctx.fillStyle = '#2ecc71';
     ctx.font      = '28px monospace';
-    ctx.fillText('NIVEL ' + GameState.level + ' COMPLETADO', cx, 120);
+    ctx.fillText('LEVEL ' + GameState.level + ' COMPLETE', cx, 120);
     ctx.fillStyle = '#aaaaaa';
     ctx.font      = '16px monospace';
     ctx.fillText(LEVEL_NAMES[GameState.level] || '', cx, 148);
@@ -547,20 +606,20 @@ function renderHUD() {
     const _lvlTotal = Math.floor(GameState.score) + Math.floor(GameState.killBonus) + GameState.clearBonus;
     ctx.font      = '16px monospace';
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('Altura:   ' + Math.floor(GameState.score)      + ' px',  cx, 184);
+    ctx.fillText('Height:   ' + Math.floor(GameState.score)      + ' px',  cx, 184);
     ctx.fillStyle = GameState.killBonus > 0 ? '#f1c40f' : '#888888';
-    ctx.fillText('Avispas:  ' + Math.floor(GameState.killBonus)  + ' pts', cx, 206);
+    ctx.fillText('Wasps:    ' + Math.floor(GameState.killBonus)  + ' pts', cx, 206);
     ctx.fillStyle = GameState.clearBonus > 0 ? '#ff9f43' : '#555555';
     ctx.font      = GameState.clearBonus > 0 ? 'bold 16px monospace' : '16px monospace';
-    ctx.fillText('¡Todas!   ' + (GameState.clearBonus > 0 ? '+200 pts' : '---'),  cx, 228);
+    ctx.fillText('All clear! ' + (GameState.clearBonus > 0 ? '+200 pts' : '---'),  cx, 228);
     ctx.font      = '16px monospace';
     ctx.fillStyle = '#2ecc71';
     ctx.fillText('Total:    ' + _lvlTotal                        + ' pts', cx, 252);
     ctx.fillStyle = '#aaaaaa';
-    ctx.fillText('Mejor:    ' + Math.floor(GameState.highScore)  + ' pts', cx, 274);
+    ctx.fillText('Best:     ' + Math.floor(GameState.highScore)  + ' pts', cx, 274);
     // Lives — cat icons
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('Vidas:', cx - 36, 298);
+    ctx.fillText('Lives:', cx - 36, 298);
     if (_hudLifeIcon.complete && _hudLifeIcon.naturalWidth > 0) {
       const icoW = 22, icoH = 18; // slightly larger for menu screen
       const maxShow = Math.min(GameState.lives, 9);
@@ -570,8 +629,8 @@ function renderHUD() {
     }
 
     // Menu options
-    const option0 = GameState.level < 3 ? 'Siguiente nivel' : 'Ver puntuacion final';
-    const options = [option0, 'Reiniciar nivel', 'Reiniciar juego', 'Menu principal'];
+    const option0 = GameState.level < 3 ? 'Next Level' : 'Final Score';
+    const options = [option0, 'Restart Level', 'Restart Game', 'Main Menu'];
     const optY0   = 328;
     const optStep = 46;
     options.forEach((label, i) => {
@@ -591,7 +650,7 @@ function renderHUD() {
     // Hint
     ctx.fillStyle = '#555555';
     ctx.font      = '13px monospace';
-    ctx.fillText('\u2191\u2193 navegar   ENTER confirmar', cx, 520);
+    ctx.fillText('\u2191\u2193 navigate   ENTER confirm', cx, 520);
 
     ctx.textAlign = 'left';
   }
@@ -608,7 +667,7 @@ function renderHUD() {
     ctx.font      = '36px monospace';
     ctx.fillText('PAUSA', cx, 180);
 
-    const options = ['Continuar', 'Reiniciar nivel', 'Reiniciar juego', 'Menu principal'];
+    const options = ['Continue', 'Restart Level', 'Restart Game', 'Main Menu'];
     const optY0   = 270;
     const optStep = 55;
     options.forEach((label, i) => {
@@ -627,7 +686,7 @@ function renderHUD() {
 
     ctx.fillStyle = '#555555';
     ctx.font      = '13px monospace';
-    ctx.fillText('ESC reanudar   \u2191\u2193 navegar   ENTER confirmar', cx, 510);
+    ctx.fillText('ESC resume   \u2191\u2193 navigate   ENTER confirm', cx, 510);
 
     ctx.textAlign = 'left';
   }
