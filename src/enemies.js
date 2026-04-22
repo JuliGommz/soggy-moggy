@@ -15,9 +15,9 @@
 *   Stomp (cat lands on top of wasp) → wasp dies with shrink/fade animation.
 *
 * DYNAMIC SPAWN COUNTS (must match level order — update if level order changes):
-*   Level 1 — Stadt        (city):       5 wasps
-*   Level 2 — Aufzugschacht (shaft):     7 wasps
-*   Level 3 — Offener See  (lighthouse): 10 wasps
+*   Level 1 — City           (city):       5 wasps
+*   Level 2 — Elevator Shaft (shaft):     7 wasps
+*   Level 3 — Open Sea       (lighthouse): 10 wasps
 *
 * AUTHORSHIP CLASSIFICATION:
 * [AI-ASSISTED]

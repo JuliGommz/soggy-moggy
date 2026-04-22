@@ -294,12 +294,12 @@ function update(dt) {
       if (keys.enter) {
         keys.enter = false;
         switch (GameState.menuCursor) {
-          case 0: GameState.phase = GamePhase.PLAYING; break; // Continuar
+          case 0: GameState.phase = GamePhase.PLAYING; break; // Continue
           case 1: restartLevel(); resetBalloon(); spawnEnemies();
-                  GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Reiniciar nivel
+                  GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Restart level
           case 2: resetGame();    resetBalloon(); spawnEnemies();
-                  GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Reiniciar juego
-          case 3: GameState.phase = GamePhase.START;             break; // Menú principal
+                  GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Restart game
+          case 3: GameState.phase = GamePhase.START;             break; // Main menu
         }
       }
       break;
@@ -310,7 +310,7 @@ function update(dt) {
       if (keys.enter) {
         keys.enter = false;
         switch (GameState.menuCursor) {
-          case 0: // Siguiente nivel — if on last level, go to start
+          case 0: // Next level — if on last level, go to start
             if (GameState.level < 3) {
               startNextLevel(); resetBalloon(); spawnEnemies();
               GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level);
@@ -318,10 +318,10 @@ function update(dt) {
             else GameState.phase = GamePhase.START;
             break;
           case 1: restartLevel(); resetBalloon(); spawnEnemies();
-                  GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Reiniciar nivel
+                  GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Restart level
           case 2: resetGame();    resetBalloon(); spawnEnemies();
-                  GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Reiniciar juego
-          case 3: GameState.phase = GamePhase.START;             break; // Menú principal
+                  GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Restart game
+          case 3: GameState.phase = GamePhase.START;             break; // Main menu
         }
       }
       break;
@@ -504,7 +504,7 @@ function renderHUD() {
     // Header
     ctx.fillStyle = '#e74c3c';
     ctx.font      = '18px monospace';
-    ctx.fillText('¡PELIGRO!', canvas.width / 2, bannerY - 34);
+    ctx.fillText('DANGER!', canvas.width / 2, bannerY - 34);
 
     // Big countdown number
     ctx.fillStyle = '#f1c40f';
@@ -545,7 +545,7 @@ function renderHUD() {
   // ── DEV SELECT screen ─────────────────────────────────────────────────────
   if (GameState.phase === GamePhase.DEV_SELECT) {
     const cx = canvas.width / 2;
-    const LEVEL_NAMES = ['', 'L1 — Stadt', 'L2 — Aufzugschacht', 'L3 — Offener See'];
+    const LEVEL_NAMES = ['', 'L1 — City', 'L2 — Elevator Shaft', 'L3 — Open Sea'];
 
     ctx.fillStyle = 'rgba(0,0,0,0.80)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -584,7 +584,7 @@ function renderHUD() {
 
   // ── LEVEL COMPLETE screen ─────────────────────────────────────────────────
   if (GameState.phase === GamePhase.LEVEL_COMPLETE) {
-    const LEVEL_NAMES = ['', 'Stadt', 'Aufzugschacht', 'Offener See', 'Freizeitpark'];
+    const LEVEL_NAMES = ['', 'City', 'Elevator Shaft', 'Open Sea', 'Amusement Park'];
     const cx = canvas.width / 2;
 
     ctx.fillStyle = 'rgba(0,0,0,0.72)';
@@ -594,7 +594,7 @@ function renderHUD() {
     // Title
     ctx.fillStyle = '#2ecc71';
     ctx.font      = '28px monospace';
-    ctx.fillText('NIVEL ' + GameState.level + ' COMPLETADO', cx, 120);
+    ctx.fillText('LEVEL ' + GameState.level + ' COMPLETE', cx, 120);
     ctx.fillStyle = '#aaaaaa';
     ctx.font      = '16px monospace';
     ctx.fillText(LEVEL_NAMES[GameState.level] || '', cx, 148);
@@ -603,20 +603,20 @@ function renderHUD() {
     const _lvlTotal = Math.floor(GameState.score) + Math.floor(GameState.killBonus) + GameState.clearBonus;
     ctx.font      = '16px monospace';
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('Altura:   ' + Math.floor(GameState.score)      + ' px',  cx, 184);
+    ctx.fillText('Height:   ' + Math.floor(GameState.score)      + ' px',  cx, 184);
     ctx.fillStyle = GameState.killBonus > 0 ? '#f1c40f' : '#888888';
-    ctx.fillText('Avispas:  ' + Math.floor(GameState.killBonus)  + ' pts', cx, 206);
+    ctx.fillText('Wasps:    ' + Math.floor(GameState.killBonus)  + ' pts', cx, 206);
     ctx.fillStyle = GameState.clearBonus > 0 ? '#ff9f43' : '#555555';
     ctx.font      = GameState.clearBonus > 0 ? 'bold 16px monospace' : '16px monospace';
-    ctx.fillText('¡Todas!   ' + (GameState.clearBonus > 0 ? '+200 pts' : '---'),  cx, 228);
+    ctx.fillText('All clear! ' + (GameState.clearBonus > 0 ? '+200 pts' : '---'),  cx, 228);
     ctx.font      = '16px monospace';
     ctx.fillStyle = '#2ecc71';
     ctx.fillText('Total:    ' + _lvlTotal                        + ' pts', cx, 252);
     ctx.fillStyle = '#aaaaaa';
-    ctx.fillText('Mejor:    ' + Math.floor(GameState.highScore)  + ' pts', cx, 274);
+    ctx.fillText('Best:     ' + Math.floor(GameState.highScore)  + ' pts', cx, 274);
     // Lives — cat icons
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('Vidas:', cx - 36, 298);
+    ctx.fillText('Lives:', cx - 36, 298);
     if (_hudLifeIcon.complete && _hudLifeIcon.naturalWidth > 0) {
       const icoW = 22, icoH = 18; // slightly larger for menu screen
       const maxShow = Math.min(GameState.lives, 9);
@@ -626,8 +626,8 @@ function renderHUD() {
     }
 
     // Menu options
-    const option0 = GameState.level < 3 ? 'Siguiente nivel' : 'Ver puntuacion final';
-    const options = [option0, 'Reiniciar nivel', 'Reiniciar juego', 'Menu principal'];
+    const option0 = GameState.level < 3 ? 'Next Level' : 'Final Score';
+    const options = [option0, 'Restart Level', 'Restart Game', 'Main Menu'];
     const optY0   = 328;
     const optStep = 46;
     options.forEach((label, i) => {
@@ -647,7 +647,7 @@ function renderHUD() {
     // Hint
     ctx.fillStyle = '#555555';
     ctx.font      = '13px monospace';
-    ctx.fillText('\u2191\u2193 navegar   ENTER confirmar', cx, 520);
+    ctx.fillText('\u2191\u2193 navigate   ENTER confirm', cx, 520);
 
     ctx.textAlign = 'left';
   }
@@ -664,7 +664,7 @@ function renderHUD() {
     ctx.font      = '36px monospace';
     ctx.fillText('PAUSA', cx, 180);
 
-    const options = ['Continuar', 'Reiniciar nivel', 'Reiniciar juego', 'Menu principal'];
+    const options = ['Continue', 'Restart Level', 'Restart Game', 'Main Menu'];
     const optY0   = 270;
     const optStep = 55;
     options.forEach((label, i) => {
@@ -683,7 +683,7 @@ function renderHUD() {
 
     ctx.fillStyle = '#555555';
     ctx.font      = '13px monospace';
-    ctx.fillText('ESC reanudar   \u2191\u2193 navegar   ENTER confirmar', cx, 510);
+    ctx.fillText('ESC resume   \u2191\u2193 navigate   ENTER confirm', cx, 510);
 
     ctx.textAlign = 'left';
   }

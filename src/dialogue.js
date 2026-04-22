@@ -188,7 +188,7 @@ function renderDialogue(ctx) {
     ctx.fillStyle = '#ff4fff';
     ctx.font      = 'bold 11px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText(`PLATZHALTER: ${_active.bubbleKey}.png`, bx + bw / 2, by + 20);
+    ctx.fillText(`PLACEHOLDER: ${_active.bubbleKey}.png`, bx + bw / 2, by + 20);
     ctx.textAlign = 'left';
   }
 
@@ -196,7 +196,7 @@ function renderDialogue(ctx) {
     ctx.fillStyle = '#f1c40f';
     ctx.font      = '14px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('[ESPACIO o CLICK para continuar]', canvasW / 2, canvasH - 30);
+    ctx.fillText('[SPACE or CLICK to continue]', canvasW / 2, canvasH - 30);
     ctx.textAlign = 'left';
   }
 }
