@@ -356,6 +356,7 @@ function render() {
     GameState.phase === GamePhase.LEVEL_INTRO    ||
     GameState.phase === GamePhase.LEVEL_OUTRO
   );
+  if (GameState.phase === GamePhase.START) renderWindowFloors(ctx);
   if (_drawWorld) {
     renderPlatforms(ctx);  // draw platforms before player (player renders on top)
     renderEnemies(ctx);    // enemies behind player — stomp is clearer when player overlaps on top
@@ -481,12 +482,17 @@ function renderHUD() {
 
     // Lives — top-right, cat icon repeated (max 9), right-to-left layout
     if (_hudLifeIcon.complete && _hudLifeIcon.naturalWidth > 0) {
-      const icoW = 20, icoH = 16, gap = 2; // scaled from 64×64 source
+      const icoW = 40, icoH = 32, gap = 4;
       const maxShow = Math.min(GameState.lives, 9);
+      ctx.save();
+      ctx.shadowColor   = '#f1c40f';
+      ctx.shadowBlur    = 6;
+      ctx.shadowOffsetY = 4;
       for (let i = 0; i < maxShow; i++) {
         const ix = canvas.width - 8 - (i + 1) * (icoW + gap);
         ctx.drawImage(_hudLifeIcon, ix, 6, icoW, icoH);
       }
+      ctx.restore();
     }
   }
 
@@ -541,8 +547,6 @@ function renderHUD() {
 
     ctx.textAlign = 'left'; // always reset after centered rendering
 
-    // DEBUG: bitmap-font smoke test (remove once dialogue bubbles use fonts)
-    if (typeof renderFontSmokeTest === 'function') renderFontSmokeTest(ctx);
   }
 
   // ── DEV SELECT screen ─────────────────────────────────────────────────────
@@ -621,11 +625,16 @@ function renderHUD() {
     ctx.fillStyle = '#ffffff';
     ctx.fillText('Lives:', cx - 36, 298);
     if (_hudLifeIcon.complete && _hudLifeIcon.naturalWidth > 0) {
-      const icoW = 22, icoH = 18; // slightly larger for menu screen
+      const icoW = 44, icoH = 36;
       const maxShow = Math.min(GameState.lives, 9);
+      ctx.save();
+      ctx.shadowColor   = '#f1c40f';
+      ctx.shadowBlur    = 6;
+      ctx.shadowOffsetY = 4;
       for (let i = 0; i < maxShow; i++) {
-        ctx.drawImage(_hudLifeIcon, cx + 14 + i * (icoW + 2), 284, icoW, icoH);
+        ctx.drawImage(_hudLifeIcon, cx + 14 + i * (icoW + 4), 280, icoW, icoH);
       }
+      ctx.restore();
     }
 
     // Menu options
@@ -733,5 +742,6 @@ function updateCamera() {
 
 // ── Start ────────────────────────────────────────────────────────────────────
 window.addEventListener('load', () => {
+  resetPlatforms(); // pre-populate windowFloors so START screen shows L1 windows
   requestAnimationFrame(gameLoop);
 });
