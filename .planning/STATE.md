@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-04-22T18:00:00.000Z"
+last_updated: "2026-04-23T00:00:00.000Z"
 progress:
   total_phases: 9
   completed_phases: 7
@@ -22,15 +22,24 @@ progress:
 
 **Core Value:** A playable, complete gameplay loop: cat jumps up, level-specific hazards rise from below (smog/flood/electricity), tension builds — the game feels real from first play.
 
-**Current Focus:** Dialogue integration (Phase 5 HUD). Font stack is live on master:
-- **Title text:** YELLOW_FONT bitmap atlas, inlined in `src/dialogue.js` SECTION 1.5, rendered by `drawYellowText()`.
-- **Body text:** BlockCraft.otf via `@font-face` in `index.html`, rendered by `drawBodyText()` using native `ctx.fillText`.
+**Current Focus:** Damage dialogue variant pools added (2026-04-23). Hazard titles rotate randomly per level (4 options each, level-flavored line mixed in). Wasp titles rotate through 3 options. Repeat-guard prevents the same line firing twice in a row.
 
-**Open (unblocking Phase 5):**
-1. Bubble shape rendering — export 8 empty PNG shapes from `PixelArt/thought_bubbles/dialogue_bubbles.ai` OR draw shapes in code. Decision pending.
-2. Author 8 English dialogue texts (3 intros, 3 outros, 2 life-lost) as strings in `src/dialogue.js`.
-3. Wire `renderDialogue()` to use `drawYellowText` (title) + `drawBodyText` (body) on top of bubble shape, with line-wrapping.
-4. Remove `renderFontSmokeTest()` call from `main.js:543` and `renderFontSmokeTest()` definition from `src/dialogue.js` before final submission.
+**Dialogue system — locked values (do not change without Julian approval):**
+- Bubble PNGs: `PixelArt/thought_bubbles/dialogues/` (8 files, cropped via `scripts/crop_bubbles.py`)
+- Bubble draw scale: `BUBBLE_SCALE = 1.2` (20% larger than source PNG)
+- Bubble alpha: `0.75` for all bubbles
+- Bubble position (intro/outro): `BY_INTRO=250`, `BX_INTRO_NUDGE=10` (right of center)
+- Bubble flip: intro/outro vertical flip (`ctx.transform(1,0,0,-1,0,0)`) — tail points up
+- Life-lost burst: no flip, centered on canvas
+- Title position: `TITLE_Y_INTRO=40` (fixed, canvas-centered, independent of bubble)
+- Title scale: base `0.29` (intro/outro) / `0.305` (life-lost), pulse `±0.04` at `0.75 Hz`
+- Life-lost title: inside burst, vertically centered
+- Body font: BlockCraft bold 20px, word-wrapped, `padX=8`, `interiorTop = by+32` (rect) / `by+52` (burst)
+- Body vertical centering: centered within interior zone
+- Shake: first at `0.5s`, every `1.5s`, duration `0.9s`, amplitude `3px`, freq `7/8 Hz`
+- Life-lost duration: `0.72s`
+- "[SPACE or CLICK to continue]": `20px monospace`, yellow, `by + bh + 35`
+- Smoke test: removed from both `main.js` and `dialogue.js`
 
 **Open (school submission formalities):**
 - BlockCraft.otf source + license TODO in `Dokumente_Schule/Completed/Medienkatalog.md:101` — blocker for Selbstständigkeitserklärung.
@@ -47,9 +56,9 @@ Wasp enemy system, L2 lighthouse, L2 elevator interior all shipped to master.
 
 ## Current Position
 
-**Active Phase:** 04.3 — L2 Elevator Interior + Dialogue System (IN PROGRESS — sprite + colliders done, dialogue architecture complete, 4 code items pending, branch open)
-**Active Plan:** none — work shipped directly on branch without GSD plan/execute cycle
-**Phase Status:** Phases 1–4, 04.1, 04.2, 04.3-partial, 05-enemies complete — next is Phase 5 (Push + HUD)
+**Active Phase:** none — all shipped phases merged to master. Next: Phase 5 (Push + HUD)
+**Active Plan:** none
+**Phase Status:** Phases 1–4, 04.1, 04.2, 04.3, 05-e complete — next is Phase 5 (Push + HUD)
 
 ```
 Progress: [x][x][x][x][x][x][x][~][ ][ ][ ]
@@ -69,7 +78,7 @@ Progress: [x][x][x][x][x][x][x][~][ ][ ][ ]
 | 4 | Flood + Lives | Complete | 2/2 | |
 | 04.1 | Visual Concept | Complete | 2/2 | |
 | 04.2 | L2 Lighthouse Redesign | Shipped (no GSD plan) | 0/0 | Code in master; no PLAN/SUMMARY — shipped directly |
-| 04.3 | L2 Elevator Interior | In progress (no GSD plan) | 0/0 | Branch feature/04.3-l2-elevator-interior; sprite + colliders done |
+| 04.3 | L2 Elevator Interior | Complete — merged PR #1 | 0/0 | Merged to master 2026-04-22; dialogue system included |
 | 05-e | Wasp Enemy System | Shipped (no GSD plan) | 0/0 | Merged to master 07.04.2026 |
 | 5 | Push + HUD | Not started | 0/? | |
 | 6 | Audio | Not started | 0/? | |
@@ -199,7 +208,7 @@ Progress: [x][x][x][x][x][x][x][~][ ][ ][ ]
 - [x] **DECISION-01** — RESOLVED: Grey-pink direction chosen. 3-frame jump animation (down/middle/high) integrated in player.js. Cat1_beishe retired.
 - [x] **DECISION-02** — RESOLVED: #5a7a3a approved and implemented. Platform debug colors fully replaced.
 
-### School Formality Todos (deadline 22.04.2026)
+### School Formality Todos (deadline VERSCHOBEN — neues Datum ausstehend, stand 22.04.2026)
 
 - [x] **SCHOOL-01** — Projektplan: `Dokumente_Schule/Completed/Projektplan_Julian_Gomez.docx` — DONE
 - [x] **SCHOOL-02** — Arbeitsprotokoll: `Dokumente_Schule/Completed/Arbeitsprotokoll_Julian_Gomez.docx` — DONE (needs daily updates)
@@ -229,13 +238,10 @@ None.
 **Last session:** 2026-04-22 (evening — cleanup branch merged to master, docs synced)
 **Next action:**
 1. **BlockCraft.otf license** — fill in the TODO in `Dokumente_Schule/Completed/Medienkatalog.md:101`. Blocker for Selbstständigkeitserklärung.
-2. **Bubble shape decision** — export 8 empty bubble PNGs from `dialogue_bubbles.ai`, or draw shapes in code. Blocks dialogue integration.
-3. **Author 8 English dialogue texts** (3 intros, 3 outros, 2 life-lost) as strings in `src/dialogue.js`.
-4. **Wire renderDialogue()** to use `drawYellowText` (title) + `drawBodyText` (body) on top of bubble shape. Add line-wrapping in `drawBodyText`.
-5. **Remove `renderFontSmokeTest()`** from `src/dialogue.js` and its call site in `src/main.js:543` before submission.
-6. **School formalities** — README.md at repo root (SCHOOL-05), gameplay video (SCHOOL-06), Selbstständigkeitserklärung (SCHOOL-07), USB structure (SCHOOL-08).
-7. Plan Phase 5 (Push + HUD) formally via `/gsd-plan-phase 5` if needed.
+2. **School formalities** — README.md at repo root (SCHOOL-05), gameplay video (SCHOOL-06), Selbstständigkeitserklärung (SCHOOL-07), USB structure (SCHOOL-08).
+3. Plan Phase 5 (Push + HUD) formally via `/gsd-plan-phase 5` if needed.
 
 ---
 *State initialized: 2026-03-03 after roadmap creation*
-*Updated: 2026-04-22 (evening) — Cleanup branch merged to master via PR #1. Single active branch: master @ a923506. 4 stale branches deleted local+origin. Font stack live, dialogue integration + smoke-test removal + school formalities remain.*
+*Updated: 2026-04-23 — Two fixes applied directly to master: (1) L3 invisible ground collider added at y=628 full-width in platforms.js (cat no longer falls into nothingness at level start). (2) Lighthouse base cell corrected in background.js: sx=0, sw=480, drawX=0 — samples full 480px to fix stone ground cut-off on left/right edges. No Bash rule added to permanent memory (feedback_no_bash.md). System restart occurred due to inadvertent Bash delegation via subagents.*
+*Updated: 2026-04-23 (session 2) — Damage dialogue variant system added to src/dialogue.js: _HAZARD_TITLE_POOLS (4 titles per level, level-flavored: COUGH COUGH! / ZAP! / GLURP GLURP!), _WASP_TITLE_POOL (OUCH OUCH! / YEOWCH! / YIHAA!), _pickLifeLostTitle() with one-step repeat-guard. showLifeLost() reads GameState.level and stores pick in titleOverride. Bubble PNGs unchanged.*

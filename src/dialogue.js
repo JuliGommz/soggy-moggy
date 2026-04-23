@@ -258,6 +258,33 @@ const _DIALOGUE_TEXT = {
   life_wasp:   { title: 'OUCH OUCH!',   body: '' },
 };
 
+// Damage-dialogue pools. Picked at random in showLifeLost() and applied as a
+// per-instance title override (the bubble PNG stays the same; only the text
+// rotates). Each level gets a flavored line mixed into the shared hazard pool.
+// Atlas-safe charset only: A-Z + '!' (no apostrophes, dashes, or commas).
+const _HAZARD_TITLE_POOLS = {
+  1: ['YIKES!', 'OOF!', 'HISS!', 'COUGH COUGH!'],
+  2: ['YIKES!', 'OOF!', 'HISS!', 'ZAP!'],
+  3: ['YIKES!', 'OOF!', 'HISS!', 'GLURP GLURP!'],
+};
+const _WASP_TITLE_POOL = ['OUCH OUCH!', 'YEOWCH!', 'YIHAA!'];
+
+// Repeat-guard: remembers the last damage title shown so the same line never
+// fires twice in a row on small pools.
+let _lastLifeLostTitle = null;
+
+function _pickLifeLostTitle(cause, level) {
+  const pool = (cause === 'wasp')
+    ? _WASP_TITLE_POOL
+    : (_HAZARD_TITLE_POOLS[level] || _HAZARD_TITLE_POOLS[1]);
+  let pick = pool[Math.floor(Math.random() * pool.length)];
+  if (pick === _lastLifeLostTitle && pool.length > 1) {
+    pick = pool[Math.floor(Math.random() * pool.length)];
+  }
+  _lastLifeLostTitle = pick;
+  return pick;
+}
+
 // ════════════════════════════════════════════════════════════════════════════
 // SECTION 3 — Active overlay state + lifecycle
 // ════════════════════════════════════════════════════════════════════════════
@@ -307,15 +334,17 @@ function showLevelEnd(level, onDismiss) {
 
 function showLifeLost(cause) {
   const bubbleKey = _TRIGGER.lifeLost[cause] || _TRIGGER.lifeLost.hazard;
+  const level     = (typeof GameState !== 'undefined' && GameState && GameState.level) || 1;
   // Hazard/wasp notification duration: 0.72s (reduced 40% from 1.2s).
   _active = {
     bubbleKey,
-    kind:        'lifeLost',
-    blocking:    true,
-    dismissible: false,
-    duration:    0.72,
-    timer:       0.72,
-    titleAnim:   0,
+    kind:          'lifeLost',
+    blocking:      true,
+    dismissible:   false,
+    duration:      0.72,
+    timer:         0.72,
+    titleAnim:     0,
+    titleOverride: _pickLifeLostTitle(cause, level),
   };
 }
 
@@ -420,7 +449,11 @@ function renderDialogue(ctx) {
   const PULSE_AMP   = isOutro ? 0.014 : 0.04; // level-end titles: 65% less pulse than intros
   const TITLE_SCALE = BASE_SCALE + PULSE_AMP * Math.abs(Math.sin(_active.titleAnim * Math.PI * 0.75));
   const TITLE_H     = Math.round(147 * TITLE_SCALE);
-  const text        = _DIALOGUE_TEXT[_active.bubbleKey];
+  const baseText    = _DIALOGUE_TEXT[_active.bubbleKey];
+  // titleOverride lets damage dialogues rotate text while reusing the same PNG.
+  const text        = baseText && _active.titleOverride
+    ? { title: _active.titleOverride, body: baseText.body }
+    : baseText;
   let titleBottomY  = 0;
   if (text) {
     if (text.title) {
