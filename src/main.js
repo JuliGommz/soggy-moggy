@@ -213,9 +213,38 @@ function update(dt) {
       }
       break;
 
+    case GamePhase.DEV_BROWSE: {
+      // Free-camera level viewer: physics frozen, camera driven by mouse wheel or arrow keys.
+      // Press \ or ESC to resume playing.
+      if (keys.escape || keys.devBrowse) {
+        keys.escape    = false;
+        keys.devBrowse = false;
+        devWheelDelta  = 0;
+        GameState.phase = GamePhase.PLAYING;
+        break;
+      }
+      const _devMin = (GameState.levelGoalY || -9999) - 200;
+      const _devMax = 100;
+      if (devWheelDelta !== 0) {
+        GameState.cameraY = Math.max(_devMin, Math.min(_devMax, GameState.cameraY + devWheelDelta * 2));
+        devWheelDelta = 0;
+      }
+      if (keys.menuUp)   GameState.cameraY = Math.max(_devMin, GameState.cameraY - 40);
+      if (keys.menuDown) GameState.cameraY = Math.min(_devMax, GameState.cameraY + 40);
+      break;
+    }
+
     case GamePhase.PLAYING:
       // Life-lost dialogue (transient) pauses physics — tick dialogue timer only.
       if (isDialogueBlocking()) { updateDialogue(dt); break; }
+
+      // DEV: \ toggles free-camera mode
+      if (keys.devBrowse) {
+        keys.devBrowse = false;
+        devWheelDelta  = 0;
+        GameState.phase = GamePhase.DEV_BROWSE;
+        break;
+      }
 
       // ESC → pause
       if (keys.escape) {
@@ -354,7 +383,8 @@ function render() {
     GameState.phase === GamePhase.LEVEL_COMPLETE ||
     GameState.phase === GamePhase.PAUSED         ||
     GameState.phase === GamePhase.LEVEL_INTRO    ||
-    GameState.phase === GamePhase.LEVEL_OUTRO
+    GameState.phase === GamePhase.LEVEL_OUTRO    ||
+    GameState.phase === GamePhase.DEV_BROWSE
   );
   if (GameState.phase === GamePhase.START) renderWindowFloors(ctx);
   if (_drawWorld) {
@@ -372,7 +402,19 @@ function render() {
   // 6. Draw HUD — ALWAYS in screen space (after ctx.restore)
   renderHUD();
 
-  // 7. Dialogue overlay — drawn LAST so bubbles sit on top of HUD + world
+  // 7. DEV_BROWSE overlay — coordinate readout + usage hint
+  if (GameState.phase === GamePhase.DEV_BROWSE) {
+    const worldY = Math.round(GameState.cameraY);
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.fillRect(0, 0, canvas.width, 28);
+    ctx.fillStyle = '#ffff00';
+    ctx.font = 'bold 13px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(`DEV BROWSE  cameraY: ${worldY}  [↑↓ or Scroll]  [F2 or Esc = resume]`, 8, 18);
+    ctx.textAlign = 'left'; // reset
+  }
+
+  // 8. Dialogue overlay — drawn LAST so bubbles sit on top of HUD + world
   renderDialogue(ctx);
 }
 

@@ -43,14 +43,16 @@ const _bgL2Dark   = new Image(); _bgL2Dark.src   = 'PixelArt/backgrounds/shared/
 const _bgStars    = new Image(); _bgStars.src    = 'PixelArt/backgrounds/shared/stars.png';
 
 // ── Level-specific assets ──────────────────────────────────────────────────────
-const _bgL1Wall     = new Image(); _bgL1Wall.src     = 'PixelArt/backgrounds/level1_city/building_wall.png';
-const _bgL1TrashBin = new Image(); _bgL1TrashBin.src = 'PixelArt/backgrounds/level1_city/trash_bin.png';
-const _bgL1Door     = new Image(); _bgL1Door.src     = 'PixelArt/backgrounds/level1_city/building_door.png';
-const _bgL1Cornice  = new Image(); _bgL1Cornice.src  = 'PixelArt/backgrounds/level1_city/cornice.png';
-const _bgL1Roof     = new Image(); _bgL1Roof.src     = 'PixelArt/backgrounds/level1_city/building_roof.png';
+const _bgL1Wall     = new Image(); _bgL1Wall.src     = 'PixelArt/backgrounds/level_1_city/building_wall.png';
+const _bgL1TrashBin = new Image(); _bgL1TrashBin.src = 'PixelArt/backgrounds/level_1_city/trash_bin.png';
+const _bgL1Door     = new Image(); _bgL1Door.src     = 'PixelArt/backgrounds/level_1_city/building_door.png';
+const _bgL1Cornice  = new Image(); _bgL1Cornice.src  = 'PixelArt/backgrounds/level_1_city/cornice.png';
+const _bgL1Roof     = new Image(); _bgL1Roof.src     = 'PixelArt/backgrounds/level_1_city/building_roof.png';
 const _bgL2Sun      = new Image(); _bgL2Sun.src      = 'PixelArt/backgrounds/level_3_sea/sun.png';
 // Lighthouse (Phase 04.2) — replaces the earlier rocket-tower prototype
-const _bgL2LhSheet = new Image(); _bgL2LhSheet.src = 'PixelArt/backgrounds/level_3_sea/lighthouse_sheet.png';
+// lighthouse_sheet2.png: [0] base extended to full 480px width (stone edge-to-edge fix).
+// [1] mid1 position unchanged (sx=634). [2]–[8] unaffected.
+const _bgL2LhSheet = new Image(); _bgL2LhSheet.src = 'PixelArt/backgrounds/level_3_sea/lighthouse_sheet2.png';
 
 // ── Level 3 assets (bg-back: shaft wall; bg-mid: pipes) ───────────────────────
 const _bgL3Elevator    = new Image(); _bgL3Elevator.src    = 'PixelArt/backgrounds/level_2_shaft/elevator.png';
@@ -66,8 +68,11 @@ const _LH_MID_H   = 577; // lighthouse mid tile content height (rows 30–607 = 
 // dyo = draw-Y offset in px: shifts each tile down to close art-side seam gaps.
 // Computed from PIL content bounds so every seam is pixel-perfect (error=0).
 const _LH_SPRITES = [
-  { sx:   20, sw: 434, drawX:  23, dyo:  0 }, // [0] base
-  { sx:  634, sw: 286, drawX:  97, dyo:  2 }, // [1] mid 1 — widest
+  // [0] base — sheet2 PIL measurement: content sx=2, sw=439. Centered on canvas x=240 → drawX=21.
+  //   NOTE: stone art is 439px wide, so there is ~20px transparent margin on each side of the
+  //   canvas. To remove the margin, extend the stone in Pixelorama to 480px width.
+  { sx:    2, sw: 439, drawX:  21, dyo:  0 }, // [0] base
+  { sx:  632, sw: 288, drawX:  96, dyo:  2 }, // [1] mid 1 — widest (sheet2: sx=632, sw=288)
   { sx: 1100, sw: 263, drawX: 108, dyo:  5 }, // [2] mid 2
   { sx: 1541, sw: 235, drawX: 122, dyo:  5 }, // [3] mid 3
   { sx: 1956, sw: 212, drawX: 134, dyo:  6 }, // [4] mid 4
@@ -172,10 +177,12 @@ function renderBackground(ctx) {
     _drawL2Lighthouse(ctx, camShift);
   }
 
-  // Level 2: shaft wall background (bg-back, 1.0x) then pipes (bg-mid, 0.90x) on top
+  // Level 2: shaft walls → pipes → roof cap (roof drawn LAST so it covers pipe
+  // caps at the ceiling — pipes must appear to run UNDER the yellow roof band).
   if (GameState.level === 2) {
     _drawL3Back(ctx, camShift);
     _drawL3Mid(ctx, camShift);
+    _drawL3Ceiling(ctx, camShift);
   }
 }
 
@@ -299,32 +306,77 @@ function _drawL3Back(ctx, camShift) {
   if (!_bgL3ShaftMid1.complete || _bgL3ShaftMid1.naturalWidth === 0) return;
   if (!_bgL3ShaftMid2.complete || _bgL3ShaftMid2.naturalWidth === 0) return;
   if (!_bgL3ShaftTop.complete  || _bgL3ShaftTop.naturalWidth  === 0) return;
+  if (GameState.levelGoalY === undefined) return; // first-frame guard — avoid wrong clip geometry
 
   const cs    = Math.round(camShift);
-  const goalY = (GameState.levelGoalY !== undefined) ? GameState.levelGoalY : -5000;
+  const goalY = GameState.levelGoalY;
 
-  // Elevator car at world origin
-  ctx.drawImage(_bgL3Elevator, 0, cs);
+  // World-space clip: ceiling at goalY is invariant to cameraY and canvas scaling.
+  // Unclamped rect — top may be negative; early-return only if ceiling is below viewport.
+  const clipTopScreen = Math.round(goalY + camShift);
+  if (clipTopScreen >= BG_H) return;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, clipTopScreen, BG_W, BG_H - clipTopScreen);
+  ctx.clip();
 
-  // Shaft bottom — shifted up by 96px so its bottom aligns with the elevator
-  // ceiling (Elevator.png row 96 = world y 96), eliminating the dark gap.
-  // cs + 96 - BG_H = cs - 544
-  ctx.drawImage(_bgL3ShaftBot, 0, cs + 96 - BG_H);
-
-  // Mid tiles — start at wy=−1184 (= −(BG_H*2 − 96)) so the first tile's
-  // bottom (world y −544) connects to ShaftBot's top — no gap after B1 shift.
-  let tileIdx = 0;
-  for (let wy = -(BG_H * 2 - 96); wy > goalY - BG_H; wy -= BG_H) {
+  // Mid tiles FIRST — top tile anchored to goalY; tile downward. Any overlap past
+  // the ShaftBot top (world-y −544) is covered by ShaftBot below. Parity from world-Y
+  // so mid1/mid2 alternation is deterministic across re-runs.
+  const shaftBotTopWy = 96 - BG_H; // −544
+  for (let wy = goalY; wy < shaftBotTopWy; wy += BG_H) {
     const sy = wy + cs;
-    if (sy > BG_H)         continue; // below viewport
-    if (sy + BG_H < 0)     break;    // above viewport — all further tiles too
+    if (sy + BG_H < 0) continue; // above viewport — keep walking down
+    if (sy > BG_H)     break;    // below viewport — done
+    const tileIdx = Math.round((wy - goalY) / BG_H);
     ctx.drawImage(tileIdx % 2 === 0 ? _bgL3ShaftMid1 : _bgL3ShaftMid2, 0, sy);
-    tileIdx++;
   }
 
-  // Shaft top — 175 transparent rows at top; align content-top (row 175) to levelGoalY.
-  // Row 175 = roof surface, row 180 = golden bar, row 255 = hatch opening.
-  ctx.drawImage(_bgL3ShaftTop, 0, Math.round(goalY + cs) - 175);
+  // Elevator car at world origin — drawn after mid so mid doesn't overpaint it.
+  ctx.drawImage(_bgL3Elevator, 0, cs);
+
+  // Shaft bottom — covers mid-tile overlap below world-y −544, and the
+  // elevator's top 96 rows so the ceiling seam is flush.
+  ctx.drawImage(_bgL3ShaftBot, 0, cs + 96 - BG_H);
+
+  // NOTE: shaft_bg_top is NOT drawn here. Only the roof band strip is drawn in
+  // _drawL3Ceiling using a 9-arg drawImage source-rect crop. Rows 255+ of the
+  // image (shaft interior with different stone pattern) are intentionally never
+  // rendered — shaft_bg_mid tiles + pipes supply the shaft interior below the
+  // roof band.
+  ctx.restore();
+}
+
+// Top-most L2 layer — draws ONLY the roof band (image rows 175..175+H) on top
+// of pipes. Rows below 175+H of the source image are never drawn, so the shaft
+// interior pattern of shaft_bg_top cannot conflict with shaft_bg_mid tiles.
+// Tune L2_ROOF_BAND_H only if the hatch trapezoid gets cut off (raise) or if
+// shaft stones begin appearing over pipe tops near the ceiling (lower).
+const L2_ROOF_BAND_H = 80; // rows 175-254 of shaft_bg_top: golden band + hatch only (stone interior starts at row 255)
+function _drawL3Ceiling(ctx, camShift) {
+  if (!_bgL3ShaftTop.complete || _bgL3ShaftTop.naturalWidth === 0) return;
+  if (GameState.levelGoalY === undefined) return;
+
+  const goalY = GameState.levelGoalY;
+  const clipTopScreen = Math.round(goalY + camShift);
+  if (clipTopScreen >= BG_H) return;
+
+  // Redundant world-space clip (safety against bleed above ceiling — cannot
+  // affect pipes because no pixels are drawn above clipTopScreen anyway).
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, clipTopScreen, BG_W, BG_H - clipTopScreen);
+  ctx.clip();
+
+  // 9-arg drawImage: render ONLY source rows [175, 175+H) at screen rows
+  // [clipTopScreen, clipTopScreen+H). No overlap with shaft interior.
+  ctx.drawImage(
+    _bgL3ShaftTop,
+    0, 175, BG_W, L2_ROOF_BAND_H,      // source rect (image rows 175..335)
+    0, clipTopScreen, BG_W, L2_ROOF_BAND_H // dest rect (screen rows at ceiling)
+  );
+
+  ctx.restore();
 }
 
 // Draws Level 3 pipe/cable layer (bg-mid layer, 1.0x parallax — locked to world).
@@ -349,12 +401,32 @@ function _drawL3Mid(ctx, camShift) {
   if (!_bgL3PipesBot.complete || _bgL3PipesBot.naturalWidth === 0) return;
   if (!_bgL3PipesMid.complete || _bgL3PipesMid.naturalWidth === 0) return;
   if (!_bgL3PipesTop.complete || _bgL3PipesTop.naturalWidth === 0) return;
+  if (GameState.levelGoalY === undefined) return; // first-frame guard
 
-  const cs    = Math.round(camShift);                                      // 1.0x parallax
-  const goalY = (GameState.levelGoalY !== undefined) ? GameState.levelGoalY : -5000;
+  const cs    = Math.round(camShift);
+  const goalY = GameState.levelGoalY;
 
-  // Pipes bottom — tile bottom anchored to world-y 96 (elevator ceiling).
-  //   tile top world-y = 96 − BG_H = −544.
+  // World-space clip — identical pattern to _drawL3Back. Single source of truth
+  // for the ceiling boundary: no screen-space clamping, no Math.max(0, …).
+  const clipTopScreen = Math.round(goalY + camShift);
+  if (clipTopScreen >= BG_H) return;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, clipTopScreen, BG_W, BG_H - clipTopScreen);
+  ctx.clip();
+
+  // Mid tiles FIRST — top tile anchored to goalY. Any overlap below world-y −544
+  // is covered by PipesBot. Cap (PipesTop) covers the top tile's band region.
+  const pipesBotTopWy = 96 - BG_H; // −544
+  for (let wy = goalY; wy < pipesBotTopWy; wy += BG_H) {
+    const sy = wy + cs;
+    if (sy + BG_H < 0) continue;
+    if (sy > BG_H)     break;
+    ctx.drawImage(_bgL3PipesMid, 0, sy);
+  }
+
+  // Pipes bottom — bottom anchored to elevator ceiling (world-y 96). Covers any
+  // mid-tile overhang between world-y −544 and 96.
   {
     const sy = (96 - BG_H) + cs;
     if (sy <= BG_H && sy + BG_H >= 0) {
@@ -362,19 +434,10 @@ function _drawL3Mid(ctx, camShift) {
     }
   }
 
-  // Pipes middle — stack upward starting ABOVE pipes_bottom's top edge.
-  //   first mid tile bottom = pipes_bottom top = 96 − BG_H.
-  //   → first mid tile top = 96 − 2·BG_H.
-  // Tiles extend upward (wy -= BG_H each step) until they pass the goalY cap.
-  for (let wy = 96 - 2 * BG_H; wy > goalY - BG_H; wy -= BG_H) {
-    const sy = wy + cs;
-    if (sy > BG_H)     continue;
-    if (sy + BG_H < 0) break;
-    ctx.drawImage(_bgL3PipesMid, 0, sy);
-  }
+  // Pipes top cap — 280-row transparent header; content-top aligned to goalY.
+  ctx.drawImage(_bgL3PipesTop, 0, clipTopScreen - 280);
 
-  // Pipes top — same 175-row transparent header; align content-top to levelGoalY.
-  ctx.drawImage(_bgL3PipesTop, 0, Math.round(goalY + camShift) - 175);
+  ctx.restore();
 }
 
 // Draws building_wall.png in world space (factor 1.0 — no parallax drift).

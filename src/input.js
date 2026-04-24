@@ -30,15 +30,23 @@
 // No import/export — classic script tag; keys is a global.
 
 const keys = {
-  left:     false,
-  right:    false,
-  jump:     false,
-  push:     false,   // Phase 5: Z key — push/throw action
-  enter:    false,
-  menuUp:   false,   // ArrowUp   — menu navigation
-  menuDown: false,   // ArrowDown — menu navigation
-  escape:   false,   // Escape    — pause / resume
+  left:      false,
+  right:     false,
+  jump:      false,
+  push:      false,   // Phase 5: Z key — push/throw action
+  enter:     false,
+  menuUp:    false,   // ArrowUp   — menu navigation
+  menuDown:  false,   // ArrowDown — menu navigation
+  escape:    false,   // Escape    — pause / resume
+  devBrowse: false,   // F2 — toggle dev free-camera mode
 };
+
+// Accumulated mouse-wheel delta for DEV_BROWSE camera scroll. Consumed each frame.
+let devWheelDelta = 0;
+document.addEventListener('wheel', (e) => {
+  devWheelDelta += e.deltaY;
+  e.preventDefault();
+}, { passive: false });
 
 document.addEventListener('keydown', (e) => {
   switch (e.code) {
@@ -49,7 +57,8 @@ document.addEventListener('keydown', (e) => {
     case 'Enter':                   keys.enter    = true;  break;
     case 'ArrowUp':                 keys.menuUp   = true;  break;
     case 'ArrowDown':               keys.menuDown = true;  break;
-    case 'Escape':                  keys.escape   = true;  break;
+    case 'Escape':                  keys.escape    = true;  break;
+    case 'F2':                      keys.devBrowse = true;  e.preventDefault(); break;
   }
 });
 
@@ -62,7 +71,8 @@ document.addEventListener('keyup', (e) => {
     case 'Enter':                   keys.enter    = false; break;
     case 'ArrowUp':                 keys.menuUp   = false; break;
     case 'ArrowDown':               keys.menuDown = false; break;
-    case 'Escape':                  keys.escape   = false; break;
+    case 'Escape':                  keys.escape    = false; break;
+    case 'F2':                      keys.devBrowse = false; break;
   }
 });
 

@@ -34,6 +34,7 @@
 const GamePhase = Object.freeze({
   START:          'start',
   DEV_SELECT:     'dev_select',
+  DEV_BROWSE:     'dev_browse',     // free-camera level viewer: physics frozen, scroll with mouse wheel
   LEVEL_INTRO:    'level_intro',    // bubble shown before each level begins
   PLAYING:        'playing',
   PAUSED:         'paused',
