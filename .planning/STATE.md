@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-04-23T00:00:00.000Z"
+last_updated: "2026-04-24T00:00:00.000Z"
 progress:
   total_phases: 9
   completed_phases: 7
@@ -245,3 +245,4 @@ None.
 *State initialized: 2026-03-03 after roadmap creation*
 *Updated: 2026-04-23 — Two fixes applied directly to master: (1) L3 invisible ground collider added at y=628 full-width in platforms.js (cat no longer falls into nothingness at level start). (2) Lighthouse base cell corrected in background.js: sx=0, sw=480, drawX=0 — samples full 480px to fix stone ground cut-off on left/right edges. No Bash rule added to permanent memory (feedback_no_bash.md). System restart occurred due to inadvertent Bash delegation via subagents.*
 *Updated: 2026-04-23 (session 2) — Damage dialogue variant system added to src/dialogue.js: _HAZARD_TITLE_POOLS (4 titles per level, level-flavored: COUGH COUGH! / ZAP! / GLURP GLURP!), _WASP_TITLE_POOL (OUCH OUCH! / YEOWCH! / YIHAA!), _pickLifeLostTitle() with one-step repeat-guard. showLifeLost() reads GameState.level and stores pick in titleOverride. Bubble PNGs unchanged.*
+*Updated: 2026-04-24 — L3 Stone Overlay EMERGENCY FIX LOCKED for school submission. src/background.js: overlay PNG `lh_00_quick-fix.png` masks the ~20px transparent margin on each side of the lighthouse base cell (Illustrator sheet-export trims base from 480px → 439px). Anchor constant `_LH_STONE_FIX_ANCHOR_Y = 633` (final, iteration 611→623→633). Loader + draw block wrapped in `EMERGENCY FIX — LOCKED — DO NOT CHANGE` markers. Documentation added to GDD §3.4.1 (Notfall-Fix: Steinboden-Overlay) explaining root cause, clean fix, pragmatic overlay decision. Clean pipeline fix deferred post-submission.*

@@ -53,6 +53,22 @@ const _bgL2Sun      = new Image(); _bgL2Sun.src      = 'PixelArt/backgrounds/lev
 // lighthouse_sheet2.png: [0] base extended to full 480px width (stone edge-to-edge fix).
 // [1] mid1 position unchanged (sx=634). [2]–[8] unaffected.
 const _bgL2LhSheet = new Image(); _bgL2LhSheet.src = 'PixelArt/backgrounds/level_3_sea/lighthouse_sheet2.png';
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║ EMERGENCY FIX — LOCKED — DO NOT CHANGE (school submission 2026-04-24)    ║
+// ║                                                                          ║
+// ║ Stone-band overlay that covers the ~20px transparent margin on each      ║
+// ║ side of the lighthouse base cell. Root cause sits in the asset pipeline  ║
+// ║ (Pixelorama 480px → Illustrator assembly trims each cell to content      ║
+// ║ bounds → exported sheet base = 439px wide). A proper fix would require   ║
+// ║ re-exporting the spritesheet from Illustrator without per-cell trim;     ║
+// ║ deadline pressure makes an overlay the pragmatic choice.                 ║
+// ║                                                                          ║
+// ║ This overlay ships with the school submission. See GDD §3.4.             ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+const _bgL2LhStoneFix = new Image(); _bgL2LhStoneFix.src = 'PixelArt/backgrounds/level_3_sea/lh_00_quick-fix.png';
+// Anchor Y for the overlay, relative to the base tile's draw origin.
+// Iteration history: 611 (too high) → 623 (12px deeper) → 633 (10 more) = LOCKED.
+const _LH_STONE_FIX_ANCHOR_Y = 633;
 
 // ── Level 3 assets (bg-back: shaft wall; bg-mid: pipes) ───────────────────────
 const _bgL3Elevator    = new Image(); _bgL3Elevator.src    = 'PixelArt/backgrounds/level_2_shaft/elevator.png';
@@ -271,6 +287,19 @@ function _drawL2Lighthouse(ctx, camShift) {
   // Base tile — drawn once at world y=0; shifted down by GO so content-bottom hits canvas edge
   const base = _LH_SPRITES[0];
   ctx.drawImage(_bgL2LhSheet, base.sx, 0, base.sw, sh, base.drawX, cs + GO, base.sw, sh);
+
+  // ── EMERGENCY FIX — LOCKED — DO NOT CHANGE (see loader block above) ─────────
+  // Stone-band overlay masks the asset-pipeline trim on the base cell.
+  // Native pixel size (no stretch). Centered on canvas x=240.
+  // Bottom edge anchored at screen-y = cs + GO + _LH_STONE_FIX_ANCHOR_Y.
+  // Ships with the school submission. See GDD §3.4.
+  if (_bgL2LhStoneFix.complete && _bgL2LhStoneFix.naturalWidth > 0) {
+    const ow = _bgL2LhStoneFix.naturalWidth;
+    const oh = _bgL2LhStoneFix.naturalHeight;
+    const ox = Math.round(240 - ow / 2);
+    const oy = Math.round(cs + GO + _LH_STONE_FIX_ANCHOR_Y - oh);
+    ctx.drawImage(_bgL2LhStoneFix, ox, oy);
+  }
 
   // Mid tiles — sprite chosen by world position so taper is consistent regardless of culling
   for (let wy = -_LH_MID_H; wy > goalY - _LH_MID_H; wy -= _LH_MID_H) {

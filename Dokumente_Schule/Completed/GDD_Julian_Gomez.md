@@ -396,6 +396,32 @@ Der Übergang von Tag- zu Nachtatmosphäre erfolgt graduell anhand der Spielhöh
 **Wolkenbewegung:**
 Horizontaler Drift bei 15 px/s (bright) und 4,5 px/s (stars) — kreiert ein lebendiges, atmendendes Bild auch ohne Spielereingabe.
 
+#### 3.4.1 Notfall-Fix: Steinboden-Overlay (Level 3 Leuchtturm)
+
+**Status:** aktiv, bleibt für die Schulabgabe bestehen.
+
+**Situation:**
+Die Leuchtturm-Basis in Level 3 wird über ein Sprite-Sheet gerendert (`PixelArt/backgrounds/level_3_sea/lighthouse_sheet2.png`). Die Ursprungs-Leinwand in Pixelorama war 480 × 640 px, der Steinboden ging dort bis an den linken und rechten Rand.
+
+**Problem:**
+Nach dem Export aus Pixelorama wurde das Sprite in Illustrator weiterverarbeitet (Abstände justiert, alle neun Kacheln zu einer Sheet-Datei zusammengebaut). Beim Sheet-Export schneidet Illustrator jede Einzelzelle auf ihre sichtbaren Pixel zu. Die Basiszelle erscheint im fertigen Sheet daher nur noch 439 px breit, statt wie gewünscht 480 px. Im Spiel hatte der Steinboden dadurch links und rechts je ca. 20 px transparenten Rand und wirkte zu schmal.
+
+**Saubere Lösung (nicht umgesetzt, da Zeitaufwand):**
+Den Sheet-Export-Schritt in Illustrator so anpassen, dass jede Zelle in ihrer vollen 480-px-Leinwandbreite exportiert wird (keine Content-Trim-Option). Danach die Sprite-Koordinaten im Code aktualisieren.
+
+**Notfall-Fix (umgesetzt):**
+Ein separates Overlay-PNG (`PixelArt/backgrounds/level_3_sea/lh_00_quick-fix.png`) wird in `src/background.js` über die Basiszelle gezeichnet und deckt den transparenten Randbereich ab. Das Overlay nutzt seine native Pixelgröße (kein Stretching), ist auf `x = 240` zentriert und folgt der Kamera über denselben `camShift + GroundOffset`, der auch die Basiszelle positioniert. Die Unterkante des Overlays ist über die Konstante `_LH_STONE_FIX_ANCHOR_Y = 633` an die Steinlinie der Basiszelle angekoppelt.
+
+**Code-Stellen:**
+- Loader: `src/background.js`, umrahmt mit einem `EMERGENCY FIX — LOCKED — DO NOT CHANGE` Kommentarblock.
+- Draw-Call: `_drawL2Lighthouse(ctx, camShift)` in `src/background.js`, direkt nach dem Zeichnen der Basiszelle.
+
+**Begründung der Entscheidung:**
+Der Pipeline-Fix hätte mehrere Export-/Re-Import-Iterationen gebraucht (Illustrator-Export-Einstellungen prüfen, Sheet neu aufbauen, Sprite-Koordinaten im Code neu vermessen, alle neun Zellen gegenprüfen). Angesichts der Abgabeplanung ist ein Overlay-PNG der pragmatische Weg: es verändert die Pipeline nicht, beeinflusst keine anderen Zellen des Sheets, und das Ergebnis ist visuell identisch mit dem Zielzustand.
+
+**Entscheidung:**
+Der Overlay-Fix bleibt in der Abgabeversion. Die Pipeline-Ursache ist dokumentiert, damit nachvollziehbar ist, warum der Fix existiert und welcher saubere Weg in einer Post-Abgabe-Iteration möglich wäre.
+
 ### 3.5 Plattform-Design
 
 **Level 1 — Jalousien (Stadtsetting):**
