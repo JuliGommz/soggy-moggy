@@ -56,13 +56,13 @@
 //   Row 7 (y=230): red    — crumble CRUMBLING (urgent)
 // Normal + crumble-intact platforms pick a random row at generation time.
 const _platSheet = new Image();
-_platSheet.src = 'PixelArt/platforms/level1_city/jalousie_sheet.png';
+_platSheet.src = 'PixelArt/platforms/level_1_city/jalousie_sheet.png';
 
 // ── Window sprite sheet (Level 1 only) ───────────────────────────────────────
 // windows.png: 2×2 grid of window variants (clean A/B, dirty A/B)
 // Coordinates measured via PIL alpha-scan:
 const _winSheet = new Image();
-_winSheet.src = 'PixelArt/backgrounds/level1_city/windows.png';
+_winSheet.src = 'PixelArt/backgrounds/level_1_city/windows.png';
 
 // ── Level 2 shaft platform sprites ───────────────────────────────────────────
 // Atlas coords measured via PIL connected-component scan on 2026-04-20.
@@ -97,6 +97,30 @@ const _L2_VARIANTS = {
   rS: { sx: 311, sy: 222, sw:  87, sh: 24, gameX: 331, gameW:  87 },
 };
 
+// ── Level 3 cloud spritesheet ────────────────────────────────────────────────
+// 6 motifs (3 shapes × horizontal mirror), stacked vertically, transparent gaps.
+// Fill _CLOUD_VARIANTS by running `python scripts/measure_clouds.py` and pasting
+// the printed lines. Renderer falls back to a colored rect until the array is
+// populated AND the image has loaded.
+//
+// Each entry:
+//   sx, sy, sw, sh — atlas source rect
+//   landingY      — sprite-local Y of the cat's foot-line. The collider's top
+//                   edge (platform.y) aligns with this row, so the visible
+//                   cloud extends both above and below the collider → the cat
+//                   appears nestled in the cloud instead of floating above a
+//                   hard rectangle.
+const _cloudSheet = new Image();
+_cloudSheet.src = 'PixelArt/platforms/level_3_sea/clouds_spritesheet.png';
+const _CLOUD_VARIANTS = [
+  { sx:  22, sy:  23, sw: 208, sh:  62, landingY:  27 }, // cloud #1
+  { sx:  22, sy: 115, sw: 208, sh:  64, landingY:  28 }, // cloud #2
+  { sx:  22, sy: 235, sw: 252, sh:  75, landingY:  33 }, // cloud #3
+  { sx:  21, sy: 338, sw: 252, sh:  75, landingY:  33 }, // cloud #4
+  { sx:  21, sy: 461, sw: 281, sh:  72, landingY:  32 }, // cloud #5
+  { sx:  21, sy: 553, sw: 281, sh:  72, landingY:  32 }, // cloud #6
+];
+
 const _WS = {
   // Coordinates from PIL alpha-scan (non-purple, non-transparent pixel bounds per quadrant):
   //   A-column scanned from x=79 onward — excludes row-label ("1","2") purple left border
@@ -113,9 +137,9 @@ const _WS = {
 // Window display layout — shared by generation (x-snap) and rendering (draw positions)
 const _WIN_W   = 100;                           // display width per window sprite (px)
 const _WIN_H   = 100;                           // display height (approx square, all variants)
-const _WIN_POS = [65, 190, 315];                // left-edge x of each of the 3 window columns
-//   column centers: 115, 240, 365  (= _WIN_POS[i] + _WIN_W/2)
-//   spacing: 65px outer margins, 25px gap between windows (65+100+25+100+25+100+65=480)
+const _WIN_POS = [40, 190, 340];                // left-edge x of each of the 3 window columns
+//   column centers: 90, 240, 390  (= _WIN_POS[i] + _WIN_W/2)
+//   outer columns shifted 25px outward from center
 
 // Source region constants (px within the sprite sheet)
 const _PS = {
@@ -140,6 +164,10 @@ const GAP_PX           = 120;  // vertical slot height — DO NOT exceed 200px (
 const CRUMBLE_CHANCE   = 0.25; // 25% of non-starter platforms are crumbling
 const CRUMBLE_DELAY_MS = 500;  // ms between crack and disappear
 const CRUMBLE_HOLD_MS  = 300;  // ms player has to react on second landing before platform disappears
+// L3 cloud-crumble uses longer timers: the lightning tell needs time to read, and
+// the cat is already coping with continuous sinking — rushing it feels unfair.
+const L3_CRUMBLE_DELAY_MS = 1000;
+const L3_CRUMBLE_HOLD_MS  =  500;
 const CLOUD_SINK_SPEED  = 40;  // px/s — sinks while cat stands on it
 const CLOUD_RISE_SPEED  = 20;  // px/s — floats back to rest when cat leaves
 const CLOUD_SINK_MAX    = 60;  // px  — max drop below baseY; must stay < GAP_PX − player.h − PLATFORM_H (76px)
@@ -175,9 +203,11 @@ function generateLevelPlatforms(level) {
   // Level 1: all normal rows (rows 1,2,3,5,6)
   const activeRows = (level === 3) ? [122] : _PS.rows;
 
-  // Level 1 + 2: invisible ground platform — cat stands here at game start.
-  // y=628 = canvas height (640) - PLATFORM_H (12). Player spawn y=596 (628 - player.h=32).
-  if (level === 1 || level === 2) {
+  // Level 1 + 2 + 3: invisible ground platform — cat stands here at game start.
+  // y=628 = canvas height (640) - PLATFORM_H (12). L1/L3 spawn y=596 (628 - player.h=32).
+  // L3 needs this because LH-G (y=566) is above the spawn point; without it the cat
+  // falls straight past the stone ground into nothingness at level start.
+  if (level === 1 || level === 2 || level === 3) {
     platforms.push({
       x: 0, y: 628, w: 480, h: PLATFORM_H,
       type: 'normal', state: 'intact', crumbleTimer: 0,
@@ -212,21 +242,6 @@ function generateLevelPlatforms(level) {
     });
   }
 
-  // Starter platform: Level 3 only — sea-green placeholder dock plank.
-  // Level 1 + 2 use the invisible ground platform (y=628) instead — no jalousie at start.
-  if (level === 3) {
-    platforms.push({
-      x:            190,
-      y:            560,
-      w:            100,
-      h:            PLATFORM_H,
-      type:         'normal',
-      state:        'intact',
-      crumbleTimer: 0,
-      row:          activeRows[Math.floor(Math.random() * activeRows.length)],
-      winVariants:  undefined,
-    });
-  }
   // Windows only start at the 4th row from bottom (i=3 in the generation loop below)
 
   // Store the level goal world Y in GameState so main.js can check and draw it
@@ -254,15 +269,18 @@ function generateLevelPlatforms(level) {
       row: 0, winVariants: undefined, invisible: true,
     });
 
-    // LH-Bridge 1–4: fixed visible platforms bridging the gap between the procedural ceiling
-    // and the lighthouse balcony (LH-C1).
-    // slotCount ceiling: slot 37 → world y = 528 − 37×120 = −3912.
-    // Balcony at −4445: gap = 533 px. Four 120px steps close it exactly.
+    // LH-Bridge 1–4: fixed cloud-platform chain bridging the gap between the procedural
+    // cloud field and the lighthouse balcony (LH-C1). Rendered as cloud sprites for
+    // visual consistency, but NON-sinking (no baseY) so the jump chain to the balcony
+    // stays predictable — the last procedural cloud to bridge1 is already 140px.
+    // Balcony at −4445: 4 × 120px bridges close the 533px gap exactly.
     // x positions alternate left/right of the cap body (x≈150–330) to avoid clipping the art.
-    platforms.push({ x: 330, y: -4032, w: 100, h: PLATFORM_H, type: 'normal', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false });
-    platforms.push({ x:  50, y: -4152, w: 100, h: PLATFORM_H, type: 'normal', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false });
-    platforms.push({ x: 320, y: -4272, w: 100, h: PLATFORM_H, type: 'normal', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false });
-    platforms.push({ x:  60, y: -4392, w: 100, h: PLATFORM_H, type: 'normal', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false });
+    const _bridgeVariant = () =>
+      (_CLOUD_VARIANTS.length > 0) ? Math.floor(Math.random() * _CLOUD_VARIANTS.length) : 0;
+    platforms.push({ x: 330, y: -4032, w: 100, h: PLATFORM_H, type: 'cloud-sink', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false, cloudVariant: _bridgeVariant() });
+    platforms.push({ x:  50, y: -4152, w: 100, h: PLATFORM_H, type: 'cloud-sink', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false, cloudVariant: _bridgeVariant() });
+    platforms.push({ x: 320, y: -4272, w: 100, h: PLATFORM_H, type: 'cloud-sink', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false, cloudVariant: _bridgeVariant() });
+    platforms.push({ x:  60, y: -4392, w: 100, h: PLATFORM_H, type: 'cloud-sink', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false, cloudVariant: _bridgeVariant() });
 
     // LH-C2 / finish — Bell dome top (cap row 77, w=35, x=223–257, centred at 240).
     // Invisible surface at top of the dome cone; also the finish trigger for L3.
@@ -342,11 +360,16 @@ function generateLevelPlatforms(level) {
   // Generate platforms in upward slots from the player start position.
   // Level 1: every platform must sit over a window — skip slots 1 and 2 from bottom
   // (those rows have no windows per design).  All remaining slots get a platform + window.
-  const slotCount = Math.floor(levelHeight / GAP_PX);
-  let _l2SlotIdx  = 0; // counts shaft slots processed (0 = first slot above elevator interior)
+  // Per-level vertical gap. L3 spaces clouds 30% further apart so the sky reads
+  // less cluttered. 170 stays safely under the 200px jump ceiling.
+  const gap       = (level === 3) ? 170 : GAP_PX;
+  const slotCount = Math.floor(levelHeight / gap);
+  let _l2SlotIdx   = 0;
+  let _l1LastColIdx = -1; // tracks previous L1 column for bridge insertion
+  let _l3LastBand  = -1;  // 0=LEFT / 1=CENTER / 2=RIGHT — no band repeats back-to-back
   for (let i = 1; i <= slotCount; i++) {
     if (level === 1 && (i < 3 || i % 2 === 0)) continue; // only odd slots i≥3 get a platform — must match window condition exactly
-    const worldY  = PLAYER_START_Y - i * GAP_PX;
+    const worldY  = PLAYER_START_Y - i * gap;
 
     // ── Level 2 shaft platform generation ────────────────────────────────────
     if (level === 2) {
@@ -392,24 +415,63 @@ function generateLevelPlatforms(level) {
       continue; // skip general generation below
     }
     // ─────────────────────────────────────────────────────────────────────────
-    const w       = PLATFORM_MIN_W + Math.random() * (PLATFORM_MAX_W - PLATFORM_MIN_W);
+    // L3 clouds need a wider minimum than other levels: they sink under the cat,
+    // so a too-narrow collider leaves no margin for imperfect landings.
+    const minW = (level === 3) ? 100 : PLATFORM_MIN_W;
+    const maxW = PLATFORM_MAX_W;
+    const w    = minW + Math.random() * (maxW - minW);
     let type;
     if (level === 3) {
-      // L3 lighthouse / sea: mix of cloud-sink (bobbing sea clouds), crumble, and stable
-      const roll = Math.random();
-      type = roll < 0.25 ? 'crumble'
-           : roll < 0.50 ? 'cloud-sink'
-           : 'normal';
+      // L3 sea: every procedural platform is a cloud that sinks under the cat.
+      // 25% also crumble after two landings (preceded by a lightning-flash tell).
+      type = Math.random() < 0.25 ? 'crumble' : 'cloud-sink';
     } else {
       type = Math.random() < CRUMBLE_CHANCE ? 'crumble' : 'normal';
     }
 
-    // Level 1: pick a random window column and center platform over it
+    // Level 1: pick a random window column and center platform over it.
+    // On a left↔right outer-column transition, insert a small bridge at center first.
     let x;
     if (level === 1) {
       const colIdx    = Math.floor(Math.random() * _WIN_POS.length);
-      const winCenter = _WIN_POS[colIdx] + _WIN_W / 2;  // 115, 240, or 365
+      const winCenter = _WIN_POS[colIdx] + _WIN_W / 2;  // 90, 240, or 390
+
+      const outerTransition = _l1LastColIdx !== -1
+        && ((colIdx === 0 && _l1LastColIdx === 2) || (colIdx === 2 && _l1LastColIdx === 0));
+      if (outerTransition) {
+        const bw  = Math.floor(PLATFORM_MIN_W);
+        const bCx = _WIN_POS[1] + _WIN_W / 2; // center column x
+        const bx  = Math.max(0, Math.min(480 - bw, bCx - bw / 2));
+        const by  = Math.floor(worldY + GAP_PX / 2);
+        platforms.push({
+          x: Math.floor(bx), y: by, w: bw, h: PLATFORM_H,
+          type: 'normal', state: 'intact', crumbleTimer: 0,
+          row: activeRows[Math.floor(Math.random() * activeRows.length)],
+          winVariants: undefined,
+          invisible: true, // bridge collider only — no backing window, no jalousie drawn
+        });
+        // Bridge platforms do NOT push to windowFloors — they sit mid-gap and have no
+        // backing window column. Pushing here would create a second window row 60px
+        // above the regular slot's row, producing the visible double-row stacking bug.
+      }
+      _l1LastColIdx = colIdx;
+
       x = Math.max(0, Math.min(480 - w, winCenter - w / 2));
+    } else if (level === 3) {
+      // L3: 3-band cycle (LEFT / CENTER / RIGHT) with no back-to-back repeats.
+      // Guarantees horizontal spread so clouds cover the full canvas, not just the middle.
+      // Each band gives the platform left-edge a ~80px randomised window inside its band,
+      // with a small inset from the canvas edges so the widest clouds don't poke off-screen.
+      let band;
+      do {
+        band = Math.floor(Math.random() * 3);
+      } while (band === _l3LastBand);
+      _l3LastBand = band;
+      const inset = 4;
+      if (band === 0)       x = inset + Math.random() * 80;               // LEFT
+      else if (band === 2)  x = 480 - w - inset - Math.random() * 80;     // RIGHT
+      else                  x = 240 - w / 2 + (Math.random() - 0.5) * 60; // CENTER
+      x = Math.max(0, Math.min(480 - w, x));
     } else {
       x = 20 + Math.random() * (480 - w - 40); // other levels: free placement
     }
@@ -420,6 +482,12 @@ function generateLevelPlatforms(level) {
       Math.floor(Math.random() * 4),
     ] : undefined;
     const floorY = Math.floor(worldY);
+    // At L3 every procedural platform (cloud-sink or crumble) sinks.
+    // Elsewhere only explicit cloud-sink platforms do.
+    const sinks = (type === 'cloud-sink') || (level === 3 && type === 'crumble');
+    const cloudVariant = (level === 3 && _CLOUD_VARIANTS.length > 0)
+      ? Math.floor(Math.random() * _CLOUD_VARIANTS.length)
+      : 0;
     platforms.push({
       x:            Math.floor(x),
       y:            floorY,
@@ -430,8 +498,9 @@ function generateLevelPlatforms(level) {
       crumbleTimer: 0,
       row:          activeRows[Math.floor(Math.random() * activeRows.length)],
       winVariants:  wv,
-      baseY:        (type === 'cloud-sink') ? floorY : undefined,
-      catOnTop:     (type === 'cloud-sink') ? false   : undefined,
+      baseY:        sinks ? floorY : undefined,
+      catOnTop:     sinks ? false  : undefined,
+      cloudVariant: (level === 3) ? cloudVariant : undefined,
     });
     // Windows on every platform — loop only reaches here for i≥3 odd slots.
     if (level === 1) windowFloors.push({ y: floorY, winVariants: wv });
@@ -441,6 +510,11 @@ function generateLevelPlatforms(level) {
 // One-way collision: player lands on platform top only.
 // Passing through from below and side contact are intentionally ignored.
 function checkPlatformCollisions() {
+  const prevOnPlatform = player.onPlatform; // remember last-frame platform BEFORE reset — needed to
+                                            // distinguish a fresh landing from continuous contact
+                                            // (gravity re-snaps every frame and would otherwise
+                                            // auto-advance crumble state intact→cracked→crumbling
+                                            // within 2 frames)
   player.onGround   = false; // reset each frame — set true below if on a platform
   player.onPlatform = null;  // reset each frame — set to platform ref below on landing
 
@@ -459,14 +533,14 @@ function checkPlatformCollisions() {
       player.onGround   = true;
       player.onPlatform = p;               // track identity for finish-trigger + future push-box mechanics
 
-      // Crumble state machine: each landing advances the state one step
-      if (p.type === 'crumble') {
+      // Crumble state machine: only advance on a FRESH landing (not continuous contact)
+      if (p.type === 'crumble' && prevOnPlatform !== p) {
         if      (p.state === 'intact')  { p.state = 'cracked';   p.crumbleTimer = 0; }
         else if (p.state === 'cracked') { p.state = 'crumbling'; p.crumbleTimer = 0; }
       }
 
-      // Cloud-sink: mark as loaded this frame
-      if (p.type === 'cloud-sink') p.catOnTop = true;
+      // Sinking cloud (any type with a baseY): mark as loaded this frame
+      if (p.baseY !== undefined) p.catOnTop = true;
     }
   }
 }
@@ -475,17 +549,23 @@ function updatePlatforms(dt) {
   for (let i = platforms.length - 1; i >= 0; i--) {
     const p = platforms[i];
 
-    // Cloud-sink: move platform based on cat contact this frame
-    if (p.type === 'cloud-sink') {
+    // Cloud sink physics: move platform based on cat contact this frame.
+    // Applies to any platform with baseY (cloud-sink, plus L3 crumble).
+    if (p.baseY !== undefined) {
       if (p.catOnTop) {
         const oldY  = p.y;
         p.y = Math.min(p.baseY + CLOUD_SINK_MAX, p.y + CLOUD_SINK_SPEED * dt);
         const delta = p.y - oldY;  // how far platform sank this frame (>= 0)
         // Drag player with the platform — one-way collision can't track a moving surface,
         // so we explicitly keep the player riding the cloud rather than relying on re-snap.
+        // prevY is pinned strictly below the cloud surface so the next collision's
+        // wasAbove check (prevBot <= p.y) holds by construction. The 0.01 px margin
+        // absorbs IEEE 754 binade-crossing drift: (p.y - 32) + 32 rounds ~1 ulp high
+        // when the subtraction crosses a power-of-2 boundary (e.g. 512), which
+        // otherwise flips wasAbove to false and drops the cat through a sinking cloud.
         if (delta > 0) {
           player.y     += delta;
-          player.prevY += delta;
+          player.prevY  = p.y - player.h - 0.01;
         }
       } else {
         p.y = Math.max(p.baseY, p.y - CLOUD_RISE_SPEED * dt);  // float back, clamp at rest
@@ -494,14 +574,16 @@ function updatePlatforms(dt) {
     }
 
     if (p.type === 'crumble') {
+      const crackedLimit   = (GameState.level === 3) ? L3_CRUMBLE_DELAY_MS : CRUMBLE_DELAY_MS;
+      const crumblingLimit = (GameState.level === 3) ? L3_CRUMBLE_HOLD_MS  : CRUMBLE_HOLD_MS;
       if (p.state === 'cracked') {
         p.crumbleTimer += dt * 1000;
-        if (p.crumbleTimer >= CRUMBLE_DELAY_MS) {
+        if (p.crumbleTimer >= crackedLimit) {
           platforms.splice(i, 1);  // auto-disappear if player never lands again
         }
       } else if (p.state === 'crumbling') {
         p.crumbleTimer += dt * 1000;
-        if (p.crumbleTimer >= CRUMBLE_HOLD_MS) {
+        if (p.crumbleTimer >= crumblingLimit) {
           platforms.splice(i, 1);  // disappears after hold window expires
         }
       }
@@ -565,22 +647,97 @@ function _renderPlatformSprite(ctx, p) {
   const dx = Math.floor(p.x);
   const dy = Math.floor(p.y);
 
-  // Level 3: cloud placeholders — distinct colors per type until cloud_sheet.png is ready
+  // Level 3: cloud platforms. Sprite from clouds_spritesheet.png drawn with the
+  // cat's landing line aligned to p.y, so the cloud's puff extends above and
+  // below the collider — cat appears nestled in the cloud, not floating above.
+  // Crumble state gets a brief blue-white pre-lightning flash over the sprite.
   if (GameState.level === 3) {
+    const isCloudType = (p.type === 'cloud-sink' || p.type === 'crumble');
+    const sheetReady  = _cloudSheet.complete && _cloudSheet.naturalWidth > 0;
+    const variant     = (isCloudType && _CLOUD_VARIANTS.length > 0)
+      ? _CLOUD_VARIANTS[p.cloudVariant % _CLOUD_VARIANTS.length]
+      : null;
+
+    if (isCloudType && sheetReady && variant) {
+      // Horizontal fit: scale sprite to platform.w so the cloud matches the collider width.
+      const scale   = p.w / variant.sw;
+      const drawW   = p.w;
+      const drawH   = Math.round(variant.sh * scale);
+      const draw_dx = dx;
+      // Align variant.landingY (sprite-local foot-line) with p.y (collider top).
+      const draw_dy = Math.round(p.y - variant.landingY * scale);
+      ctx.drawImage(
+        _cloudSheet,
+        variant.sx, variant.sy, variant.sw, variant.sh,
+        draw_dx, draw_dy, drawW, drawH,
+      );
+
+      // Lightning tell on crumble states: thin jagged bolts radiate from the cloud
+      // center outward to the edges. Flickers on/off in short bursts so the cloud
+      // keeps reading as a cloud rather than being masked by a solid overlay.
+      if (p.type === 'crumble' && (p.state === 'cracked' || p.state === 'crumbling')) {
+        const isFinal = (p.state === 'crumbling');
+        const tSec    = p.crumbleTimer / 1000;
+        // Burst gate: bolts visible only during the "on" half of a high-frequency pulse.
+        // Cracked ~6 Hz shallow flicker; crumbling ~12 Hz urgent strobing.
+        const burstHz   = isFinal ? 12 : 6;
+        const burstPhase = Math.sin(tSec * burstHz * Math.PI * 2);
+        if (burstPhase > (isFinal ? -0.2 : 0.3)) {
+          const cx   = draw_dx + drawW / 2;
+          const cy   = draw_dy + drawH / 2;
+          const rx   = drawW / 2;
+          const ry   = drawH / 2;
+          const boltCount = isFinal ? 5 : 3;
+          // Deterministic jitter seeded by platform x + integer time-step so bolts
+          // look different between clouds and flicker between frames without Math.random noise.
+          const seed = p.x * 13.37 + Math.floor(tSec * burstHz * 2) * 7.1;
+          ctx.save();
+          ctx.strokeStyle = '#f2faff';
+          ctx.lineWidth   = isFinal ? 2 : 1;
+          ctx.globalAlpha = isFinal ? 0.95 : 0.75;
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.beginPath();
+          for (let b = 0; b < boltCount; b++) {
+            const angle = (b / boltCount) * Math.PI * 2 + seed * 0.017;
+            const dxu   = Math.cos(angle);
+            const dyu   = Math.sin(angle);
+            // Target point on the cloud's elliptical edge (roughly) — not exact, just outward.
+            const tx = cx + dxu * rx * 0.95;
+            const ty = cy + dyu * ry * 0.95;
+            // Two zigzag waypoints between center and edge.
+            const j1 = (Math.sin(seed + b * 2.1) * 0.35);        // -0.35..0.35
+            const j2 = (Math.sin(seed + b * 3.7 + 1.5) * 0.35);
+            const p1x = cx + (tx - cx) * 0.35 + (-dyu) * rx * j1;
+            const p1y = cy + (ty - cy) * 0.35 + ( dxu) * ry * j1;
+            const p2x = cx + (tx - cx) * 0.70 + (-dyu) * rx * j2;
+            const p2y = cy + (ty - cy) * 0.70 + ( dxu) * ry * j2;
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(p1x, p1y);
+            ctx.lineTo(p2x, p2y);
+            ctx.lineTo(tx, ty);
+          }
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+      return;
+    }
+
+    // Fallback rect (sheet not loaded yet, variants not measured, or non-cloud L3 platform).
     let cloudFill, cloudEdge;
     if (p.type === 'cloud-sink') {
-      cloudFill = '#b0c8e8';  // sky blue — sinking cloud
+      cloudFill = '#b0c8e8';
       cloudEdge = '#8aaac8';
     } else if (p.type === 'crumble') {
       if (p.state === 'cracked' || p.state === 'crumbling') {
-        cloudFill = '#e8a830';  // reuse existing crumble warning color
-        cloudEdge = '#c07010';
+        cloudFill = '#c8e6ff';  // blue-white flash tell
+        cloudEdge = '#8aaac8';
       } else {
-        cloudFill = '#d0d0e8';  // muted lavender — disappearing cloud (intact)
+        cloudFill = '#d0d0e8';
         cloudEdge = '#a0a0c0';
       }
     } else {
-      cloudFill = '#e8e8f0';  // light grey-white — stable cloud
+      cloudFill = '#e8e8f0';
       cloudEdge = '#c0c0d0';
     }
     ctx.fillStyle = cloudFill;
