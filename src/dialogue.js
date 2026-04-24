@@ -34,6 +34,11 @@ for (const key of _BUBBLE_KEYS) {
   _bubbleSprites[key] = img;
 }
 
+// Per-key sprite redirect — lets a dialogue key reuse another key's loaded PNG.
+const _BUBBLE_SPRITE_REDIRECT = {
+  l3_outro: 'l1_outro',
+};
+
 
 // ════════════════════════════════════════════════════════════════════════════
 // SECTION 1.5 — TITLE + BODY TEXT RENDERING (hybrid font stack)
@@ -220,6 +225,8 @@ const _TRIGGER = {
 //
 // Locked keys (do not modify):
 //   l1_intro  — level START dialogue. Title scale 0.29 (default), body 20px (default). FINISHED.
+//   l2_intro  — elevator START dialogue. Title 'ATTENTION!' scale 0.29 (default), body 21px,
+//               _BODY_Y_OFFSET -9, _BUBBLE_Y_OFFSET 52, tail-down (no vertical flip). FINISHED.
 // ════════════════════════════════════════════════════════════════════════════
 
 // Per-key title scale overrides. Unset keys fall back to the kind default (0.29 / 0.305).
@@ -237,23 +244,50 @@ const _TITLE_LINE_SCALES = {
 // Per-key body font size overrides. Unset keys fall back to 20px.
 const _BODY_PX_OVERRIDE = {
   l1_outro: 24,
+  l2_intro: 21,
+  l2_outro: 28,
+  l3_outro: 24,
 };
 
 // Per-key body Y offset (px, applied after centering — negative = higher).
 // Fine-tune only. Primary centering is driven by interiorTop/interiorH.
 const _BODY_Y_OFFSET = {
   l1_outro: -30,
+  l2_intro: -9,
+  l2_outro: -14,
+  l3_outro: -45,
 };
+
+// Per-key bubble Y offset (px, positive = lower on screen).
+const _BUBBLE_Y_OFFSET = {
+  l2_intro: 52,
+  l2_outro: -80,
+  l3_outro: -30,
+};
+
+// Per-key bubble X offset (px, positive = right, negative = left).
+const _BUBBLE_X_OFFSET = {
+  l2_outro: -80,
+  l3_outro: -130,
+};
+
+// Per-key bubble scale override (replaces shared BUBBLE_SCALE = 1.2).
+const _BUBBLE_SCALE_OVERRIDE = {
+  l2_outro: 0.864,
+};
+
+// Intro keys listed here skip the vertical flip — tail points DOWN instead of up.
+const _INTRO_TAIL_DOWN = new Set(['l2_intro']);
 
 // Per-bubble text content. Title = YELLOW_FONT uppercase.
 // Body = BlockCraft regular case (mixed-case preserved as-is).
 const _DIALOGUE_TEXT = {
   l1_intro:    { title: 'CITY ALERT!',  body: 'Pollution Levels critical.\nGet to Safety!' },
-  l2_intro:    { title: 'ATTENTION!',   body: 'Elevator out of service\nStay Calm' },
+  l2_intro:    { title: 'ATTENTION!',   body: 'Elevator out of service.\nSTAY CALM!' },
   l3_intro:    { title: 'WARNING!',     body: 'High Tide\nKeep away from the Sea' },
   l1_outro:    { title: 'NINE LIVES...\nREALLY?!', body: 'Cough... Cough...' },
-  l2_outro:    { title: 'PHEW!',        body: 'Saved by the Bell' },
-  l3_outro:    { title: 'MEOW MEOW!',   body: 'Mommy!' },
+  l2_outro:    { title: 'PHEW!',        body: 'Saved by\nthe Bell!' },
+  l3_outro:    { title: 'MEOW MEOW!',   body: 'Mommy!\nMOMMY!!!' },
   life_hazard: { title: 'YIKES!',       body: '' },
   life_wasp:   { title: 'OUCH OUCH!',   body: '' },
 };
@@ -393,7 +427,8 @@ function renderDialogue(ctx) {
     ctx.fillRect(0, 0, canvasW, canvasH);
   }
 
-  const img    = _bubbleSprites[_active.bubbleKey];
+  const spriteKey = _BUBBLE_SPRITE_REDIRECT[_active.bubbleKey] ?? _active.bubbleKey;
+  const img    = _bubbleSprites[spriteKey];
   const isLifeLostBubble = _active.kind === 'lifeLost';
   const isOutro          = _active.kind === 'outro';
   const BY_INTRO       = 250;
@@ -401,7 +436,7 @@ function renderDialogue(ctx) {
   const BX_INTRO_NUDGE = 0;
   const BX_OUTRO_NUDGE = 20;
   const TITLE_Y_INTRO  = 40;
-  const BUBBLE_SCALE   = 1.2;
+  const BUBBLE_SCALE   = _BUBBLE_SCALE_OVERRIDE[_active.bubbleKey] ?? 1.2;
 
   let bw, bh, bx, by;
   bw = Math.round(img.naturalWidth  * BUBBLE_SCALE);
@@ -412,6 +447,8 @@ function renderDialogue(ctx) {
   by = isLifeLostBubble
     ? Math.round((canvasH - bh) / 2 - 40)
     : (isOutro ? BY_OUTRO : BY_INTRO);
+  by += _BUBBLE_Y_OFFSET[_active.bubbleKey] ?? 0;
+  bx += _BUBBLE_X_OFFSET[_active.bubbleKey] ?? 0;
 
   // Soft shake: first burst at 2s, then every 3s, duration 0.4s each.
   const _t   = _active.titleAnim;
@@ -425,6 +462,8 @@ function renderDialogue(ctx) {
     }
   }
 
+  const tailDown = _INTRO_TAIL_DOWN.has(_active.bubbleKey);
+
   ctx.globalAlpha = 0.75;
   if (isLifeLostBubble) {
     ctx.drawImage(img, bx, by, bw, bh);
@@ -434,6 +473,9 @@ function renderDialogue(ctx) {
     ctx.transform(-1, 0, 0, 1, 0, 0);
     ctx.drawImage(img, -(bx + bw), by, bw, bh);
     ctx.restore();
+  } else if (tailDown) {
+    // Intro (tail-down variant): no flip — tail points downward toward the cat.
+    ctx.drawImage(img, bx, by, bw, bh);
   } else {
     // Intro: vertical flip — tail points upward toward the window.
     ctx.save();
@@ -497,8 +539,9 @@ function renderDialogue(ctx) {
       // Outro: measured from l1_outro.png (208×80 src, 1.2× → 250×96 display).
       //   Speech rect y=0-74 src → top border ≈6px, tail ≈7px at bottom → interiorH ≈ bh-13.
       // Burst: centered layout with wide padding.
-      const interiorTop = isBurst ? by + 52 : (isOutro ? by + 6 : by + 32);
-      const interiorH   = isBurst ? bh - 80 : (isOutro ? bh - 13 : bh - 36);
+      // tail-down intro: tail at bottom → interior from top border (~6px); reserve ~20px for tail+border at bottom.
+      const interiorTop = isBurst ? by + 52 : (isOutro ? by + 6 : (tailDown ? by + 6 : by + 32));
+      const interiorH   = isBurst ? bh - 80 : (isOutro ? bh - 13 : (tailDown ? bh - 20 : bh - 36));
       const lineH       = Math.round(BODY_PX * 1.2);
       const lines       = text.body.split('\n').length;
       const blockH      = lines * lineH;

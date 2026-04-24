@@ -454,8 +454,8 @@ function _renderFinishTrigger(ctx) {
     ctx.fillStyle = '#ffffff';
     ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill();
 
-  } else if (GameState.level === 3) {
-    // Bell: gentle sway at idle, vigorous ringing when activating (L3 lighthouse)
+  } else if (GameState.level === 2) {
+    // Bell: gentle sway at idle, vigorous ringing when activating (L2 elevator roof)
     const swingAmp = GameState.finishState === 'activating' ? 0.55 : 0.12;
     ctx.rotate(Math.sin(t * (GameState.finishState === 'activating' ? 8 : 1.5)) * swingAmp);
     ctx.fillStyle = '#f1c40f';
