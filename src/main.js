@@ -69,6 +69,14 @@ const _BELL_FRAMES = [
 const _BELL_SCALE         = 1.25;   // visual scale factor (resize all, +25%); anchors scale identically so animation pivot is invariant
 const _BELL_BASE_OFFSET_Y = 25;     // px below finish-platform top — embeds stand into the brown ground so bell hangs at cat head height
 
+// ── L3 finish-trigger lever (3-state joystick: left / mid / right) ──────────
+// Native-size for now; cycle L→M→R while activating, mid at idle.
+const _leverLeft  = new Image(); _leverLeft.src  = 'PixelArt/backgrounds/level_3_sea/end_triggers/lever_left.png';
+const _leverMid   = new Image(); _leverMid.src   = 'PixelArt/backgrounds/level_3_sea/end_triggers/lever_mid.png';
+const _leverRight = new Image(); _leverRight.src = 'PixelArt/backgrounds/level_3_sea/end_triggers/lever_right.png';
+const _LEVER_SCALE = 0.675;
+const _LEVER_Y_OFFSET = -42;  // negative = higher
+
 function resetBalloon() {
   // Dormant until player climbs to a random threshold in the first 5%–40% of the level.
   // Earlier window ensures the balloon appears well before the level's final stretch.
@@ -130,7 +138,7 @@ function updateBalloon(dt) {
   const overlapX = paw.x < plushX + _BAL_PLUSH.w && paw.x + paw.w > plushX;
   const overlapY = paw.y < plushY + _BAL_PLUSH.h && paw.y + paw.h > plushY;
   if (overlapX && overlapY) {
-    GameState.lives += 1;
+    if (GameState.lives < 9) GameState.lives += 1;
     _balloon.active = false;
   }
 }
@@ -173,6 +181,16 @@ function update(dt) {
 
   switch (GameState.phase) {
     case GamePhase.START:
+      if (keys.menuUp) {
+        keys.menuUp = false;
+        const i = DIFFICULTY_ORDER.indexOf(GameState.difficulty);
+        GameState.difficulty = DIFFICULTY_ORDER[(i + DIFFICULTY_ORDER.length - 1) % DIFFICULTY_ORDER.length];
+      }
+      if (keys.menuDown) {
+        keys.menuDown = false;
+        const i = DIFFICULTY_ORDER.indexOf(GameState.difficulty);
+        GameState.difficulty = DIFFICULTY_ORDER[(i + 1) % DIFFICULTY_ORDER.length];
+      }
       if (keys.enter) {
         keys.enter = false; // one-shot: prevent instant pass-through on next frame
         resetGame();
@@ -484,8 +502,27 @@ function _renderFinishTrigger(ctx) {
                     Math.round(f.sw          * _BELL_SCALE),
                     Math.round(_BELL_SHEET_H * _BELL_SCALE));
     }
+  } else if (GameState.level === 3) {
+    // L3 lever: 3-frame joystick sprite. Idle = mid; activating cycles L/M/R via sin
+    // (cat can pull from any side — animation is direction-agnostic). Native size.
+    // Sprite cx is FIXED to the saucer's left side (120) — finish platform is wide
+    // (whole saucer) so cx=ft.center would put the sprite at x=210 (middle), wrong spot.
+    const leverCx = 133;  // 13 px right of original (120)
+    let img = _leverMid;
+    if (GameState.finishState === 'activating') {
+      const phase = Math.sin(t * 8); // -1..+1
+      img = phase < -0.33 ? _leverLeft : phase < 0.33 ? _leverMid : _leverRight;
+    }
+    if (img.complete && img.naturalWidth > 0) {
+      const w = img.naturalWidth  * _LEVER_SCALE;
+      const h = img.naturalHeight * _LEVER_SCALE;
+      ctx.drawImage(img,
+                    Math.round(leverCx - w / 2),
+                    Math.round(poleBaseY - h + _LEVER_Y_OFFSET),
+                    Math.round(w), Math.round(h));
+    }
   } else {
-    // Procedural pole — L1 (pinwheel) and L3 (lever)
+    // L1: procedural pole + pinwheel
     ctx.strokeStyle = '#888888';
     ctx.lineWidth   = 3;
     ctx.beginPath();
@@ -498,30 +535,16 @@ function _renderFinishTrigger(ctx) {
     ctx.save();
     ctx.translate(cx, pivotY);
 
-    if (GameState.level === 1) {
-      // Pinwheel: 4 colored petals — spins slowly at idle, fast when activating
-      const spinRate = GameState.finishState === 'activating' ? 7 : 0.8;
-      ctx.rotate(t * spinRate);
-      const petalColors = ['#e74c3c', '#f1c40f', '#2ecc71', '#3498db'];
-      for (let i = 0; i < 4; i++) {
-        ctx.fillStyle = petalColors[i];
-        ctx.fillRect(0, -5, 18, 10);
-        ctx.rotate(Math.PI / 2);
-      }
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill();
-    } else {
-      // Lever: upright at idle, snapped forward when activating
-      const leverAngle = GameState.finishState === 'activating' ? Math.PI / 3 : -Math.PI / 6;
-      ctx.rotate(leverAngle);
-      ctx.fillStyle = '#e74c3c';
-      ctx.fillRect(-5, -28, 10, 28);
-      ctx.fillStyle = '#c0392b';
-      ctx.beginPath(); ctx.arc(0, -28, 7, 0, Math.PI * 2); ctx.fill();
-      ctx.rotate(-leverAngle);
-      ctx.fillStyle = '#555555'; // lever base
-      ctx.fillRect(-12, 0, 24, 7);
+    const spinRate = GameState.finishState === 'activating' ? 7 : 0.8;
+    ctx.rotate(t * spinRate);
+    const petalColors = ['#e74c3c', '#f1c40f', '#2ecc71', '#3498db'];
+    for (let i = 0; i < 4; i++) {
+      ctx.fillStyle = petalColors[i];
+      ctx.fillRect(0, -5, 18, 10);
+      ctx.rotate(Math.PI / 2);
     }
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill();
 
     ctx.restore();
   }
@@ -530,13 +553,19 @@ function _renderFinishTrigger(ctx) {
   // Identity check via onPlatform.isFinish — consistent with trigger logic above.
   if (GameState.finishState === 'idle') {
     if (player.onGround && player.onPlatform?.isFinish) {
-      const promptY = (GameState.level === 2)
-        ? (poleBaseY + _BELL_BASE_OFFSET_Y) - _BELL_BODY_BOTTOM_Y * _BELL_SCALE - 10  // 10 px above stand top
-        : poleBaseY - 68;
+      let promptY;
+      if (GameState.level === 2) {
+        promptY = (poleBaseY + _BELL_BASE_OFFSET_Y) - _BELL_BODY_BOTTOM_Y * _BELL_SCALE - 10;  // 10 px above stand top
+      } else if (GameState.level === 3 && _leverMid.complete && _leverMid.naturalWidth > 0) {
+        promptY = poleBaseY - _leverMid.naturalHeight * _LEVER_SCALE + _LEVER_Y_OFFSET - 10;  // 10 px above lever top
+      } else {
+        promptY = poleBaseY - 68;
+      }
+      const promptX = (GameState.level === 3) ? 133 : cx;  // L3: above lever sprite (left of saucer)
       ctx.fillStyle = '#ffffff';
       ctx.font      = '14px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('[Z]', cx, promptY);
+      ctx.fillText('[Z]', promptX, promptY);
       ctx.textAlign = 'left';
     }
   }
@@ -552,26 +581,33 @@ function renderHUD() {
 
   // ── PLAYING: real-time score in top-left ─────────────────────────────────
   if (GameState.phase === GamePhase.PLAYING) {
-    // Score and level — top-left
+    // HUD background banner
+    ctx.fillStyle = 'rgba(0,0,0,0.50)';
+    ctx.fillRect(0, 0, canvas.width, 68);
+
+    // Score — top-left
     ctx.font      = '16px monospace';
     ctx.textAlign = 'left';
     ctx.fillStyle = '#ffffff';
-    const _scoreText = 'Score: ' + Math.floor(GameState.score) + ' px';
-    ctx.fillText(_scoreText, 8, 20);
+    const _scoreText = 'SCORE: ' + Math.floor(GameState.score) + ' px';
+    ctx.fillText(_scoreText, 12, 24);
     // Kill bonus — bold yellow counter, inline right of score, hidden at 0
     if (GameState.killBonus > 0) {
       const _scoreW = ctx.measureText(_scoreText).width; // measure in regular font BEFORE switching
       ctx.font      = 'bold 16px monospace';
       ctx.fillStyle = '#f1c40f';
-      ctx.fillText(' +' + GameState.killBonus, 8 + _scoreW, 20);
+      ctx.fillText(' +' + GameState.killBonus, 12 + _scoreW, 24);
       ctx.font      = '16px monospace';
     }
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText('Level: ' + GameState.level, 8, 42);
 
-    // Lives — top-right, cat icon repeated (max 9), right-to-left layout
+    // Level — top-left below score (original position)
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'left';
+    ctx.fillText('LEVEL: ' + GameState.level, 12, 46);
+
+    // Lives — top-right icons, right-to-left, y=26
     if (_hudLifeIcon.complete && _hudLifeIcon.naturalWidth > 0) {
-      const icoW = 40, icoH = 32, gap = 4;
+      const icoW = 32, icoH = 26, gap = 4;
       const maxShow = Math.min(GameState.lives, 9);
       ctx.save();
       ctx.shadowColor   = '#f1c40f';
@@ -579,7 +615,7 @@ function renderHUD() {
       ctx.shadowOffsetY = 4;
       for (let i = 0; i < maxShow; i++) {
         const ix = canvas.width - 8 - (i + 1) * (icoW + gap);
-        ctx.drawImage(_hudLifeIcon, ix, 6, icoW, icoH);
+        ctx.drawImage(_hudLifeIcon, ix, 11, icoW, icoH);
       }
       ctx.restore();
     }
@@ -611,6 +647,8 @@ function renderHUD() {
 
   // ── START screen ─────────────────────────────────────────────────────────
   if (GameState.phase === GamePhase.START) {
+    const cx = canvas.width / 2;
+
     ctx.fillStyle = 'rgba(0,0,0,0.55)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -618,24 +656,49 @@ function renderHUD() {
 
     ctx.fillStyle = '#ffffff';
     ctx.font      = '36px monospace';
-    ctx.fillText('SOGGY MOGGY', canvas.width / 2, 220);
+    ctx.fillText('SOGGY MOGGY', cx, 175);
 
-    ctx.font = '16px monospace';
+    ctx.font = '14px monospace';
     ctx.fillStyle = '#cccccc';
-    ctx.fillText('A / D or Arrow keys — move', canvas.width / 2, 300);
-    ctx.fillText('Space or Left click — jump', canvas.width / 2, 325);
-    ctx.fillText('Z or Right click — action', canvas.width / 2, 350);
+    ctx.fillText('A / D or Arrow keys — move', cx, 235);
+    ctx.fillText('Space or Left click — jump', cx, 257);
+    ctx.fillText('Z or Right click — action', cx, 279);
+
+    // Difficulty picker — vertical 3-option list, ↑↓ cycles
+    ctx.fillStyle = '#ffffff';
+    ctx.font      = '18px monospace';
+    ctx.fillText('Difficulty', cx, 325);
+
+    const optY0   = 360;
+    const optStep = 32;
+    for (let i = 0; i < DIFFICULTY_ORDER.length; i++) {
+      const key      = DIFFICULTY_ORDER[i];
+      const y        = optY0 + i * optStep;
+      const selected = key === GameState.difficulty;
+      if (selected) {
+        ctx.fillStyle = 'rgba(255,255,255,0.10)';
+        ctx.fillRect(cx - 130, y - 22, 260, 30);
+        ctx.fillStyle = '#f1c40f';
+      } else {
+        ctx.fillStyle = '#888888';
+      }
+      ctx.font = '18px monospace';
+      ctx.fillText((selected ? '▶ ' : '  ') + DIFFICULTY[key].label, cx, y);
+    }
+
+    ctx.font = '12px monospace';
+    ctx.fillStyle = '#666666';
+    ctx.fillText('↑↓ select difficulty', cx, 480);
 
     ctx.font = '20px monospace';
     ctx.fillStyle = '#f1c40f';
-    ctx.fillText('ENTER or click to start', canvas.width / 2, 420);
+    ctx.fillText('ENTER or click to start', cx, 520);
 
     ctx.font = '13px monospace';
     ctx.fillStyle = '#555555';
-    ctx.fillText('Z — dev level select', canvas.width / 2, 470);
+    ctx.fillText('Z — dev level select', cx, 560);
 
     ctx.textAlign = 'left'; // always reset after centered rendering
-
   }
 
   // ── DEV SELECT screen ─────────────────────────────────────────────────────

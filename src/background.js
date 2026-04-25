@@ -53,6 +53,17 @@ const _bgL2Sun      = new Image(); _bgL2Sun.src      = 'PixelArt/backgrounds/lev
 // lighthouse_sheet2.png: [0] base extended to full 480px width (stone edge-to-edge fix).
 // [1] mid1 position unchanged (sx=634). [2]–[8] unaffected.
 const _bgL2LhSheet = new Image(); _bgL2LhSheet.src = 'PixelArt/backgrounds/level_3_sea/lighthouse_sheet2.png';
+// L3 lighthouse cap — replaces the cap [8] sprite from lighthouse_sheet2.png with a
+// standalone updated PNG (lh_08.06). The lever (drawn in main.js _renderFinishTrigger)
+// sits in front of this cap as the player-side interactive object.
+const _bgL2LhBack = new Image();
+// Hardcoded bbox — measured once via scripts/measure_lh08_layers.py (PIL).
+// Runtime bbox detection via getImageData() fails on file:// protocol due to CORS-
+// tainted-canvas SecurityError, so we use a static value. Re-run the script after any
+// asset change and update this constant.
+// Bbox-anchor: centerX → canvas 240, bottom → topScrY + _LH_TOP_CONTENT_BOT.
+const _LH08_BACK_BBOX = { sx: 3240, sy: 47, sw: 332, sh: 559 };  // lh_08.06.png — 3600x640
+_bgL2LhBack.src = 'PixelArt/backgrounds/level_3_sea/EInzel-Sprites/lh_08.06.png';
 // ╔══════════════════════════════════════════════════════════════════════════╗
 // ║ EMERGENCY FIX — LOCKED — DO NOT CHANGE (school submission 2026-04-24)    ║
 // ║                                                                          ║
@@ -312,14 +323,60 @@ function _drawL2Lighthouse(ctx, camShift) {
     ctx.drawImage(_bgL2LhSheet, spr.sx, 0, spr.sw, sh, spr.drawX, sy, spr.sw, sh);
   }
 
-  // Top cap — snapped to last mid tile, accounting for its dyo so the join stays seamless
+  // Top cap — lh_08.06.png. Snapped to last mid tile, accounting for its dyo so the
+  // join stays seamless. The lever (drawn later in main.js _renderFinishTrigger) sits
+  // in front of this cap.
   const cap        = _LH_SPRITES[8];
   const lastMidSpr = _LH_SPRITES[_LH_MID_SEQ[_LH_MID_SEQ.length - 1]];
   const lastTileWy = -(Math.ceil(-goalY / _LH_MID_H)) * _LH_MID_H;
   const topScrY    = Math.round(lastTileWy + cs + GO + lastMidSpr.dyo) - _LH_TOP_CONTENT_BOT;
   if (topScrY < BG_H && topScrY + sh > -BG_H) {
-    ctx.drawImage(_bgL2LhSheet, cap.sx, 0, cap.sw, sh, cap.drawX, topScrY, cap.sw, sh);
+    if (_bgL2LhBack.complete && _bgL2LhBack.naturalWidth > 0) {
+      // lh_08.06 — bbox-anchored: content centerX → canvas 240, content_bottom → topScrY + 568.
+      // +30 px Y-offset closes the seam with sprite 7 (lh_07) at the cap/mid-tile join.
+      const b = _LH08_BACK_BBOX;
+      const DEST_X = Math.round(240 - b.sw / 2) + 1;
+      const DEST_Y = topScrY + _LH_TOP_CONTENT_BOT - b.sh + 38;
+      ctx.drawImage(_bgL2LhBack, b.sx, b.sy, b.sw, b.sh, DEST_X, DEST_Y, b.sw, b.sh);
+    } else {
+      // Fallback to original sheet cap if lh_08.06 hasn't loaded yet.
+      ctx.drawImage(_bgL2LhSheet, cap.sx, 0, cap.sw, sh, cap.drawX, topScrY, cap.sw, sh);
+    }
   }
+
+  // ── Lantern light-glow — soft horizontal beams emanating from the lit window ─
+  _drawL3LanternGlow(ctx, cs);
+}
+
+// Soft pulsing horizontal glow at the lantern window — two warm beams left + right.
+// World anchor: cap row 175 (between roof row 80 and saucer row 272), x=240.
+// Additive blend (composite 'lighter') over the lighthouse cap; cat/lever drawn later in
+// the render order, so they stay in front of the glow.
+function _drawL3LanternGlow(ctx, cs) {
+  const t  = performance.now() / 1000;
+  const cy = Math.round((175 - 4562) + cs);  // lantern center on screen
+  if (cy < -120 || cy > BG_H + 120) return;  // off-screen guard
+
+  // Slow base pulse (1.2 Hz) + low-rate flicker (mix of two sines, small amplitude).
+  // Values bounded to [0.20, 0.62] so the effect is always present but never harsh.
+  const slow    = 0.45 + 0.30 * Math.sin(t * 1.2);
+  const flicker = 0.06 * Math.sin(t * 11.7) + 0.04 * Math.sin(t * 4.3);
+  const a       = Math.max(0.20, Math.min(0.62, slow + flicker));
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for (const dir of [-1, 1]) {
+    // Three nested ellipses per side: outer dim → mid warm → inner hot. Stacking
+    // additive layers gives a smooth radial falloff with native canvas2d only.
+    const cx0 = 240 + dir * 30;  // start offset from lighthouse axis
+    ctx.fillStyle = `rgba(255, 220, 110, ${(a * 0.18).toFixed(3)})`;
+    ctx.beginPath(); ctx.ellipse(cx0 + dir * 110, cy, 130, 55, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = `rgba(255, 235, 160, ${(a * 0.28).toFixed(3)})`;
+    ctx.beginPath(); ctx.ellipse(cx0 + dir *  65, cy,  85, 38, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = `rgba(255, 248, 215, ${(a * 0.42).toFixed(3)})`;
+    ctx.beginPath(); ctx.ellipse(cx0 + dir *  35, cy,  45, 24, 0, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.restore();
 }
 
 // Draws Level 3 shaft wall background (bg-back layer, world-speed 1.0x).

@@ -72,9 +72,9 @@ const _WASP_IFRAME      = 1.2; // seconds of stinger-damage invincibility (playe
 const _DEATH_DURATION   = 0.5; // seconds for the shrink/fade death animation
 
 // ── DYNAMIC SPAWN COUNTS ─────────────────────────────────────────────────────
-// Indexed by level. Change ONLY if level definitions change (see header comment).
-// L1 city: 10 | L2 shaft: 15 | L3 lighthouse: 20
-const _WASP_COUNT = [0, 0, 0, 0]; // TEMP: wasps disabled for testing — restore to [0, 10, 15, 20]
+// Indexed by level. Base counts before difficulty multiplier (DIFFICULTY[*].waspMul).
+// L1 city: 8 | L2 shaft: 12 | L3 lighthouse: 16
+const _WASP_COUNT = [0, 8, 12, 16];
 
 // ── State ─────────────────────────────────────────────────────────────────────
 const enemies      = [];  // active enemy objects — cleared on each spawnEnemies() call
@@ -97,7 +97,8 @@ function resetEnemies() {
 function spawnEnemies() {
   resetEnemies();
 
-  const count = _WASP_COUNT[GameState.level] || 0;
+  const baseCount = _WASP_COUNT[GameState.level] || 0;
+  const count     = Math.max(0, Math.floor(baseCount * DIFFICULTY[GameState.difficulty].waspMul));
 
   // Viable platforms: visible (player can see and interact with them), non-finish,
   // at least 200px above the ground start and not at the very top (keep top clear).

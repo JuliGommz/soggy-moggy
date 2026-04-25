@@ -54,8 +54,9 @@ def bbox_of(mask, predicate):
 
 
 def find_interior_holes(mask):
-    """Find transparent pixels that are surrounded by opaque pixels in all 4 cardinal directions
-    (within the image bounds). Returns bbox (x0,y0,x1,y1) of the largest such region, or None."""
+    """Return list of interior-hole regions as connected components.
+    Each entry: dict(bbox=(x0,y0,x1,y1), area=int, aspect=float, cx=int, cy=int).
+    Sorted by ring-likeness: aspect close to 1.0 first, then small area."""
     h = len(mask)
     w = len(mask[0]) if h else 0
     interior = [[False] * w for _ in range(h)]
@@ -69,7 +70,36 @@ def find_interior_holes(mask):
             right = any(mask[y][xx] for xx in range(x + 1, w))
             if up and down and left and right:
                 interior[y][x] = True
-    return bbox_of(interior, lambda v: v)
+
+    visited = [[False] * w for _ in range(h)]
+    regions = []
+    for y0 in range(h):
+        for x0 in range(w):
+            if not interior[y0][x0] or visited[y0][x0]:
+                continue
+            stack = [(x0, y0)]
+            xs, ys = [], []
+            while stack:
+                x, y = stack.pop()
+                if x < 0 or y < 0 or x >= w or y >= h: continue
+                if visited[y][x] or not interior[y][x]: continue
+                visited[y][x] = True
+                xs.append(x); ys.append(y)
+                stack.extend([(x+1, y), (x-1, y), (x, y+1), (x, y-1)])
+            bx0, bx1 = min(xs), max(xs)
+            by0, by1 = min(ys), max(ys)
+            bw, bh = bx1 - bx0 + 1, by1 - by0 + 1
+            aspect = max(bw, bh) / max(1, min(bw, bh))
+            regions.append({
+                'bbox':   (bx0, by0, bx1, by1),
+                'area':   len(xs),
+                'aspect': aspect,
+                'cx':     (bx0 + bx1) // 2,
+                'cy':     (by0 + by1) // 2,
+            })
+    # Rank: aspect closest to 1.0, then smaller area
+    regions.sort(key=lambda r: (r['aspect'], r['area']))
+    return regions
 
 
 def detect_frame_columns(mask):
@@ -135,18 +165,21 @@ def measure_stand():
     body = bbox_of(mask, lambda v: v)
     print(f"  body bbox      = {body}")
 
-    hole = find_interior_holes(mask)
-    if hole:
-        cx = (hole[0] + hole[2]) // 2
-        cy = (hole[1] + hole[3]) // 2
-        print(f"  ring (hole)    = bbox {hole}  ->  center = ({cx}, {cy})")
-    else:
-        cx = cy = None
-        print(f"  ring (hole)    = NOT DETECTED — measure manually in Pixelorama")
-
+    regions = find_interior_holes(mask)
+    print(f"  {len(regions)} interior hole region(s) found (ranked by ring-likeness):")
+    cx = cy = None
     markers = []
-    if cx is not None:
-        markers.append((cx, cy, f"ring ({cx},{cy})", (0, 200, 255, 255)))
+    palette = [(0, 220, 255, 255), (255, 200, 0, 255), (255, 90, 200, 255), (160, 255, 90, 255)]
+    for i, r in enumerate(regions[:6]):
+        mark_color = palette[i % len(palette)]
+        bw = r['bbox'][2] - r['bbox'][0] + 1
+        bh = r['bbox'][3] - r['bbox'][1] + 1
+        tag = " <-- ring candidate" if i == 0 else ""
+        print(f"    [{i}] bbox={r['bbox']}  size={bw}x{bh}  area={r['area']}  aspect={r['aspect']:.2f}  center=({r['cx']},{r['cy']}){tag}")
+        markers.append((r['cx'], r['cy'], f"[{i}] ({r['cx']},{r['cy']})", mark_color))
+        if i == 0:
+            cx, cy = r['cx'], r['cy']
+
     render_overlay(img, markers, STAND.parent / "bell_stand_measured.png")
     return (w, h, cx, cy)
 

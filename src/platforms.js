@@ -276,7 +276,7 @@ function generateLevelPlatforms(level) {
   //   L1/L2: roof-rest position at canvas-y ~320 → cameraEndY = levelGoalY − 320.
   //   L3:    bottom-of-frame at lighthouse white-stripe band (yellow-line ref) → cameraEndY = −4801.
   // Cat can jump briefly above this; gravity returns it without a hard snap.
-  GameState.cameraEndY = (level === 3) ? -4801 : (GameState.levelGoalY - 320);
+  GameState.cameraEndY = (level === 3) ? -4700 : (GameState.levelGoalY - 320);
 
   // Level 3: invisible structural colliders on the lighthouse cap (background.js cap sprite).
   // Cap world-y formula: capRow − 4562  (derived from topScrY = cs − 4562 in background.js).
@@ -294,16 +294,28 @@ function generateLevelPlatforms(level) {
       outroDisabled: true,
     });
 
-    // LH-Saucer — Lower wide saucer (cap row 260). Pink-marked outro pos #3.
+    // LH-Saucer collider is now merged into the FINISH platform below (x=85, w=250)
+    // so cat can press Z anywhere on the saucer to activate the lever (any-side rule).
+
+    // LH-Dome — Mid deck (cap row 210). Pink-marked outro pos #2.
     platforms.push({
-      x: 145, y: 260 - 4562, w: 190, h: PLATFORM_H,
+      x: 185, y: 210 - 4562, w: 110, h: PLATFORM_H,
       type: 'normal', state: 'intact', crumbleTimer: 0,
       row: 0, winVariants: undefined, invisible: true,
     });
 
-    // LH-Dome — Mid deck (cap row 230). Pink-marked outro pos #2.
+    // LH-Dome-Lower — sits directly below LH-Dome (top edge aligned with Dome's bottom edge).
+    // Shifted left and shortened for outro composition (final tuning: x=101, w=58).
     platforms.push({
-      x: 185, y: 230 - 4562, w: 110, h: PLATFORM_H,
+      x: 101, y: 210 - 4562 + PLATFORM_H, w: 58, h: PLATFORM_H,
+      type: 'normal', state: 'intact', crumbleTimer: 0,
+      row: 0, winVariants: undefined, invisible: true,
+    });
+
+    // LH-Outro — narrow stand 160 px above LH-Dome, centered on Dome's horizontal center
+    // (Dome cx = 185 + 110/2 = 240). Outro composition perch.
+    platforms.push({
+      x: 230, y: 210 - 4562 - 160, w: 20, h: PLATFORM_H,
       type: 'normal', state: 'intact', crumbleTimer: 0,
       row: 0, winVariants: undefined, invisible: true,
     });
@@ -318,8 +330,9 @@ function generateLevelPlatforms(level) {
       (_CLOUD_VARIANTS.length > 0) ? Math.floor(Math.random() * _CLOUD_VARIANTS.length) : 0;
     platforms.push({ x: 330, y: -4032, w: 100, h: PLATFORM_H, type: 'cloud-sink', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false, cloudVariant: _bridgeVariant() });
     platforms.push({ x:  50, y: -4152, w: 100, h: PLATFORM_H, type: 'cloud-sink', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false, cloudVariant: _bridgeVariant() });
-    platforms.push({ x: 320, y: -4272, w: 100, h: PLATFORM_H, type: 'cloud-sink', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false, cloudVariant: _bridgeVariant() });
-    platforms.push({ x:  60, y: -4392, w: 100, h: PLATFORM_H, type: 'cloud-sink', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false, cloudVariant: _bridgeVariant() });
+    // Bridge 3 (was at y=-4272, x=320) removed — too close to the saucer collider.
+    // Bridge 4 (was at y=-4392) removed — sat above the saucer collider.
+    // Cat reaches saucer directly from Bridge 2 / procedural clouds below.
 
     // LH-Top / finish — Lantern roof deck where cat stands with lever (cap row 80).
     // Pink-marked outro pos #1 (topmost). Narrow (w=50) so cat lands precisely on the
@@ -330,19 +343,21 @@ function generateLevelPlatforms(level) {
   // Finish platform — the interactive finish object (pinwheel / bell / lever) is rendered on top.
   // L1: sits on the roof surface (levelGoalY − 35), visible, right side.
   // L2: invisible, at levelGoalY, right side — bell-stand sprite covers the same x-range visually.
-  // L3: invisible, on the lantern-roof deck (cap row 80), narrow w=50 centred at x=240.
-  //     goalY stays −4008 (hazard/tile math); finish is the topmost of three pink-marked surfaces.
-  const FIN_W  = (level === 3) ? 50  : 100;
-  const finX   = (level === 3) ? 215 : 480 - 100 - 20;          // L3: centred at x=240 (215..265)
+  // L3: FINISH covers the entire LH-Saucer (cap row 272), w=295 at x=93..388 — cat can press Z
+  //     anywhere on the saucer (any-side rule). Lever sprite is rendered at fixed cx=133 (left
+  //     side of saucer) via a per-level override in _renderFinishTrigger.
+  const FIN_W  = (level === 3) ? 295 : 100;
+  const finX   = (level === 3) ? 93  : 480 - 100 - 20;
   const finY   = (level === 1) ? Math.floor(GameState.levelGoalY) - 35
-               : (level === 3) ? (70 - 4562)                     // cap row 70 world y (lantern-roof deck, 10px higher)
+               : (level === 3) ? (272 - 4562)                    // cap row 272 world y (LH-Saucer top)
                :                 Math.floor(GameState.levelGoalY);
   const finVis = (level === 1);                                   // only L1 has a visible floating finish platform; L2 is hidden behind the bell stand sprite, L3 sits on the lighthouse dome
   platforms.push({
     x: finX, y: finY, w: FIN_W, h: PLATFORM_H,
     type: 'normal', state: 'intact', crumbleTimer: 0,
     row: activeRows[0], winVariants: undefined,
-    invisible: !finVis, isFinish: true,
+    invisible: !finVis,
+    isFinish: true,
   });
   GameState.finishTrigger = { x: finX, y: finY, w: FIN_W, h: PLATFORM_H };
 
@@ -412,6 +427,9 @@ function generateLevelPlatforms(level) {
   for (let i = 1; i <= slotCount; i++) {
     if (level === 1 && (i < 3 || i % 2 === 0)) continue; // only odd slots i≥3 get a platform — must match window condition exactly
     const worldY  = PLAYER_START_Y - i * gap;
+    // L3 cap area: stop procedural clouds at the first invisible LH collider (LH-Saucer at y=-4290).
+    // Above this line the manual lighthouse colliders (Saucer, Dome, Dome-Lower) take over.
+    if (level === 3 && worldY <= -4290) continue;
 
     // ── Level 2 shaft platform generation ────────────────────────────────────
     if (level === 2) {
@@ -664,6 +682,19 @@ function renderPlatforms(ctx) {
 // Sprite is drawn at native height (17px), top-aligned to platform.y (collision surface).
 // Transparent slat gaps show the canvas/background through — no base fill added.
 function _renderPlatformSprite(ctx, p) {
+  // DEBUG: L3 lighthouse colliders rendered as magenta semi-transparent boxes for placement verification.
+  // Remove `debugLH: true` from the L3 collider blocks once positions are confirmed.
+  if (p.debugLH) {
+    const dx = Math.floor(p.x), dy = Math.floor(p.y);
+    ctx.fillStyle = 'rgba(255, 0, 255, 0.45)';
+    ctx.fillRect(dx, dy, p.w, PLATFORM_H);
+    ctx.strokeStyle = '#ff00ff';
+    ctx.lineWidth   = 2;
+    ctx.strokeRect(dx + 1, dy + 1, p.w - 2, PLATFORM_H - 2);
+    ctx.lineWidth   = 1;
+    return;
+  }
+
   if (p.invisible) return;  // decoration-backed platforms: visual is handled by the background asset
 
   // Level 2 shaft platforms: fixed-position sprites from jump_plattforms.png

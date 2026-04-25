@@ -111,6 +111,7 @@ function resetHazard(level) {
   // player.y + 200 = 728 → 88 px below screen → top of electricity ≈ y 678, safely hidden.
   hazard.y           = player.y + 200;
   hazard.speed       = HAZARD_BASE_SPEED * (1 + (level - 1) * HAZARD_LEVEL_SCALE);
+  hazard.speed      *= DIFFICULTY[GameState.difficulty].hazardMul;
   hazard.time        = 0;
   hazard.iframeTimer = 0;
   hazard.flashTimer  = 0;

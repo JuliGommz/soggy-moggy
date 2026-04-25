@@ -249,20 +249,20 @@ const _BODY_Y_OFFSET = {
   l1_outro: -30,
   l2_intro: -9,
   l2_outro: -14,
-  l3_outro: -45,
+  l3_outro: -17,
 };
 
 // Per-key bubble Y offset (px, positive = lower on screen).
 const _BUBBLE_Y_OFFSET = {
   l2_intro: 52,
   l2_outro: -80,
-  l3_outro: -30,
+  l3_outro: 90,
 };
 
 // Per-key bubble X offset (px, positive = right, negative = left).
 const _BUBBLE_X_OFFSET = {
   l2_outro: -80,
-  l3_outro:  70,   // was -130; shifted +200 px to the right
+  l3_outro: -110,
 };
 
 // Per-key bubble scale override (replaces shared BUBBLE_SCALE = 1.2).
@@ -461,6 +461,14 @@ function renderDialogue(ctx) {
   ctx.globalAlpha = 0.75;
   if (isLifeLostBubble) {
     ctx.drawImage(img, bx, by, bw, bh);
+  } else if (_active.bubbleKey === 'l3_outro') {
+    // l3_outro INDEPENDENT path — V-flip + H-mirror combined.
+    // Isolated from the shared outro branch below so l1_outro / l2_outro stay bit-identical
+    // (per the dialogue-independence rule: each key tuned independently).
+    ctx.save();
+    ctx.transform(-1, 0, 0, -1, 0, 0);
+    ctx.drawImage(img, -(bx + bw), -(by + bh), bw, bh);
+    ctx.restore();
   } else if (isOutro) {
     // Outro: vertical flip (tail at top-left of PNG → bottom-left after V-flip,
     // since the prior horizontal flip was removed). Mirroring in both axes from

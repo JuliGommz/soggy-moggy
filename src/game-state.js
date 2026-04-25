@@ -43,8 +43,18 @@ const GamePhase = Object.freeze({
   GAMEOVER:       'gameover',
 });
 
+// Global difficulty multipliers — read once at run start in resetGame, frozen per run.
+// hazardMul scales hazard.speed in resetHazard; waspMul scales _WASP_COUNT[level] in spawnEnemies.
+const DIFFICULTY = Object.freeze({
+  explorer:    { hazardMul: 0.80, waspMul: 0.60, lives: 5, label: 'Explorer'    },
+  adventurer:  { hazardMul: 1.00, waspMul: 1.00, lives: 3, label: 'Adventurer'  },
+  enlightened: { hazardMul: 1.25, waspMul: 1.30, lives: 2, label: 'Enlightened' },
+});
+const DIFFICULTY_ORDER = ['explorer', 'adventurer', 'enlightened'];
+
 const GameState = {
   phase:            GamePhase.START,
+  difficulty:       'adventurer',   // 'explorer' | 'adventurer' | 'enlightened' — selected on START screen
   score:            0,
   lives:            3,
   cameraY:          0,
@@ -67,7 +77,7 @@ function resetGame(startLevel = 1) {
   GameState.score            = 0;
   GameState.killBonus        = 0;
   GameState.clearBonus       = 0;
-  GameState.lives            = 3;
+  GameState.lives            = DIFFICULTY[GameState.difficulty].lives;
   GameState.cameraY          = 0;
   GameState.maxHeightReached = 9999; // sentinel: first frame will capture actual player.y
   GameState.level            = startLevel;
