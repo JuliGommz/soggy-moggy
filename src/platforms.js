@@ -97,6 +97,30 @@ const _L2_VARIANTS = {
   rS: { sx: 311, sy: 222, sw:  87, sh: 24, gameX: 331, gameW:  87 },
 };
 
+// ── Level 2 cycle pool ───────────────────────────────────────────────────────
+// 4 verified 6-slot cycles, randomized per cycle (not per slot). Each cycle
+// has 4 platforms + 2 SKIPs. Within a cycle, all transitions are L↔C or C↔R
+// (120 px direct, 240 px with 1 SKIP). Between cycles, a wrap transition can
+// repeat (l→l, r→r, c→c, all 240 px / 0 lateral) or cross via C, but L↔R
+// directly is forbidden — vertical 240 + horizontal ~270 px exceeds jump
+// budget. `_l2WrapReachable` enforces this at cycle boundaries.
+//
+//   slots[]: 6 entries, each 'l' | 'c' | 'r' | null (SKIP)
+//   start:   slots[0]                         (for next-cycle wrap check)
+//   end:     last non-null position in slots  (for next-cycle wrap check)
+const _L2_CYCLES = [
+  { slots: ['l','c',null,'r','c',null], start: 'l', end: 'c' },
+  { slots: ['r','c',null,'l','c',null], start: 'r', end: 'c' },
+  { slots: ['c','l',null,'c','r',null], start: 'c', end: 'r' },
+  { slots: ['c','r',null,'c','l',null], start: 'c', end: 'l' },
+];
+
+function _l2WrapReachable(prevEnd, nextStart) {
+  if (prevEnd === null) return true;                   // first cycle of run
+  if (prevEnd === 'c' || nextStart === 'c') return true;
+  return prevEnd === nextStart;                        // l→l / r→r OK; l↔r forbidden
+}
+
 // ── Level 3 cloud spritesheet ────────────────────────────────────────────────
 // 6 motifs (3 shapes × horizontal mirror), stacked vertically, transparent gaps.
 // Fill _CLOUD_VARIANTS by running `python scripts/measure_clouds.py` and pasting
@@ -365,6 +389,9 @@ function generateLevelPlatforms(level) {
   const gap       = (level === 3) ? 170 : GAP_PX;
   const slotCount = Math.floor(levelHeight / gap);
   let _l2SlotIdx   = 0;
+  let _l2SlotInCycle  = 0;     // 0..5 — position within the active cycle
+  let _l2CurrentSlots = null;  // active cycle's slots[] (selected from _L2_CYCLES)
+  let _l2CyclePrevEnd = null;  // last cycle's `end` — used for wrap-reach filter
   let _l1LastColIdx = -1; // tracks previous L1 column for bridge insertion
   let _l3LastBand  = -1;  // 0=LEFT / 1=CENTER / 2=RIGHT — no band repeats back-to-back
   for (let i = 1; i <= slotCount; i++) {
@@ -375,27 +402,27 @@ function generateLevelPlatforms(level) {
     if (level === 2) {
       if (worldY >= 24) continue; // elevator interior zone: handled by invisible colliders only
 
-      // 6-slot cycle: L · C · SKIP · R · C · SKIP
-      // 4 platforms per 6 slots — ~20 % fewer than the previous pass, ~43 % fewer
-      // than the original PAIR cycle. Alternates 120-px (tap) and 240-px (held)
-      // jumps so the player must modulate jump strength every single hop.
-      // No position type repeats within 240 px vertical (= max jump) → no straight
-      // column climb. Every transition also forces lateral movement:
-      //   L→C        120 px,  3 px overlap on right edges  (right nudge)
-      //   C→skip→R   240 px,  4 px overlap on right edges  (held jump + right)
-      //   R→C        120 px,  4 px overlap on left  edges  (left  nudge)
-      //   C→skip→L   240 px,  3 px overlap on left  edges  (held jump + left)
+      // 6-slot cycle, randomized from `_L2_CYCLES` pool (4 verified shapes).
+      // Each cycle: 4 platforms + 2 SKIPs. Within-cycle transitions are L↔C or
+      // C↔R (120 px direct, 240 px with 1 SKIP) — both reach-validated by the
+      // 3–4 px edge overlap built into `_L2_VARIANTS` gameX anchors. New cycle
+      // is picked on slot 0 with `_l2WrapReachable` filtering out L↔R wraps.
+      // Sizes (L/M/S) still derive from absolute slot index so altitude shapes
+      // the difficulty curve regardless of which cycle is active.
       const shaftSlot  = _l2SlotIdx++;
       const shaftFrac  = shaftSlot / Math.max(1, slotCount - 5); // 0=shaft entry, 1=near roof
       const sizeKey    = shaftFrac < 0.40 ? 'L' : shaftFrac < 0.75 ? 'M' : 'S';
-      const cycle      = shaftSlot % 6;
 
-      let variantIds;
-      if      (cycle === 0) variantIds = ['l' + sizeKey];       // 0 → left
-      else if (cycle === 1) variantIds = ['c' + sizeKey];       // 1 → center
-      else if (cycle === 3) variantIds = ['r' + sizeKey];       // 3 → right
-      else if (cycle === 4) variantIds = ['c' + sizeKey];       // 4 → center
-      else                  variantIds = [];                    // 2, 5 → skip
+      if (_l2SlotInCycle === 0) {
+        const compat = _L2_CYCLES.filter(c => _l2WrapReachable(_l2CyclePrevEnd, c.start));
+        const pick   = compat[Math.floor(Math.random() * compat.length)];
+        _l2CurrentSlots = pick.slots;
+        _l2CyclePrevEnd = pick.end;
+      }
+      const posKey = _l2CurrentSlots[_l2SlotInCycle];
+      _l2SlotInCycle = (_l2SlotInCycle + 1) % 6;
+
+      const variantIds = (posKey === null) ? [] : [posKey + sizeKey];
 
       for (const vid of variantIds) {
         const v = _L2_VARIANTS[vid];

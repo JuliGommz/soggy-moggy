@@ -6,17 +6,22 @@
 * Course: PRG Abschlussprojekt — SRH Fachschulen
 * Developer: Julian Gomez
 * Date: 2026-03-16
-* Version: 1.4 - 3-layer electricity renderer (independent frequencies + pulsing alpha)
+* Version: 1.7 - flood foam system across all three sine layers [LOCKED]
 *
-* HAZARD TYPES (Oberkategorie: hazard):
-*   Flood       — Level 2 — rising water (sine wave)
-*   Smog        — Level 1 — creeping urban smog (gradient bands + cosine edge)
-*   Electricity — Level 3 — crackling electric floor (inharmonic displacement)
+* HAZARD TYPES (Oberkategorie: hazard) — LEVEL MAPPING (current, post-swap):
+*   Smog        — Level 1 (city)      — creeping urban smog (gradient bands + cosine edge)
+*   Electricity — Level 2 (shaft)     — crackling electric floor (3 bolt layers)
+*   Flood       — Level 3 (lighthouse) — dynamic sea (2 translucent swell layers + stormy surface with foam caps)
+*
+* Historical note: levels 2 and 3 were swapped during production.
+* Earlier versions had Flood on L2 and Electricity on L3; the dispatcher in
+* renderHazard() was updated at swap time, the level-specific renderers stayed
+* intact — only the L3 flood renderer remained a legacy single-sine wave until
+* v1.6 rebuilt it as a proper multi-layer smooth-sine sea (see version history).
 *
 * AUTHORSHIP CLASSIFICATION:
 *
 * [AI-ASSISTED]
-* - Sine wave rendering (renderFlood): per-pixel lineTo loop with FLOOD_WAVE_FREQUENCY + FLOOD_WAVE_SPEED
 * - respawnAboveWater() algorithm: scans platforms for the lowest intact
 *   platform still above the hazard line, falls back to camera top
 * - iframeTimer + flashTimer pattern: prevents unfair double-hits
@@ -25,7 +30,11 @@
 *   bottom when camera scrolls faster than the hazard rises
 * - renderSmog: layered gradient bands + cosine billowing edge (Level 1)
 * - renderElectricity: 3-layer bolt system (back/mid/front) with independent
-*   frequencies, anchor counts, pulsing alpha, and _buildElecEdge() helper
+*   frequencies, anchor counts, pulsing alpha (Level 2)
+* - renderFlood: 2 translucent smooth-sine swell layers + stormy top surface
+*   (compound sine, depth gradient, foam caps at crests) — Level 3
+* - _buildLayeredEdge() helper: per-pixel interpolated edge table used by
+*   renderElectricity (flood uses direct per-pixel sines instead)
 *
 * NOTES:
 * - resetHazard() is the generic entry point called from game-state.js
@@ -39,6 +48,21 @@
 * - v1.2: Rename water → hazard; level-specific renderers for smog + electricity
 * - v1.3: Constant taxonomy: shared HAZARD_* vs. level-specific FLOOD_WAVE_*
 * - v1.4: 3-layer electricity renderer (back/mid/front bolts, pulsing alpha)
+* - v1.5: Header sync with current level mapping (Smog=L1, Electricity=L2,
+*         Flood=L3). Renamed _buildElecEdge → _buildLayeredEdge.
+*         Initial flood rebuild copied the electricity anchor/glow pattern —
+*         looked like blue lightning, not water. Reverted in v1.6.
+* - v1.6: renderFlood rewritten as smooth-sine sea: 2 translucent swell
+*         layers + compound-sine stormy surface with depth gradient and
+*         foam caps. No anchor interpolation, no pulsing alpha, no glow.
+*         Tuning source: docs/previews/water_variants_preview.html Variant E.
+* - v1.7: Foam system across all three sine layers (Layer 1 navy swell,
+*         Layer 2 whitish band, Surface compound). Three independent phase
+*         speeds (0.8 / 1.3 / compound) keep 1–2 foam elements on screen
+*         at all times — never fully intermittent. Draw-order places each
+*         foam pass before its covering layer for depth-read.
+*         [LOCKED 2026-04-24 — do not re-tune without Julian's explicit
+*         approval. Final balance approved after presence iteration.]
 ====================================================================
 */
 // Depends on: GameState, GamePhase, saveHighScore (game-state.js), player (player.js)
@@ -46,8 +70,8 @@
 // ---------------------------------------------------------------------------
 // SECTION 1 — Constants (tune-friendly, one declaration per line)
 //
-// HAZARD_* — shared across all hazard types (Flood, Smog, Electricity)
-// FLOOD_WAVE_* — exclusive to renderFlood (Level 2 sine wave)
+// HAZARD_* — shared across all hazard types (Smog, Electricity, Flood)
+// FLOOD_WAVE_SPEED — global animation pace; drives hazard.time for all renderers
 // ---------------------------------------------------------------------------
 
 // Shared physics
@@ -58,10 +82,9 @@ const HAZARD_COLLISION_MARGIN  = 10;    // px above hazard.y where player contac
 const IFRAME_DURATION          = 1.0;   // seconds of invincibility after damage hit
 const FLASH_DURATION           = 0.4;   // seconds the red overlay is visible
 
-// Flood (Level 2) — sine wave rendering
-const FLOOD_WAVE_AMPLITUDE  = 10;    // px — sine crest height
-const FLOOD_WAVE_FREQUENCY  = 0.04;  // radians per pixel — controls wave width
-const FLOOD_WAVE_SPEED      = 2.5;   // radians per second — controls animation pace
+// Animation master clock — advances hazard.time in updateHazard.
+// All level renderers (smog / electricity / flood) derive their oscillation phase from hazard.time.
+const FLOOD_WAVE_SPEED = 2.5;  // radians per second — name kept for backward compatibility
 
 // ---------------------------------------------------------------------------
 // SECTION 2 — hazard object
@@ -165,7 +188,9 @@ function updateHazard(dt) {
   // L1 smog stops near the level top (22px below levelGoalY) — matches red line in building.
   // Other levels use the wider 300px safety margin.
   if (GameState.levelGoalY !== undefined) {
-    const capOffset = (GameState.level === 1 || GameState.level === 2) ? 22 : 0;
+    const capOffset = GameState.level === 1 ? 22
+                    : GameState.level === 2 ? 140
+                    : 0;
     if (hazard.y < GameState.levelGoalY + capOffset) {
       hazard.y = GameState.levelGoalY + capOffset;
     }
@@ -208,21 +233,156 @@ function renderHazard(ctx) {
 }
 
 // ---------------------------------------------------------------------------
-// SECTION 8 — renderFlood(ctx)  [Level 3 — open sea / lighthouse, default]
-// Classic sine wave. Blue water rising from below.
+// SECTION 8 — renderFlood(ctx)  [Level 3 — open sea / lighthouse]
+// ===========================================================================
+// LOCKED 2026-04-24 — DO NOT CHANGE without Julian's explicit approval.
+// ===========================================================================
+// Two translucent swell layers (smooth per-pixel sines) + stormy top surface
+// with compound sine, depth gradient and foam caps on crests. Foam on all
+// three layers with independent phase speeds keeps 1–2 elements visible
+// at all times (never fully intermittent).
+//
+// Water is fundamentally different from electricity: smooth curves (no
+// anchor-based linear interpolation), no pulsing alpha, no hot gradients,
+// no glow passes. Depth comes from alpha-stacking translucent layers.
+//
+// Layer 1 (deep swell):  slow wide sine (speed 0.8), navy, 0.65 alpha
+//                        → medium foam dashes (10±2 px, width 2)
+// Layer 2 (mid swell):   medium sine (speed 1.3), whitish, 0.55 alpha
+//                        → short foam dashes (7±2 px, width 2)
+// Surface (stormy top):  compound sine + depth gradient (0.40/0.28 alpha)
+//                        → long foam caps (18±4 px, width 3) on crests
+//
+// Reference/tuning source: docs/previews/water_variants_preview.html → Variant E
 // ---------------------------------------------------------------------------
+
 function renderFlood(ctx) {
-  ctx.fillStyle = 'rgba(30, 144, 255, 0.75)';
+  const baseY = hazard.y;
+  const W     = 480;
+  // Preview uses real seconds for t. hazard.time advances at FLOOD_WAVE_SPEED
+  // radians/sec, so divide back out to keep the preview's speed values 1:1.
+  const t = hazard.time / FLOOD_WAVE_SPEED;
+  const farSentinelY = baseY + 2000;
+
+  // --- Layer 1 — deep swell: darkest blue (navy), slow wide undertow ---
+  const w1 = { amp: 18, freq: 0.008, speed: 0.8, off: 34, color: 'rgba(10, 40, 90, 0.65)' };
+  ctx.fillStyle = w1.color;
   ctx.beginPath();
-  ctx.moveTo(0, hazard.y + Math.sin(hazard.time) * FLOOD_WAVE_AMPLITUDE);
-  for (let x = 1; x <= 480; x++) {
-    ctx.lineTo(x, hazard.y + Math.sin(x * FLOOD_WAVE_FREQUENCY + hazard.time) * FLOOD_WAVE_AMPLITUDE);
+  ctx.moveTo(0, baseY + w1.off + Math.sin(t * w1.speed) * w1.amp);
+  for (let x = 1; x <= W; x++) {
+    ctx.lineTo(x, baseY + w1.off + Math.sin(x * w1.freq + t * w1.speed) * w1.amp);
   }
-  ctx.lineTo(480, hazard.y + 2000); // far sentinel — fills body below wave
-  ctx.lineTo(0,   hazard.y + 2000);
+  ctx.lineTo(W, farSentinelY);
+  ctx.lineTo(0, farSentinelY);
   ctx.closePath();
   ctx.fill();
+
+  // Layer 1 foam — short medium dashes on the slow navy swell crests.
+  // Drawn before Layer 2 so whitish band partially covers it → depth read.
+  // Slow speed (0.8) + wide period means these crests shift independently
+  // from Layer 2 and the surface, keeping at least one foam element visible.
+  ctx.strokeStyle = 'rgba(240, 250, 255, 0.85)';
+  ctx.lineWidth   = 2;
+  const l1Y = (x) => baseY + w1.off + Math.sin(x * w1.freq + t * w1.speed) * w1.amp;
+  for (let x = 14; x < W; x += 22) {
+    const yc = l1Y(x);
+    const yL = l1Y(x - 10);
+    const yR = l1Y(x + 10);
+    if (yc < yL && yc < yR) {
+      const foamLen = 10 + Math.sin(t * 2.1 + x * 0.11) * 2;
+      ctx.beginPath();
+      ctx.moveTo(x - foamLen / 2, yc);
+      ctx.lineTo(x + foamLen / 2, yc);
+      ctx.stroke();
+    }
+  }
+
+  // --- Layer 2 — mid swell: whitish reflection band ---
+  // Not a colored blue layer — reads as a light band catching surface sheen.
+  // Alpha boosted (0.32 → 0.55) so the white isn't drowned by the surface
+  // gradient painted on top.
+  const w2 = { amp: 12, freq: 0.018, speed: 1.3, off: 14, color: 'rgba(225, 235, 248, 0.55)' };
+  ctx.fillStyle = w2.color;
+  ctx.beginPath();
+  ctx.moveTo(0, baseY + w2.off + Math.sin(t * w2.speed) * w2.amp);
+  for (let x = 1; x <= W; x++) {
+    ctx.lineTo(x, baseY + w2.off + Math.sin(x * w2.freq + t * w2.speed) * w2.amp);
+  }
+  ctx.lineTo(W, farSentinelY);
+  ctx.lineTo(0, farSentinelY);
+  ctx.closePath();
+  ctx.fill();
+
+  // Layer 2 foam — shortest dashes on the whitish band crests.
+  // Phase offset from L1 (speed 1.3 vs 0.8) keeps some crests foaming when
+  // Layer 1 is in trough — continuous coverage across frames.
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.80)';
+  ctx.lineWidth   = 2;
+  const l2Y = (x) => baseY + w2.off + Math.sin(x * w2.freq + t * w2.speed) * w2.amp;
+  for (let x = 10; x < W; x += 16) {
+    const yc = l2Y(x);
+    const yL = l2Y(x - 8);
+    const yR = l2Y(x + 8);
+    if (yc < yL && yc < yR) {
+      const foamLen = 7 + Math.sin(t * 2.7 + x * 0.17) * 2;
+      ctx.beginPath();
+      ctx.moveTo(x - foamLen / 2, yc);
+      ctx.lineTo(x + foamLen / 2, yc);
+      ctx.stroke();
+    }
+  }
+
+  // --- Surface — compound sine, depth gradient, foam caps ---
+  const surf = (x) => baseY
+    + Math.sin(x * 0.012 + t * 1.1) * 14
+    + Math.sin(x * 0.028 + t * 1.8) *  6;
+
+  // Depth gradient: bright sky-blue range, alpha kept low so Layer 2 (whitish
+  // band) and Layer 1 (dark navy) remain visible through it. Earlier alpha
+  // values (0.78 / 0.55) made the surface the dominant visual and hid the
+  // other layers + washed out the foam caps.
+  const grad = ctx.createLinearGradient(0, baseY - 20, 0, baseY + 320);
+  grad.addColorStop(0, 'rgba(115, 190, 230, 0.40)');  // bright sky blue top
+  grad.addColorStop(1, 'rgba(55,  130, 195, 0.28)');  // mid sky blue — Layer 1 reads through
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.moveTo(0, surf(0));
+  for (let x = 1; x <= W; x++) ctx.lineTo(x, surf(x));
+  ctx.lineTo(W, farSentinelY);
+  ctx.lineTo(0, farSentinelY);
+  ctx.closePath();
+  ctx.fill();
+
+  // Surface line — subtle edge definition
+  ctx.strokeStyle = 'rgba(200, 230, 245, 0.45)';
+  ctx.lineWidth   = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, surf(0));
+  for (let x = 1; x <= W; x++) ctx.lineTo(x, surf(x));
+  ctx.stroke();
+
+  // Foam caps at wave crests (local minima in surf(x)).
+  // Presence boosted: thicker (2 → 3), longer (12 → 18), tighter spacing
+  // (14 → 10), lower threshold (baseY-6 → baseY-3) so more crests qualify.
+  ctx.strokeStyle = 'rgba(245, 252, 255, 0.95)';
+  ctx.lineWidth   = 3;
+  for (let x = 16; x < W; x += 10) {
+    const y  = surf(x);
+    const yL = surf(x - 6);
+    const yR = surf(x + 6);
+    if (y < yL && y < yR && y < baseY - 3) {
+      const foamLen = 18 + Math.sin(t * 3 + x * 0.1) * 4;
+      ctx.beginPath();
+      ctx.moveTo(x - foamLen / 2, y);
+      ctx.lineTo(x + foamLen / 2, y);
+      ctx.stroke();
+    }
+  }
+  ctx.lineWidth = 1;
 }
+// ===========================================================================
+// END LOCKED renderFlood — v1.7 2026-04-24
+// ===========================================================================
 
 // ---------------------------------------------------------------------------
 // SECTION 9 — renderSmog(ctx)  [Level 1 — city / building]
@@ -350,7 +510,7 @@ function renderElectricity(ctx) {
   for (let li = 0; li < 2; li++) {
     const L    = _ELEC_LAYERS[li];
     const step = 480 / L.anchors;
-    const edge = _buildElecEdge(L, baseY, t, step);
+    const edge = _buildLayeredEdge(L, baseY, t, step);
 
     // Pulsing alpha: oscillates between min and max; scaled by fade factor
     const pulse = L.alphaPulse;
@@ -382,7 +542,7 @@ function renderElectricity(ctx) {
   // --- Layer 3: front bolt with gradient fill + two glow passes ---
   const L3   = _ELEC_LAYERS[2];
   const step3 = 480 / L3.anchors;
-  const edge3 = _buildElecEdge(L3, baseY, t, step3);
+  const edge3 = _buildLayeredEdge(L3, baseY, t, step3);
 
   // Gradient fill: hot white-yellow → electric blue → deep dark
   const grad = ctx.createLinearGradient(0, baseY - 30, 0, baseY + 100);
@@ -417,7 +577,8 @@ function renderElectricity(ctx) {
 
 // Builds a per-pixel edge displacement table from a layer config.
 // Returns Float32Array[481] with world-Y values for x = 0..480.
-function _buildElecEdge(layer, baseY, t, step) {
+// Shared between renderElectricity (L2) and renderFlood (L3).
+function _buildLayeredEdge(layer, baseY, t, step) {
   const anchors = [];
   for (let i = 0; i <= layer.anchors; i++) {
     const x = i * step;

@@ -92,9 +92,9 @@ Older and experimental fonts (black-LCD attempt, Vecteezy source files) are arch
 
 All sprites, backgrounds, UI elements, enemies and platforms: original work by Julian Gomez, created in Pixelorama. Spritesheets assembled in Adobe Photoshop where noted.
 
-**Dialogue Bubbles (in progress)**
+**Dialogue Bubbles**
 
-Vector source: `PixelArt/thought_bubbles/dialogue_bubbles.ai` (Adobe Illustrator), original work.
+Vector source: `PixelArt/thought_bubbles/dialogue_bubbles.ai` (Adobe Illustrator), original work. 8 bubble PNGs cropped to `PixelArt/thought_bubbles/dialogues/` via `scripts/crop_bubbles.py`.
 
 **Inspiration Material**
 

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Soggy Moggy · L3 Water Variants Preview</title>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    margin: 0; padding: 24px;
+    background: #1a1d24;
+    color: #e4e7ec;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  h1 { font-weight: 400; font-size: 18px; margin: 0 0 6px; letter-spacing: 0.5px; }
+  p.note { color: #8b92a0; margin: 0 0 24px; font-size: 13px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    max-width: 1060px;
+  }
+  .cell {
+    background: #0f1218;
+    border: 1px solid #2a2f3a;
+    border-radius: 6px;
+    padding: 12px;
+  }
+  .cell h2 {
+    font-size: 14px; font-weight: 500; margin: 0 0 4px;
+    color: #c8cdd6;
+  }
+  .cell .desc {
+    font-size: 12px; color: #7d8493; margin: 0 0 10px;
+    min-height: 32px;
+  }
+  canvas {
+    display: block;
+    width: 480px; height: 320px;
+    background: linear-gradient(180deg, #6eb4e8 0%, #a9d7f4 55%, #d8ecfa 100%);
+    border-radius: 3px;
+    image-rendering: pixelated;
+  }
+</style>
+</head>
+<body>
+
+<h1>Soggy Moggy · L3 Water Variants</h1>
+<p class="note">Each canvas is 480×320. Sky gradient is static (for preview only). Water is the animated effect. Same time base for fair comparison.</p>
+
+<div class="grid">
+
+  <div class="cell">
+    <h2>Variant A — Retro Pixel Water</h2>
+    <p class="desc">Horizontal depth bands + smooth sine surface + drifting highlight lines. Fits the pixel-art aesthetic.</p>
+    <canvas id="cA" width="480" height="320"></canvas>
+  </div>
+
+  <div class="cell">
+    <h2>Variant B — Overlapping Smooth Sines</h2>
+    <p class="desc">Three smooth per-pixel sine waves stacked with alpha blending. Natural depth through transparency.</p>
+    <canvas id="cB" width="480" height="320"></canvas>
+  </div>
+
+  <div class="cell">
+    <h2>Variant C — Smooth Wave + Shimmer</h2>
+    <p class="desc">Single clean sine surface with drifting white highlight streaks. Minimal, elegant, calm.</p>
+    <canvas id="cC" width="480" height="320"></canvas>
+  </div>
+
+  <div class="cell">
+    <h2>Variant D — Stormy Sea</h2>
+    <p class="desc">Compound sine (two summed) + foam caps on crests + depth gradient. Lively without electricity vibe.</p>
+    <canvas id="cD" width="480" height="320"></canvas>
+  </div>
+
+</div>
+
+<script>
+// ── Shared config ──────────────────────────────────────────────────────────
+const W = 480, H = 320;
+const BASE_Y = 140; // water line from top
+
+// ── Variant A — Retro Pixel Water ──────────────────────────────────────────
+function renderA(ctx, t) {
+  const amp = 6, freq = 0.025, speed = 1.2;
+  const bands = [
+    { off: 130, color: '#103a6b' },
+    { off:  70, color: '#1d5994' },
+    { off:  30, color: '#3281bc' },
+    { off:   0, color: '#4ba3d8' },
+  ];
+  for (const b of bands) {
+    ctx.fillStyle = b.color;
+    ctx.beginPath();
+    ctx.moveTo(0, BASE_Y + b.off + Math.sin(t * speed) * amp);
+    for (let x = 1; x <= W; x++) {
+      ctx.lineTo(x, BASE_Y + b.off + Math.sin(x * freq + t * speed) * amp);
+    }
+    ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath(); ctx.fill();
+  }
+  // Drifting highlight lines
+  const streaks = [
+    { spd: 22, y: 15, len: 70, off: 0 },
+    { spd: 16, y: 42, len: 55, off: 220 },
+  ];
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+  ctx.lineWidth = 2;
+  for (const s of streaks) {
+    const x = (t * s.spd + s.off) % (W + 200) - 100;
+    const y = BASE_Y + s.y + Math.sin(x * freq + t * speed) * amp;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + s.len, y);
+    ctx.stroke();
+  }
+}
+
+// ── Variant B — Overlapping Smooth Sines ──────────────────────────────────
+function renderB(ctx, t) {
+  const waves = [
+    { amp: 18, freq: 0.008, speed: 0.8, off: 28, color: 'rgba(12, 45, 95, 0.65)' },
+    { amp: 12, freq: 0.018, speed: 1.3, off: 10, color: 'rgba(40, 115, 185, 0.55)' },
+    { amp:  6, freq: 0.035, speed: 2.0, off:  0, color: 'rgba(130, 200, 240, 0.45)' },
+  ];
+  for (const w of waves) {
+    ctx.fillStyle = w.color;
+    ctx.beginPath();
+    ctx.moveTo(0, BASE_Y + w.off + Math.sin(t * w.speed) * w.amp);
+    for (let x = 1; x <= W; x++) {
+      ctx.lineTo(x, BASE_Y + w.off + Math.sin(x * w.freq + t * w.speed) * w.amp);
+    }
+    ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath(); ctx.fill();
+  }
+}
+
+// ── Variant C — Smooth Wave + Shimmer ─────────────────────────────────────
+function renderC(ctx, t) {
+  const amp = 10, freq = 0.02, speed = 1.5;
+  const surf = (x) => BASE_Y + Math.sin(x * freq + t * speed) * amp;
+
+  // Body
+  ctx.fillStyle = 'rgba(30, 110, 195, 0.88)';
+  ctx.beginPath();
+  ctx.moveTo(0, surf(0));
+  for (let x = 1; x <= W; x++) ctx.lineTo(x, surf(x));
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath(); ctx.fill();
+
+  // Surface highlight line
+  ctx.strokeStyle = 'rgba(200, 235, 255, 0.55)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(0, surf(0));
+  for (let x = 1; x <= W; x++) ctx.lineTo(x, surf(x));
+  ctx.stroke();
+
+  // Shimmer streaks
+  const streaks = [
+    { spd: 22, y: 18, len: 50, off:   0 },
+    { spd: 16, y: 35, len: 40, off: 150 },
+    { spd: 28, y: 12, len: 35, off: 300 },
+    { spd: 18, y: 55, len: 60, off:  80 },
+  ];
+  for (const s of streaks) {
+    const x = (t * s.spd + s.off) % (W + 200) - 100;
+    const sy = BASE_Y + s.y;
+    const grad = ctx.createLinearGradient(x, sy, x + s.len, sy);
+    grad.addColorStop(0,   'rgba(255, 255, 255, 0)');
+    grad.addColorStop(0.5, 'rgba(255, 255, 255, 0.50)');
+    grad.addColorStop(1,   'rgba(255, 255, 255, 0)');
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x, sy);
+    ctx.lineTo(x + s.len, sy);
+    ctx.stroke();
+  }
+}
+
+// ── Variant D — Stormy Sea ────────────────────────────────────────────────
+function renderD(ctx, t) {
+  const surf = (x) => BASE_Y
+    + Math.sin(x * 0.012 + t * 1.1) * 18
+    + Math.sin(x * 0.028 + t * 1.8) *  8;
+
+  // Body gradient
+  const grad = ctx.createLinearGradient(0, BASE_Y - 20, 0, H);
+  grad.addColorStop(0,   'rgba(60, 150, 210, 0.90)');
+  grad.addColorStop(0.4, 'rgba(25,  80, 150, 0.92)');
+  grad.addColorStop(1,   'rgba(10,  30,  70, 0.95)');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.moveTo(0, surf(0));
+  for (let x = 1; x <= W; x++) ctx.lineTo(x, surf(x));
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath(); ctx.fill();
+
+  // Surface line
+  ctx.strokeStyle = 'rgba(180, 220, 240, 0.50)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, surf(0));
+  for (let x = 1; x <= W; x++) ctx.lineTo(x, surf(x));
+  ctx.stroke();
+
+  // Foam caps at crests (local minima in y)
+  ctx.strokeStyle = 'rgba(240, 250, 255, 0.90)';
+  ctx.lineWidth = 2;
+  for (let x = 20; x < W; x += 14) {
+    const y = surf(x);
+    const yL = surf(x - 6);
+    const yR = surf(x + 6);
+    if (y < yL && y < yR && y < BASE_Y - 8) { // only on visible crests
+      const foamLen = 12 + Math.sin(t * 3 + x * 0.1) * 3;
+      ctx.beginPath();
+      ctx.moveTo(x - foamLen / 2, y);
+      ctx.lineTo(x + foamLen / 2, y);
+      ctx.stroke();
+    }
+  }
+}
+
+// ── Animation loop ────────────────────────────────────────────────────────
+const ctxA = document.getElementById('cA').getContext('2d');
+const ctxB = document.getElementById('cB').getContext('2d');
+const ctxC = document.getElementById('cC').getContext('2d');
+const ctxD = document.getElementById('cD').getContext('2d');
+
+let startTs = null;
+function frame(ts) {
+  if (startTs === null) startTs = ts;
+  const t = (ts - startTs) / 1000;
+
+  ctxA.clearRect(0, 0, W, H); renderA(ctxA, t);
+  ctxB.clearRect(0, 0, W, H); renderB(ctxB, t);
+  ctxC.clearRect(0, 0, W, H); renderC(ctxC, t);
+  ctxD.clearRect(0, 0, W, H); renderD(ctxD, t);
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+
+</body>
+</html>
