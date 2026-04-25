@@ -262,12 +262,13 @@ const _BUBBLE_Y_OFFSET = {
 // Per-key bubble X offset (px, positive = right, negative = left).
 const _BUBBLE_X_OFFSET = {
   l2_outro: -80,
-  l3_outro: -130,
+  l3_outro:  70,   // was -130; shifted +200 px to the right
 };
 
 // Per-key bubble scale override (replaces shared BUBBLE_SCALE = 1.2).
 const _BUBBLE_SCALE_OVERRIDE = {
   l2_outro: 0.864,
+  l3_outro: 0.84,  // 30% smaller than default 1.2
 };
 
 // Intro keys listed here skip the vertical flip — tail points DOWN instead of up.
@@ -461,10 +462,12 @@ function renderDialogue(ctx) {
   if (isLifeLostBubble) {
     ctx.drawImage(img, bx, by, bw, bh);
   } else if (isOutro) {
-    // Outro: horizontal flip — tail points to the right.
+    // Outro: vertical flip (tail at top-left of PNG → bottom-left after V-flip,
+    // since the prior horizontal flip was removed). Mirroring in both axes from
+    // the previous H-flipped state collapses to a pure V-flip of the source PNG.
     ctx.save();
-    ctx.transform(-1, 0, 0, 1, 0, 0);
-    ctx.drawImage(img, -(bx + bw), by, bw, bh);
+    ctx.transform(1, 0, 0, -1, 0, 0);
+    ctx.drawImage(img, bx, -(by + bh), bw, bh);
     ctx.restore();
   } else if (tailDown) {
     // Intro (tail-down variant): no flip — tail points downward toward the cat.
@@ -529,12 +532,12 @@ function renderDialogue(ctx) {
       const bodyCenterX = bx + bw / 2;
       const bodyX       = Math.round(bodyCenterX - bodyMaxW / 2);
       // Intro: vertical flip → tail at top → interior starts 32px down.
-      // Outro: measured from l1_outro.png (208×80 src, 1.2× → 250×96 display).
-      //   Speech rect y=0-74 src → top border ≈6px, tail ≈7px at bottom → interiorH ≈ bh-13.
+      // Outro: bubble is now flipped in BOTH axes (tail at upper-right corner).
+      //   Old offsets removed — body text centered across full bubble height.
       // Burst: centered layout with wide padding.
       // tail-down intro: tail at bottom → interior from top border (~6px); reserve ~20px for tail+border at bottom.
-      const interiorTop = isBurst ? by + 52 : (isOutro ? by + 6 : (tailDown ? by + 6 : by + 32));
-      const interiorH   = isBurst ? bh - 80 : (isOutro ? bh - 13 : (tailDown ? bh - 20 : bh - 36));
+      const interiorTop = isBurst ? by + 52 : (isOutro ? by      : (tailDown ? by + 6 : by + 32));
+      const interiorH   = isBurst ? bh - 80 : (isOutro ? bh      : (tailDown ? bh - 20 : bh - 36));
       const lineH       = Math.round(BODY_PX * 1.2);
       const lines       = text.body.split('\n').length;
       const blockH      = lines * lineH;

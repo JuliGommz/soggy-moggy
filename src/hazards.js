@@ -190,7 +190,7 @@ function updateHazard(dt) {
   if (GameState.levelGoalY !== undefined) {
     const capOffset = GameState.level === 1 ? 22
                     : GameState.level === 2 ? 140
-                    : 0;
+                    : 4623;  // L3: clamp at world-y 615 (~49 px below LH-G), flood stops at lighthouse base
     if (hazard.y < GameState.levelGoalY + capOffset) {
       hazard.y = GameState.levelGoalY + capOffset;
     }

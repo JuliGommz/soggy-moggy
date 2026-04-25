@@ -271,6 +271,13 @@ function generateLevelPlatforms(level) {
   // Store the level goal world Y in GameState so main.js can check and draw it
   GameState.levelGoalY = PLAYER_START_Y - levelHeight;
 
+  // Camera-end Y: upward scroll stops here so the level-end sprite stays fully visible.
+  // Tuned per screenshot reference (2026-04-25):
+  //   L1/L2: roof-rest position at canvas-y ~320 → cameraEndY = levelGoalY − 320.
+  //   L3:    bottom-of-frame at lighthouse white-stripe band (yellow-line ref) → cameraEndY = −4801.
+  // Cat can jump briefly above this; gravity returns it without a hard snap.
+  GameState.cameraEndY = (level === 3) ? -4801 : (GameState.levelGoalY - 320);
+
   // Level 3: invisible structural colliders on the lighthouse cap (background.js cap sprite).
   // Cap world-y formula: capRow − 4562  (derived from topScrY = cs − 4562 in background.js).
   // All positions PIL-verified from lighthouse_sheet.png cap strip (sx=3369, sw=217, drawX=132).
@@ -279,16 +286,24 @@ function generateLevelPlatforms(level) {
     // Base drawn at screen_y = cs + GO (GO=31); world_y = GO + row = 31 + 535 = 566.
     // Row 535 is 5px below the door-frame bottom (row 530, where sprite widens to 340px).
     // Full canvas width so the cat can stand anywhere on the stone foundation.
+    // outroDisabled: removed during LEVEL_OUTRO so the cat cannot fall back down.
     platforms.push({
       x: 0, y: 566, w: 480, h: PLATFORM_H,
       type: 'normal', state: 'intact', crumbleTimer: 0,
       row: 0, winVariants: undefined, invisible: true,
+      outroDisabled: true,
     });
 
-    // LH-C1 — Balcony walkway ring (cap row 117, first row of 181px-wide section x=150–330).
-    // Horizontal surface surrounding the lantern room base — wide enough to land on comfortably.
+    // LH-Saucer — Lower wide saucer (cap row 260). Pink-marked outro pos #3.
     platforms.push({
-      x: 150, y: 117 - 4562, w: 181, h: PLATFORM_H,
+      x: 145, y: 260 - 4562, w: 190, h: PLATFORM_H,
+      type: 'normal', state: 'intact', crumbleTimer: 0,
+      row: 0, winVariants: undefined, invisible: true,
+    });
+
+    // LH-Dome — Mid deck (cap row 230). Pink-marked outro pos #2.
+    platforms.push({
+      x: 185, y: 230 - 4562, w: 110, h: PLATFORM_H,
       type: 'normal', state: 'intact', crumbleTimer: 0,
       row: 0, winVariants: undefined, invisible: true,
     });
@@ -306,23 +321,23 @@ function generateLevelPlatforms(level) {
     platforms.push({ x: 320, y: -4272, w: 100, h: PLATFORM_H, type: 'cloud-sink', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false, cloudVariant: _bridgeVariant() });
     platforms.push({ x:  60, y: -4392, w: 100, h: PLATFORM_H, type: 'cloud-sink', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false, cloudVariant: _bridgeVariant() });
 
-    // LH-C2 / finish — Bell dome top (cap row 77, w=35, x=223–257, centred at 240).
-    // Invisible surface at top of the dome cone; also the finish trigger for L3.
-    // The bell finish object (rendered in main.js) sits here instead of a floating platform.
-    // goalY stays at −4008 for hazard-cap / tile-count math; finish is deliberately above it.
+    // LH-Top / finish — Lantern roof deck where cat stands with lever (cap row 80).
+    // Pink-marked outro pos #1 (topmost). Narrow (w=50) so cat lands precisely on the
+    // visible deck. Also the finish trigger for L3 — pushed below by the shared finish
+    // platform block. goalY stays at −4008 for hazard-cap / tile-count math.
   }
 
   // Finish platform — the interactive finish object (pinwheel / bell / lever) is rendered on top.
   // L1: sits on the roof surface (levelGoalY − 35), visible, right side.
-  // L2: visible, at levelGoalY, right side (shaft roof).
-  // L3: invisible, on the lighthouse dome top (cap row 77, PIL-derived), centred at x=240.
-  //     goalY stays −4008 (hazard/tile math); finish is placed above it at the bell surface.
-  const FIN_W  = (level === 3) ? 35  : 100;
-  const finX   = (level === 3) ? 223 : 480 - 100 - 20;          // L3: dome centre; others: right side
+  // L2: invisible, at levelGoalY, right side — bell-stand sprite covers the same x-range visually.
+  // L3: invisible, on the lantern-roof deck (cap row 80), narrow w=50 centred at x=240.
+  //     goalY stays −4008 (hazard/tile math); finish is the topmost of three pink-marked surfaces.
+  const FIN_W  = (level === 3) ? 50  : 100;
+  const finX   = (level === 3) ? 215 : 480 - 100 - 20;          // L3: centred at x=240 (215..265)
   const finY   = (level === 1) ? Math.floor(GameState.levelGoalY) - 35
-               : (level === 3) ? (77 - 4562)                     // cap row 77 world y (PIL)
+               : (level === 3) ? (70 - 4562)                     // cap row 70 world y (lantern-roof deck, 10px higher)
                :                 Math.floor(GameState.levelGoalY);
-  const finVis = (level !== 3);                                   // L3 finish is invisible — no floating platform
+  const finVis = (level === 1);                                   // only L1 has a visible floating finish platform; L2 is hidden behind the bell stand sprite, L3 sits on the lighthouse dome
   platforms.push({
     x: finX, y: finY, w: FIN_W, h: PLATFORM_H,
     type: 'normal', state: 'intact', crumbleTimer: 0,
@@ -548,7 +563,13 @@ function checkPlatformCollisions() {
   const prevBottom = player.prevY + player.h;
   const currBottom = player.y    + player.h;
 
+  const inOutro = (GameState.phase === GamePhase.LEVEL_OUTRO);
+
   for (const p of platforms) {
+    // L3 outro: skip colliders explicitly marked outroDisabled (e.g. LH-G stone base).
+    // Only the lighthouse-body surfaces (LH-C1, LH-Lantern, LH-C2 / finish) remain active.
+    if (inOutro && p.outroDisabled) continue;
+
     const overlapX   = player.x < p.x + p.w && player.x + player.w > p.x;
     const wasAbove   = prevBottom <= p.y;
     const nowBelow   = currBottom >= p.y;

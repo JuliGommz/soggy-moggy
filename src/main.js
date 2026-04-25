@@ -49,6 +49,26 @@ const _BAL_RISE_SPEED = 120;  // px/s — doubled (was 60); rises noticeably fas
 const _BAL_H_AMP      = 50;   // px — 1/3 of original 150; narrower side-sweep
 const _BAL_H_PERIOD   = 1.8;  // seconds per horizontal weave cycle — snappy pendulum tempo
 
+// ── L2 finish-trigger bell (stand + 3-frame swing spritesheet) ──────────────
+// Anchor model: stand has a static ring (hook on arm tip); each bell frame's
+// rope-top point pins to that ring world position. Sizes/anchors auto-measured
+// via scripts/measure_bell.py.
+const _bellStand = new Image(); _bellStand.src = 'PixelArt/backgrounds/level_2_shaft/outro_trigger/bell_stand.png';
+const _bellSheet = new Image(); _bellSheet.src = 'PixelArt/backgrounds/level_2_shaft/outro_trigger/bell_spritesheet.png';
+const _BELL_STAND_W = 100, _BELL_STAND_H = 100;
+const _BELL_RING_X  = 22, _BELL_RING_Y  = 4;   // ring center within bell_stand.png
+const _BELL_BODY_RIGHT_X  = 92;                // body bbox right edge in stand-local coords (auto-measured)
+const _BELL_BODY_BOTTOM_Y = 99;                // body bbox bottom in stand-local coords (auto-measured)
+const _BELL_SHEET_H = 61;
+const _BELL_FRAMES = [
+  { sx:   0, sw: 52, ropeTopX: 49, ropeTopY: 0 }, // 0 = left tilt
+  { sx:  72, sw: 32, ropeTopX: 15, ropeTopY: 0 }, // 1 = mid (rest)
+  { sx: 124, sw: 52, ropeTopX:  1, ropeTopY: 0 }, // 2 = right tilt
+];
+// Render tuning — independent of measured anchors so we can resize / reposition without touching pixel data.
+const _BELL_SCALE         = 1.25;   // visual scale factor (resize all, +25%); anchors scale identically so animation pivot is invariant
+const _BELL_BASE_OFFSET_Y = 25;     // px below finish-platform top — embeds stand into the brown ground so bell hangs at cat head height
+
 function resetBalloon() {
   // Dormant until player climbs to a random threshold in the first 5%–40% of the level.
   // Earlier window ensures the balloon appears well before the level's final stretch.
@@ -425,71 +445,98 @@ function _renderFinishTrigger(ctx) {
   const ft  = GameState.finishTrigger;
   const cx  = ft.x + ft.w / 2;
   const poleBaseY = ft.y; // top surface of the finish platform
+  const t   = performance.now() / 1000;
 
-  // Pole
-  ctx.strokeStyle = '#888888';
-  ctx.lineWidth   = 3;
-  ctx.beginPath();
-  ctx.moveTo(cx, poleBaseY);
-  ctx.lineTo(cx, poleBaseY - 52);
-  ctx.stroke();
-  ctx.lineWidth = 1;
+  // L2 uses a sprite-based stand+bell (no procedural pole). L1/L3 keep the
+  // procedural pole + pivot-rotate pattern.
+  if (GameState.level === 2) {
+    // Position: stand body's right edge flush with canvas right (x=480),
+    // body bottom embedded _BELL_BASE_OFFSET_Y px below finish-platform top
+    // (sprite-y _BELL_BODY_BOTTOM_Y is last opaque row of the stand body).
+    // Ring (static hook on arm) is the bell pivot — each frame's rope-top pins
+    // to the ring's world position; bell body shifts laterally per frame.
+    // All offsets scale by _BELL_SCALE so animation alignment stays exact.
+    const standDrawX = canvas.width  - _BELL_BODY_RIGHT_X  * _BELL_SCALE;
+    const standDrawY = (poleBaseY + _BELL_BASE_OFFSET_Y) - _BELL_BODY_BOTTOM_Y * _BELL_SCALE;
+    const ringWX     = standDrawX + _BELL_RING_X * _BELL_SCALE;
+    const ringWY     = standDrawY + _BELL_RING_Y * _BELL_SCALE;
 
-  const pivotY = poleBaseY - 52;
-  const t      = performance.now() / 1000;
-
-  ctx.save();
-  ctx.translate(cx, pivotY);
-
-  if (GameState.level === 1) {
-    // Pinwheel: 4 colored petals — spins slowly at idle, fast when activating
-    const spinRate = GameState.finishState === 'activating' ? 7 : 0.8;
-    ctx.rotate(t * spinRate);
-    const petalColors = ['#e74c3c', '#f1c40f', '#2ecc71', '#3498db'];
-    for (let i = 0; i < 4; i++) {
-      ctx.fillStyle = petalColors[i];
-      ctx.fillRect(0, -5, 18, 10);
-      ctx.rotate(Math.PI / 2);
+    // Frame selection — simple variant 1: idle = mid, activating cycles L/M/R via sin.
+    let frameIdx = 1;
+    if (GameState.finishState === 'activating') {
+      const phase = Math.sin(t * 8); // -1..+1
+      frameIdx = phase < -0.33 ? 0 : phase < 0.33 ? 1 : 2;
     }
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill();
+    const f = _BELL_FRAMES[frameIdx];
 
-  } else if (GameState.level === 2) {
-    // Bell: gentle sway at idle, vigorous ringing when activating (L2 elevator roof)
-    const swingAmp = GameState.finishState === 'activating' ? 0.55 : 0.12;
-    ctx.rotate(Math.sin(t * (GameState.finishState === 'activating' ? 8 : 1.5)) * swingAmp);
-    ctx.fillStyle = '#f1c40f';
-    ctx.beginPath();
-    ctx.arc(0, 0, 14, Math.PI, 0);
-    ctx.lineTo(14, 10); ctx.lineTo(-14, 10); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#d4ac0d';
-    ctx.beginPath(); ctx.arc(0, 10, 14, 0, Math.PI); ctx.fill();
-    ctx.fillStyle = '#888888'; // clapper
-    ctx.beginPath(); ctx.arc(Math.sin(t * 6) * 7, 13, 3, 0, Math.PI * 2); ctx.fill();
-
+    if (_bellStand.complete && _bellStand.naturalWidth > 0) {
+      ctx.drawImage(_bellStand,
+                    0, 0, _BELL_STAND_W, _BELL_STAND_H,
+                    Math.round(standDrawX), Math.round(standDrawY),
+                    Math.round(_BELL_STAND_W * _BELL_SCALE),
+                    Math.round(_BELL_STAND_H * _BELL_SCALE));
+    }
+    if (_bellSheet.complete && _bellSheet.naturalWidth > 0) {
+      ctx.drawImage(_bellSheet,
+                    f.sx, 0, f.sw, _BELL_SHEET_H,
+                    Math.round(ringWX - f.ropeTopX * _BELL_SCALE),
+                    Math.round(ringWY - f.ropeTopY * _BELL_SCALE),
+                    Math.round(f.sw          * _BELL_SCALE),
+                    Math.round(_BELL_SHEET_H * _BELL_SCALE));
+    }
   } else {
-    // Lever: upright at idle, snapped forward when activating
-    const leverAngle = GameState.finishState === 'activating' ? Math.PI / 3 : -Math.PI / 6;
-    ctx.rotate(leverAngle);
-    ctx.fillStyle = '#e74c3c';
-    ctx.fillRect(-5, -28, 10, 28);
-    ctx.fillStyle = '#c0392b';
-    ctx.beginPath(); ctx.arc(0, -28, 7, 0, Math.PI * 2); ctx.fill();
-    ctx.rotate(-leverAngle);
-    ctx.fillStyle = '#555555'; // lever base
-    ctx.fillRect(-12, 0, 24, 7);
-  }
+    // Procedural pole — L1 (pinwheel) and L3 (lever)
+    ctx.strokeStyle = '#888888';
+    ctx.lineWidth   = 3;
+    ctx.beginPath();
+    ctx.moveTo(cx, poleBaseY);
+    ctx.lineTo(cx, poleBaseY - 52);
+    ctx.stroke();
+    ctx.lineWidth = 1;
 
-  ctx.restore();
+    const pivotY = poleBaseY - 52;
+    ctx.save();
+    ctx.translate(cx, pivotY);
+
+    if (GameState.level === 1) {
+      // Pinwheel: 4 colored petals — spins slowly at idle, fast when activating
+      const spinRate = GameState.finishState === 'activating' ? 7 : 0.8;
+      ctx.rotate(t * spinRate);
+      const petalColors = ['#e74c3c', '#f1c40f', '#2ecc71', '#3498db'];
+      for (let i = 0; i < 4; i++) {
+        ctx.fillStyle = petalColors[i];
+        ctx.fillRect(0, -5, 18, 10);
+        ctx.rotate(Math.PI / 2);
+      }
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill();
+    } else {
+      // Lever: upright at idle, snapped forward when activating
+      const leverAngle = GameState.finishState === 'activating' ? Math.PI / 3 : -Math.PI / 6;
+      ctx.rotate(leverAngle);
+      ctx.fillStyle = '#e74c3c';
+      ctx.fillRect(-5, -28, 10, 28);
+      ctx.fillStyle = '#c0392b';
+      ctx.beginPath(); ctx.arc(0, -28, 7, 0, Math.PI * 2); ctx.fill();
+      ctx.rotate(-leverAngle);
+      ctx.fillStyle = '#555555'; // lever base
+      ctx.fillRect(-12, 0, 24, 7);
+    }
+
+    ctx.restore();
+  }
 
   // [Z] prompt — only shown when player is standing on the finish platform (idle state).
   // Identity check via onPlatform.isFinish — consistent with trigger logic above.
   if (GameState.finishState === 'idle') {
     if (player.onGround && player.onPlatform?.isFinish) {
+      const promptY = (GameState.level === 2)
+        ? (poleBaseY + _BELL_BASE_OFFSET_Y) - _BELL_BODY_BOTTOM_Y * _BELL_SCALE - 10  // 10 px above stand top
+        : poleBaseY - 68;
       ctx.fillStyle = '#ffffff';
       ctx.font      = '14px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('[Z]', cx, poleBaseY - 68);
+      ctx.fillText('[Z]', cx, promptY);
       ctx.textAlign = 'left';
     }
   }
@@ -774,6 +821,14 @@ function updateCamera() {
   const newCameraY = player.y - SCROLL_THRESHOLD;
   if (newCameraY < GameState.cameraY) {
     GameState.cameraY = newCameraY;
+  }
+
+  // Camera-end clamp — applied UNCONDITIONALLY every frame so any past over-scroll
+  // (older state, hazard-respawn artifact) is pulled back to the level-end sprite.
+  // "Come back to end pos" semantics: if cat or camera ever went above the limit,
+  // they snap back here next frame instead of staying stuck above the level.
+  if (GameState.cameraEndY !== undefined && GameState.cameraY < GameState.cameraEndY) {
+    GameState.cameraY = GameState.cameraEndY;
   }
 
   // Track maximum height reached (lower Y = higher in world — stores minimum Y value)
