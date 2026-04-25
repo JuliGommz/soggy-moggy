@@ -24,7 +24,7 @@
    - 2.2 Steuerung
    - 2.3 Spielerfigur
    - 2.4 Sprung & Bewegungsmechanik
-   - 2.5 Push-Mechanik
+   - 2.5 Aktions-Taste (Z / Rechtsklick)
    - 2.6 Plattformen
    - 2.7 Gefahren-Mechanik (Hazard)
    - 2.8 Leben & Scheitern
@@ -103,7 +103,7 @@ Das Spiel enthält drei vollständige Spiellevel, je mit eigenem visuellen Thema
 |---|---|---|---|
 | 1 | La Ciudad | Stadtgebäude, Jalousien | Steigender Smog |
 | 2 | El Pozo Eléctrico | Aufzugschacht, Fahrstuhlkabine | Steigende Elektrizität (3-Schicht-Blitze) |
-| 3 | El Mar Abierto | Offener See, Leuchtturm | Steigende Flut (Sinuswelle) |
+| 3 | El Mar Abierto | Offener See, Leuchtturm | Steigende Flut (Mehrschicht-Meer mit Schaumkronen) |
 
 ---
 
@@ -170,14 +170,12 @@ Eine Plattform stoppt die Figur nur wenn alle drei Bedingungen gleichzeitig erf�
 
 Bei Landung: `vy = 0`, `onGround = true`.
 
-### 2.5 Push-Mechanik
+### 2.5 Aktions-Taste (Z / Rechtsklick)
 
-*(Vollimplementierung in Phase 5)*
-
-- Taste Z / Rechtsklick löst Push-Aktion aus
-- Sprite-Wechsel: `push_rise` (am Boden oder kurz nach Sprung) / `push_peak` (in der Luft) — bereits implementiert
-- **MVP-Scope:** Kein generisches Item-Spawn-System. Einziges Push-Objekt im MVP ist die Kletter-Kiste in L2 Szene 1 (Elevator) — ein einzelnes, vorplatziertes Puzzle-Element das als Sprungstein zur Decken-Luke dient
-- Score-Objekte, Bonus-Objekte und kulturelle Objekte (lateinamerikanische Elemente) sind als Nice-to-Have zurückgestellt
+- Taste Z / Rechtsklick löst eine Pfoten-Aktion aus (250 ms Animation)
+- Sprite-Wechsel: `push_rise` (am Boden oder kurz nach Sprung) / `push_peak` (in der Luft)
+- Verwendung: Ballon fangen, Wespen abwehren, Level-Abschluss-Objekte aktivieren (Glocke in L2, Hebel in L3)
+- Kein Push-System für Items. Die Kletter-Kiste in L2 ist ein statisches Objekt im Outro und nicht interaktiv
 
 ### 2.6 Plattformen
 
@@ -203,7 +201,7 @@ Jedes Level hat eine eigene, stetig steigende Gefahr. Alle drei Gefahren teilen 
 
 - **Level 1 (Smog):** Geschichtete Gradientenbänder mit Kosinus-Wölbung am oberen Rand und Glüheffekt
 - **Level 2 (Elektrizität):** Drei unabhängige Blitzschichten mit unterschiedlichen Frequenzen, Ankerpunkten und pulsierender Transparenz
-- **Level 3 (Flut):** Sinuswellen-Animation in WATER-1 (#2a5fa8)
+- **Level 3 (Flut):** Zwei halbtransparente Wellenschichten als glatte Per-Pixel-Sinuskurven (tiefe langsame Dünung in dunklem Navy, darüber mittlere Welle in Teal-Blau) sowie eine stürmische Oberflächenschicht aus zusammengesetzter Sinuskurve (zwei summierte Frequenzen) mit Tiefengradient und weißen Schaumkronen an Wellenkämmen
 - Kontakt mit der Gefahr = Leben verlieren
 - Die Gefahr existiert in Weltkoordinaten; die Kamera folgt dem Spieler nach oben
 - **Obergrenze:** L1-Smog stoppt 22 px unterhalb des Dachs (visuell bündig). L2/L3 steigen bis auf `levelGoalY` — die Gefahr füllt den gesamten Schacht/Turm
@@ -239,7 +237,7 @@ Jedes Level hat eine eigene, stetig steigende Gefahr. Alle drei Gefahren teilen 
 |---|---|---|
 | 1 (Stadt) | Steigender Smog | Geschichtete Gradientenbänder mit Kosinus-Wölbung; steigt bis 22 px unterhalb des Zieldachs |
 | 2 (Aufzugschacht) | Steigende Elektrizität | 3-Schicht-Blitze mit unabhängigen Frequenzen und pulsierender Transparenz; steigt bis `levelGoalY` |
-| 3 (Offener See) | Steigende Flut | Sinuswellen-Animation; steigt bis `levelGoalY`; thematisch passend zum Leuchtturm-Setting |
+| 3 (Offener See) | Steigende Flut | Zwei halbtransparente Sinuswellen-Schichten (Dünung + Wasserkörper) plus stürmische Oberfläche mit Compound-Sinus, Tiefengradient und Schaumkronen an Wellenkämmen; steigt bis `levelGoalY` |
 
 **Wespen-Gegner (implementiert, `src/enemies.js`):**
 
@@ -282,7 +280,7 @@ Wespen patrouillieren horizontal auf festen Y-Positionen (Welt-Koordinaten). Sie
 - Plattformthema: Felsvorsprünge, Wellenbrecherstufen, Balkone am Turm
 - Hintergrund: Weite See, Horizont, Sonne mit Puls-Animation; Leuchtturm als zentrale vertikale Struktur (Stein/Backstein)
 - Shared-Layers (Himmel, Wolken) bleiben unverändert
-- Gefahr: Steigende Flut (Sinuswellen-Darstellung); steigt bis `levelGoalY` — thematisch passend zum Leuchtturm-Setting
+- Gefahr: Steigende Flut als Mehrschicht-Meer (zwei halbtransparente Sinuswellen plus stürmische Oberfläche mit Compound-Sinus und Schaumkronen); steigt bis `levelGoalY` — thematisch passend zum Leuchtturm-Setting
 
 ---
 
@@ -353,12 +351,12 @@ Alle 7 Posen sind in einem einzigen Spritesheet zusammengefasst: `PixelArt/cat/a
 | 1 | Rise | Aufstieg nach Sprung |
 | 2 | Walk 1 | Laufzyklus Frame 1 |
 | 3 | Walk 2 | Laufzyklus Frame 2 |
-| 4 | Push Rise | Push am Boden / tief in der Luft |
-| 5 | Push Peak | Push auf Höhepunkt |
+| 4 | Push Rise | Aktions-Pfote am Boden / tief in der Luft |
+| 5 | Push Peak | Aktions-Pfote auf Höhepunkt |
 | 6 | Peak | Höhepunkt / freier Fall |
 
 **Sprite-Auswahl-Logik (Priorität von oben nach unten):**
-1. `pushTimer > 0` → push_rise (am Boden oder kurz nach Sprung) / push_peak (hoch oben)
+1. `pushTimer > 0` → push_rise (am Boden oder kurz nach Sprung) / push_peak (hoch oben in der Luft)
 2. `onGround + vx ≠ 0` → walk_1/walk_2 im Wechsel (alle 150 ms)
 3. `onGround + vx = 0` → idle
 4. Kurz nach Sprung (bounceTimer > 0,20) → idle (erste 40 ms)

@@ -2,7 +2,7 @@
 
 **Project:** Soggy Moggy
 **Created:** 2026-03-03
-**Updated:** 2026-04-22 — PR #1 merged: English-only migration + dialogue font stack finalization + 04.3 L2 elevator. master is the single active branch. Hybrid font stack live in `src/dialogue.js` (yellow bitmap atlas for titles, BlockCraft.otf for body). Next: author 8 English dialogue texts + wire into bubble rendering (Phase 5 HUD).
+**Updated:** 2026-04-25 — Push mechanic fully dropped (PUSH-02/03/04); Kletter-Kiste static prop only; Z-action renamed ACTION-01. Phase 5 renamed to HUD + UI Screens.
 **Depth:** Standard (7 phases + 04.1)
 **Coverage:** 45/45 v1 requirements mapped
 
@@ -18,8 +18,8 @@
 - [x] **Phase 04.2: L2 Lighthouse Redesign** - Lighthouse background, parallax layers, cloud mechanics, L2 level redesign — shipped on branch, merged to master (completed ~2026-04-07)
 - [x] **Phase 04.3: L2 Elevator Interior** - Elevator sprite, invisible colliders (C1/C2/C404/CHR), 404 display platform, Shaft-Platform-Atlas + Zigzag-Generation, Horizontal-Wall-Confinement, Dialogue-System-Code — merged to master via PR #1 (2026-04-22).
 - [x] **Phase 05-e: Wasp Enemy System** - Patrol + stomp mechanics, 10/15/20 wasps per level (bumped 2026-04-20 von 5/7/10), stinger/stomp interactions, scoring — merged to master (completed 2026-04-07). Known Issues: Sprite zu klein (~2× scale nötig), L2 Top-Sprite fehlt.
-- [ ] **Phase 5: Push + HUD** - Kletter-Kiste puzzle (L2 Elevator), NPC patrolling creature, balloon chase mechanic, English speech bubbles, level platform sprites (L2+L3)
-- [ ] **Phase 6: Audio** - Jump SFX, damage SFX, game over sting, background music loop, push/impact sound
+- [ ] **Phase 5: HUD + UI Screens** - Start menu, end screen, score display between levels (animated), countdown + title combined, L2/L3 end-of-level objects (bell, lever)
+- [ ] **Phase 6: Audio** - Jump SFX, damage SFX, game over sting, background music loop
 - [ ] **Phase 7: Hosting** - GitHub Pages deployment, shareable URL, final browser smoke test
 
 ---
@@ -36,7 +36,7 @@
 | 04.2 L2 Lighthouse | — (shipped outside GSD) | Complete | ~2026-04-07 |
 | 04.3 L2 Elevator Interior | — (shipped outside GSD) | Complete — merged PR #1 | 2026-04-22 |
 | 05-e Wasp Enemy System | — (shipped outside GSD) | Complete | 2026-04-07 |
-| 5. Push + HUD | 0/? | Not started | - |
+| 5. HUD + UI Screens | 0/? | Not started | - |
 | 6. Audio | 0/? | Not started | - |
 | 7. Hosting | 0/? | Not started | - |
 
@@ -136,25 +136,24 @@ Plans:
   4. L2 hazard (rising flood/water) unchanged — visual only redesign
 **Plans:** TBD (estimated 2)
 
-### Phase 5: Push + HUD
-**Goal:** L3 has a functional Kletter-Kiste puzzle, a patrolling NPC creature adds risk to platforms, balloon chase mechanic is active, and English speech bubbles react to key game events.
+### Phase 5: HUD + UI Screens
+**Goal:** The game has a proper start menu, end screen, animated score display between levels, and L2/L3 end-of-level trigger objects (bell/lever).
 **Depends on:** Phase 04.2, Phase 04.1
-**Requirements:** PUSH-01, HUD-01, HUD-02, HUD-03, VIS-06, VIS-08, NPC-01
-**Note:** Manual jump (Space key, onGround gate), variable jump, walk animation, finish trigger system, balloon collectible, and 3 hazard renderers were all implemented on the feature/asset-restructure-mechanics branch before Phase 5 planning.
-**Note:** PUSH-02 (item spawn system) and PUSH-03 (item-hazard interaction) are DROPPED from MVP — deferred as nice-to-have. VIS-07 (item sprites) also deferred.
+**Requirements:** ACTION-01, HUD-01, HUD-02, HUD-03, VIS-06, VIS-08
+**Note:** Push mechanic fully dropped (2026-04-25). Kletter-Kiste appears as static prop in L2 outro only. Z-action animation (push_rise/push_peak frames) stays in code for balloon catch, wasp defense, and end-trigger.
 
 **Success Criteria:**
-  1. ~~Pressing Space while on a platform jumps~~ (DONE on mechanics branch)
-  2. L3 Scene 1 (Elevator): a pre-placed Kletter-Kiste can be pushed with Z into position; cat can jump on it to reach the ceiling hatch
-  3. NPC creature spawns on select platforms, patrols full platform width, reverses at edges, contact with cat triggers takeDamage()
-  4. Balloon rises upward at chase speed — disappears if it reaches levelGoalY before being caught
-  5. A speech bubble appears on damage, level-complete, and game-over events — English phrase, fades cleanly
-**Plans:** TBD (estimated 5–6)
+  1. Start menu shown before first play session
+  2. Countdown and title combined into one harmonious visual sequence (no extra click after menu)
+  3. Animated score breakdown shown between levels
+  4. End screen shown after Level 3 outro
+  5. L2 end-of-level bell and L3 lever trigger level-complete event when Z is pressed
+**Plans:** TBD
 
 ### Phase 6: Audio
 **Goal:** Sound accompanies every key player action — the game has audio presence from jump through game over.
 **Depends on:** Phase 5 (all gameplay events defined before audio binds to them)
-**Requirements:** AUDIO-01, AUDIO-02, AUDIO-03, AUDIO-04, AUDIO-05
+**Requirements:** AUDIO-01, AUDIO-02, AUDIO-03, AUDIO-04
 **Note:** Audio was explicitly separated from the original "Throw + Audio" scope — it is its own cohesive concern (Web Audio API, asset pipeline, browser autoplay policy).
 
 **Success Criteria:**
@@ -209,20 +208,20 @@ Plans:
 | VIS-03 | Mood/atmosphere statement | Phase 04.1 ✓ |
 | VIS-04 | Key asset list (ASSET_LIST.md) | Phase 04.1 ✓ |
 | VIS-05 | Style guide (docs/STYLE_GUIDE.md) | Phase 04.1 ✓ |
-| VIS-06 | Cat sprite frames (push paw, walk, jump) | Phase 5 |
-| VIS-07 | Item sprites (diverse types for platforms) | Phase 5 |
+| VIS-06 | Cat sprite frames (action paw, walk, jump) | Phase 5 |
+| ~~VIS-07~~ | ~~Item sprites~~ | DROPPED |
 | VIS-08 | Speech bubble shapes (canvas-drawn) | Phase 5 |
-| PUSH-01 | Manual jump from ground (Space + onGround gate) | Phase 5 |
-| PUSH-02 | Push mechanic + item physics (Z key, proximity, gravity) | Phase 5 |
-| PUSH-03 | Push score feedback + hazard interaction (floating text, splash, stubs) | Phase 5 |
+| ACTION-01 | Z / right-click triggers action animation (push_rise/push_peak, 250ms) | Phase 5 ✓ |
+| ~~PUSH-02~~ | ~~Push mechanic + item physics~~ | DROPPED |
+| ~~PUSH-03~~ | ~~Push score feedback + hazard interaction~~ | DROPPED |
 | HUD-01 | English speech bubble system (shapes, lifecycle, positioning) | Phase 5 |
-| HUD-02 | Event-to-bubble mapping (damage, level complete, push, game over) | Phase 5 |
+| HUD-02 | Event-to-bubble mapping (damage, level complete, game over) | Phase 5 |
 | HUD-03 | Game title: Soggy Moggy on start/gameover screens | Phase 5 |
 | AUDIO-01 | Jump sound effect | Phase 6 |
 | AUDIO-02 | Damage sound effect (water contact) | Phase 6 |
 | AUDIO-03 | Game over audio sting | Phase 6 |
 | AUDIO-04 | Background music loop (gameplay) | Phase 6 |
-| AUDIO-05 | Push/item impact sound | Phase 6 |
+| ~~AUDIO-05~~ | ~~Push/item impact sound~~ | DROPPED |
 | HOST-01 | GitHub Pages deployment (public URL) | Phase 7 |
 | HOST-02 | Stable shareable URL, no install required | Phase 7 |
 

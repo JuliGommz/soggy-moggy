@@ -34,12 +34,6 @@ for (const key of _BUBBLE_KEYS) {
   _bubbleSprites[key] = img;
 }
 
-// Per-key sprite redirect — lets a dialogue key reuse another key's loaded PNG.
-const _BUBBLE_SPRITE_REDIRECT = {
-  l3_outro: 'l1_outro',
-};
-
-
 // ════════════════════════════════════════════════════════════════════════════
 // SECTION 1.5 — TITLE + BODY TEXT RENDERING (hybrid font stack)
 // ════════════════════════════════════════════════════════════════════════════
@@ -427,8 +421,7 @@ function renderDialogue(ctx) {
     ctx.fillRect(0, 0, canvasW, canvasH);
   }
 
-  const spriteKey = _BUBBLE_SPRITE_REDIRECT[_active.bubbleKey] ?? _active.bubbleKey;
-  const img    = _bubbleSprites[spriteKey];
+  const img    = _bubbleSprites[_active.bubbleKey];
   const isLifeLostBubble = _active.kind === 'lifeLost';
   const isOutro          = _active.kind === 'outro';
   const BY_INTRO       = 250;

@@ -56,9 +56,9 @@ Wasp enemy system, L2 lighthouse, L2 elevator interior all shipped to master.
 
 ## Current Position
 
-**Active Phase:** none — all shipped phases merged to master. Next: Phase 5 (Push + HUD)
+**Active Phase:** none — all shipped phases merged to master. Next: Phase 5 (HUD + UI Screens)
 **Active Plan:** none
-**Phase Status:** Phases 1–4, 04.1, 04.2, 04.3, 05-e complete — next is Phase 5 (Push + HUD)
+**Phase Status:** Phases 1–4, 04.1, 04.2, 04.3, 05-e complete — next is Phase 5 (HUD + UI Screens)
 
 ```
 Progress: [x][x][x][x][x][x][x][~][ ][ ][ ]
@@ -80,7 +80,7 @@ Progress: [x][x][x][x][x][x][x][~][ ][ ][ ]
 | 04.2 | L2 Lighthouse Redesign | Shipped (no GSD plan) | 0/0 | Code in master; no PLAN/SUMMARY — shipped directly |
 | 04.3 | L2 Elevator Interior | Complete — merged PR #1 | 0/0 | Merged to master 2026-04-22; dialogue system included |
 | 05-e | Wasp Enemy System | Shipped (no GSD plan) | 0/0 | Merged to master 07.04.2026 |
-| 5 | Push + HUD | Not started | 0/? | |
+| 5 | HUD + UI Screens | Not started | 0/? | |
 | 6 | Audio | Not started | 0/? | |
 | 7 | Hosting | Not started | 0/? | |
 
@@ -125,8 +125,8 @@ Progress: [x][x][x][x][x][x][x][~][ ][ ][ ]
 | Camera one-way gate: if (newCameraY < cameraY) | cameraY can only decrease — when player falls, newCameraY increases, condition fails, camera holds | Phase 2 |
 | Fall detection after updateCamera() | Fall check uses cameraY + canvas.height; must use current frame cameraY, not stale value | Phase 2 |
 | Height formula: 528 - maxHeightReached | 528 = player start world Y; maxHeightReached stores minimum Y seen; result = pixels climbed | Phase 2 |
-| Push item spawn system DROPPED from MVP | PUSH-02/03 deferred as nice-to-have; Kletter-Kiste (L2 Elevator, single puzzle box) is the only push element in MVP | Phase 5 |
-| Lives system over instant death | More forgiving; makes the push mechanic feel more meaningful | Phase 4 |
+| Push mechanic fully dropped (2026-04-25) | PUSH-02/03/04 all removed; Kletter-Kiste = static outro prop only; Z-action animation stays for balloon/wasp/end-trigger | Phase 5 |
+| Lives system over instant death | More forgiving; increases stakes throughout the run | Phase 4 |
 | Working title: Soggy Moggy | Renamed from "Cat Flood Jumper" | — |
 | Player = Stuffed Cat | Not a real/live cat — specific visual character with floppy limbs, button eyes, stitched seams | Phase 04.1 |
 | Placeholders until sprites | Colored rectangles used through Phase 4; real sprites produced after Phase 04.1 | Phase 1–4 |
@@ -185,8 +185,8 @@ Progress: [x][x][x][x][x][x][x][~][ ][ ][ ]
 
 | Question | When to Decide |
 |----------|----------------|
-| What does the push do to the hazard? (splash / visual only) | Phase 5 planning |
-| Push cooldown duration | Phase 5 default recommendation: 1-2 seconds |
+| L2 end-object: bell already exists as sprite, or draw from scratch? | Phase 5 planning |
+| Score animation between levels: additive counter or breakdown by category? | Phase 5 planning |
 
 ### Resolved Design Questions
 
@@ -200,7 +200,7 @@ Progress: [x][x][x][x][x][x][x][~][ ][ ][ ]
 ### Todos
 
 - [x] Measure actual max jump height — variable jump implemented, GAP_PX=120 confirmed
-- [ ] Decide push mechanic hazard interaction after playtesting — Phase 5 scope
+- [ ] Decide score animation format between levels — Phase 5 scope
 - [ ] Confirm GitHub Pages is enabled on the repository before Phase 7
 
 ### Resolved Decisions (Phase 04.1)
@@ -239,7 +239,7 @@ None.
 **Next action:**
 1. **BlockCraft.otf license** — fill in the TODO in `Dokumente_Schule/Completed/Medienkatalog.md:101`. Blocker for Selbstständigkeitserklärung.
 2. **School formalities** — README.md at repo root (SCHOOL-05), gameplay video (SCHOOL-06), Selbstständigkeitserklärung (SCHOOL-07), USB structure (SCHOOL-08).
-3. Plan Phase 5 (Push + HUD) formally via `/gsd-plan-phase 5` if needed.
+3. Plan Phase 5 (HUD + UI Screens) formally via `/gsd-plan-phase 5` if needed.
 
 ---
 *State initialized: 2026-03-03 after roadmap creation*

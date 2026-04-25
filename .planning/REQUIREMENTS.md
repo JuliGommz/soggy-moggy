@@ -41,12 +41,12 @@
 - [x] **LIFE-02**: Player receives a brief visual indicator (screen flash) when taking damage
 - [x] **LIFE-03**: Losing all 3 lives triggers the game over screen
 
-### Push Mechanic
+### Action Key (Z / right-click)
 
-- [x] **PUSH-01**: Z / right-click triggers push action; sprite switches to push_rise or push_peak based on player state (DONE on mechanics branch)
-- [ ] ~~**PUSH-02**: Push mechanic + item spawn system + item physics~~ — **DROPPED from MVP** (nice-to-have, deferred)
-- [ ] ~~**PUSH-03**: Item-hazard interaction (splash, bonus points, floating text)~~ — **DROPPED from MVP** (nice-to-have, deferred)
-- [ ] **PUSH-04**: Kletter-Kiste — single pre-placed box in L3 Scene 1; cat pushes it with Z to position as stepping stone for ceiling hatch (Phase 5)
+- [x] **ACTION-01**: Z / right-click triggers action animation; sprite switches to push_rise or push_peak (250 ms); used for balloon catch, wasp defense, and end-trigger. Frame names locked in code.
+- [ ] ~~**PUSH-02**: Push mechanic + item spawn system + item physics~~ — **DROPPED** (gestrichen)
+- [ ] ~~**PUSH-03**: Item-hazard interaction (splash, bonus points, floating text)~~ — **DROPPED** (gestrichen)
+- [ ] ~~**PUSH-04**: Kletter-Kiste as pushable object~~ — **DROPPED**; Kletter-Kiste appears as static prop in L2 outro only
 
 ### Platforms
 
