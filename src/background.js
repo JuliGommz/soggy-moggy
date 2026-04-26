@@ -54,8 +54,7 @@ const _bgL2Sun      = new Image(); _bgL2Sun.src      = 'PixelArt/backgrounds/lev
 // [1] mid1 position unchanged (sx=634). [2]–[8] unaffected.
 const _bgL2LhSheet = new Image(); _bgL2LhSheet.src = 'PixelArt/backgrounds/level_3_sea/lighthouse_sheet2.png';
 // L3 lighthouse cap — replaces the cap [8] sprite from lighthouse_sheet2.png with a
-// standalone updated PNG (lh_08.06). The lever (drawn in main.js _renderFinishTrigger)
-// sits in front of this cap as the player-side interactive object.
+// standalone updated PNG (lh_08.06).
 const _bgL2LhBack = new Image();
 // Hardcoded bbox — measured once via scripts/measure_lh08_layers.py (PIL).
 // Runtime bbox detection via getImageData() fails on file:// protocol due to CORS-
@@ -324,8 +323,7 @@ function _drawL2Lighthouse(ctx, camShift) {
   }
 
   // Top cap — lh_08.06.png. Snapped to last mid tile, accounting for its dyo so the
-  // join stays seamless. The lever (drawn later in main.js _renderFinishTrigger) sits
-  // in front of this cap.
+  // join stays seamless.
   const cap        = _LH_SPRITES[8];
   const lastMidSpr = _LH_SPRITES[_LH_MID_SEQ[_LH_MID_SEQ.length - 1]];
   const lastTileWy = -(Math.ceil(-goalY / _LH_MID_H)) * _LH_MID_H;

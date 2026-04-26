@@ -49,33 +49,6 @@ const _BAL_RISE_SPEED = 120;  // px/s — doubled (was 60); rises noticeably fas
 const _BAL_H_AMP      = 50;   // px — 1/3 of original 150; narrower side-sweep
 const _BAL_H_PERIOD   = 1.8;  // seconds per horizontal weave cycle — snappy pendulum tempo
 
-// ── L2 finish-trigger bell (stand + 3-frame swing spritesheet) ──────────────
-// Anchor model: stand has a static ring (hook on arm tip); each bell frame's
-// rope-top point pins to that ring world position. Sizes/anchors auto-measured
-// via scripts/measure_bell.py.
-const _bellStand = new Image(); _bellStand.src = 'PixelArt/backgrounds/level_2_shaft/outro_trigger/bell_stand.png';
-const _bellSheet = new Image(); _bellSheet.src = 'PixelArt/backgrounds/level_2_shaft/outro_trigger/bell_spritesheet.png';
-const _BELL_STAND_W = 100, _BELL_STAND_H = 100;
-const _BELL_RING_X  = 22, _BELL_RING_Y  = 4;   // ring center within bell_stand.png
-const _BELL_BODY_RIGHT_X  = 92;                // body bbox right edge in stand-local coords (auto-measured)
-const _BELL_BODY_BOTTOM_Y = 99;                // body bbox bottom in stand-local coords (auto-measured)
-const _BELL_SHEET_H = 61;
-const _BELL_FRAMES = [
-  { sx:   0, sw: 52, ropeTopX: 49, ropeTopY: 0 }, // 0 = left tilt
-  { sx:  72, sw: 32, ropeTopX: 15, ropeTopY: 0 }, // 1 = mid (rest)
-  { sx: 124, sw: 52, ropeTopX:  1, ropeTopY: 0 }, // 2 = right tilt
-];
-// Render tuning — independent of measured anchors so we can resize / reposition without touching pixel data.
-const _BELL_SCALE         = 1.25;   // visual scale factor (resize all, +25%); anchors scale identically so animation pivot is invariant
-const _BELL_BASE_OFFSET_Y = 25;     // px below finish-platform top — embeds stand into the brown ground so bell hangs at cat head height
-
-// ── L3 finish-trigger lever (3-state joystick: left / mid / right) ──────────
-// Native-size for now; cycle L→M→R while activating, mid at idle.
-const _leverLeft  = new Image(); _leverLeft.src  = 'PixelArt/backgrounds/level_3_sea/end_triggers/lever_left.png';
-const _leverMid   = new Image(); _leverMid.src   = 'PixelArt/backgrounds/level_3_sea/end_triggers/lever_mid.png';
-const _leverRight = new Image(); _leverRight.src = 'PixelArt/backgrounds/level_3_sea/end_triggers/lever_right.png';
-const _LEVER_SCALE = 0.675;
-const _LEVER_Y_OFFSET = -42;  // negative = higher
 
 function resetBalloon() {
   // Dormant until player climbs to a random threshold in the first 5%–40% of the level.
@@ -154,6 +127,173 @@ function renderBalloon(ctx) {
   }
 }
 
+// ── Outro trigger (level finish) ────────────────────────────────────────────
+// Paw (Z / right-click) must touch the central element with 4 px tolerance.
+// L1 windrad sprite missing — getOutroConfig returns null, no trigger active.
+// L2 = bell + rope (stand is decoration, NOT in hitbox).
+// L3 = lever stick (8 px wide, NOT the 67 px base).
+const _bellStand  = new Image(); _bellStand.src  = 'PixelArt/backgrounds/level_2_shaft/outro_trigger/bell_stand.png';
+const _bellSheet  = new Image(); _bellSheet.src  = 'PixelArt/backgrounds/level_2_shaft/outro_trigger/bell_spritesheet.png';
+const _leverMid   = new Image(); _leverMid.src   = 'PixelArt/backgrounds/level_3_sea/end_triggers/lever_mid.png';
+
+const _OUTRO_REACH_PAD   = 35;            // px around hitbox; paw must overlap (hb + pad)
+const _OUTRO_GLOW_COLOR  = '#ff00ff';     // magenta — same shadowColor technique as HUD lives
+const _OUTRO_GLOW_PERIOD = 1.2;           // s per pulse cycle
+let   _outroTime         = 0;             // accumulator for sin pulsing
+
+// Per-level placement + hitbox. World coordinates.
+// Tunables: standX/standY for bell, drawX/drawY for lever, hitbox rect for both.
+function getOutroConfig(level) {
+  if (level === 1) {
+    // L1 placeholder pinwheel — drawn in JS (no PNG asset). Roof-mounted on right side.
+    // Roof walkable surface y = levelGoalY − 35.
+    const roofY  = Math.floor(GameState.levelGoalY) - 35;
+    const cx     = 410;                        // mid of right-side roof area
+    const radius = 16;                         // blade reach
+    const mastH  = 26;                         // mast pixel height
+    const cy     = roofY - mastH;              // wheel center sits above mast
+    // Hitbox covers the spinning blade disc only (square around radius), not the mast.
+    const hb = {
+      x: cx - radius,
+      y: cy - radius,
+      w: radius * 2,
+      h: radius * 2,
+    };
+    return { kind: 'pinwheel', cx, cy, radius, mastH, roofY, hb };
+  }
+  if (level === 2) {
+    const standW = _bellStand.naturalWidth  || 100;
+    const standH = _bellStand.naturalHeight || 130;
+    // Stand sits on the right side, bottom flush with finish-platform top (levelGoalY).
+    const standX = 480 - standW - 12;
+    const standY = Math.floor(GameState.levelGoalY) - standH + PLATFORM_H;
+    // Bell + rope hang from the stand's left arm. Hitbox is a tall narrow rectangle
+    // covering the rope strip + bell body. Tune these 4 numbers if visual mismatch.
+    const hb = {
+      x: standX + 6,
+      y: standY + 2,
+      w: 40,
+      h: 50,
+    };
+    return { kind: 'bell', standX, standY, standW, standH, hb };
+  }
+  if (level === 3) {
+    const natW   = _leverMid.naturalWidth  || 40;
+    const natH   = _leverMid.naturalHeight || 60;
+    const SCALE  = 0.68;                      // 0.80 × 0.85 — 32 % smaller overall
+    const drawW  = Math.round(natW * SCALE);
+    const drawH  = Math.round(natH * SCALE);
+    // LH-Saucer top is at world y = (272 - 4562) = -4290. Lever sits centered at cx=133.
+    const cx     = 133;
+    const drawX  = cx - Math.floor(drawW / 2);
+    const drawY  = (272 - 4562) - drawH + 4 - 48;  // 48 px higher than original anchor (60 − 12)
+    // Stick hitbox: 8 px wide vertical strip, upper portion of sprite (above the wide base).
+    const stickW = 8;
+    const stickH = Math.floor(drawH * 0.60);  // upper ~60 % of scaled sprite
+    const hb = {
+      x: cx - stickW / 2,
+      y: drawY,
+      w: stickW,
+      h: stickH,
+    };
+    return { kind: 'lever', drawX, drawY, drawW, drawH, hb };
+  }
+  return null;
+}
+
+function isOutroInReach(level) {
+  const cfg = getOutroConfig(level);
+  if (!cfg) return false;
+  const paw = getPawZone();
+  const hb  = cfg.hb;
+  const p   = _OUTRO_REACH_PAD;
+  return paw.x         < hb.x + hb.w + p
+      && paw.x + paw.w > hb.x       - p
+      && paw.y         < hb.y + hb.h + p
+      && paw.y + paw.h > hb.y       - p;
+}
+
+function updateOutroTrigger(dt) {
+  _outroTime += dt;
+  if (!keys.push) return;
+  if (!isOutroInReach(GameState.level)) return;
+  keys.push = false;
+  GameState.phase = GamePhase.LEVEL_OUTRO;
+  showLevelEnd(GameState.level);
+}
+
+function _drawOutroSprite(ctx, drawFn, glow) {
+  if (!glow) { drawFn(); return; }
+  const phase = (_outroTime / _OUTRO_GLOW_PERIOD) * Math.PI * 2;
+  const blur  = 11 + 7 * Math.sin(phase);  // 4..18
+  ctx.save();
+  ctx.shadowColor = _OUTRO_GLOW_COLOR;
+  ctx.shadowBlur  = blur;
+  drawFn();
+  ctx.restore();
+}
+
+function _drawPinwheel(ctx, cx, cy, radius, mastH, time) {
+  // Mast — drawn first so blades cover its top
+  ctx.fillStyle = '#5a3e2b';
+  ctx.fillRect(cx - 2, cy, 4, mastH);
+  // Spinning blades
+  const colors = ['#e74c3c', '#f1c40f', '#3498db', '#2ecc71'];
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(time * 1.4);                 // ~1.4 rad/s slow spin
+  for (let i = 0; i < 4; i++) {
+    ctx.save();
+    ctx.rotate(i * Math.PI / 2);
+    ctx.fillStyle = colors[i];
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(radius, -radius * 0.35);
+    ctx.lineTo(radius * 0.35, radius * 0.35);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();           // ← war fehlend; ohne das stapeln sich Transforms jedes Frame
+  }
+  ctx.restore();
+  // Center cap
+  ctx.fillStyle = '#2c3e50';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function renderOutroTrigger(ctx) {
+  const cfg = getOutroConfig(GameState.level);
+  if (!cfg) return;
+  const inReach = isOutroInReach(GameState.level);
+
+  if (cfg.kind === 'pinwheel') {
+    _drawOutroSprite(ctx, () => {
+      _drawPinwheel(ctx, cfg.cx, cfg.cy, cfg.radius, cfg.mastH, _outroTime);
+    }, inReach);
+  } else if (cfg.kind === 'bell') {
+    if (_bellStand.complete && _bellStand.naturalWidth > 0) {
+      ctx.drawImage(_bellStand, cfg.standX, cfg.standY);
+    }
+    if (_bellSheet.complete && _bellSheet.naturalWidth > 0) {
+      const sheetW = _bellSheet.naturalWidth;
+      const sheetH = _bellSheet.naturalHeight;
+      const frameW = Math.floor(sheetW / 3);
+      const bellDX = cfg.standX + 22 - Math.floor(frameW / 2);
+      const bellDY = cfg.standY + 4;
+      _drawOutroSprite(ctx, () => {
+        ctx.drawImage(_bellSheet, frameW, 0, frameW, sheetH, bellDX, bellDY, frameW, sheetH);
+      }, inReach);
+    }
+  } else if (cfg.kind === 'lever') {
+    if (_leverMid.complete && _leverMid.naturalWidth > 0) {
+      _drawOutroSprite(ctx, () => {
+        ctx.drawImage(_leverMid, cfg.drawX, cfg.drawY, cfg.drawW, cfg.drawH);
+      }, inReach);
+    }
+  }
+}
+
 // ── Canvas setup ────────────────────────────────────────────────────────────
 const canvas = document.getElementById('gameCanvas');
 canvas.width  = 480; // set via JS attribute — NEVER via CSS
@@ -191,10 +331,39 @@ function update(dt) {
         const i = DIFFICULTY_ORDER.indexOf(GameState.difficulty);
         GameState.difficulty = DIFFICULTY_ORDER[(i + 1) % DIFFICULTY_ORDER.length];
       }
+
+      // Mouse hit-test: click on a difficulty row → select it; click "Audio" → open audio menu.
+      // Must run BEFORE keys.enter so a row-click doesn't also trigger game start.
+      if (mouseJustClicked) {
+        mouseJustClicked = false;
+        const rect    = canvas.getBoundingClientRect();
+        const mx      = lastMouseClientX - rect.left;
+        const my      = lastMouseClientY - rect.top;
+        const cx      = canvas.width / 2;
+        const optY0   = 310;
+        const optStep = 32;
+        let hitRow = false;
+        for (let i = 0; i < DIFFICULTY_ORDER.length; i++) {
+          const ry = optY0 + i * optStep;
+          if (mx >= cx - 130 && mx <= cx + 130 && my >= ry - 22 && my <= ry + 10) {
+            GameState.difficulty = DIFFICULTY_ORDER[i];
+            keys.enter = false; // select only — do not start the game
+            hitRow = true;
+            break;
+          }
+        }
+        // "Audio" link hit region (matches render position y=510)
+        if (!hitRow && mx >= cx - 60 && mx <= cx + 60 && my >= 492 && my <= 520) {
+          keys.enter          = false;
+          GameState.menuCursor = 0;
+          GameState.phase     = GamePhase.AUDIO_MENU;
+        }
+      }
+
       if (keys.enter) {
         keys.enter = false; // one-shot: prevent instant pass-through on next frame
         resetGame();
-        resetBalloon(); // called after resetGame → resetPlatforms → finishTrigger is set
+        resetBalloon(); // called after resetGame → resetPlatforms
         spawnEnemies(); // called after resetPlatforms so platforms array is ready
         // Override: show LEVEL_INTRO bubble before gameplay starts
         GameState.phase = GamePhase.LEVEL_INTRO;
@@ -303,38 +472,11 @@ function update(dt) {
       updateCamera();
       updateBalloon(dt);
       updateEnemies(dt);
+      updateOutroTrigger(dt);
 
       // Score: height climbed this level (pixels above spawn point)
       // killBonus is tracked separately and revealed at level complete
       GameState.score = Math.max(0, PLAYER_START_Y - GameState.maxHeightReached);
-
-      // Finish trigger: player must stand on the finish platform (identity check, not X-overlap)
-      // and press Z (push key). Identity check prevents false triggers when player stands on any
-      // platform that happens to overlap the finish-trigger X-range (e.g. jalousies under the roof).
-      if (GameState.finishState === 'idle' && GameState.finishTrigger) {
-        if (player.onGround && player.onPlatform?.isFinish && keys.push) {
-          keys.push             = false;
-          GameState.finishState = 'activating';
-          GameState.finishAnimTimer = 1.5; // seconds of animation before level complete screen
-        }
-      }
-      // Count down finish animation; transition to LEVEL_COMPLETE when done
-      if (GameState.finishState === 'activating') {
-        GameState.finishAnimTimer -= dt;
-        if (GameState.finishAnimTimer <= 0) {
-          // Compute clear bonus once at level finish — stored so level complete screen can read it
-          const _waspTotal = _WASP_COUNT[GameState.level] || 0;
-          GameState.clearBonus = (_waspTotal > 0 && _waspsDefeated >= _waspTotal) ? 200 : 0;
-          saveHighScore(GameState.score + GameState.killBonus + GameState.clearBonus);
-          GameState.menuCursor = 0;
-          keys.enter = false;
-          keys.jump  = false;
-          GameState.finishState = 'done';
-          // Route through LEVEL_OUTRO bubble before showing the stats menu.
-          GameState.phase = GamePhase.LEVEL_OUTRO;
-          showLevelEnd(GameState.level);
-        }
-      }
 
       // Fall-off-bottom: costs one life, respawns at camera top
       if (player.y > GameState.cameraY + canvas.height && hazard.iframeTimer <= 0) {
@@ -354,20 +496,46 @@ function update(dt) {
       break;
 
     case GamePhase.PAUSED:
-      // ESC again = resume immediately
+      // ESC = resume immediately
       if (keys.escape) { keys.escape = false; GameState.phase = GamePhase.PLAYING; break; }
-      if (keys.menuUp)   { keys.menuUp   = false; GameState.menuCursor = (GameState.menuCursor + 3) % 4; }
-      if (keys.menuDown) { keys.menuDown = false; GameState.menuCursor = (GameState.menuCursor + 1) % 4; }
+      if (keys.menuUp)   { keys.menuUp   = false; GameState.menuCursor = (GameState.menuCursor + 5) % 6; }
+      if (keys.menuDown) { keys.menuDown = false; GameState.menuCursor = (GameState.menuCursor + 1) % 6; }
+      // Rows 4 (Music) and 5 (SFX): ←→ adjust volume, Space toggle mute
+      if (GameState.menuCursor >= 4) {
+        const track = GameState.menuCursor === 4 ? GameState.audio.music : GameState.audio.sfx;
+        if (keys.left)  { keys.left  = false; track.vol = Math.max(0, +(track.vol - 0.05).toFixed(2)); }
+        if (keys.right) { keys.right = false; track.vol = Math.min(1, +(track.vol + 0.05).toFixed(2)); }
+        if (keys.jump)  { keys.jump  = false; track.muted = !track.muted; } // Space = mute toggle
+      }
       if (keys.enter) {
         keys.enter = false;
         switch (GameState.menuCursor) {
-          case 0: GameState.phase = GamePhase.PLAYING; break; // Continue
+          case 0: GameState.phase = GamePhase.PLAYING; break;                              // Continue
           case 1: restartLevel(); resetBalloon(); spawnEnemies();
                   GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Restart level
           case 2: resetGame();    resetBalloon(); spawnEnemies();
                   GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Restart game
-          case 3: GameState.phase = GamePhase.START;             break; // Main menu
+          case 3: GameState.phase = GamePhase.START; break;                                // Main menu
+          case 4: case 5: break;                                                           // audio rows: ←→/Space only
         }
+      }
+      break;
+
+    case GamePhase.AUDIO_MENU:
+      // ESC or Back row (cursor 2) → return to Start screen
+      if (keys.escape) { keys.escape = false; GameState.menuCursor = 0; GameState.phase = GamePhase.START; break; }
+      if (keys.menuUp)   { keys.menuUp   = false; GameState.menuCursor = (GameState.menuCursor + 2) % 3; }
+      if (keys.menuDown) { keys.menuDown = false; GameState.menuCursor = (GameState.menuCursor + 1) % 3; }
+      // Rows 0 (Music) and 1 (SFX): ←→ adjust volume, Space toggle mute
+      if (GameState.menuCursor <= 1) {
+        const track = GameState.menuCursor === 0 ? GameState.audio.music : GameState.audio.sfx;
+        if (keys.left)  { keys.left  = false; track.vol = Math.max(0, +(track.vol - 0.05).toFixed(2)); }
+        if (keys.right) { keys.right = false; track.vol = Math.min(1, +(track.vol + 0.05).toFixed(2)); }
+        if (keys.jump)  { keys.jump  = false; track.muted = !track.muted; } // Space = mute toggle
+      }
+      if (keys.enter) {
+        keys.enter = false;
+        if (GameState.menuCursor === 2) { GameState.menuCursor = 0; GameState.phase = GamePhase.START; } // Back
       }
       break;
 
@@ -424,13 +592,14 @@ function render() {
     GameState.phase === GamePhase.LEVEL_OUTRO    ||
     GameState.phase === GamePhase.DEV_BROWSE
   );
-  if (GameState.phase === GamePhase.START) renderWindowFloors(ctx);
+  if (GameState.phase === GamePhase.START ||
+      GameState.phase === GamePhase.AUDIO_MENU) renderWindowFloors(ctx);
   if (_drawWorld) {
-    renderPlatforms(ctx);  // draw platforms before player (player renders on top)
-    renderEnemies(ctx);    // enemies behind player — stomp is clearer when player overlaps on top
+    renderPlatforms(ctx);     // draw platforms before player (player renders on top)
+    renderOutroTrigger(ctx);  // trigger sprite behind player — cat can overlap bell/lever
+    renderEnemies(ctx);       // enemies behind player — stomp is clearer when player overlaps on top
     renderBalloon(ctx);
     renderPlayer(ctx);
-    if (GameState.finishTrigger) _renderFinishTrigger(ctx);
     renderHazard(ctx);
   }
 
@@ -456,120 +625,6 @@ function render() {
   renderDialogue(ctx);
 }
 
-// ── Finish trigger visual ────────────────────────────────────────────────────
-// Called in world space (inside ctx.save/translate). Draws level-specific interactive
-// object above the finish platform: L1 = pinwheel, L2 = bell, L3 = lever.
-function _renderFinishTrigger(ctx) {
-  const ft  = GameState.finishTrigger;
-  const cx  = ft.x + ft.w / 2;
-  const poleBaseY = ft.y; // top surface of the finish platform
-  const t   = performance.now() / 1000;
-
-  // L2 uses a sprite-based stand+bell (no procedural pole). L1/L3 keep the
-  // procedural pole + pivot-rotate pattern.
-  if (GameState.level === 2) {
-    // Position: stand body's right edge flush with canvas right (x=480),
-    // body bottom embedded _BELL_BASE_OFFSET_Y px below finish-platform top
-    // (sprite-y _BELL_BODY_BOTTOM_Y is last opaque row of the stand body).
-    // Ring (static hook on arm) is the bell pivot — each frame's rope-top pins
-    // to the ring's world position; bell body shifts laterally per frame.
-    // All offsets scale by _BELL_SCALE so animation alignment stays exact.
-    const standDrawX = canvas.width  - _BELL_BODY_RIGHT_X  * _BELL_SCALE;
-    const standDrawY = (poleBaseY + _BELL_BASE_OFFSET_Y) - _BELL_BODY_BOTTOM_Y * _BELL_SCALE;
-    const ringWX     = standDrawX + _BELL_RING_X * _BELL_SCALE;
-    const ringWY     = standDrawY + _BELL_RING_Y * _BELL_SCALE;
-
-    // Frame selection — simple variant 1: idle = mid, activating cycles L/M/R via sin.
-    let frameIdx = 1;
-    if (GameState.finishState === 'activating') {
-      const phase = Math.sin(t * 8); // -1..+1
-      frameIdx = phase < -0.33 ? 0 : phase < 0.33 ? 1 : 2;
-    }
-    const f = _BELL_FRAMES[frameIdx];
-
-    if (_bellStand.complete && _bellStand.naturalWidth > 0) {
-      ctx.drawImage(_bellStand,
-                    0, 0, _BELL_STAND_W, _BELL_STAND_H,
-                    Math.round(standDrawX), Math.round(standDrawY),
-                    Math.round(_BELL_STAND_W * _BELL_SCALE),
-                    Math.round(_BELL_STAND_H * _BELL_SCALE));
-    }
-    if (_bellSheet.complete && _bellSheet.naturalWidth > 0) {
-      ctx.drawImage(_bellSheet,
-                    f.sx, 0, f.sw, _BELL_SHEET_H,
-                    Math.round(ringWX - f.ropeTopX * _BELL_SCALE),
-                    Math.round(ringWY - f.ropeTopY * _BELL_SCALE),
-                    Math.round(f.sw          * _BELL_SCALE),
-                    Math.round(_BELL_SHEET_H * _BELL_SCALE));
-    }
-  } else if (GameState.level === 3) {
-    // L3 lever: 3-frame joystick sprite. Idle = mid; activating cycles L/M/R via sin
-    // (cat can pull from any side — animation is direction-agnostic). Native size.
-    // Sprite cx is FIXED to the saucer's left side (120) — finish platform is wide
-    // (whole saucer) so cx=ft.center would put the sprite at x=210 (middle), wrong spot.
-    const leverCx = 133;  // 13 px right of original (120)
-    let img = _leverMid;
-    if (GameState.finishState === 'activating') {
-      const phase = Math.sin(t * 8); // -1..+1
-      img = phase < -0.33 ? _leverLeft : phase < 0.33 ? _leverMid : _leverRight;
-    }
-    if (img.complete && img.naturalWidth > 0) {
-      const w = img.naturalWidth  * _LEVER_SCALE;
-      const h = img.naturalHeight * _LEVER_SCALE;
-      ctx.drawImage(img,
-                    Math.round(leverCx - w / 2),
-                    Math.round(poleBaseY - h + _LEVER_Y_OFFSET),
-                    Math.round(w), Math.round(h));
-    }
-  } else {
-    // L1: procedural pole + pinwheel
-    ctx.strokeStyle = '#888888';
-    ctx.lineWidth   = 3;
-    ctx.beginPath();
-    ctx.moveTo(cx, poleBaseY);
-    ctx.lineTo(cx, poleBaseY - 52);
-    ctx.stroke();
-    ctx.lineWidth = 1;
-
-    const pivotY = poleBaseY - 52;
-    ctx.save();
-    ctx.translate(cx, pivotY);
-
-    const spinRate = GameState.finishState === 'activating' ? 7 : 0.8;
-    ctx.rotate(t * spinRate);
-    const petalColors = ['#e74c3c', '#f1c40f', '#2ecc71', '#3498db'];
-    for (let i = 0; i < 4; i++) {
-      ctx.fillStyle = petalColors[i];
-      ctx.fillRect(0, -5, 18, 10);
-      ctx.rotate(Math.PI / 2);
-    }
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill();
-
-    ctx.restore();
-  }
-
-  // [Z] prompt — only shown when player is standing on the finish platform (idle state).
-  // Identity check via onPlatform.isFinish — consistent with trigger logic above.
-  if (GameState.finishState === 'idle') {
-    if (player.onGround && player.onPlatform?.isFinish) {
-      let promptY;
-      if (GameState.level === 2) {
-        promptY = (poleBaseY + _BELL_BASE_OFFSET_Y) - _BELL_BODY_BOTTOM_Y * _BELL_SCALE - 10;  // 10 px above stand top
-      } else if (GameState.level === 3 && _leverMid.complete && _leverMid.naturalWidth > 0) {
-        promptY = poleBaseY - _leverMid.naturalHeight * _LEVER_SCALE + _LEVER_Y_OFFSET - 10;  // 10 px above lever top
-      } else {
-        promptY = poleBaseY - 68;
-      }
-      const promptX = (GameState.level === 3) ? 133 : cx;  // L3: above lever sprite (left of saucer)
-      ctx.fillStyle = '#ffffff';
-      ctx.font      = '14px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('[Z]', promptX, promptY);
-      ctx.textAlign = 'left';
-    }
-  }
-}
 
 function renderHUD() {
   // ── Damage flash overlay — drawn first so it sits behind HUD text ──────────
@@ -658,18 +713,12 @@ function renderHUD() {
     ctx.font      = '36px monospace';
     ctx.fillText('SOGGY MOGGY', cx, 175);
 
-    ctx.font = '14px monospace';
-    ctx.fillStyle = '#cccccc';
-    ctx.fillText('A / D or Arrow keys — move', cx, 235);
-    ctx.fillText('Space or Left click — jump', cx, 257);
-    ctx.fillText('Z or Right click — action', cx, 279);
-
-    // Difficulty picker — vertical 3-option list, ↑↓ cycles
+    // Difficulty picker — vertical 3-option list, ↑↓ or click to select
     ctx.fillStyle = '#ffffff';
     ctx.font      = '18px monospace';
-    ctx.fillText('Difficulty', cx, 325);
+    ctx.fillText('Difficulty', cx, 270);
 
-    const optY0   = 360;
+    const optY0   = 310;
     const optStep = 32;
     for (let i = 0; i < DIFFICULTY_ORDER.length; i++) {
       const key      = DIFFICULTY_ORDER[i];
@@ -688,11 +737,16 @@ function renderHUD() {
 
     ctx.font = '12px monospace';
     ctx.fillStyle = '#666666';
-    ctx.fillText('↑↓ select difficulty', cx, 480);
+    ctx.fillText('↑↓ or click to select', cx, 430);
 
     ctx.font = '20px monospace';
     ctx.fillStyle = '#f1c40f';
-    ctx.fillText('ENTER or click to start', cx, 520);
+    ctx.fillText('ENTER or click to start', cx, 470);
+
+    // Audio settings link
+    ctx.font = '16px monospace';
+    ctx.fillStyle = '#5dade2';
+    ctx.fillText('Audio', cx, 510);
 
     ctx.font = '13px monospace';
     ctx.fillStyle = '#555555';
@@ -826,13 +880,14 @@ function renderHUD() {
 
     ctx.fillStyle = '#ffffff';
     ctx.font      = '36px monospace';
-    ctx.fillText('PAUSA', cx, 180);
+    ctx.fillText('PAUSED', cx, 155);
 
+    // Rows 0\u20133: action options
     const options = ['Continue', 'Restart Level', 'Restart Game', 'Main Menu'];
-    const optY0   = 270;
-    const optStep = 55;
+    const optY0   = 225;
+    const optStep = 45;
     options.forEach((label, i) => {
-      const y = optY0 + i * optStep;
+      const y        = optY0 + i * optStep;
       const selected = i === GameState.menuCursor;
       if (selected) {
         ctx.fillStyle = 'rgba(255,255,255,0.12)';
@@ -845,9 +900,111 @@ function renderHUD() {
       ctx.fillText((selected ? '\u25b6 ' : '  ') + label, cx, y);
     });
 
+    // Rows 4\u20135: audio controls (Music / SFX)
+    ['Music', 'SFX'].forEach((label, idx) => {
+      const row      = 4 + idx;
+      const y        = optY0 + row * optStep;
+      const selected = row === GameState.menuCursor;
+      const track    = idx === 0 ? GameState.audio.music : GameState.audio.sfx;
+
+      if (selected) {
+        ctx.fillStyle = 'rgba(255,255,255,0.12)';
+        ctx.fillRect(cx - 150, y - 22, 300, 32);
+      }
+
+      // Label
+      ctx.fillStyle = selected ? '#f1c40f' : '#888888';
+      ctx.font      = '16px monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText((selected ? '\u25b6 ' : '  ') + label, cx - 140, y);
+
+      // Volume bar (80 px wide)
+      const barX = cx - 48, barY = y - 10, barW = 80, barH = 13;
+      ctx.fillStyle = '#2c2c2c';
+      ctx.fillRect(barX, barY, barW, barH);
+      ctx.fillStyle = track.muted ? '#555555' : '#3498db';
+      ctx.fillRect(barX, barY, Math.round(barW * track.vol), barH);
+
+      // Percentage or MUTED label
+      ctx.fillStyle = selected ? '#f1c40f' : '#888888';
+      ctx.font      = '12px monospace';
+      ctx.fillText(track.muted ? 'MUTED' : Math.round(track.vol * 100) + '%', cx + 40, y);
+
+      ctx.textAlign = 'center'; // restore for next pass
+    });
+
     ctx.fillStyle = '#555555';
-    ctx.font      = '13px monospace';
-    ctx.fillText('ESC resume   \u2191\u2193 navigate   ENTER confirm', cx, 510);
+    ctx.font      = '12px monospace';
+    ctx.fillText('ESC resume  \u2191\u2193 navigate  ENTER confirm', cx, 563);
+    ctx.fillText('\u2190\u2192 volume  Space mute  (rows 5\u20136)', cx, 579);
+
+    ctx.textAlign = 'left';
+  }
+
+  // ── AUDIO MENU screen (opened from Start screen) ─────────────────────────
+  if (GameState.phase === GamePhase.AUDIO_MENU) {
+    const cx = canvas.width / 2;
+
+    ctx.fillStyle = 'rgba(0,0,0,0.72)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.textAlign = 'center';
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font      = '30px monospace';
+    ctx.fillText('AUDIO', cx, 180);
+
+    // Rows 0 (Music) and 1 (SFX)
+    const audioRows = [
+      { label: 'Music', track: GameState.audio.music },
+      { label: 'SFX',   track: GameState.audio.sfx   },
+    ];
+    const rowY0 = 280, rowStep = 70;
+    audioRows.forEach(({ label, track }, idx) => {
+      const y        = rowY0 + idx * rowStep;
+      const selected = idx === GameState.menuCursor;
+
+      if (selected) {
+        ctx.fillStyle = 'rgba(255,255,255,0.12)';
+        ctx.fillRect(cx - 160, y - 28, 320, 42);
+      }
+
+      // Label
+      ctx.fillStyle = selected ? '#f1c40f' : '#aaaaaa';
+      ctx.font      = '18px monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText((selected ? '▶ ' : '  ') + label, cx - 150, y);
+
+      // Volume bar (90 px wide)
+      const barX = cx - 50, barY = y - 14, barW = 90, barH = 16;
+      ctx.fillStyle = '#2c2c2c';
+      ctx.fillRect(barX, barY, barW, barH);
+      ctx.fillStyle = track.muted ? '#555555' : '#3498db';
+      ctx.fillRect(barX, barY, Math.round(barW * track.vol), barH);
+
+      // Percentage or MUTED label
+      ctx.fillStyle = selected ? '#f1c40f' : '#aaaaaa';
+      ctx.font      = '14px monospace';
+      ctx.fillText(track.muted ? 'MUTED' : Math.round(track.vol * 100) + '%', cx + 50, y);
+
+      ctx.textAlign = 'center'; // restore
+    });
+
+    // Row 2: Back
+    const backY        = rowY0 + 2 * rowStep;
+    const backSelected = GameState.menuCursor === 2;
+    if (backSelected) {
+      ctx.fillStyle = 'rgba(255,255,255,0.12)';
+      ctx.fillRect(cx - 80, backY - 22, 160, 30);
+      ctx.fillStyle = '#f1c40f';
+    } else {
+      ctx.fillStyle = '#888888';
+    }
+    ctx.font = '18px monospace';
+    ctx.fillText((backSelected ? '▶ ' : '  ') + 'Back', cx, backY);
+
+    ctx.fillStyle = '#555555';
+    ctx.font      = '12px monospace';
+    ctx.fillText('←→ volume  Space mute  ESC / Back to return', cx, 530);
 
     ctx.textAlign = 'left';
   }

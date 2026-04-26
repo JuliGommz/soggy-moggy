@@ -239,28 +239,36 @@ const _TITLE_LINE_SCALES = {
 const _BODY_PX_OVERRIDE = {
   l1_outro: 24,
   l2_intro: 21,
-  l2_outro: 28,
+  l2_outro: 25,
   l3_outro: 24,
+};
+
+// Per-key per-line body font size overrides (array indexed by line).
+// Missing indices fall back to the key's BODY_PX. Only set for keys that need mixed line sizes.
+const _BODY_LINE_PX_OVERRIDE = {
+  l3_intro: [23, 20], // HIGH TIDE 15% bigger; 'Keep away from the Sea' stays at default 20px
 };
 
 // Per-key body Y offset (px, applied after centering — negative = higher).
 // Fine-tune only. Primary centering is driven by interiorTop/interiorH.
 const _BODY_Y_OFFSET = {
-  l1_outro: -30,
+  l1_intro: 5,
+  l1_outro: 5,
   l2_intro: -9,
-  l2_outro: -14,
+  l2_outro: 16,
   l3_outro: -17,
 };
 
 // Per-key bubble Y offset (px, positive = lower on screen).
 const _BUBBLE_Y_OFFSET = {
   l2_intro: 52,
-  l2_outro: -80,
-  l3_outro: 90,
+  l2_outro: 10,
+  l3_outro: 190,
 };
 
 // Per-key bubble X offset (px, positive = right, negative = left).
 const _BUBBLE_X_OFFSET = {
+  l1_outro: -35,
   l2_outro: -80,
   l3_outro: -110,
 };
@@ -277,9 +285,9 @@ const _INTRO_TAIL_DOWN = new Set(['l2_intro']);
 // Per-bubble text content. Title = YELLOW_FONT uppercase.
 // Body = BlockCraft regular case (mixed-case preserved as-is).
 const _DIALOGUE_TEXT = {
-  l1_intro:    { title: 'CITY ALERT!',  body: 'Pollution Levels critical.\nGet to Safety!' },
+  l1_intro:    { title: 'CITY ALERT!',  body: 'Pollution Levels critical.\nGET TO SAFETY!' },
   l2_intro:    { title: 'ATTENTION!',   body: 'Elevator out of service.\nSTAY CALM!' },
-  l3_intro:    { title: 'WARNING!',     body: 'High Tide\nKeep away from the Sea' },
+  l3_intro:    { title: 'WARNING!',     body: 'HIGH TIDE\nKeep away from the Sea' },
   l1_outro:    { title: 'NINE LIVES...\nREALLY?!', body: 'Cough... Cough...' },
   l2_outro:    { title: 'PHEW!',        body: 'Saved by\nthe Bell!' },
   l3_outro:    { title: 'MEOW MEOW!',   body: 'Mommy!\nMOMMY!!!' },
@@ -469,6 +477,18 @@ function renderDialogue(ctx) {
     ctx.transform(-1, 0, 0, -1, 0, 0);
     ctx.drawImage(img, -(bx + bw), -(by + bh), bw, bh);
     ctx.restore();
+  } else if (_active.bubbleKey === 'l1_outro') {
+    // l1_outro INDEPENDENT path — H-mirror + V-flip combined.
+    ctx.save();
+    ctx.transform(-1, 0, 0, -1, 0, 0);
+    ctx.drawImage(img, -(bx + bw), -(by + bh), bw, bh);
+    ctx.restore();
+  } else if (_active.bubbleKey === 'l2_outro') {
+    // l2_outro INDEPENDENT path — H-mirror + V-flip combined.
+    ctx.save();
+    ctx.transform(-1, 0, 0, -1, 0, 0);
+    ctx.drawImage(img, -(bx + bw), -(by + bh), bw, bh);
+    ctx.restore();
   } else if (isOutro) {
     // Outro: vertical flip (tail at top-left of PNG → bottom-left after V-flip,
     // since the prior horizontal flip was removed). Mirroring in both axes from
@@ -547,11 +567,23 @@ function renderDialogue(ctx) {
       const interiorTop = isBurst ? by + 52 : (isOutro ? by      : (tailDown ? by + 6 : by + 32));
       const interiorH   = isBurst ? bh - 80 : (isOutro ? bh      : (tailDown ? bh - 20 : bh - 36));
       const lineH       = Math.round(BODY_PX * 1.2);
-      const lines       = text.body.split('\n').length;
-      const blockH      = lines * lineH;
+      const bodyLines   = text.body.split('\n');
+      const linePxArr   = _BODY_LINE_PX_OVERRIDE[_active.bubbleKey];
+      const blockH      = linePxArr
+        ? bodyLines.reduce((s, _, i) => s + Math.round((linePxArr[i] ?? BODY_PX) * 1.2), 0)
+        : bodyLines.length * lineH;
       const bodyY       = interiorTop + Math.max(0, Math.round((interiorH - blockH) / 2))
                         + (_BODY_Y_OFFSET[_active.bubbleKey] ?? 0);
-      drawBodyText(ctx, text.body, bodyX, bodyY, BODY_PX, '#111', bodyMaxW);
+      if (linePxArr) {
+        let curY = bodyY;
+        for (let i = 0; i < bodyLines.length; i++) {
+          const px = linePxArr[i] ?? BODY_PX;
+          drawBodyText(ctx, bodyLines[i], bodyX, curY, px, '#111', bodyMaxW);
+          curY += Math.round(px * 1.2);
+        }
+      } else {
+        drawBodyText(ctx, text.body, bodyX, bodyY, BODY_PX, '#111', bodyMaxW);
+      }
     }
   }
 

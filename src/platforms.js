@@ -195,6 +195,10 @@ const L3_CRUMBLE_HOLD_MS  =  500;
 const CLOUD_SINK_SPEED  = 40;  // px/s — sinks while cat stands on it
 const CLOUD_RISE_SPEED  = 20;  // px/s — floats back to rest when cat leaves
 const CLOUD_SINK_MAX    = 60;  // px  — max drop below baseY; must stay < GAP_PX − player.h − PLATFORM_H (76px)
+// L3 cloud horizontal drift base — actual speed = base * DIFFICULTY[..].cloudDriftMul.
+// Adventurer = 20 px/s, Explorer = 0 (off), Enlightened = 35 px/s. Drift freezes while cat rides
+// the cloud (catOnTop===true) and wraps around canvas edges (480 px) only when cat is not on top.
+const CLOUD_DRIFT_BASE_PXS = 20;
 const LEVEL_BASE_HEIGHT = 5000; // px for level 1; scales per level
 const PLAYER_START_Y   = 528;  // must match resetPlayer() in player.js
 
@@ -328,8 +332,10 @@ function generateLevelPlatforms(level) {
     // x positions alternate left/right of the cap body (x≈150–330) to avoid clipping the art.
     const _bridgeVariant = () =>
       (_CLOUD_VARIANTS.length > 0) ? Math.floor(Math.random() * _CLOUD_VARIANTS.length) : 0;
-    platforms.push({ x: 330, y: -4032, w: 100, h: PLATFORM_H, type: 'cloud-sink', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false, cloudVariant: _bridgeVariant() });
-    platforms.push({ x:  50, y: -4152, w: 100, h: PLATFORM_H, type: 'cloud-sink', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false, cloudVariant: _bridgeVariant() });
+    // driftDir: bridge 1 starts right (x=330) → drifts left; bridge 2 starts left (x=50) → drifts right.
+    // Speed scales with DIFFICULTY[..].cloudDriftMul; Explorer = 0 keeps bridges static.
+    platforms.push({ x: 330, y: -4032, w: 100, h: PLATFORM_H, type: 'cloud-sink', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false, cloudVariant: _bridgeVariant(), driftDir: -1, catOnTop: false });
+    platforms.push({ x:  50, y: -4152, w: 100, h: PLATFORM_H, type: 'cloud-sink', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false, cloudVariant: _bridgeVariant(), driftDir: +1, catOnTop: false });
     // Bridge 3 (was at y=-4272, x=320) removed — too close to the saucer collider.
     // Bridge 4 (was at y=-4392) removed — sat above the saucer collider.
     // Cat reaches saucer directly from Bridge 2 / procedural clouds below.
@@ -340,12 +346,10 @@ function generateLevelPlatforms(level) {
     // platform block. goalY stays at −4008 for hazard-cap / tile-count math.
   }
 
-  // Finish platform — the interactive finish object (pinwheel / bell / lever) is rendered on top.
+  // Finish platform — marks the level goal area.
   // L1: sits on the roof surface (levelGoalY − 35), visible, right side.
   // L2: invisible, at levelGoalY, right side — bell-stand sprite covers the same x-range visually.
-  // L3: FINISH covers the entire LH-Saucer (cap row 272), w=295 at x=93..388 — cat can press Z
-  //     anywhere on the saucer (any-side rule). Lever sprite is rendered at fixed cx=133 (left
-  //     side of saucer) via a per-level override in _renderFinishTrigger.
+  // L3: covers the entire LH-Saucer (cap row 272), w=295 at x=93..388.
   const FIN_W  = (level === 3) ? 295 : 100;
   const finX   = (level === 3) ? 93  : 480 - 100 - 20;
   const finY   = (level === 1) ? Math.floor(GameState.levelGoalY) - 35
@@ -359,7 +363,6 @@ function generateLevelPlatforms(level) {
     invisible: !finVis,
     isFinish: true,
   });
-  GameState.finishTrigger = { x: finX, y: finY, w: FIN_W, h: PLATFORM_H };
 
   // Level 1: invisible collider for the building roof top surface.
   // Roof drawn at levelGoalY - 56; building_roof.png content starts at y=21 (PIL scan)
@@ -561,6 +564,9 @@ function generateLevelPlatforms(level) {
       baseY:        sinks ? floorY : undefined,
       catOnTop:     sinks ? false  : undefined,
       cloudVariant: (level === 3) ? cloudVariant : undefined,
+      // Procedural L3 clouds (sink + crumble) drift horizontally on Adventurer/Enlightened.
+      // Random ±1 direction per cloud; Explorer disables drift via cloudDriftMul=0.
+      driftDir:     (level === 3 && sinks) ? (Math.random() < 0.5 ? -1 : +1) : undefined,
     });
     // Windows on every platform — loop only reaches here for i≥3 odd slots.
     if (level === 1) windowFloors.push({ y: floorY, winVariants: wv });
@@ -605,8 +611,9 @@ function checkPlatformCollisions() {
         else if (p.state === 'cracked') { p.state = 'crumbling'; p.crumbleTimer = 0; }
       }
 
-      // Sinking cloud (any type with a baseY): mark as loaded this frame
-      if (p.baseY !== undefined) p.catOnTop = true;
+      // Sinking cloud (baseY) OR drifting cloud (driftDir): mark as loaded this frame.
+      // Drift-only clouds (e.g. L3 bridges) freeze drift while cat rides them.
+      if (p.baseY !== undefined || p.driftDir !== undefined) p.catOnTop = true;
     }
   }
 }
@@ -637,6 +644,21 @@ function updatePlatforms(dt) {
         p.y = Math.max(p.baseY, p.y - CLOUD_RISE_SPEED * dt);  // float back, clamp at rest
       }
       p.catOnTop = false;  // reset — collision system sets it true again next frame if still contact
+    }
+
+    // Cloud horizontal drift (L3 only — driftDir is set on bridges + procedural cloud-sink/crumble).
+    // Speed = CLOUD_DRIFT_BASE_PXS × DIFFICULTY[..].cloudDriftMul. Explorer (mul=0) skips drift entirely.
+    // Drift freezes while cat rides the cloud (catOnTop). Wraps around canvas edges (480 px) only when
+    // catOnTop is false, so the player is never teleported across the screen.
+    if (p.driftDir !== undefined) {
+      const driftMul = DIFFICULTY[GameState.difficulty]?.cloudDriftMul ?? 1;
+      if (!p.catOnTop && driftMul > 0) {
+        p.x += p.driftDir * CLOUD_DRIFT_BASE_PXS * driftMul * dt;
+        if      (p.x + p.w < 0) p.x = 480;        // off left  → reappear right
+        else if (p.x       > 480) p.x = -p.w;     // off right → reappear left
+      }
+      // Bridges have driftDir but NO baseY — the sink/rise block above didn't reset catOnTop for them.
+      if (p.baseY === undefined) p.catOnTop = false;
     }
 
     if (p.type === 'crumble') {

@@ -6,7 +6,7 @@
 * Course: PRG Abschlussprojekt — SRH Fachschulen
 * Developer: Julian Gomez
 * Date: 2026-03-04
-* Version: 1.3 - countdownTimer: 3s danger banner before hazard activates each level
+* Version: 1.4 - AUDIO_MENU phase + GameState.audio (music/sfx vol+mute)
 *
 * AUTHORSHIP CLASSIFICATION:
 *
@@ -38,17 +38,19 @@ const GamePhase = Object.freeze({
   LEVEL_INTRO:    'level_intro',    // bubble shown before each level begins
   PLAYING:        'playing',
   PAUSED:         'paused',
+  AUDIO_MENU:     'audio_menu',     // standalone audio settings (opened from Start screen)
   LEVEL_OUTRO:    'level_outro',    // bubble shown after finish-trigger, before LEVEL_COMPLETE menu
   LEVEL_COMPLETE: 'level_complete',
   GAMEOVER:       'gameover',
 });
 
 // Global difficulty multipliers — read once at run start in resetGame, frozen per run.
-// hazardMul scales hazard.speed in resetHazard; waspMul scales _WASP_COUNT[level] in spawnEnemies.
+// hazardMul scales hazard.speed in resetHazard; waspMul scales _WASP_COUNT[level] in spawnEnemies;
+// cloudDriftMul scales CLOUD_DRIFT_BASE_PXS in updatePlatforms (L3 only). 0 disables drift entirely.
 const DIFFICULTY = Object.freeze({
-  explorer:    { hazardMul: 0.80, waspMul: 0.60, lives: 5, label: 'Explorer'    },
-  adventurer:  { hazardMul: 1.00, waspMul: 1.00, lives: 3, label: 'Adventurer'  },
-  enlightened: { hazardMul: 1.25, waspMul: 1.30, lives: 2, label: 'Enlightened' },
+  explorer:    { hazardMul: 0.80, waspMul: 0.60, cloudDriftMul: 0.00, lives: 5, label: 'Explorer'    },
+  adventurer:  { hazardMul: 1.00, waspMul: 1.00, cloudDriftMul: 0.80, lives: 3, label: 'Adventurer'  },
+  enlightened: { hazardMul: 1.25, waspMul: 1.30, cloudDriftMul: 1.40, lives: 2, label: 'Enlightened' },
 });
 const DIFFICULTY_ORDER = ['explorer', 'adventurer', 'enlightened'];
 
@@ -66,10 +68,11 @@ const GameState = {
   killBonus:        0,    // accumulated points from stomping wasps (+50 per kill)
   clearBonus:       0,    // +200 if all wasps in the level were defeated; 0 otherwise
   countdownTimer:   0,    // seconds remaining before hazard activates; 0 = hazard active
-  menuCursor:       0,    // selected option index on PAUSED / LEVEL_COMPLETE screens
-  finishState:      'idle',  // 'idle' | 'activating' | 'done'
-  finishAnimTimer:  0,        // seconds remaining during finish activation animation
-  finishTrigger:    null,     // { x, y, w, h } — set by generateLevelPlatforms()
+  menuCursor:       0,    // selected option index on PAUSED / AUDIO_MENU / LEVEL_COMPLETE screens
+  audio: {
+    music: { vol: 0.7, muted: false },  // music volume 0–1; muted = silence without losing vol level
+    sfx:   { vol: 0.8, muted: false },  // sfx volume 0–1
+  },
 };
 
 function resetGame(startLevel = 1) {
@@ -83,10 +86,8 @@ function resetGame(startLevel = 1) {
   GameState.level            = startLevel;
   GameState.countdownTimer   = 3;   // 3s danger countdown before hazard activates
   GameState.menuCursor       = 0;
-  GameState.finishState      = 'idle';
-  GameState.finishAnimTimer  = 0;
   // highScore is intentionally NOT reset — it persists across full game resets
-  // levelGoalY and finishTrigger are NOT reset here — set by generateLevelPlatforms() inside resetPlatforms()
+  // levelGoalY is NOT reset here — set by generateLevelPlatforms() inside resetPlatforms()
   resetPlayer();
   resetPlatforms(); // Phase 2: defined in platforms.js (loaded after game-state.js — safe at runtime)
   resetEnemies();   // clear enemy state before spawnEnemies() runs in main.js
@@ -103,11 +104,9 @@ function startNextLevel() {
   GameState.phase            = GamePhase.PLAYING;
   GameState.countdownTimer   = 3;   // fresh 3s countdown for each new level
   GameState.menuCursor       = 0;
-  GameState.finishState      = 'idle';
-  GameState.finishAnimTimer  = 0;
   // GameState.lives is intentionally NOT reset — lives persist across levels
   resetPlayer();
-  resetPlatforms(); // also sets GameState.levelGoalY and finishTrigger for the new level
+  resetPlatforms(); // also sets GameState.levelGoalY for the new level
   resetEnemies();
   resetHazard(GameState.level); // reset hazard for new level; higher level = faster/harder
 }
@@ -122,8 +121,6 @@ function restartLevel() {
   GameState.phase            = GamePhase.PLAYING;
   GameState.countdownTimer   = 3;
   GameState.menuCursor       = 0;
-  GameState.finishState      = 'idle';
-  GameState.finishAnimTimer  = 0;
   // GameState.level and GameState.lives intentionally NOT changed
   resetPlayer();
   resetPlatforms();
