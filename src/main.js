@@ -113,6 +113,7 @@ function updateBalloon(dt) {
   if (overlapX && overlapY) {
     if (GameState.lives < 9) GameState.lives += 1;
     _balloon.active = false;
+    if (typeof playSound === 'function') playSound('balloon_collect');
   }
 }
 
@@ -142,14 +143,21 @@ const _LEVER_FRAMES = () => [_leverLeft, _leverMid, _leverRight, _leverMid]; // 
 const _OUTRO_REACH_PAD   = 35;            // px around hitbox; paw must overlap (hb + pad)
 const _OUTRO_GLOW_COLOR  = '#ff00ff';     // magenta — same shadowColor technique as HUD lives
 const _OUTRO_GLOW_PERIOD = 1.2;           // s per pulse cycle
-let   _outroTime         = 0;             // accumulator for sin pulsing
-let   _windradAngle      = 0;             // L1 pinwheel rotation in radians (variable speed)
-let   _outroActivated    = false;         // true while L1 windrad is spinning before LEVEL_OUTRO
+let   _outroTime          = 0;            // accumulator for sin pulsing (glow effect)
+let   _windradAngle       = 0;            // L1 pinwheel rotation in radians (variable speed)
+let   _outroActivated     = false;        // true while activation delay runs before LEVEL_OUTRO
 let   _outroActivateTimer = 0;            // countdown to LEVEL_OUTRO after activation
+// L2 bell — independent swing timer so phase always starts at 0 on activation
+const _BELL_SWING_FREQ    = 8;            // rad/s — reduce to slow bell down (try 5 or 6 if too fast)
+const _DRAIN_SPEED        = 200;          // px/s — L3 flood sinks at this rate during outro activation
+let   _bellSwingTime      = 0;            // elapsed time since bell was activated
+let   _bellLastSign       = 0;            // last Math.sign of sin — detects direction change
 
 function resetOutroTrigger() {
-  _outroActivated    = false;
+  _outroActivated     = false;
   _outroActivateTimer = 0;
+  _bellSwingTime      = 0;
+  _bellLastSign       = 0;
 }
 
 // Per-level placement + hitbox. World coordinates.
@@ -234,7 +242,7 @@ function updateOutroTrigger(dt) {
     _windradAngle   += spinSpeed * dt;
   }
 
-  // L1 activation: tick timer, fire LEVEL_OUTRO when done
+  // Activation: tick timer, fire LEVEL_OUTRO when done
   if (_outroActivated) {
     _outroActivateTimer = Math.max(0, _outroActivateTimer - dt);
     if (_outroActivateTimer <= 0) {
@@ -242,6 +250,24 @@ function updateOutroTrigger(dt) {
       GameState.phase = GamePhase.LEVEL_OUTRO;
       showLevelEnd(GameState.level);
     }
+
+    // L2 bell: tick swing time and ring once on each direction reversal
+    if (GameState.level === 2) {
+      _bellSwingTime += dt;
+      const sinNow  = Math.sin(_bellSwingTime * _BELL_SWING_FREQ);
+      const signNow = sinNow > 0 ? 1 : sinNow < 0 ? -1 : 0;
+      if (signNow !== 0 && _bellLastSign !== 0 && signNow !== _bellLastSign) {
+        if (typeof playSound === 'function') playSound('bell');
+      }
+      if (signNow !== 0) _bellLastSign = signNow;
+    }
+
+    // L3 flood drain: push flood surface down at _DRAIN_SPEED px/s so water visually sinks
+    // while the drain sound plays. Cap well below screen bottom to prevent runaway.
+    if (GameState.level === 3) {
+      hazard.y = Math.min(hazard.y + _DRAIN_SPEED * dt, GameState.cameraY + 900);
+    }
+
     return;
   }
 
@@ -250,8 +276,13 @@ function updateOutroTrigger(dt) {
   keys.push = false;
 
   // All levels: 2.5s activation delay before LEVEL_OUTRO
-  _outroActivated    = true;
+  _outroActivated     = true;
   _outroActivateTimer = 2.5;
+  // Per-level outro trigger SFX (L2 bell rings via swing sync above, not here)
+  if (typeof playSound === 'function') {
+    if (GameState.level === 1) playSound('windrad');
+    else if (GameState.level === 3) playSound('water_drain');
+  }
 }
 
 function _drawOutroSprite(ctx, drawFn, glow) {
@@ -316,7 +347,7 @@ function renderOutroTrigger(ctx) {
       // Pivot at top-center of the bell frame — stays fixed, body swings below.
       const pivotX  = bellDX + Math.floor(frameW / 2);
       const pivotY  = bellDY;
-      const swing   = _outroActivated ? Math.sin(_outroTime * 8) * 0.22 : 0;
+      const swing   = _outroActivated ? Math.sin(_bellSwingTime * _BELL_SWING_FREQ) * 0.22 : 0;
       _drawOutroSprite(ctx, () => {
         ctx.save();
         ctx.translate(pivotX, pivotY);
@@ -358,8 +389,45 @@ let _prevPhase = null;
 function _onPhaseChange(prev, next) {
   if (next === GamePhase.START) {
     if (typeof window.mountStartScreen === 'function') window.mountStartScreen();
+    if (typeof playMusic === 'function') playMusic('music_start');
   } else if (prev === GamePhase.START) {
     if (typeof window.unmountStartScreen === 'function') window.unmountStartScreen();
+  }
+  if (next === GamePhase.LEVEL_INTRO) {
+    if (typeof playSound === 'function') playSound('countdown_tick');
+  }
+  if (prev === GamePhase.LEVEL_INTRO && next === GamePhase.PLAYING) {
+    const musicKey = ['music_l1', 'music_l2', 'music_l3'][GameState.level - 1] || 'music_l1';
+    if (typeof playMusic === 'function') playMusic(musicKey);
+  }
+  if (next === GamePhase.GAMEOVER) {
+    if (typeof stopAllSfx === 'function') stopAllSfx();
+    if (typeof stopMusic  === 'function') stopMusic();
+    if (typeof playSound  === 'function') playSound('game_over');
+    if (typeof window.mountGameOverScreen === 'function') window.mountGameOverScreen();
+  }
+  if (prev === GamePhase.GAMEOVER) {
+    if (typeof window.unmountGameOverScreen === 'function') window.unmountGameOverScreen();
+  }
+  if (next === GamePhase.LEVEL_COMPLETE) {
+    if (typeof playSound === 'function') playSound('level_complete');
+    if (GameState.level === 3) {
+      const total = Math.floor(GameState.score) + Math.floor(GameState.killBonus) + GameState.clearBonus;
+      if (typeof saveHighScore === 'function') saveHighScore(total);
+      if (typeof window.mountSuccessScreen === 'function') window.mountSuccessScreen();
+    }
+  }
+  if (prev === GamePhase.LEVEL_COMPLETE) {
+    if (typeof window.unmountSuccessScreen === 'function') window.unmountSuccessScreen();
+  }
+  if (next === GamePhase.LEVEL_OUTRO) {
+    if (typeof fadeOutMusic  === 'function') fadeOutMusic(1200);
+    if (GameState.level === 1 && typeof playSound === 'function') playSound('l1_outro_bubble');
+    if (GameState.level === 2 && typeof playSound === 'function') playSound('l2_outro_bubble');
+    if (GameState.level === 3 && typeof playSound === 'function') playSound('l3_outro_bubble');
+  }
+  if (prev === GamePhase.PLAYING) {
+    if (typeof stopWaspBuzz === 'function') stopWaspBuzz();
   }
 }
 
@@ -410,8 +478,8 @@ function update(dt) {
 
     case GamePhase.DEV_SELECT:
       if (keys.escape) { keys.escape = false; GameState.phase = GamePhase.START; break; }
-      if (keys.menuUp)   { keys.menuUp   = false; GameState.devCursor = GameState.devCursor > 1 ? GameState.devCursor - 1 : 3; }
-      if (keys.menuDown) { keys.menuDown = false; GameState.devCursor = GameState.devCursor < 3 ? GameState.devCursor + 1 : 1; }
+      if (keys.menuUp)   { keys.menuUp   = false; GameState.devCursor = GameState.devCursor > 1 ? GameState.devCursor - 1 : 3; if (typeof playSound === 'function') playSound('menu_click'); }
+      if (keys.menuDown) { keys.menuDown = false; GameState.devCursor = GameState.devCursor < 3 ? GameState.devCursor + 1 : 1; if (typeof playSound === 'function') playSound('menu_click'); }
       if (keys.enter) {
         keys.enter = false;
         resetGame(GameState.devCursor);
@@ -503,9 +571,19 @@ function update(dt) {
       updatePlayer(dt);
       updatePlatforms(dt);
       checkPlatformCollisions();
+      // Land sound: detect onGround transition (false → true) after collision check
+      if (!player.prevOnGround && player.onGround) {
+        if (typeof playSound === 'function') playSound('land');
+      }
       updateCamera();
       updateBalloon(dt);
       updateEnemies(dt);
+      if (typeof updateWaspBuzz === 'function') {
+        const _nd = (typeof getNearestWaspDist === 'function')
+          ? getNearestWaspDist(player.x + player.w * 0.5, player.y + player.h * 0.5)
+          : null;
+        updateWaspBuzz(_nd);
+      }
       updateOutroTrigger(dt);
 
       // Score: height climbed this level (pixels above spawn point)
@@ -522,7 +600,7 @@ function update(dt) {
         }
       }
 
-      // Countdown: tick down; hazard only activates once timer expires
+      // Countdown: tick down; hazard only activates once timer expires.
       if (GameState.countdownTimer > 0) {
         GameState.countdownTimer = Math.max(0, GameState.countdownTimer - dt);
       } else {
@@ -533,8 +611,8 @@ function update(dt) {
     case GamePhase.PAUSED:
       // ESC = resume immediately
       if (keys.escape) { keys.escape = false; GameState.phase = GamePhase.PLAYING; break; }
-      if (keys.menuUp)   { keys.menuUp   = false; GameState.menuCursor = (GameState.menuCursor + 5) % 6; }
-      if (keys.menuDown) { keys.menuDown = false; GameState.menuCursor = (GameState.menuCursor + 1) % 6; }
+      if (keys.menuUp)   { keys.menuUp   = false; GameState.menuCursor = (GameState.menuCursor + 5) % 6; if (typeof playSound === 'function') playSound('menu_click'); }
+      if (keys.menuDown) { keys.menuDown = false; GameState.menuCursor = (GameState.menuCursor + 1) % 6; if (typeof playSound === 'function') playSound('menu_click'); }
       // Rows 4 (Music) and 5 (SFX): ←→ adjust volume, Space toggle mute
       if (GameState.menuCursor >= 4) {
         const track = GameState.menuCursor === 4 ? GameState.audio.music : GameState.audio.sfx;
@@ -559,8 +637,8 @@ function update(dt) {
     case GamePhase.AUDIO_MENU:
       // ESC or Back row (cursor 2) → return to Start screen
       if (keys.escape) { keys.escape = false; GameState.menuCursor = 0; GameState.phase = GamePhase.START; break; }
-      if (keys.menuUp)   { keys.menuUp   = false; GameState.menuCursor = (GameState.menuCursor + 2) % 3; }
-      if (keys.menuDown) { keys.menuDown = false; GameState.menuCursor = (GameState.menuCursor + 1) % 3; }
+      if (keys.menuUp)   { keys.menuUp   = false; GameState.menuCursor = (GameState.menuCursor + 2) % 3; if (typeof playSound === 'function') playSound('menu_click'); }
+      if (keys.menuDown) { keys.menuDown = false; GameState.menuCursor = (GameState.menuCursor + 1) % 3; if (typeof playSound === 'function') playSound('menu_click'); }
       // Rows 0 (Music) and 1 (SFX): ←→ adjust volume, Space toggle mute
       if (GameState.menuCursor <= 1) {
         const track = GameState.menuCursor === 0 ? GameState.audio.music : GameState.audio.sfx;
@@ -575,8 +653,9 @@ function update(dt) {
       break;
 
     case GamePhase.LEVEL_COMPLETE:
-      if (keys.menuUp)   { keys.menuUp   = false; GameState.menuCursor = (GameState.menuCursor + 3) % 4; }
-      if (keys.menuDown) { keys.menuDown = false; GameState.menuCursor = (GameState.menuCursor + 1) % 4; }
+      if (GameState.level === 3) break; // handled by success-screen.js React overlay
+      if (keys.menuUp)   { keys.menuUp   = false; GameState.menuCursor = (GameState.menuCursor + 3) % 4; if (typeof playSound === 'function') playSound('menu_click'); }
+      if (keys.menuDown) { keys.menuDown = false; GameState.menuCursor = (GameState.menuCursor + 1) % 4; if (typeof playSound === 'function') playSound('menu_click'); }
       if (keys.enter) {
         keys.enter = false;
         switch (GameState.menuCursor) {
@@ -673,17 +752,19 @@ function render() {
     ctx.textAlign = 'left'; // reset
   }
 
-  // 8. Dialogue overlay — drawn LAST so bubbles sit on top of HUD + world
+  // 8. Intro countdown mask — drawn before dialogue so bubble sits on top of darkening
+  if (GameState.phase === GamePhase.LEVEL_INTRO && GameState.introTimer > 0) {
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // 9. Dialogue overlay — on top of mask, below countdown number
   renderDialogue(ctx);
 
-  // 9. Intro countdown — countdown number only, no title (bubble already shows level context)
+  // 10. Intro countdown number — drawn last so it sits above the dialogue bubble
   if (GameState.phase === GamePhase.LEVEL_INTRO && GameState.introTimer > 0) {
     const countNum = Math.ceil(GameState.introTimer); // 3 → 2 → 1
     const cx = canvas.width / 2;
-    // Full-canvas alpha overlay during countdown
-    ctx.fillStyle = 'rgba(0,0,0,0.25)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    // Yellow pixel-art bitmap font (same atlas as bubble titles)
     const _CDN_SCALE = 0.675; // 147px source glyph × 0.675 ≈ 99px drawn height
     const numStr = String(countNum);
     const numW   = measureYellowText(numStr, _CDN_SCALE);
@@ -800,8 +881,8 @@ function renderHUD() {
     ctx.textAlign = 'left';
   }
 
-  // ── LEVEL COMPLETE screen ─────────────────────────────────────────────────
-  if (GameState.phase === GamePhase.LEVEL_COMPLETE) {
+  // ── LEVEL COMPLETE screen (L1 + L2 only — L3 handled by success-screen.js) ─
+  if (GameState.phase === GamePhase.LEVEL_COMPLETE && GameState.level < 3) {
     const LEVEL_NAMES = ['', 'City', 'Elevator Shaft', 'Open Sea', 'Amusement Park'];
     const cx = canvas.width / 2;
 
@@ -1015,27 +1096,8 @@ function renderHUD() {
   }
 
   // ── GAME OVER screen ──────────────────────────────────────────────────────
-  if (GameState.phase === GamePhase.GAMEOVER) {
-    ctx.fillStyle = 'rgba(0,0,0,0.55)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.textAlign = 'center';
-
-    ctx.fillStyle = '#e74c3c';
-    ctx.font      = '32px monospace';
-    ctx.fillText('GAME OVER', canvas.width / 2, 220);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font      = '20px monospace';
-    ctx.fillText('Score: ' + Math.floor(GameState.score) + ' pts', canvas.width / 2, 290);
-    ctx.fillText('Best:  ' + Math.floor(GameState.highScore) + ' pts', canvas.width / 2, 320);
-
-    ctx.font = '16px monospace';
-    ctx.fillStyle = '#f1c40f';
-    ctx.fillText('Press ENTER to return to start', canvas.width / 2, 400);
-
-    ctx.textAlign = 'left';
-  }
+  // Handled by the React DOM overlay in src/gameover-screen.js.
+  // See window.mountGameOverScreen() / unmountGameOverScreen().
 }
 
 // ── Camera ───────────────────────────────────────────────────────────────────

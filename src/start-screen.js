@@ -28,7 +28,7 @@
 *
 * SECTION MAP (search for §-marker to jump):
 *   § 1  Palette + font constants (PAL, PIXEL, PIXEL_BLOCK)
-*   § 2  Primitives (PixelBtn, VolumeSlider, ChunkyWord, MoggyTitle)
+*   § 2  Primitives (PixelBtn, VolumeSlider, MoggyTitle)
 *   § 3  Difficulty + Audio panels (DifficultyColumn, AudioFlatRow)
 *   § 4  FlatLayoutB main layout (DEV chip, HI-SCORE, START, panels)
 *   § 5  DevToolsOverlay + DevTabs + dev rows
@@ -147,42 +147,37 @@ function VolumeSlider({ value, onChange, muted, max = 10 }) {
   );
 }
 
-function ChunkyWord({ text }) {
-  const r = 4;
-  const outlineSteps = [];
-  for (let dx = -r; dx <= r; dx++) {
-    for (let dy = -r; dy <= r; dy++) {
-      if (dx === 0 && dy === 0) continue;
-      if (Math.abs(dx) + Math.abs(dy) > r) continue;
-      outlineSteps.push(`${dx}px ${dy}px 0 ${PAL.ink}`);
-    }
-  }
-  for (let i = 1; i <= 8; i++) outlineSteps.push(`${i + r}px ${i + r}px 0 ${PAL.red}`);
-  outlineSteps.push(`${8 + r + 3}px ${8 + r + 3}px 0 ${PAL.ink}`);
-  return ce('div', {
-    style: {
-      fontFamily: PIXEL_BLOCK, fontSize: 64, fontWeight: 400, color: PAL.yellow,
-      letterSpacing: 2, textShadow: outlineSteps.join(', '), WebkitTextStroke: '0', position: 'relative',
-    },
-  },
-    ce('span', {
-      style: {
-        position: 'absolute', inset: 0, color: PAL.yellowHi,
-        transform: 'translate(-2px, -2px)', textShadow: 'none',
-        clipPath: 'polygon(0 0, 100% 0, 100% 30%, 0 30%)', pointerEvents: 'none',
-      },
-    }, text),
-    text
-  );
-}
-
 function MoggyTitle() {
-  return ce('div', {
-    style: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, lineHeight: 1, userSelect: 'none' },
-  },
-    ce(ChunkyWord, { text: 'SOGGY' }),
-    ce(ChunkyWord, { text: 'MOGGY' })
-  );
+  const canvasRef = useRef(null);
+  const SCALE  = 0.44;
+  const LINE_H = Math.ceil(147 * SCALE);
+  const GAP    = 8;
+  const CW     = 424;
+  const CH     = LINE_H * 2 + GAP;
+
+  useEffect(() => {
+    let raf;
+    const tryDraw = () => {
+      const cv = canvasRef.current;
+      if (!cv || typeof measureYellowText !== 'function') return;
+      const w1 = measureYellowText('SOGGY', SCALE);
+      if (!w1) { raf = requestAnimationFrame(tryDraw); return; }
+      const ctx = cv.getContext('2d');
+      ctx.clearRect(0, 0, CW, CH);
+      const w2 = measureYellowText('MOGGY', SCALE);
+      drawYellowText(ctx, 'SOGGY', Math.round((CW - w1) / 2), 0,            SCALE);
+      drawYellowText(ctx, 'MOGGY', Math.round((CW - w2) / 2), LINE_H + GAP, SCALE);
+    };
+    tryDraw();
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return ce('canvas', {
+    ref: canvasRef,
+    width: CW,
+    height: CH,
+    style: { imageRendering: 'pixelated', display: 'block', userSelect: 'none' },
+  });
 }
 
 // ============================================================
@@ -399,8 +394,8 @@ function DevScrubber({ value, min, max, onChange }) {
       title: `Level ${i}`,
       style: {
         flex: 1, minWidth: 0, height: 22, padding: 0,
-        background: sel ? PAL.yellow : passed ? 'rgba(255,216,61,0.35)' : 'rgba(20,16,12,0.7)',
-        color: sel ? PAL.ink : PAL.cream,
+        background: sel ? PAL.yellow : 'rgba(20,16,12,0.7)',
+        color: sel ? PAL.ink : passed ? PAL.yellowHi : PAL.dim,
         border: 'none',
         borderRight: i < max ? `1px solid ${PAL.ink}` : 'none',
         fontFamily: PIXEL, fontSize: 11,
@@ -408,7 +403,7 @@ function DevScrubber({ value, min, max, onChange }) {
         fontWeight: sel ? 700 : 400,
         boxShadow: sel ? `inset 0 -2px 0 ${PAL.yellowDeep}, inset 0 2px 0 ${PAL.yellowHi}` : 'none',
       },
-    }, sel ? String(i) : ''));
+    }, String(i)));
   }
   return ce('div', { style: { display: 'flex', flex: 1, minWidth: 0, border: `2px solid ${PAL.ink}`, boxShadow: `0 2px 0 ${PAL.ink}` } },
     ...cells

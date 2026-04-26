@@ -35,7 +35,7 @@
 
 // ── Asset ────────────────────────────────────────────────────────────────────
 const _waspSheet = new Image();
-_waspSheet.src = 'PixelArt/characters/wasp/wasp_sheet.png';
+_waspSheet.src = 'Visuals/characters/wasp/wasp_sheet.png';
 
 // ── Sprite constants ─────────────────────────────────────────────────────────
 const _WASP_FRAME_W  = 63;      // source frame width  (252px sheet / 4 frames)
@@ -234,6 +234,7 @@ function updateEnemies(dt) {
       const hitY    = sy < player.y + player.h && sy + _STING_H > player.y;
       if (hitX && hitY) {
         takeDamage('wasp');    // -1 life, flash, game-over check; 'wasp' → AYAYAYAY bubble
+        if (typeof playSound === 'function') playSound('wasp_sting');
         _waspIframe = _WASP_IFRAME;
         // Wasp survives — knock it away from the player (rigid-body flee)
         w.vx          = -w.vx * 1.6;  // reverse + speed burst
@@ -255,6 +256,7 @@ function updateEnemies(dt) {
         GameState.killBonus += 50;
         _waspsDefeated      += 1;
         _pawUsed            = true;
+        if (typeof playSound === 'function') playSound('wasp_death');
       }
     }
 
@@ -276,6 +278,7 @@ function updateEnemies(dt) {
       GameState.killBonus += 50;
       _stompJumpWindow    = 0.15;
       _waspsDefeated      += 1;
+      if (typeof playSound === 'function') playSound('wasp_death');
     }
   }
 }
@@ -344,4 +347,23 @@ function renderEnemies(ctx) {
     }
     ctx.restore();
   }
+}
+
+// ---------------------------------------------------------------------------
+// getNearestWaspDist(px, py) — distance in px from point to nearest alive wasp
+// Returns null when no alive wasps exist.
+// Used by audio.js updateWaspBuzz() for proximity volume.
+// ---------------------------------------------------------------------------
+function getNearestWaspDist(px, py) {
+  if (enemies.length === 0) return null;
+  let minSq = Infinity;
+  for (let i = 0; i < enemies.length; i++) {
+    const w = enemies[i];
+    if (!w.alive) continue;
+    const dx = (w.x + _WASP_DRAW_W * 0.5) - px;
+    const dy = (w.y + _WASP_DRAW_H * 0.5) - py;
+    const sq = dx * dx + dy * dy;
+    if (sq < minSq) minSq = sq;
+  }
+  return minSq === Infinity ? null : Math.sqrt(minSq);
 }
