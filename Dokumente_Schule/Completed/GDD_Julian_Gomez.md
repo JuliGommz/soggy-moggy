@@ -58,7 +58,7 @@
 | Genre | Casual Vertical Platformer |
 | Plattform | Web-Browser (HTML5) |
 | Auflösung | 480 × 640 px (Hochformat) |
-| Spielsprache | Spanisch (UI, Texte, HUD) |
+| Spielsprache | Englisch (UI, Texte, HUD). Migration am 21.04.2026 von Spanisch auf Englisch. Schul-Doku bleibt deutsch. |
 | Engine | Kein Framework — Vanilla JS + HTML Canvas 2D |
 | Ziel-Altersfreigabe | USK 0 |
 
@@ -80,9 +80,10 @@ Die Atmosphäre vermittelt „cozy danger": Die Spielwelt ist warm und verspielt
 |---|---|
 | Manueller Sprung | Keine Automatik — volle Kontrolle über Timing |
 | Figur als Kuscheltier | Plüsch-Ästhetik als Kontrast zur Bedrohung |
-| Spanischsprachige UI | Stilmittel für Charakter und Wiedererkennbarkeit |
+| Englischsprachige UI | Klare, kurze Spielsprache; Migration 2026-04-21 von Spanisch |
 | Levelbasiert (nicht Endlos) | 3 eigenständige Level mit je eigener Gefahr |
-| Push-Mechanik | Schieben von Objekten als aktives Werkzeug auf Plattformen |
+| Schwierigkeitsgrade | Drei Modi (Explorer, Adventurer, Enlightened) mit globalen Multiplikatoren auf Hazard-Speed, Wespen-Anzahl und Cloud-Drift |
+| Action-Taste (Z) | Ballon fangen, Wespen abwehren, Outro-Trigger am Levelende aktivieren |
 
 ### 1.5 Plattform & Technologie
 
@@ -101,9 +102,9 @@ Das Spiel enthält drei vollständige Spiellevel, je mit eigenem visuellen Thema
 
 | Level | Titel | Setting | Besondere Gefahr |
 |---|---|---|---|
-| 1 | La Ciudad | Stadtgebäude, Jalousien | Steigender Smog |
-| 2 | El Pozo Eléctrico | Aufzugschacht, Fahrstuhlkabine | Steigende Elektrizität (3-Schicht-Blitze) |
-| 3 | El Mar Abierto | Offener See, Leuchtturm | Steigende Flut (Mehrschicht-Meer mit Schaumkronen) |
+| 1 | City | Stadtgebäude, Jalousien | Steigender Smog |
+| 2 | Elevator Shaft | Aufzugschacht, Fahrstuhlkabine | Steigende Elektrizität (3-Schicht-Blitze) |
+| 3 | Open Sea | Offener See, Leuchtturm | Steigende Flut (Mehrschicht-Meer mit Schaumkronen) |
 
 ---
 
@@ -219,7 +220,7 @@ Jedes Level hat eine eigene, stetig steigende Gefahr. Alle drei Gefahren teilen 
 
 - **Score:** Zurückgelegte Höhe (in Weltkoordinaten) über dem Startpunkt
 - Wird kontinuierlich berechnet: `score = max(0, spawnY - player.y)`
-- HUD zeigt aktuellen Score in Echtzeit (spanisches Label)
+- HUD zeigt aktuellen Score in Echtzeit (englisches Label „SCORE")
 - **Highscore:** Lokal im Browser gespeichert (LocalStorage)
 
 ### 2.10 Kamera & Weltkoordinaten
@@ -243,11 +244,13 @@ Jedes Level hat eine eigene, stetig steigende Gefahr. Alle drei Gefahren teilen 
 
 Wespen patrouillieren horizontal auf festen Y-Positionen (Welt-Koordinaten). Sie folgen einem einfachen Zustands-Automaten: Patrol → Reverse → Patrol. Zusätzlich schwingen sie vertikal mit kleiner Sinusamplitude (20 px, 1,5 Hz).
 
-| Level | Anzahl Wespen | Verhalten |
+Anzahl Wespen pro Level wird vom Schwierigkeitsgrad multipliziert (siehe 2.13). Basiswerte (Adventurer-Default):
+
+| Level | Basisanzahl | Verhalten |
 |---|---|---|
-| 1 (Stadt) | 5 | Patrol 4–8 s, dann Richtungswechsel |
-| 2 (Aufzugschacht) | 7 | Wie L1, höhere Dichte im engen Schacht |
-| 3 (Offener See) | 10 | Höchste Anzahl, maximale Schwierigkeit |
+| 1 (Stadt) | 8 | Patrol 4–8 s, dann Richtungswechsel |
+| 2 (Aufzugschacht) | 12 | Wie L1, höhere Dichte im engen Schacht |
+| 3 (Offener See) | 16 | Höchste Anzahl, maximale Schwierigkeit |
 
 **Wespen-Interaktionen:**
 
@@ -258,13 +261,14 @@ Wespen patrouillieren horizontal auf festen Y-Positionen (Welt-Koordinaten). Sie
 
 ### 2.12 Levelstruktur im Detail
 
-**Level 1 — La Ciudad (Stadtsetting):**
+**Level 1 — City (Stadtsetting):**
 - Plattformthema: Jalousien an Stadtgebäuden
 - Unsichtbare Plattformen auf Dekor-Elementen (Mülltonnen, Türrahmen, Gesims)
 - Einstiegslevel, niedrigste Schwierigkeit
 - Führt Sprung- und Bewegungsmechanik ein; Gefahr: steigender Smog
+- Outro-Trigger: Windrad auf dem Zieldach (JS-gezeichnet, vier rotierende Schaufeln); Aktivierung mit Z am Reach-Punkt schließt das Level ab
 
-**Level 2 — El Pozo Eléctrico (Aufzugschacht):**
+**Level 2 — Elevator Shaft (Aufzugschacht):**
 - Start: Spieler steht im Fahrstuhl (Erdgeschoss). Die Katze klettert durch eine Decken-Luke in den Schacht.
 - Decken-Mechanik: Nur die Luke (x=164–311) ist durchdringbar — der Rest der Fahrstuhldecke hat unsichtbare Kollider. Gleiches Prinzip am oberen Schachtausgang (x=138–337).
 - Schachtboden: Linke und rechte Randbereiche begehbar. Die mittlere Öffnung (x=172–300) hat keinen Boden — Katze fällt zurück in den Fahrstuhl und verliert ein Leben.
@@ -272,15 +276,29 @@ Wespen patrouillieren horizontal auf festen Y-Positionen (Welt-Koordinaten). Sie
 - Hintergrund: Fahrstuhl-Sprite (Erdgeschoss) → Schacht-Boden-Sprite (überlappt Fahrstuhldecke nahtlos) → getilede Schacht-Wände (alternierend) → Schacht-Top mit goldenem Balken
 - Parallax-Mid-Layer: Kabel/Rohr-Sprites (0,9×-Faktor) hinter den Schachtwänden
 - Gefahr: Steigende Elektrizität als 3-Schicht-Blitzsystem; erreicht `levelGoalY`
-- Kletter-Kiste (Phase 5): Einzelnes vorplatziertes Puzzle-Objekt; kann mit Z in Position geschoben werden, um die Luke zu erreichen
+- Kletter-Kiste: Statisches Dekorations-Objekt im Outro-Bereich. Push-Mechanik wurde am 25.04.2026 vollständig gestrichen. Kein interaktives Verhalten mehr.
+- Outro-Trigger: Glocke auf einem Stand am Schacht-Ausgang (`bell_spritesheet.png` + `bell_stand.png`, selbst gepixelt); Aktivierung mit Z schließt das Level ab
 
-**Level 3 — El Mar Abierto (Offener See / Leuchtturm):**
+**Level 3 — Open Sea (Offener See / Leuchtturm):**
 - Setting: Leuchtturm an einer felsigen Küste am offenen Meer (ersetzt ursprüngliches Raketen-Setting; Entscheidung 30.03.2026)
 - Start: Spieler steht auf dem Meeresgrund / Startplattform. Ziel: Spitze des Leuchtturms.
 - Plattformthema: Felsvorsprünge, Wellenbrecherstufen, Balkone am Turm
 - Hintergrund: Weite See, Horizont, Sonne mit Puls-Animation; Leuchtturm als zentrale vertikale Struktur (Stein/Backstein)
 - Shared-Layers (Himmel, Wolken) bleiben unverändert
-- Gefahr: Steigende Flut als Mehrschicht-Meer (zwei halbtransparente Sinuswellen plus stürmische Oberfläche mit Compound-Sinus und Schaumkronen); steigt bis `levelGoalY` — thematisch passend zum Leuchtturm-Setting
+- Gefahr: Steigende Flut als Mehrschicht-Meer (zwei halbtransparente Sinuswellen plus stürmische Oberfläche mit Compound-Sinus und Schaumkronen); steigt bis `levelGoalY` und passt thematisch zum Leuchtturm-Setting
+- Outro-Trigger: Hebel auf dem Leuchtturm-Balkon (`lever_mid.png`, Skalierung 0,68); Aktivierung mit Z schließt das Level ab
+
+### 2.13 Schwierigkeitsgrade
+
+Drei Modi mit globalen Multiplikatoren auf Hazard-Speed, Wespen-Anzahl und Cloud-Drift in Level 3. Auswahl auf dem Start-Screen, Default ist Adventurer.
+
+| Modus | Hazard-Speed × | Wespen × | Cloud-Drift × | Start-Leben |
+|---|---|---|---|---|
+| Explorer | 0,80 | 0,60 | 0,00 (still) | 5 |
+| Adventurer | 1,00 | 1,00 | 0,80 | 3 |
+| Enlightened | 1,25 | 1,30 | 1,40 | 2 |
+
+Multiplikatoren werden einmal beim Run-Start gelesen und gelten für die ganze Sitzung. Der gewählte Modus wirkt direkt auf `src/hazards.js` (Speed), `src/enemies.js` (Wespen-Basiswerte 8/12/16) und L3-Wolken-Drift in `src/platforms.js`. Lives-Cap im HUD: 9 (sichtbare Icons).
 
 ---
 
@@ -343,7 +361,7 @@ Die ausgestopfte Katze ist als Plüschtier konzipiert — erkennbar durch Nähte
 
 **Sprite-Set (Implementiert):**
 
-Alle 7 Posen sind in einem einzigen Spritesheet zusammengefasst: `PixelArt/cat/animation_sheet.png`
+Alle 7 Posen sind in einem einzigen Spritesheet zusammengefasst: `Visuals/cat/animation_sheet.png`
 
 | Index | Pose | Zustand |
 |---|---|---|
@@ -399,7 +417,7 @@ Horizontaler Drift bei 15 px/s (bright) und 4,5 px/s (stars) — kreiert ein leb
 **Status:** aktiv, bleibt für die Schulabgabe bestehen.
 
 **Situation:**
-Die Leuchtturm-Basis in Level 3 wird über ein Sprite-Sheet gerendert (`PixelArt/backgrounds/level_3_sea/lighthouse_sheet2.png`). Die Ursprungs-Leinwand in Pixelorama war 480 × 640 px, der Steinboden ging dort bis an den linken und rechten Rand.
+Die Leuchtturm-Basis in Level 3 wird über ein Sprite-Sheet gerendert (`Visuals/backgrounds/level_3_sea/lighthouse_sheet2.png`). Die Ursprungs-Leinwand in Pixelorama war 480 × 640 px, der Steinboden ging dort bis an den linken und rechten Rand.
 
 **Problem:**
 Nach dem Export aus Pixelorama wurde das Sprite in Illustrator weiterverarbeitet (Abstände justiert, alle neun Kacheln zu einer Sheet-Datei zusammengebaut). Beim Sheet-Export schneidet Illustrator jede Einzelzelle auf ihre sichtbaren Pixel zu. Die Basiszelle erscheint im fertigen Sheet daher nur noch 439 px breit, statt wie gewünscht 480 px. Im Spiel hatte der Steinboden dadurch links und rechts je ca. 20 px transparenten Rand und wirkte zu schmal.
@@ -408,7 +426,7 @@ Nach dem Export aus Pixelorama wurde das Sprite in Illustrator weiterverarbeitet
 Den Sheet-Export-Schritt in Illustrator so anpassen, dass jede Zelle in ihrer vollen 480-px-Leinwandbreite exportiert wird (keine Content-Trim-Option). Danach die Sprite-Koordinaten im Code aktualisieren.
 
 **Notfall-Fix (umgesetzt):**
-Ein separates Overlay-PNG (`PixelArt/backgrounds/level_3_sea/lh_00_quick-fix.png`) wird in `src/background.js` über die Basiszelle gezeichnet und deckt den transparenten Randbereich ab. Das Overlay nutzt seine native Pixelgröße (kein Stretching), ist auf `x = 240` zentriert und folgt der Kamera über denselben `camShift + GroundOffset`, der auch die Basiszelle positioniert. Die Unterkante des Overlays ist über die Konstante `_LH_STONE_FIX_ANCHOR_Y = 633` an die Steinlinie der Basiszelle angekoppelt.
+Ein separates Overlay-PNG (`Visuals/backgrounds/level_3_sea/lh_00_quick-fix.png`) wird in `src/background.js` über die Basiszelle gezeichnet und deckt den transparenten Randbereich ab. Das Overlay nutzt seine native Pixelgröße (kein Stretching), ist auf `x = 240` zentriert und folgt der Kamera über denselben `camShift + GroundOffset`, der auch die Basiszelle positioniert. Die Unterkante des Overlays ist über die Konstante `_LH_STONE_FIX_ANCHOR_Y = 633` an die Steinlinie der Basiszelle angekoppelt.
 
 **Code-Stellen:**
 - Loader: `src/background.js`, umrahmt mit einem `EMERGENCY FIX — LOCKED — DO NOT CHANGE` Kommentarblock.
@@ -423,7 +441,7 @@ Der Overlay-Fix bleibt in der Abgabeversion. Die Pipeline-Ursache ist dokumentie
 ### 3.5 Plattform-Design
 
 **Level 1 — Jalousien (Stadtsetting):**
-- Sprite-Sheet: `PixelArt/platforms/level1_city/jalousie_sheet.png`
+- Sprite-Sheet: `Visuals/platforms/level1_city/jalousie_sheet.png`
 - 7 Reihen im Sheet: 5 intakte Zustände, 1 gerissen (gelb, Reihe 4), 1 zerbröckelnd (gelb, Reihe 4)
 - 3-teiliges Rendering: linke Kappe + gekachelte Mitte + rechte Kappe
 - Zufällige Zeile pro Plattform bei Generierung (aus Zeilen 1,2,3,5,6)
@@ -438,22 +456,24 @@ Plattform-Design für Level 2 (Aufzugschacht) wird in Phase 5 erstellt (unsichtb
 
 ### 3.6 UI & HUD
 
-**Sprache:** Alle UI-Texte in Spanisch.
+**Sprache:** Alle UI-Texte in Englisch (Migration 2026-04-21 von Spanisch).
 
 **Start-Screen:**
 - Titel: „Soggy Moggy" (groß, zentriert)
 - Untertitel / Spielanleitung: kurze Steuerungsübersicht
-- Startaufforderung: z.B. „Presiona ESPACIO para jugar"
+- Schwierigkeits-Auswahl: Explorer / Adventurer / Enlightened (Default Adventurer)
+- Startaufforderung: „Press SPACE to play"
 
 **HUD (während des Spiels):**
-- Oben links: Leben als Herz-Icons
-- Oben rechts: Aktueller Score (Höhe)
-- Farbe: UI-1 auf transparentem Hintergrund oder einfarbigem Panel
+- Schwarzes Banner (`rgba(0,0,0,0.50)`, Höhe 68 px) hinter den HUD-Elementen
+- Oben links: SCORE (x=12, y=24) und LEVEL (x=12, y=46), beide in Caps
+- Oben rechts: Lives als Cat-Icons (32×26 px), rechts-ausgerichtet, max. 9 Icons sichtbar
+- Farbe: UI-1 auf schwarzem Banner
 
 **Game-Over-Screen:**
-- Titel: „Fin del Juego" oder „Game Over" (stilisiert)
+- Titel: „Game Over" (stilisiert)
 - Aktueller Score + Highscore
-- Neustart-Aufforderung: „Presiona ESPACIO para reiniciar"
+- Neustart-Aufforderung: „Press SPACE to restart"
 
 **Design-Regeln für UI:**
 - Pixel-font oder system-font (Arial) in Pixel-Größen
@@ -514,6 +534,26 @@ Einzelne Sprites wurden mit **Adobe Photoshop** zusammengesetzt, zum Beispiel be
 | Adobe Photoshop | Zusammensetzen von Sprites / Spritesheets | `.psd` Datei |
 
 Welche Datei mit welchem Tool erstellt wurde, wird im **Medienkatalog** am Projektende vollständig dokumentiert.
+
+---
+
+## Bekannte Einschränkungen (Stand Abgabe)
+
+### Audio-Latenz (HTMLAudio auf file://)
+
+Das Spiel läuft ohne Webserver direkt vom USB-Stick via `file://`. Aus diesem Grund wird HTMLAudio statt der Web Audio API verwendet. HTMLAudio hat auf Windows eine systeminterne Latenz von ca. 50 bis 90 ms pro Sound-Event. Zusätzlich enthalten Pixabay-MP3-Dateien eine encoder-bedingte Stille von ca. 20 bis 50 ms am Dateianfang (LAME/FFmpeg Priming-Frames).
+
+**Konkrete Auswirkungen:**
+
+- Sprung-Sound (`jump.mp3`): spielt mit ca. 70 bis 140 ms Verzögerung nach dem tatsächlichen Sprung. Bei schnellen Mehrfachsprüngen kann der Sound abgeschnitten oder ausgelassen wirken. Die Datei selbst ist länger als nötig; ein sauberer Schnitt auf den kurzen Kernton war technisch nicht stabil umsetzbar.
+- Landungs-Sound (`land.mp3`): Einsatz ab `start: 0.02 s` kalibriert, minimale wahrnehmbare Verzögerung verbleibt.
+- Alle weiteren SFX: selbe Latenzcharakteristik, bei einmaligen Events (Game Over, Level Complete) nicht wahrnehmbar störend.
+
+**Ursache und Entscheidung:**
+
+Die Web Audio API würde Sample-genaue Wiedergabe ermöglichen (ca. 20 bis 35 ms Latenz). Sie benötigt jedoch `fetch()` oder XHR zum Laden von Audio-Puffern. Firefox blockiert XHR auf `file://` mit einem CORS-Fehler. Da der Browser des Prüfers unbekannt ist und das Spiel auf jedem Browser laufen soll, wurde die Web Audio API verworfen. HTMLAudio lädt über den HTML-Parser, nicht über XHR, und funktioniert in allen Browsern zuverlässig auf `file://`.
+
+Die Latenz ist eine dokumentierte technische Einschränkung des Abgabe-Formats, kein Implementierungsfehler.
 
 ---
 
