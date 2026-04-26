@@ -1,4 +1,4 @@
-# PixelArt Asset Naming Convention
+# Visuals Asset Naming Convention
 **Project:** Soggy Moggy
 **Last updated:** 25.03.2026
 
@@ -20,7 +20,7 @@ This ensures the asset paths work identically on Windows (local dev) and Linux (
 ## Folder Structure
 
 ```
-PixelArt/
+Visuals/
 ├── characters/
 │   ├── cat/                Player character sprites
 │   └── wasp/               Wasp enemy sprites

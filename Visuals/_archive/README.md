@@ -1,4 +1,4 @@
-# PixelArt/_archive
+# Visuals/_archive
 
 Dieser Ordner enthält Arbeitsdateien und Quelldateien, die im Rahmen des
 Schulabschlussprojekts **Soggy Moggy** (SRH, April 2026)
