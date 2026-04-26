@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-04-24T00:00:00.000Z"
+last_updated: "2026-04-26T00:00:00.000Z"
 progress:
   total_phases: 9
   completed_phases: 7
@@ -13,8 +13,8 @@ progress:
 
 # State: Soggy Moggy
 
-**Last updated:** 2026-04-22 (evening)
-**Updated by:** Cleanup branch `chore/project-cleanup-2026-04-21` (22 commits) merged to master via PR #1. All four previously-active branches now deleted (local + origin). Single active branch: master. Included in this merge: English migration phases 1+2 (title rename, folder restructure, in-game strings translated, level names), dialogue font stack finalization (hybrid: YELLOW bitmap atlas for titles + BlockCraft.otf for body), obsolete artifact archival (black-LCD bitmap attempt, one-shot scripts, glyph extractor). Master now at `a923506`.
+**Last updated:** 2026-04-26
+**Updated by:** Cleanup branch `chore/project-cleanup-2026-04-21` (22 commits) merged to master via PR #1. All four previously-active branches now deleted (local + origin). Single active branch: master. Included in this merge: English migration phases 1+2 (title rename, folder restructure, in-game strings translated, level names), dialogue font stack finalization (hybrid: YELLOW bitmap atlas for titles + BlockCraft.otf for body), obsolete artifact archival (black-LCD bitmap attempt, one-shot scripts, glyph extractor). Master now at `a923506`. Subsequent commits direct to master through 2026-04-26 (latest: `d6bcee2` — dialogue tuning + L3 lighthouse quick-fix + level_1_city asset rename).
 
 ---
 
@@ -22,7 +22,7 @@ progress:
 
 **Core Value:** A playable, complete gameplay loop: cat jumps up, level-specific hazards rise from below (smog/flood/electricity), tension builds — the game feels real from first play.
 
-**Current Focus:** Damage dialogue variant pools added (2026-04-23). Hazard titles rotate randomly per level (4 options each, level-flavored line mixed in). Wasp titles rotate through 3 options. Repeat-guard prevents the same line firing twice in a row.
+**Current Focus:** Phase 5 in progress. Outro triggers fully animated (2026-04-26): all 3 levels have 2.5s activation delay — L1 windrad accelerates (radius=20, mastH=33, 1.4→13 rad/s), L2 bell pivot-swings via canvas rotation (mid-frame locked), L3 lever cycles left/mid/right/mid. Intro-flow done: 3-2-1 via YELLOW_FONT in LEVEL_INTRO bubble, auto-advance, no manual skip. **Start-Menu shipped (2026-04-26)** — `src/start-screen.js` React DOM overlay, FlatLayoutB design, Dev Tools tabs, JSX→createElement for file:// compat (no Babel/XHR). Next: End-Screen + animated score breakdown.
 
 **Dialogue system — locked values (do not change without Julian approval):**
 - Bubble PNGs: `PixelArt/thought_bubbles/dialogues/` (8 files, cropped via `scripts/crop_bubbles.py`)
@@ -56,14 +56,14 @@ Wasp enemy system, L2 lighthouse, L2 elevator interior all shipped to master.
 
 ## Current Position
 
-**Active Phase:** none — all shipped phases merged to master. Next: Phase 5 (HUD + UI Screens)
-**Active Plan:** none
-**Phase Status:** Phases 1–4, 04.1, 04.2, 04.3, 05-e complete — next is Phase 5 (HUD + UI Screens)
+**Active Phase:** Phase 5 (HUD + UI Screens) — in progress
+**Active Plan:** none (shipped outside formal GSD plans)
+**Phase Status:** Phases 1–4, 04.1, 04.2, 04.3, 05-e complete. Phase 5 partial — Bell/Lever ✅, Difficulty ✅, Intro-Flow ✅, Start-Menu ✅ (2026-04-26); End-Screen, Score-Anim offen.
 
 ```
-Progress: [x][x][x][x][x][x][x][~][ ][ ][ ]
+Progress: [x][x][x][x][x][x][x][~][~][ ][ ]
            P1  P2  P3  P4 04.1 04.2 04.3  P5   P6  P7
-           04.2 + 04.3 shipped outside GSD; 05-enemies merged to master
+           04.2 + 04.3 shipped outside GSD; 05-enemies merged to master; P5 partial
 ```
 
 ---
@@ -80,7 +80,7 @@ Progress: [x][x][x][x][x][x][x][~][ ][ ][ ]
 | 04.2 | L2 Lighthouse Redesign | Shipped (no GSD plan) | 0/0 | Code in master; no PLAN/SUMMARY — shipped directly |
 | 04.3 | L2 Elevator Interior | Complete — merged PR #1 | 0/0 | Merged to master 2026-04-22; dialogue system included |
 | 05-e | Wasp Enemy System | Shipped (no GSD plan) | 0/0 | Merged to master 07.04.2026 |
-| 5 | HUD + UI Screens | Not started | 0/? | |
+| 5 | HUD + UI Screens | In Progress | partial | Bell/Lever ✅, Difficulty ✅; Start-Menu WIP; Intro/End/Score-Anim offen |
 | 6 | Audio | Not started | 0/? | |
 | 7 | Hosting | Not started | 0/? | |
 
@@ -183,10 +183,7 @@ Progress: [x][x][x][x][x][x][x][~][ ][ ][ ]
 
 ### Open Design Questions
 
-| Question | When to Decide |
-|----------|----------------|
-| L2 end-object: bell already exists as sprite, or draw from scratch? | Phase 5 planning |
-| Score animation between levels: additive counter or breakdown by category? | Phase 5 planning |
+(none — Phase 5 design questions resolved; all open work is execution, see backlog)
 
 ### Resolved Design Questions
 
@@ -196,6 +193,9 @@ Progress: [x][x][x][x][x][x][x][~][ ][ ][ ]
 | Max jump height in pixels | Variable jump implemented; GAP_PX=120 confirmed reachable |
 | How many levels? | 3 levels (L4 Freizeitpark dropped for MVP, 16.03.2026) |
 | Danger per level? | L1=Smog, L2=Elektrizität (Schacht), L3=Flut (Leuchtturm/See) — ORDER SWAPPED 07.04.2026 |
+| L2 end-object: bell sprite or draw from scratch? | Self-pixelled bell + stand (`bell_spritesheet.png`, `bell_stand.png`) integrated 2026-04-26 as outro trigger |
+| L3 end-object: lever | Lever placeholder integrated 2026-04-26 (`lever_mid.png`, scaled 0.68) as outro trigger |
+| Score animation between levels: additive counter or breakdown? | Backlog Prio 3 — execution, not design |
 
 ### Todos
 
@@ -246,3 +246,4 @@ None.
 *Updated: 2026-04-23 — Two fixes applied directly to master: (1) L3 invisible ground collider added at y=628 full-width in platforms.js (cat no longer falls into nothingness at level start). (2) Lighthouse base cell corrected in background.js: sx=0, sw=480, drawX=0 — samples full 480px to fix stone ground cut-off on left/right edges. No Bash rule added to permanent memory (feedback_no_bash.md). System restart occurred due to inadvertent Bash delegation via subagents.*
 *Updated: 2026-04-23 (session 2) — Damage dialogue variant system added to src/dialogue.js: _HAZARD_TITLE_POOLS (4 titles per level, level-flavored: COUGH COUGH! / ZAP! / GLURP GLURP!), _WASP_TITLE_POOL (OUCH OUCH! / YEOWCH! / YIHAA!), _pickLifeLostTitle() with one-step repeat-guard. showLifeLost() reads GameState.level and stores pick in titleOverride. Bubble PNGs unchanged.*
 *Updated: 2026-04-24 — L3 Stone Overlay EMERGENCY FIX LOCKED for school submission. src/background.js: overlay PNG `lh_00_quick-fix.png` masks the ~20px transparent margin on each side of the lighthouse base cell (Illustrator sheet-export trims base from 480px → 439px). Anchor constant `_LH_STONE_FIX_ANCHOR_Y = 633` (final, iteration 611→623→633). Loader + draw block wrapped in `EMERGENCY FIX — LOCKED — DO NOT CHANGE` markers. Documentation added to GDD §3.4.1 (Notfall-Fix: Steinboden-Overlay) explaining root cause, clean fix, pragmatic overlay decision. Clean pipeline fix deferred post-submission.*
+*Updated: 2026-04-26 — Phase 5 in progress. Outro trigger system live: L1 pinwheel (JS-drawn placeholder, fixed save-stack-leak bug), L2 bell on stand (self-pixelled), L3 lever (placeholder, scaled 0.68). All triggered via Z/right-click with magenta reach-glow. Difficulty system (Explorer/Adventurer/Enlightened) implemented 2026-04-25. Backlog re-prioritised: Audio prep (SFX/Music/Sound-selection) is Prio 1; Start-Menu/Intro-Flow Prio 2; End-Screen Prio 2.5; Phase 5 doc-hygiene Prio 3; GitHub Pages Prio 4 (not required for Casual Webgame USB submission); L3 crumble timer Prio 5. Commit `d6bcee2`.*

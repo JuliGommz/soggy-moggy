@@ -68,7 +68,9 @@ const GameState = {
   killBonus:        0,    // accumulated points from stomping wasps (+50 per kill)
   clearBonus:       0,    // +200 if all wasps in the level were defeated; 0 otherwise
   countdownTimer:   0,    // seconds remaining before hazard activates; 0 = hazard active
+  introTimer:       0,    // counts down 3→0 on the LEVEL_INTRO bubble screen; auto-advances at 0
   menuCursor:       0,    // selected option index on PAUSED / AUDIO_MENU / LEVEL_COMPLETE screens
+  pausedGame:       false, // true when player navigated PAUSED → START; drives "▶ CONTINUE" vs "▶ START"
   audio: {
     music: { vol: 0.7, muted: false },  // music volume 0–1; muted = silence without losing vol level
     sfx:   { vol: 0.8, muted: false },  // sfx volume 0–1
@@ -84,10 +86,12 @@ function resetGame(startLevel = 1) {
   GameState.cameraY          = 0;
   GameState.maxHeightReached = 9999; // sentinel: first frame will capture actual player.y
   GameState.level            = startLevel;
-  GameState.countdownTimer   = 3;   // 3s danger countdown before hazard activates
+  GameState.countdownTimer   = 2;   // 2s free play after LEVEL_INTRO ends before hazard activates
   GameState.menuCursor       = 0;
+  GameState.pausedGame       = false; // fresh run — start screen shows "▶ START" again
   // highScore is intentionally NOT reset — it persists across full game resets
   // levelGoalY is NOT reset here — set by generateLevelPlatforms() inside resetPlatforms()
+  if (typeof resetRng === 'function') resetRng(); // re-seed PRNG for reproducible runs (dev-flags.js)
   resetPlayer();
   resetPlatforms(); // Phase 2: defined in platforms.js (loaded after game-state.js — safe at runtime)
   resetEnemies();   // clear enemy state before spawnEnemies() runs in main.js
@@ -102,7 +106,7 @@ function startNextLevel() {
   GameState.cameraY          = 0;
   GameState.maxHeightReached = 9999;
   GameState.phase            = GamePhase.PLAYING;
-  GameState.countdownTimer   = 3;   // fresh 3s countdown for each new level
+  GameState.countdownTimer   = 2;   // fresh hazard delay for each new level
   GameState.menuCursor       = 0;
   // GameState.lives is intentionally NOT reset — lives persist across levels
   resetPlayer();
@@ -119,7 +123,7 @@ function restartLevel() {
   GameState.cameraY          = 0;
   GameState.maxHeightReached = 9999;
   GameState.phase            = GamePhase.PLAYING;
-  GameState.countdownTimer   = 3;
+  GameState.countdownTimer   = 2;
   GameState.menuCursor       = 0;
   // GameState.level and GameState.lives intentionally NOT changed
   resetPlayer();
@@ -152,3 +156,45 @@ function saveHighScore(score) {
 }
 
 loadHighScore();
+
+// ── Start-screen preferences (difficulty + audio) ─────────────────────────
+// Persisted across reloads. Devflags are intentionally NOT persisted (session-only).
+const SM_PREFS_KEY = 'soggymoggy_prefs';
+
+function loadStartScreenPrefs() {
+  try {
+    const raw = localStorage.getItem(SM_PREFS_KEY);
+    if (!raw) return;
+    const p = JSON.parse(raw);
+    if (p && typeof p === 'object') {
+      if (DIFFICULTY[p.difficulty]) GameState.difficulty = p.difficulty;
+      if (p.audio && p.audio.music) {
+        if (typeof p.audio.music.vol   === 'number')  GameState.audio.music.vol   = Math.max(0, Math.min(1, p.audio.music.vol));
+        if (typeof p.audio.music.muted === 'boolean') GameState.audio.music.muted = p.audio.music.muted;
+      }
+      if (p.audio && p.audio.sfx) {
+        if (typeof p.audio.sfx.vol     === 'number')  GameState.audio.sfx.vol     = Math.max(0, Math.min(1, p.audio.sfx.vol));
+        if (typeof p.audio.sfx.muted   === 'boolean') GameState.audio.sfx.muted   = p.audio.sfx.muted;
+      }
+    }
+  } catch (e) {
+    // Storage unavailable — silent fallback to defaults
+  }
+}
+
+function saveStartScreenPrefs() {
+  try {
+    const p = {
+      difficulty: GameState.difficulty,
+      audio: {
+        music: { vol: GameState.audio.music.vol, muted: GameState.audio.music.muted },
+        sfx:   { vol: GameState.audio.sfx.vol,   muted: GameState.audio.sfx.muted   },
+      },
+    };
+    localStorage.setItem(SM_PREFS_KEY, JSON.stringify(p));
+  } catch (e) {
+    // Storage unavailable — silent
+  }
+}
+
+loadStartScreenPrefs();

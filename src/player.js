@@ -35,7 +35,7 @@
 // ── Sprite loading ───────────────────────────────────────────────────────────
 // Paths relative to index.html (project root)
 // Cat animation spritesheet (animation_sheet.png: 7 sprites left→right)
-const _catSheet = new Image(); _catSheet.src = 'PixelArt/characters/cat/animation_sheet.png';
+const _catSheet = new Image(); _catSheet.src = 'Visuals/characters/cat/animation_sheet.png';
 // dy = transparent_rows_at_bottom × 2.0 (DH/sh scale) — aligns visual feet to hitbox bottom
 // idle/rise/walk/pushRise: content y=19–52 → 11 transparent rows below → dy = 11×2 = 22
 // pushPeak/peak:           content y=8–55  →  8 transparent rows below → dy =  8×2 = 16
@@ -88,7 +88,15 @@ const player = {
 function resetPlayer() {
   // L1 + L3: invisible ground at y=628, player stands at y=596 (628 - player.h=32)
   // L2: jalousie starter at y=560, player stands at y=528 (560 - 32)
-  const spawnY = (GameState.level === 1 || GameState.level === 3) ? 596 : 528;
+  const baseSpawnY = (GameState.level === 1 || GameState.level === 3) ? 596 : 528;
+  // Dev: DROP HEIGHT % offsets the spawn upward by a fraction of the level height.
+  // 0% = ground spawn (default), 100% = near the level goal. Guarded on
+  // levelGoalY because resetPlayer can run before resetPlatforms sets it.
+  let spawnY = baseSpawnY;
+  if (typeof devFlags !== 'undefined' && devFlags.dropHeightPct > 0 && typeof GameState.levelGoalY === 'number') {
+    const totalH = baseSpawnY - GameState.levelGoalY;
+    spawnY = Math.round(baseSpawnY - totalH * (devFlags.dropHeightPct / 100));
+  }
   player.x     = 224;
   player.y     = spawnY;
   player.vx    = 0;
@@ -105,8 +113,11 @@ function resetPlayer() {
 
 function updatePlayer(dt) {
   // ── Vertical physics ────────────────────────────────────────────────────
+  // devFlags.gravityMul lets the dev-tools panel scale gravity at runtime;
+  // defaults to 1.0 (no change). dev-flags.js loads first so this is always defined.
+  const _gMul = (typeof devFlags !== 'undefined' ? devFlags.gravityMul : 1.0);
   player.prevY  = player.y;           // save position BEFORE physics (used by collision)
-  player.vy    += GRAVITY * dt;       // gravity: accelerate downward each frame
+  player.vy    += GRAVITY * _gMul * dt;       // gravity: accelerate downward each frame
 
   // Variable jump: tap = small hop, hold = full jump
   // jumpLocked prevents re-jump while key stays held after landing

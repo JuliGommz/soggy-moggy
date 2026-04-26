@@ -125,7 +125,13 @@ function resetHazard(level) {
 // (updateHazard / enemies.js / fall-off-bottom in main.js), not here.
 // ---------------------------------------------------------------------------
 function takeDamage(cause) {
-  GameState.lives   -= 1;
+  // Dev cheats: GOD MODE absorbs the hit entirely; INFINITE LIVES skips the
+  // life decrement but still triggers iframe/flash so the visual feedback
+  // remains useful for debugging.
+  const _god = (typeof devFlags !== 'undefined' && devFlags.godMode);
+  const _inf = (typeof devFlags !== 'undefined' && devFlags.infiniteLives);
+  if (_god) return;
+  if (!_inf) GameState.lives -= 1;
   hazard.iframeTimer = IFRAME_DURATION;
   hazard.flashTimer  = FLASH_DURATION;
   if (GameState.lives <= 0) {
@@ -173,11 +179,6 @@ function updateHazard(dt) {
   // Rise
   hazard.y -= hazard.speed * dt;
 
-  // Fade out once finish trigger is activated (1.2s to fully disappear)
-  if (GameState.finishState === 'activating') {
-    hazard.fadeAlpha = Math.max(0, hazard.fadeAlpha - dt / 1.2);
-  }
-
   // Visibility clamp: hazard can never fall more than 100px below the screen bottom.
   // Prevents the surface from lagging off-screen when the camera scrolls up faster
   // than the hazard rises. The +100 slack (was +10) lets the level-start offset of
@@ -204,8 +205,6 @@ function updateHazard(dt) {
   hazard.time += FLOOD_WAVE_SPEED * dt;
 
   // Collision — playerBottom vs. hazard surface (margin = HAZARD_COLLISION_MARGIN)
-  // Skip damage during finish activation — player is celebrating, hazard is fading out
-  if (GameState.finishState === 'activating' || GameState.finishState === 'done') return;
   const playerBottom = player.y + player.h;
   const collisionY   = hazard.y - HAZARD_COLLISION_MARGIN;
   if (playerBottom >= collisionY && hazard.iframeTimer <= 0) {

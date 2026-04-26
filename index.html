@@ -4,37 +4,79 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Soggy Moggy</title>
+
+  <!-- Google Fonts for the Start-Screen overlay (VT323 = body, Press Start 2P = block titles) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap" rel="stylesheet" />
+
   <style>
     @font-face {
       font-family: 'BlockCraft';
-      src: url('PixelArt/fonts/BlockCraft.otf') format('opentype');
+      src: url('Visuals/fonts/BlockCraft.otf') format('opentype');
       font-display: block;
     }
     body { margin: 0; background: #1a1a2e; display: flex; justify-content: center; align-items: center; height: 100vh; }
     /* NO width/height rules on canvas — sizing is done exclusively in JS (see src/main.js) */
+    canvas { display: block; }
+
+    /* Game frame wraps canvas + overlay so they share an exact 480×640 footprint.
+       Without the wrapper, the overlay (position:absolute) would anchor to the
+       viewport while flex centers the canvas, leaving them misaligned. */
+    .game-frame { position: relative; width: 480px; height: 640px; }
+
+    /* Start-screen DOM overlay: matches canvas size via inset:0 of the frame.
+       pointer-events:none default — script flips it to 'auto' only during GamePhase.START. */
+    #sm-start-root {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10;
+      image-rendering: pixelated;
+    }
+    #sm-start-root.sm-active { pointer-events: auto; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-2px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
-  <canvas id="gameCanvas"></canvas>
+  <div class="game-frame">
+    <canvas id="gameCanvas"></canvas>
+    <div id="sm-start-root"></div>
+  </div>
 
-  <!-- Classic script tags — load order matters: dependencies before dependents -->
-  <!-- game-state.js must be FIRST: defines GamePhase and GameState used by all other scripts -->
+  <!-- ──────────────────────────────────────────────────────────────────────
+       Game scripts (classic <script> tags — load order matters)
+       ────────────────────────────────────────────────────────────────────── -->
+  <!-- dev-flags.js FIRST: pure module, no deps; must be defined before resetGame() runs -->
+  <script src="src/dev-flags.js"></script>
+  <!-- game-state.js: defines GamePhase, GameState, resetGame, prefs persistence -->
   <script src="src/game-state.js"></script>
-  <!-- input.js second: registers keyboard listeners, exposes keys map to main.js -->
+  <!-- audio.js: AudioContext + gain nodes; reads GameState.audio -->
+  <script src="src/audio.js"></script>
+  <!-- input.js: keyboard + mouse listeners -->
   <script src="src/input.js"></script>
-  <!-- player.js: uses GameState; placeholder rectangle until Phase 5 sprites -->
+  <!-- player.js: physics + sprite -->
   <script src="src/player.js"></script>
-  <!-- platforms.js: reads player + JUMP_VELOCITY from player.js — must load after player.js -->
+  <!-- platforms.js: reads player + JUMP_VELOCITY from player.js -->
   <script src="src/platforms.js"></script>
-  <!-- hazards.js: rising hazard (smog/flood/electricity) — must load after player.js and before main.js -->
+  <!-- hazards.js: rising hazard (smog/electricity/flood) -->
   <script src="src/hazards.js"></script>
-  <!-- background.js: parallax background layers (L1 sky, L2 clouds, L3 near) -->
+  <!-- background.js: parallax background layers -->
   <script src="src/background.js"></script>
-  <!-- enemies.js: wasp enemy system — patrol/sting/stomp mechanics, all 3 levels -->
+  <!-- enemies.js: wasp enemy system -->
   <script src="src/enemies.js"></script>
-  <!-- dialogue.js: static bubble PNG overlay + lifecycle — depends on game-state.js -->
+  <!-- dialogue.js: bubble PNG overlay + lifecycle -->
   <script src="src/dialogue.js"></script>
-  <!-- main.js last: orchestrates canvas init, game loop, update + render dispatch -->
+  <!-- main.js: orchestrates canvas init, game loop, mounts the start-screen overlay -->
   <script src="src/main.js"></script>
+
+  <!-- ──────────────────────────────────────────────────────────────────────
+       Start-screen DOM overlay (React + in-browser Babel)
+       Loads LAST so window.GameState and window.devFlags exist by the time
+       it tries to read initial state.
+       ────────────────────────────────────────────────────────────────────── -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+  <script src="src/start-screen.js"></script>
 </body>
 </html>

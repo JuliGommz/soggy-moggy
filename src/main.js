@@ -37,10 +37,10 @@
 //             player, updatePlayer, renderPlayer, resetPlayer (player.js)
 
 // ── HUD lives icon ──────────────────────────────────────────────────────────
-const _hudLifeIcon = new Image(); _hudLifeIcon.src = 'PixelArt/ui/hud/life_icon.png';
+const _hudLifeIcon = new Image(); _hudLifeIcon.src = 'Visuals/ui/hud/life_icon.png';
 
 // ── Balloon extra-life collectible ──────────────────────────────────────────
-const _sprExtraLife = new Image(); _sprExtraLife.src = 'PixelArt/collectibles/balloon.png';
+const _sprExtraLife = new Image(); _sprExtraLife.src = 'Visuals/collectibles/balloon.png';
 const _BAL_W = 70, _BAL_H = 106; // drawn size — 2.2× base (32×48) for visibility
 // Balloon rises upward continuously (anchorY decreases each frame) with a sinusoidal horizontal weave.
 // Pure world-space = no camera interaction bugs.
@@ -132,14 +132,25 @@ function renderBalloon(ctx) {
 // L1 windrad sprite missing — getOutroConfig returns null, no trigger active.
 // L2 = bell + rope (stand is decoration, NOT in hitbox).
 // L3 = lever stick (8 px wide, NOT the 67 px base).
-const _bellStand  = new Image(); _bellStand.src  = 'PixelArt/backgrounds/level_2_shaft/outro_trigger/bell_stand.png';
-const _bellSheet  = new Image(); _bellSheet.src  = 'PixelArt/backgrounds/level_2_shaft/outro_trigger/bell_spritesheet.png';
-const _leverMid   = new Image(); _leverMid.src   = 'PixelArt/backgrounds/level_3_sea/end_triggers/lever_mid.png';
+const _bellStand  = new Image(); _bellStand.src  = 'Visuals/backgrounds/level_2_shaft/outro_trigger/bell_stand.png';
+const _bellSheet  = new Image(); _bellSheet.src  = 'Visuals/backgrounds/level_2_shaft/outro_trigger/bell_spritesheet.png';
+const _leverLeft  = new Image(); _leverLeft.src  = 'Visuals/backgrounds/level_3_sea/end_triggers/lever_left.png';
+const _leverMid   = new Image(); _leverMid.src   = 'Visuals/backgrounds/level_3_sea/end_triggers/lever_mid.png';
+const _leverRight = new Image(); _leverRight.src = 'Visuals/backgrounds/level_3_sea/end_triggers/lever_right.png';
+const _LEVER_FRAMES = () => [_leverLeft, _leverMid, _leverRight, _leverMid]; // ping-pong cycle
 
 const _OUTRO_REACH_PAD   = 35;            // px around hitbox; paw must overlap (hb + pad)
 const _OUTRO_GLOW_COLOR  = '#ff00ff';     // magenta — same shadowColor technique as HUD lives
 const _OUTRO_GLOW_PERIOD = 1.2;           // s per pulse cycle
 let   _outroTime         = 0;             // accumulator for sin pulsing
+let   _windradAngle      = 0;             // L1 pinwheel rotation in radians (variable speed)
+let   _outroActivated    = false;         // true while L1 windrad is spinning before LEVEL_OUTRO
+let   _outroActivateTimer = 0;            // countdown to LEVEL_OUTRO after activation
+
+function resetOutroTrigger() {
+  _outroActivated    = false;
+  _outroActivateTimer = 0;
+}
 
 // Per-level placement + hitbox. World coordinates.
 // Tunables: standX/standY for bell, drawX/drawY for lever, hitbox rect for both.
@@ -149,8 +160,8 @@ function getOutroConfig(level) {
     // Roof walkable surface y = levelGoalY − 35.
     const roofY  = Math.floor(GameState.levelGoalY) - 35;
     const cx     = 410;                        // mid of right-side roof area
-    const radius = 16;                         // blade reach
-    const mastH  = 26;                         // mast pixel height
+    const radius = 20;                         // blade reach (25% larger than original 16)
+    const mastH  = 33;                         // mast pixel height (25% larger than original 26)
     const cy     = roofY - mastH;              // wheel center sits above mast
     // Hitbox covers the spinning blade disc only (square around radius), not the mast.
     const hb = {
@@ -215,11 +226,32 @@ function isOutroInReach(level) {
 
 function updateOutroTrigger(dt) {
   _outroTime += dt;
+
+  // L1: update windrad spin (accelerates during activation)
+  if (GameState.level === 1) {
+    const progress   = _outroActivated ? 1 - _outroActivateTimer / 2.5 : 0;
+    const spinSpeed  = 1.4 + progress * 11.6; // 1.4 → 13.0 rad/s over 2.5s
+    _windradAngle   += spinSpeed * dt;
+  }
+
+  // L1 activation: tick timer, fire LEVEL_OUTRO when done
+  if (_outroActivated) {
+    _outroActivateTimer = Math.max(0, _outroActivateTimer - dt);
+    if (_outroActivateTimer <= 0) {
+      _outroActivated = false;
+      GameState.phase = GamePhase.LEVEL_OUTRO;
+      showLevelEnd(GameState.level);
+    }
+    return;
+  }
+
   if (!keys.push) return;
   if (!isOutroInReach(GameState.level)) return;
   keys.push = false;
-  GameState.phase = GamePhase.LEVEL_OUTRO;
-  showLevelEnd(GameState.level);
+
+  // All levels: 2.5s activation delay before LEVEL_OUTRO
+  _outroActivated    = true;
+  _outroActivateTimer = 2.5;
 }
 
 function _drawOutroSprite(ctx, drawFn, glow) {
@@ -233,7 +265,7 @@ function _drawOutroSprite(ctx, drawFn, glow) {
   ctx.restore();
 }
 
-function _drawPinwheel(ctx, cx, cy, radius, mastH, time) {
+function _drawPinwheel(ctx, cx, cy, radius, mastH, angle) {
   // Mast — drawn first so blades cover its top
   ctx.fillStyle = '#5a3e2b';
   ctx.fillRect(cx - 2, cy, 4, mastH);
@@ -241,7 +273,7 @@ function _drawPinwheel(ctx, cx, cy, radius, mastH, time) {
   const colors = ['#e74c3c', '#f1c40f', '#3498db', '#2ecc71'];
   ctx.save();
   ctx.translate(cx, cy);
-  ctx.rotate(time * 1.4);                 // ~1.4 rad/s slow spin
+  ctx.rotate(angle);
   for (let i = 0; i < 4; i++) {
     ctx.save();
     ctx.rotate(i * Math.PI / 2);
@@ -269,27 +301,39 @@ function renderOutroTrigger(ctx) {
 
   if (cfg.kind === 'pinwheel') {
     _drawOutroSprite(ctx, () => {
-      _drawPinwheel(ctx, cfg.cx, cfg.cy, cfg.radius, cfg.mastH, _outroTime);
-    }, inReach);
+      _drawPinwheel(ctx, cfg.cx, cfg.cy, cfg.radius, cfg.mastH, _windradAngle);
+    }, inReach || _outroActivated);
   } else if (cfg.kind === 'bell') {
     if (_bellStand.complete && _bellStand.naturalWidth > 0) {
       ctx.drawImage(_bellStand, cfg.standX, cfg.standY);
     }
     if (_bellSheet.complete && _bellSheet.naturalWidth > 0) {
-      const sheetW = _bellSheet.naturalWidth;
-      const sheetH = _bellSheet.naturalHeight;
-      const frameW = Math.floor(sheetW / 3);
-      const bellDX = cfg.standX + 22 - Math.floor(frameW / 2);
-      const bellDY = cfg.standY + 4;
+      const sheetW  = _bellSheet.naturalWidth;
+      const sheetH  = _bellSheet.naturalHeight;
+      const frameW  = Math.floor(sheetW / 3);
+      const bellDX  = cfg.standX + 22 - Math.floor(frameW / 2);
+      const bellDY  = cfg.standY + 4;
+      // Pivot at top-center of the bell frame — stays fixed, body swings below.
+      const pivotX  = bellDX + Math.floor(frameW / 2);
+      const pivotY  = bellDY;
+      const swing   = _outroActivated ? Math.sin(_outroTime * 8) * 0.22 : 0;
       _drawOutroSprite(ctx, () => {
+        ctx.save();
+        ctx.translate(pivotX, pivotY);
+        ctx.rotate(swing);
+        ctx.translate(-pivotX, -pivotY);
         ctx.drawImage(_bellSheet, frameW, 0, frameW, sheetH, bellDX, bellDY, frameW, sheetH);
-      }, inReach);
+        ctx.restore();
+      }, inReach || _outroActivated);
     }
   } else if (cfg.kind === 'lever') {
-    if (_leverMid.complete && _leverMid.naturalWidth > 0) {
+    const frames   = _LEVER_FRAMES();
+    const frameIdx = _outroActivated ? Math.floor(_outroTime / 0.12) % frames.length : 1;
+    const leverImg = frames[frameIdx];
+    if (leverImg.complete && leverImg.naturalWidth > 0) {
       _drawOutroSprite(ctx, () => {
-        ctx.drawImage(_leverMid, cfg.drawX, cfg.drawY, cfg.drawW, cfg.drawH);
-      }, inReach);
+        ctx.drawImage(leverImg, cfg.drawX, cfg.drawY, cfg.drawW, cfg.drawH);
+      }, inReach || _outroActivated);
     }
   }
 }
@@ -304,10 +348,40 @@ ctx.imageSmoothingEnabled = false;  // pixel-crisp rendering — prevents sprite
 // ── Game loop timing ─────────────────────────────────────────────────────────
 let lastTime = performance.now(); // initialized here — prevents first-frame dt spike
 
+// FPS tracking — read by renderHUD when devFlags.showFps is on.
+let _fpsAccum = 0, _fpsFrames = 0, _fpsValue = 0;
+
+// Track previous phase so we can mount/unmount the start-screen overlay on
+// transitions only (not every frame).
+let _prevPhase = null;
+
+function _onPhaseChange(prev, next) {
+  if (next === GamePhase.START) {
+    if (typeof window.mountStartScreen === 'function') window.mountStartScreen();
+  } else if (prev === GamePhase.START) {
+    if (typeof window.unmountStartScreen === 'function') window.unmountStartScreen();
+  }
+}
+
 function gameLoop(timestamp) {
   // Semi-fixed timestep: cap at 50ms (≈3 frames at 60fps) prevents physics explosion on tab-switch
-  const dt = Math.min((timestamp - lastTime) / 1000, 0.05); // seconds
+  const rawDt = Math.min((timestamp - lastTime) / 1000, 0.05); // seconds
   lastTime = timestamp;
+
+  // devFlags.timescale (default 1.0) lets the dev-tools panel slow / speed up
+  // the simulation. Background animation is not scaled — keeps the menu lively.
+  const _ts = (typeof devFlags !== 'undefined' ? devFlags.timescale : 1.0);
+  const dt  = rawDt * _ts;
+
+  // FPS counter: rolling average over 0.5s windows
+  _fpsAccum += rawDt; _fpsFrames++;
+  if (_fpsAccum >= 0.5) { _fpsValue = Math.round(_fpsFrames / _fpsAccum); _fpsAccum = 0; _fpsFrames = 0; }
+
+  // Phase-transition hook — fires the frame the phase value changes.
+  if (GameState.phase !== _prevPhase) {
+    _onPhaseChange(_prevPhase, GameState.phase);
+    _prevPhase = GameState.phase;
+  }
 
   update(dt);
   render();
@@ -321,58 +395,17 @@ function update(dt) {
 
   switch (GameState.phase) {
     case GamePhase.START:
-      if (keys.menuUp) {
-        keys.menuUp = false;
-        const i = DIFFICULTY_ORDER.indexOf(GameState.difficulty);
-        GameState.difficulty = DIFFICULTY_ORDER[(i + DIFFICULTY_ORDER.length - 1) % DIFFICULTY_ORDER.length];
-      }
-      if (keys.menuDown) {
-        keys.menuDown = false;
-        const i = DIFFICULTY_ORDER.indexOf(GameState.difficulty);
-        GameState.difficulty = DIFFICULTY_ORDER[(i + 1) % DIFFICULTY_ORDER.length];
-      }
-
-      // Mouse hit-test: click on a difficulty row → select it; click "Audio" → open audio menu.
-      // Must run BEFORE keys.enter so a row-click doesn't also trigger game start.
-      if (mouseJustClicked) {
-        mouseJustClicked = false;
-        const rect    = canvas.getBoundingClientRect();
-        const mx      = lastMouseClientX - rect.left;
-        const my      = lastMouseClientY - rect.top;
-        const cx      = canvas.width / 2;
-        const optY0   = 310;
-        const optStep = 32;
-        let hitRow = false;
-        for (let i = 0; i < DIFFICULTY_ORDER.length; i++) {
-          const ry = optY0 + i * optStep;
-          if (mx >= cx - 130 && mx <= cx + 130 && my >= ry - 22 && my <= ry + 10) {
-            GameState.difficulty = DIFFICULTY_ORDER[i];
-            keys.enter = false; // select only — do not start the game
-            hitRow = true;
-            break;
-          }
-        }
-        // "Audio" link hit region (matches render position y=510)
-        if (!hitRow && mx >= cx - 60 && mx <= cx + 60 && my >= 492 && my <= 520) {
-          keys.enter          = false;
-          GameState.menuCursor = 0;
-          GameState.phase     = GamePhase.AUDIO_MENU;
-        }
-      }
-
-      if (keys.enter) {
-        keys.enter = false; // one-shot: prevent instant pass-through on next frame
-        resetGame();
-        resetBalloon(); // called after resetGame → resetPlatforms
-        spawnEnemies(); // called after resetPlatforms so platforms array is ready
-        // Override: show LEVEL_INTRO bubble before gameplay starts
-        GameState.phase = GamePhase.LEVEL_INTRO;
-        showLevelStart(GameState.level);
-      }
-      if (keys.push) {
-        keys.push = false;
-        GameState.phase = GamePhase.DEV_SELECT;
-      }
+      // The start screen is a DOM overlay (src/start-screen.js). All input
+      // — difficulty selection, audio sliders, START/CONTINUE click, dev
+      // tools — is handled inside the React component which writes back to
+      // GameState directly. This case only swallows stray canvas-level
+      // keys so they don't leak into the next phase.
+      keys.enter = false;
+      keys.jump  = false;
+      keys.push  = false;
+      keys.menuUp = false;
+      keys.menuDown = false;
+      mouseJustClicked = false;
       break;
 
     case GamePhase.DEV_SELECT:
@@ -382,7 +415,7 @@ function update(dt) {
       if (keys.enter) {
         keys.enter = false;
         resetGame(GameState.devCursor);
-        resetBalloon();
+        resetBalloon(); resetOutroTrigger();
         spawnEnemies();
         GameState.phase = GamePhase.LEVEL_INTRO;
         showLevelStart(GameState.level);
@@ -390,16 +423,17 @@ function update(dt) {
       break;
 
     case GamePhase.LEVEL_INTRO:
-      // Bubble overlay shown before each level. Press ENTER / Space / Z to dismiss.
+      // Countdown runs 3→0 then auto-advances. No manual skip allowed during countdown.
       updateDialogue(dt);
-      // Swallow ESC during the bubble — otherwise a held/bleed ESC hops straight
-      // through PLAYING on the next frame and slams into PAUSED.
-      if (keys.escape) keys.escape = false;
-      if (keys.enter || keys.jump || keys.push) {
-        keys.enter = false;
-        keys.jump  = false;
-        keys.push  = false;
-        if (advanceDialogue()) GameState.phase = GamePhase.PLAYING;
+      GameState.introTimer = Math.max(0, GameState.introTimer - dt);
+      // Swallow all advance input while countdown is running
+      keys.escape = false;
+      keys.enter  = false;
+      keys.jump   = false;
+      keys.push   = false;
+      if (GameState.introTimer <= 0) {
+        advanceDialogue();
+        GameState.phase = GamePhase.PLAYING;
       }
       break;
 
@@ -478,7 +512,8 @@ function update(dt) {
       // killBonus is tracked separately and revealed at level complete
       GameState.score = Math.max(0, PLAYER_START_Y - GameState.maxHeightReached);
 
-      // Fall-off-bottom: costs one life, respawns at camera top
+      // Fall-off-bottom: costs one life (suppressed by GOD MODE inside takeDamage),
+      // respawns at camera top.
       if (player.y > GameState.cameraY + canvas.height && hazard.iframeTimer <= 0) {
         takeDamage('hazard');
         if (GameState.phase === GamePhase.PLAYING) {
@@ -511,11 +546,11 @@ function update(dt) {
         keys.enter = false;
         switch (GameState.menuCursor) {
           case 0: GameState.phase = GamePhase.PLAYING; break;                              // Continue
-          case 1: restartLevel(); resetBalloon(); spawnEnemies();
+          case 1: restartLevel(); resetBalloon(); resetOutroTrigger(); spawnEnemies();
                   GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Restart level
-          case 2: resetGame();    resetBalloon(); spawnEnemies();
+          case 2: resetGame();    resetBalloon(); resetOutroTrigger(); spawnEnemies();
                   GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Restart game
-          case 3: GameState.phase = GamePhase.START; break;                                // Main menu
+          case 3: GameState.pausedGame = true; GameState.phase = GamePhase.START; break;  // Main menu — overlay reads pausedGame to show CONTINUE
           case 4: case 5: break;                                                           // audio rows: ←→/Space only
         }
       }
@@ -547,16 +582,16 @@ function update(dt) {
         switch (GameState.menuCursor) {
           case 0: // Next level — if on last level, go to start
             if (GameState.level < 3) {
-              startNextLevel(); resetBalloon(); spawnEnemies();
+              startNextLevel(); resetBalloon(); resetOutroTrigger(); spawnEnemies();
               GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level);
             }
-            else GameState.phase = GamePhase.START;
+            else { GameState.pausedGame = false; GameState.phase = GamePhase.START; }
             break;
-          case 1: restartLevel(); resetBalloon(); spawnEnemies();
+          case 1: restartLevel(); resetBalloon(); resetOutroTrigger(); spawnEnemies();
                   GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Restart level
-          case 2: resetGame();    resetBalloon(); spawnEnemies();
+          case 2: resetGame();    resetBalloon(); resetOutroTrigger(); spawnEnemies();
                   GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Restart game
-          case 3: GameState.phase = GamePhase.START;             break; // Main menu
+          case 3: GameState.pausedGame = false; GameState.phase = GamePhase.START; break; // Main menu — fresh run, overlay shows START
         }
       }
       break;
@@ -564,6 +599,7 @@ function update(dt) {
     case GamePhase.GAMEOVER:
       if (keys.enter) {
         keys.enter = false;
+        GameState.pausedGame = false; // fresh start
         GameState.phase = GamePhase.START;
       }
       break;
@@ -601,6 +637,22 @@ function render() {
     renderBalloon(ctx);
     renderPlayer(ctx);
     renderHazard(ctx);
+
+    // Dev: hitbox overlay — drawn last in world space so it sits on top of
+    // every entity. Lime = platforms, magenta = player AABB, cyan = balloon.
+    if (typeof devFlags !== 'undefined' && devFlags.showHitboxes) {
+      ctx.lineWidth = 1;
+      if (typeof platforms !== 'undefined') {
+        ctx.strokeStyle = '#00ff00';
+        for (const p of platforms) ctx.strokeRect(p.x + 0.5, p.y + 0.5, p.w - 1, p.h - 1);
+      }
+      ctx.strokeStyle = '#ff00ff';
+      ctx.strokeRect(player.x + 0.5, player.y + 0.5, player.w - 1, player.h - 1);
+      if (typeof _balloon !== 'undefined' && _balloon.active) {
+        ctx.strokeStyle = '#00ffff';
+        ctx.strokeRect(_balloon.x + 0.5, _balloon.y + 0.5, _BAL_W - 1, _BAL_H - 1);
+      }
+    }
   }
 
   // 5. Exit world space
@@ -623,6 +675,32 @@ function render() {
 
   // 8. Dialogue overlay — drawn LAST so bubbles sit on top of HUD + world
   renderDialogue(ctx);
+
+  // 9. Intro countdown — countdown number only, no title (bubble already shows level context)
+  if (GameState.phase === GamePhase.LEVEL_INTRO && GameState.introTimer > 0) {
+    const countNum = Math.ceil(GameState.introTimer); // 3 → 2 → 1
+    const cx = canvas.width / 2;
+    // Full-canvas alpha overlay during countdown
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Yellow pixel-art bitmap font (same atlas as bubble titles)
+    const _CDN_SCALE = 0.675; // 147px source glyph × 0.675 ≈ 99px drawn height
+    const numStr = String(countNum);
+    const numW   = measureYellowText(numStr, _CDN_SCALE);
+    drawYellowText(ctx, numStr, Math.round(cx - numW / 2), 160, _CDN_SCALE);
+  }
+
+  // 10. Dev FPS counter — top-left, drawn over everything so it stays readable.
+  if (typeof devFlags !== 'undefined' && devFlags.showFps) {
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(0, 0, 86, 22);
+    ctx.fillStyle = '#00ff88';
+    ctx.font      = 'bold 13px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(`FPS: ${_fpsValue}`, 6, 16);
+    ctx.restore();
+  }
 }
 
 
@@ -676,84 +754,11 @@ function renderHUD() {
     }
   }
 
-  // ── Danger countdown banner — shown at start of each level before hazard activates ──
-  if (GameState.phase === GamePhase.PLAYING && GameState.countdownTimer > 0) {
-    const countdown = Math.ceil(GameState.countdownTimer); // 3 → 2 → 1
-
-    // Anchor at top of screen (bannerY=75 → band covers y=0–140)
-    const bannerY = 75;
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.68)';
-    ctx.fillRect(0, 0, canvas.width, 140);
-
-    ctx.textAlign = 'center';
-
-    // Header
-    ctx.fillStyle = '#e74c3c';
-    ctx.font      = '18px monospace';
-    ctx.fillText('DANGER!', canvas.width / 2, bannerY - 34);
-
-    // Big countdown number
-    ctx.fillStyle = '#f1c40f';
-    ctx.font      = '72px monospace';
-    ctx.fillText(String(countdown), canvas.width / 2, bannerY + 42);
-
-    ctx.textAlign = 'left'; // always reset
-  }
 
   // ── START screen ─────────────────────────────────────────────────────────
-  if (GameState.phase === GamePhase.START) {
-    const cx = canvas.width / 2;
-
-    ctx.fillStyle = 'rgba(0,0,0,0.55)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.textAlign = 'center';
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font      = '36px monospace';
-    ctx.fillText('SOGGY MOGGY', cx, 175);
-
-    // Difficulty picker — vertical 3-option list, ↑↓ or click to select
-    ctx.fillStyle = '#ffffff';
-    ctx.font      = '18px monospace';
-    ctx.fillText('Difficulty', cx, 270);
-
-    const optY0   = 310;
-    const optStep = 32;
-    for (let i = 0; i < DIFFICULTY_ORDER.length; i++) {
-      const key      = DIFFICULTY_ORDER[i];
-      const y        = optY0 + i * optStep;
-      const selected = key === GameState.difficulty;
-      if (selected) {
-        ctx.fillStyle = 'rgba(255,255,255,0.10)';
-        ctx.fillRect(cx - 130, y - 22, 260, 30);
-        ctx.fillStyle = '#f1c40f';
-      } else {
-        ctx.fillStyle = '#888888';
-      }
-      ctx.font = '18px monospace';
-      ctx.fillText((selected ? '▶ ' : '  ') + DIFFICULTY[key].label, cx, y);
-    }
-
-    ctx.font = '12px monospace';
-    ctx.fillStyle = '#666666';
-    ctx.fillText('↑↓ or click to select', cx, 430);
-
-    ctx.font = '20px monospace';
-    ctx.fillStyle = '#f1c40f';
-    ctx.fillText('ENTER or click to start', cx, 470);
-
-    // Audio settings link
-    ctx.font = '16px monospace';
-    ctx.fillStyle = '#5dade2';
-    ctx.fillText('Audio', cx, 510);
-
-    ctx.font = '13px monospace';
-    ctx.fillStyle = '#555555';
-    ctx.fillText('Z — dev level select', cx, 560);
-
-    ctx.textAlign = 'left'; // always reset after centered rendering
-  }
+  // Replaced by the React DOM overlay in src/start-screen.js. Canvas does
+  // not draw any HUD content for this phase; the overlay covers the full
+  // 480×640 area. See window.mountStartScreen() / unmountStartScreen().
 
   // ── DEV SELECT screen ─────────────────────────────────────────────────────
   if (GameState.phase === GamePhase.DEV_SELECT) {
