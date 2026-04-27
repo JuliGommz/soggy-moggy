@@ -1,40 +1,38 @@
-/*
-====================================================================
-* start-screen.js - React DOM overlay for GamePhase.START
-====================================================================
-* Project: Soggy Moggy
-* Course: PRG Abschlussprojekt — SRH Fachschulen
-* Developer: Julian Gomez
-* Date: 2026-04-26
-* Version: 1.1 - JSX → React.createElement (file:// compatibility)
-*
-* AUTHORSHIP CLASSIFICATION:
-*
-* [AI-ASSISTED]
-* - Ported from Visuals/ui/menus/start-screen-A.jsx (FlatLayoutB only;
-*   all other layouts and dev variants stripped — design IS the spec)
-* - DOM overlay over Canvas — chosen so CSS box-shadows / bevel effects /
-*   Google fonts port 1:1 instead of being recreated in ctx.* draw calls
-* - JSX converted to React.createElement so this file loads as a plain
-*   <script src="..."> tag. Babel-standalone uses XHR for external src=,
-*   which is blocked on file:// by browser CORS policy.
-*
-* NOTES:
-* - Loaded as a regular <script src="..."> tag — no Babel, no XHR required
-* - Depends on React + ReactDOM loaded before this file
-* - Loads LAST in index.html; depends on GameState, devFlags, updateAudioGains,
-*   unlockAudio, GamePhase, resetGame, saveStartScreenPrefs, HS_KEY
-* - Mount via window.mountStartScreen(); unmount via window.unmountStartScreen()
-*
-* SECTION MAP (search for §-marker to jump):
-*   § 1  Palette + font constants (PAL, PIXEL, PIXEL_BLOCK)
-*   § 2  Primitives (PixelBtn, VolumeSlider, MoggyTitle)
-*   § 3  Difficulty + Audio panels (DifficultyColumn, AudioFlatRow)
-*   § 4  FlatLayoutB main layout (DEV chip, HI-SCORE, START, panels)
-*   § 5  DevToolsOverlay + DevTabs + dev rows
-*   § 6  StartScreen root + mount/unmount
-====================================================================
-*/
+/**
+ * File:        start-screen.js
+ * Project:     Soggy Moggy — SRH Abschlussprojekt (Game & Multimedia Design)
+ * Author:      Julian Gomez
+ * AI support:  Developed with AI assistance (Claude / Anthropic) as a
+ *              pair-programming partner for design, implementation, and debugging.
+ *              All code reviewed and integrated by the author.
+ * Created:     2026-04-26
+ * Updated:     2026-04-27
+ *
+ * Purpose:     React DOM overlay shown over the canvas during GamePhase.START.
+ *              Covers difficulty selection, audio sliders, high-score display,
+ *              the "▶ START" / "▶ CONTINUE" entry point, and the DEV TOOLS panel.
+ *              The overlay is mounted via window.mountStartScreen() and
+ *              unmounted via window.unmountStartScreen().
+ * Depends on:  React + ReactDOM (loaded via <script> before this file),
+ *              game-state.js (GameState, GamePhase, DIFFICULTY, DIFFICULTY_ORDER,
+ *                             saveStartScreenPrefs, HS_KEY, resetGame),
+ *              dev-flags.js (devFlags),
+ *              audio.js (updateAudioGains, unlockAudio).
+ * Loaded by:   index.html (vanilla <script> tag — see load order in index.html)
+ *
+ * Why React.createElement instead of JSX: JSX requires Babel-standalone, which
+ * uses XHR to fetch external src= scripts. Browsers block XHR on file:// for
+ * cross-origin local files (Firefox blocks it for ALL local files). Plain
+ * createElement calls load via the HTML parser and work everywhere.
+ *
+ * Section map (search for §-marker to jump):
+ *   § 1  Palette + font constants (PAL, PIXEL, PIXEL_BLOCK)
+ *   § 2  Primitives (PixelBtn, VolumeSlider, MoggyTitle)
+ *   § 3  Difficulty + Audio panels (DifficultyColumn, AudioFlatRow)
+ *   § 4  FlatLayoutB main layout (DEV chip, HI-SCORE, START, panels)
+ *   § 5  DevToolsOverlay + DevTabs + dev rows
+ *   § 6  StartScreen root + mount/unmount
+ */
 
 /* global React, ReactDOM, GameState, GamePhase, DIFFICULTY, DIFFICULTY_ORDER,
    devFlags, updateAudioGains, unlockAudio, saveStartScreenPrefs, resetGame,
@@ -163,6 +161,10 @@ function MoggyTitle() {
       const w1 = measureYellowText('SOGGY', SCALE);
       if (!w1) { raf = requestAnimationFrame(tryDraw); return; }
       const ctx = cv.getContext('2d');
+      // Pixel-art canvas: disable browser bilinear filtering. Without this,
+      // drawImage scaling (147 → 65 px) bleeds the bottom row of opaque pixels
+      // into transparency, clipping the bottom black outline of letters like O.
+      ctx.imageSmoothingEnabled = false;
       ctx.clearRect(0, 0, CW, CH);
       const w2 = measureYellowText('MOGGY', SCALE);
       drawYellowText(ctx, 'SOGGY', Math.round((CW - w1) / 2), 0,            SCALE);
@@ -200,7 +202,7 @@ function DifficultyColumn({ value, onChange, disabled = false }) {
         textShadow: `1px 1px 0 ${PAL.red}, 2px 2px 0 ${PAL.ink}, -1px -1px 0 ${PAL.ink}, 1px -1px 0 ${PAL.ink}, -1px 1px 0 ${PAL.ink}`,
       },
     }, 'DIFFICULTY'),
-    ce('div', { style: { display: 'flex', flexDirection: 'column', gap: 3, border: `3px solid ${PAL.ink}`, boxShadow: `0 3px 0 ${PAL.ink}` } },
+    ce('div', { style: { display: 'flex', flexDirection: 'column', gap: 3, border: `3px solid ${PAL.ink}`, boxShadow: `0 3px 0 ${PAL.ink}`, marginTop: 4, background: '#14100c' } },
       ...DIFFICULTY_OPTIONS.map((o, i) => {
         const sel = value === o.id;
         return ce('button', {
@@ -208,8 +210,8 @@ function DifficultyColumn({ value, onChange, disabled = false }) {
           onClick: () => !disabled && onChange(o.id),
           disabled,
           style: {
-            padding: '5px 4px',
-            background: sel ? PAL.yellow : 'rgba(20,16,12,0.75)',
+            padding: '8px 4px',
+            background: sel ? PAL.yellow : '#14100c',
             color: sel ? PAL.ink : PAL.cream,
             border: 'none',
             borderBottom: i < DIFFICULTY_OPTIONS.length - 1 ? `2px solid ${PAL.ink}` : 'none',
@@ -274,16 +276,17 @@ function AudioFlatRow({ label, icon, value, onChange, muted, onMuteToggle, label
 function FlatLayoutB(p) {
   const [devHover, setDevHover] = useState(false);
   const devChipStyle = {
-    position: 'absolute', bottom: 4, left: 14, zIndex: 3,
+    position: 'absolute', bottom: 5, left: 14, zIndex: 3,
     fontFamily: PIXEL, fontSize: 14, letterSpacing: 2,
     color: devHover ? PAL.yellow : PAL.cream,
-    opacity: devHover ? 1 : 0.9,
-    background: 'rgba(20,16,12,0.8)',
-    border: `2px solid ${PAL.ink}`,
-    padding: '5px 10px',
+    background: '#14100c',
+    border: 'none',
+    outline: 'none',
+    height: 32,
+    padding: '0 10px',
+    display: 'flex', alignItems: 'center',
     cursor: 'pointer',
     textShadow: `1px 1px 0 ${PAL.ink}`,
-    boxShadow: `0 3px 0 ${PAL.ink}`,
   };
   return ce(React.Fragment, null,
     ce('div', { style: { position: 'absolute', top: 0, left: 0, right: 0, height: 220, background: 'linear-gradient(180deg, rgba(20,16,12,0.88) 0%, rgba(20,16,12,0.4) 70%, transparent 100%)', pointerEvents: 'none' } }),
@@ -301,11 +304,10 @@ function FlatLayoutB(p) {
     ce('div', {
       style: {
         position: 'absolute', bottom: 4, right: 14, zIndex: 3,
-        background: 'rgba(20,16,12,0.92)',
-        border: `2px solid ${PAL.ink}`,
-        padding: '4px 10px 5px',
-        boxShadow: `0 3px 0 ${PAL.ink}`,
-        display: 'flex', alignItems: 'baseline', gap: 8,
+        background: '#14100c',
+        height: 32,
+        padding: '0 10px',
+        display: 'flex', alignItems: 'center', gap: 8,
       },
     },
       ce('span', {
@@ -319,17 +321,54 @@ function FlatLayoutB(p) {
       }, (p.highscore || 0).toLocaleString())
     ),
     ce('div', {
-      style: { position: 'absolute', top: 340, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, zIndex: 2 },
+      style: { position: 'absolute', top: 315, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, zIndex: 2 },
     },
-      ce(PixelBtn, { primary: true, huge: true, onClick: p.onStart },
+      ce(PixelBtn, {
+        primary: true, onClick: p.onStart,
+        style: { fontSize: 11, padding: '5px 12px' },
+      },
         p.showPaused ? '▶ CONTINUE' : '▶ START'
       ),
       ce('div', {
-        style: { textAlign: 'center', fontFamily: PIXEL, fontSize: 14, color: PAL.cream, opacity: 0.75, letterSpacing: 2, textShadow: `1px 1px 0 ${PAL.ink}` },
+        style: { textAlign: 'center', fontFamily: PIXEL, fontSize: 12, color: PAL.cream, opacity: 0.75, letterSpacing: 2, textShadow: `1px 1px 0 ${PAL.ink}` },
       }, p.showPaused ? `[SPACE] · PAUSED · LEVEL ${p.levelNumber}` : '[SPACE] OR CLICK')
     ),
+    // Static CONTROLS reference — visible on every Start-screen visit so a
+    // first-time player (or grader) sees the keyboard + mouse mapping without
+    // having to dig through menus.
     ce('div', {
-      style: { position: 'absolute', left: 14, right: 14, bottom: 34, display: 'flex', alignItems: 'stretch', gap: 10, zIndex: 2 },
+      style: {
+        position: 'absolute', top: 369, left: 14, right: 14, zIndex: 2,
+        background: 'rgba(20,16,12,0.86)',
+        border: `2px solid ${PAL.ink}`,
+        boxShadow: `0 3px 0 ${PAL.ink}`,
+        padding: '4px 10px 6px',
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        columnGap: 14,
+        rowGap: 1,
+        fontFamily: PIXEL,
+        fontSize: 12,
+        letterSpacing: 1,
+        color: PAL.cream,
+        textShadow: `1px 1px 0 ${PAL.ink}`,
+      },
+    },
+      ce('div', {
+        style: {
+          gridColumn: '1 / -1', textAlign: 'center',
+          fontFamily: PIXEL_BLOCK, fontSize: 9, color: PAL.yellow, letterSpacing: 2,
+          marginBottom: 2,
+          textShadow: `1px 1px 0 ${PAL.ink}`,
+        },
+      }, 'CONTROLS'),
+      ce('span', null, ce('span', { style: { color: PAL.yellow } }, 'MOVE'),   '  ← → / A D'),
+      ce('span', null, ce('span', { style: { color: PAL.yellow } }, 'JUMP'),   '  SPACE / CLICK'),
+      ce('span', null, ce('span', { style: { color: PAL.yellow } }, 'ACTION'), '  Z / R-CLICK'),
+      ce('span', null, ce('span', { style: { color: PAL.yellow } }, 'PAUSE'),  '  ESC')
+    ),
+    ce('div', {
+      style: { position: 'absolute', left: 14, right: 14, bottom: 36, display: 'flex', alignItems: 'stretch', gap: 10, zIndex: 2 },
     },
       ce('div', {
         style: { flex: 1, minWidth: 0, background: 'rgba(20,16,12,0.88)', border: `3px solid ${PAL.ink}`, boxShadow: `0 4px 0 ${PAL.ink}`, padding: '13px 10px 8px' },
@@ -410,23 +449,6 @@ function DevScrubber({ value, min, max, onChange }) {
   );
 }
 
-function DevTextInput({ value, onChange, placeholder }) {
-  return ce('input', {
-    type: 'text', value, placeholder,
-    onChange: (e) => onChange(e.target.value),
-    style: {
-      flex: 1, minWidth: 0,
-      background: 'rgba(0,0,0,0.45)',
-      border: `2px solid ${PAL.ink}`,
-      color: PAL.cream,
-      fontFamily: PIXEL, fontSize: 14, letterSpacing: 2,
-      padding: '4px 8px',
-      outline: 'none',
-      textShadow: `1px 1px 0 ${PAL.ink}`,
-    },
-  });
-}
-
 function DevButton({ label, danger, onClick }) {
   const [hover, setHover] = useState(false);
   return ce('button', {
@@ -472,8 +494,6 @@ function DevRow({ opt }) {
         style: { fontFamily: PIXEL, fontSize: 13, color: PAL.yellow, minWidth: 50, textAlign: 'right', textShadow: `1px 1px 0 ${PAL.ink}` },
       }, opt.format ? opt.format(opt.value) : opt.value)
     );
-  } else if (opt.kind === 'text') {
-    control = ce(DevTextInput, { value: opt.value, onChange: opt.set, placeholder: opt.placeholder });
   } else if (opt.kind === 'button') {
     control = ce(DevButton, { label: opt.btnLabel || 'RUN', danger: opt.danger, onClick: opt.onClick });
   }
@@ -520,7 +540,6 @@ function DevTabs({ options }) {
 function DevToolsOverlay({ onClose, onResetHighscore, onUnlockLevels }) {
   const [floor,    setFloor]    = useState(devFlags.startAtLevel);
   const [startY,   setStartY]   = useState(devFlags.dropHeightPct);
-  const [seed,     setSeed]     = useState(devFlags.rngSeed);
   const [god,      setGod]      = useState(devFlags.godMode);
   const [infLives, setInfLives] = useState(devFlags.infiniteLives);
   const [grav10,   setGrav10]   = useState(Math.round(devFlags.gravityMul * 10));
@@ -529,9 +548,15 @@ function DevToolsOverlay({ onClose, onResetHighscore, onUnlockLevels }) {
   const [fps,      setFps]      = useState(devFlags.showFps);
   const [flash,    setFlash]    = useState('');
 
+  // Flash banner timeout reference. Cleaned up on unmount so a late tick can
+  // never call setFlash on an unmounted component (avoids React 18 warning).
+  const flashTimerRef = useRef(null);
+  useEffect(() => () => {
+    if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+  }, []);
+
   useEffect(() => { devFlags.startAtLevel  = floor;       }, [floor]);
   useEffect(() => { devFlags.dropHeightPct = startY;      }, [startY]);
-  useEffect(() => { devFlags.rngSeed       = seed;        }, [seed]);
   useEffect(() => { devFlags.godMode       = god;         }, [god]);
   useEffect(() => { devFlags.infiniteLives = infLives;    }, [infLives]);
   useEffect(() => { devFlags.gravityMul    = grav10 / 10; }, [grav10]);
@@ -545,24 +570,25 @@ function DevToolsOverlay({ onClose, onResetHighscore, onUnlockLevels }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  const TOTAL_LEVELS = 3;
+  const TOTAL_LEVELS    = 3;
+  const FLASH_DURATION_MS = 1400;
 
-  const handleReset = () => {
-    onResetHighscore();
-    setFlash('✓ HIGHSCORE WIPED');
-    setTimeout(() => setFlash(''), 1400);
+  const showFlash = (text) => {
+    setFlash(text);
+    if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+    flashTimerRef.current = setTimeout(() => {
+      flashTimerRef.current = null;
+      setFlash('');
+    }, FLASH_DURATION_MS);
   };
-  const handleUnlock = () => {
-    onUnlockLevels();
-    setFlash('✓ ALL LEVELS UNLOCKED');
-    setTimeout(() => setFlash(''), 1400);
-  };
+
+  const handleReset  = () => { onResetHighscore(); showFlash('✓ HIGHSCORE WIPED');     };
+  const handleUnlock = () => { onUnlockLevels();   showFlash('✓ ALL LEVELS UNLOCKED'); };
 
   const allOptions = {
     start: [
       { kind: 'scrubber', label: 'START AT LEVEL',  value: floor,  set: setFloor,  min: 1, max: TOTAL_LEVELS, format: (v) => `${v} / ${TOTAL_LEVELS}` },
       { kind: 'slider',   label: 'DROP HEIGHT (Y)', value: startY, set: setStartY, min: 0, max: 100, format: (v) => `${v}%`, sub: 'Where the cat spawns within the level' },
-      { kind: 'text',     label: 'RNG SEED',        value: seed,   set: setSeed,   placeholder: 'leave blank for random', sub: 'Reproduce the same run for testing' },
     ],
     player: [
       { kind: 'toggle', label: 'GOD MODE',          value: god,      set: setGod,      sub: 'No fall damage · No hazards' },

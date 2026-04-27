@@ -1,115 +1,140 @@
-/*
-====================================================================
-* enemies.js - Wasp enemy system: patrol, sting, stomp
-====================================================================
-* Project: Soggy Moggy
-* Course: PRG Abschlussprojekt — SRH Fachschulen
-* Developer: Julian Gomez
-* Date: 2026-04-07
-* Version: 1.0
-*
-* BEHAVIOR OVERVIEW:
-*   Wasps patrol horizontally for 4–8 s, then reverse direction.
-*   Rigid-body: bounces off canvas edges and visible platforms.
-*   Stinger (red point at tail of sprite) → cat contact → -1 life, wasp survives and flies away.
-*   Stomp (cat lands on top of wasp) → wasp dies with shrink/fade animation.
-*
-* DYNAMIC SPAWN COUNTS (must match level order — update if level order changes):
-*   Level 1 — City           (city):       5 wasps
-*   Level 2 — Elevator Shaft (shaft):     7 wasps
-*   Level 3 — Open Sea       (lighthouse): 10 wasps
-*
-* AUTHORSHIP CLASSIFICATION:
-* [AI-ASSISTED]
-* - State machine design (patrol/dying), frame-accurate stomp check,
-*   stinger hitbox flip logic, rigid-body platform bounce
-*
-* NOTES:
-* - spawnEnemies() must be called AFTER resetPlatforms() — needs platforms array to be populated.
-* - updateEnemies(dt) must run after checkPlatformCollisions() — reads player.prevY.
-* - renderEnemies(ctx) runs inside world-space ctx.save/translate block in main.js.
-====================================================================
-*/
-// Depends on: platforms, PLAYER_START_Y (platforms.js), player, JUMP_VELOCITY, getPawZone (player.js),
-//             GameState (game-state.js), takeDamage, hazard (hazards.js), keys (input.js)
+/**
+ * File:        enemies.js
+ * Project:     Soggy Moggy — SRH Abschlussprojekt (Game & Multimedia Design)
+ * Author:      Julian Gomez
+ * AI support:  Developed with AI assistance (Claude / Anthropic) as a
+ *              pair-programming partner for design, implementation, and debugging.
+ *              All code reviewed and integrated by the author.
+ * Created:     2026-04-07
+ * Updated:     2026-04-26
+ *
+ * Purpose:     Wasp enemy system: spawning, patrol behavior, sting (damage),
+ *              stomp (kill from above), paw kill (Z key), and death animation.
+ *              Also exposes getNearestWaspDist() for the audio buzz layer.
+ * Depends on:  platforms (platforms.js), PLAYER_START_Y (platforms.js),
+ *              player + JUMP_VELOCITY + getPawZone (player.js),
+ *              GameState + DIFFICULTY (game-state.js),
+ *              takeDamage + hazard (hazards.js), keys (input.js),
+ *              playSound (audio.js, optional via typeof guard).
+ * Loaded by:   index.html (vanilla <script> tag — see load order in index.html)
+ *
+ * Behavior summary:
+ *   - Wasps patrol horizontally for 4–8 s, then reverse direction.
+ *   - Rigid body: bounces off canvas edges and visible platforms.
+ *   - Stinger contact (red point at the abdomen)  → cat takes damage; wasp survives and flees.
+ *   - Stomp (cat lands on top)                    → wasp dies with shrink + fade.
+ *   - Paw hit (Z key, paw AABB overlaps wasp)     → wasp dies (one paw kill per frame).
+ *
+ * Per-level wasp counts (base, before difficulty multiplier DIFFICULTY[*].waspMul):
+ *   Level 1 — City                  →  8 wasps
+ *   Level 2 — Elevator Shaft        → 12 wasps
+ *   Level 3 — Open Sea / Lighthouse → 16 wasps
+ *
+ * Call order (from main.js):
+ *   spawnEnemies()  must run AFTER  resetPlatforms() — needs the platforms array
+ *   updateEnemies() must run AFTER  checkPlatformCollisions() — reads player.prevY
+ *   renderEnemies() runs INSIDE the world-space ctx.save/translate block
+ */
 
-// ── Asset ────────────────────────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// Tunables — gameplay
+// _CANVAS_W is declared in player.js (loads first) and used here as a global.
+// ---------------------------------------------------------------------------
+const _WASP_SPEED_MIN_PX_S = 55;  // minimum patrol speed
+const _WASP_SPEED_MAX_PX_S = 100; // maximum patrol speed
+const _PATROL_MIN_SEC      = 4;   // seconds before reversing direction (lower bound)
+const _PATROL_MAX_SEC      = 8;   // seconds before reversing direction (upper bound)
+const _WASP_IFRAME_SEC     = 1.2; // player invincibility window after a sting hit
+const _DEATH_DURATION_SEC  = 0.5; // shrink + fade death animation length
+
+const _STOMP_BOUNCE_VY     = -280;  // upward velocity granted on a stomp kill
+const _STOMP_JUMP_WINDOW_S = 0.15;  // press jump within this window after a stomp for full JUMP_VELOCITY
+const _STOMP_LAND_TOL_PX   = 8;     // extra leniency when checking if the cat is on the wasp's top surface
+const _WASP_FLEE_SPEED_MUL = 1.6;   // post-sting flee burst multiplier
+
+const _SPAWN_TOP_BUFFER_PX    = 200; // keep wasps clear of the level's top edge
+const _SPAWN_BOTTOM_BUFFER_PX = 200; // keep wasps clear of the spawn area
+const _SPAWN_Y_OFFSET_PX      = 6;   // wasp draws this many px above the platform top
+
+const _KILL_BONUS_POINTS = 50;       // points per defeated wasp (stomp or paw)
+
+// ---------------------------------------------------------------------------
+// Tunables — sprite + animation
+// ---------------------------------------------------------------------------
+const _WASP_FRAME_W  = 63;        // source frame width  (252 px sheet / 4 frames)
+const _WASP_FRAME_H  = 44;        // source frame height
+const _WASP_FRAMES   = 4;         // total animation frames in the sheet
+const _WASP_ANIM_FPS = 8;         // animation frames per second
+
+// Draw size matches native sprite (1:1, no scaling).
+const _WASP_DRAW_W = _WASP_FRAME_W;
+const _WASP_DRAW_H = _WASP_FRAME_H;
+
+// Stinger hitbox — located at the tail of the abdomen. Tracks the abdomen tip
+// regardless of facing direction (flipX swaps which X offset is used).
+const _STING_OX_RIGHT = 42;       // x offset when facing right (stinger near right edge)
+const _STING_OX_LEFT  =  4;       // x offset when facing left  (stinger near left  edge)
+const _STING_OY       = 26;       // y offset (lower half — abdomen area)
+const _STING_W        = 14;
+const _STING_H        = 14;
+
+// Stomp surface — the top N px of the wasp sprite count as stompable.
+const _STOMP_H = 12;
+
+// Vertical zig-zag oscillation around baseY.
+const _ZIG_AMP_PX  = 20;          // peak vertical swing
+const _ZIG_FREQ_HZ = 1.5;         // cycles per second
+
+// ---------------------------------------------------------------------------
+// Per-level wasp counts (base, before DIFFICULTY[*].waspMul).
+// Index 0 is unused (levels start at 1). LOCKED — production values.
+// ---------------------------------------------------------------------------
+const _WASP_COUNT = [0, 8, 12, 16];
+
+// ---------------------------------------------------------------------------
+// Asset
+// ---------------------------------------------------------------------------
 const _waspSheet = new Image();
 _waspSheet.src = 'Visuals/characters/wasp/wasp_sheet.png';
 
-// ── Sprite constants ─────────────────────────────────────────────────────────
-const _WASP_FRAME_W  = 63;      // source frame width  (252px sheet / 4 frames)
-const _WASP_FRAME_H  = 44;      // source frame height
-const _WASP_FRAMES   = 4;       // total animation frames in sheet
-const _WASP_ANIM_FPS = 8;       // animation frames per second
+// ---------------------------------------------------------------------------
+// State
+// ---------------------------------------------------------------------------
+const enemies         = [];  // active enemy objects — cleared on each spawnEnemies()
+let   _waspIframe     = 0;   // shared player-side sting cooldown (one timer for all wasps)
+let   _stompJumpWindow = 0;  // seconds remaining to press jump after a stomp for full power
+let   _waspsDefeated  = 0;   // count of wasps killed this level (for the clear bonus)
 
-// Draw size matches native sprite (no scale)
-const _WASP_DRAW_W = _WASP_FRAME_W; // 63
-const _WASP_DRAW_H = _WASP_FRAME_H; // 44
-
-// Stinger hitbox — located at the tail (right side when facing right, left when flipped).
-// Offset relative to the drawn sprite top-left corner (before flip transformation).
-// Adjusted at runtime based on w.flipX so the stinger always tracks the abdomen tip.
-const _STING_OX_RIGHT = 42; // x offset when facing right (stinger at right end)
-const _STING_OX_LEFT  =  4; // x offset when facing left  (stinger at left end)
-const _STING_OY       = 26; // y offset (lower half of sprite — abdomen area)
-const _STING_W        = 14; // stinger hitbox width
-const _STING_H        = 14; // stinger hitbox height
-
-// Stomp detection — top N pixels of the wasp sprite count as "stompable surface"
-const _STOMP_H = 12;
-
-// Zig-zag vertical oscillation
-const _ZIG_AMP  = 20;   // px — vertical swing above and below baseY
-const _ZIG_FREQ = 1.5;  // cycles per second
-
-// ── Behavior constants ────────────────────────────────────────────────────────
-const _WASP_SPEED_MIN   = 55;  // px/s minimum patrol speed
-const _WASP_SPEED_MAX   = 100; // px/s maximum patrol speed
-const _PATROL_MIN       = 4;   // seconds before reversing direction
-const _PATROL_MAX       = 8;   // seconds before reversing direction
-const _WASP_IFRAME      = 1.2; // seconds of stinger-damage invincibility (player-side)
-const _DEATH_DURATION   = 0.5; // seconds for the shrink/fade death animation
-
-// ── DYNAMIC SPAWN COUNTS ─────────────────────────────────────────────────────
-// Indexed by level. Base counts before difficulty multiplier (DIFFICULTY[*].waspMul).
-// L1 city: 8 | L2 shaft: 12 | L3 lighthouse: 16
-const _WASP_COUNT = [0, 8, 12, 16];
-
-// ── State ─────────────────────────────────────────────────────────────────────
-const enemies      = [];  // active enemy objects — cleared on each spawnEnemies() call
-let   _waspIframe       = 0;   // shared sting cooldown (player side) — one timer for all wasps
-let   _stompJumpWindow  = 0;   // seconds remaining to press jump after a stomp for a full-power bounce
-let   _waspsDefeated    = 0;   // count of wasps killed this level (stomp or paw); used for clear bonus
-
-// ── spawnEnemies() ────────────────────────────────────────────────────────────
-// Call after resetPlatforms() each level start / restart. Picks random platforms
-// scattered through the level so wasps spread across the full climb path.
-// resetEnemies() — clears all enemy state without spawning new wasps.
+// ---------------------------------------------------------------------------
+// resetEnemies() — clears all enemy state without spawning.
 // Called from resetGame(), startNextLevel(), restartLevel() in game-state.js.
+// ---------------------------------------------------------------------------
 function resetEnemies() {
-  enemies.length      = 0;
-  _waspIframe         = 0;
-  _stompJumpWindow    = 0;
-  _waspsDefeated      = 0;
+  enemies.length    = 0;
+  _waspIframe       = 0;
+  _stompJumpWindow  = 0;
+  _waspsDefeated    = 0;
 }
 
+// ---------------------------------------------------------------------------
+// spawnEnemies() — picks viable platforms and seats one wasp on each.
+// Call AFTER resetPlatforms() so the platforms array is populated.
+// ---------------------------------------------------------------------------
 function spawnEnemies() {
   resetEnemies();
 
   const baseCount = _WASP_COUNT[GameState.level] || 0;
   const count     = Math.max(0, Math.floor(baseCount * DIFFICULTY[GameState.difficulty].waspMul));
 
-  // Viable platforms: visible (player can see and interact with them), non-finish,
-  // at least 200px above the ground start and not at the very top (keep top clear).
+  // Viable platforms: visible, not the finish, far enough from both top and bottom.
   const viable = platforms.filter(p =>
     !p.invisible &&
     !p.isFinish  &&
-    p.y < PLAYER_START_Y - 200 &&
-    p.y > GameState.levelGoalY + 200
+    p.y < PLAYER_START_Y - _SPAWN_BOTTOM_BUFFER_PX &&
+    p.y > GameState.levelGoalY + _SPAWN_TOP_BUFFER_PX
   );
 
-  // Shuffle viable array so picks are random without replacement
+  // Fisher-Yates shuffle so picks are random without replacement.
   for (let i = viable.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [viable[i], viable[j]] = [viable[j], viable[i]];
@@ -119,18 +144,18 @@ function spawnEnemies() {
     if (i >= viable.length) break; // not enough platforms — spawn what we can
 
     const p     = viable[i];
-    const speed = _WASP_SPEED_MIN + Math.random() * (_WASP_SPEED_MAX - _WASP_SPEED_MIN);
+    const speed = _WASP_SPEED_MIN_PX_S + Math.random() * (_WASP_SPEED_MAX_PX_S - _WASP_SPEED_MIN_PX_S);
     const dir   = Math.random() < 0.5 ? 1 : -1; // initial patrol direction
 
-    const spawnY = p.y - _WASP_DRAW_H - 6;
+    const spawnY = p.y - _WASP_DRAW_H - _SPAWN_Y_OFFSET_PX;
     enemies.push({
       x:           p.x + p.w / 2 - _WASP_DRAW_W / 2,
       y:           spawnY,
-      baseY:       spawnY,                                   // zig-zag center anchor
-      homePlat:    p,                                        // skip this platform in bounce checks
-      zigTimer:    Math.random() / _ZIG_FREQ,                // random phase offset
+      baseY:       spawnY,                                    // zig-zag center anchor
+      homePlat:    p,                                         // skip in bounce checks
+      zigTimer:    Math.random() / _ZIG_FREQ_HZ,              // random phase offset
       vx:          speed * dir,
-      patrolTimer: _PATROL_MIN + Math.random() * (_PATROL_MAX - _PATROL_MIN),
+      patrolTimer: _PATROL_MIN_SEC + Math.random() * (_PATROL_MAX_SEC - _PATROL_MIN_SEC),
       animTimer:   Math.random() * (1 / _WASP_ANIM_FPS),
       frame:       Math.floor(Math.random() * _WASP_FRAMES),
       alive:       true,
@@ -140,13 +165,15 @@ function spawnEnemies() {
   }
 }
 
-// ── updateEnemies(dt) ─────────────────────────────────────────────────────────
-// Call every PLAYING frame after checkPlatformCollisions() (needs player.prevY).
+// ---------------------------------------------------------------------------
+// updateEnemies(dt) — physics + AI step. Call every PLAYING frame AFTER
+// checkPlatformCollisions() so player.prevY is current.
+// ---------------------------------------------------------------------------
 function updateEnemies(dt) {
-  // Stomp-jump window: pressing jump within 150ms of a stomp grants full JUMP_VELOCITY.
-  // NOTE: updatePlayer() runs before updateEnemies() each frame (see main.js call order),
-  // so the stomp sets player.vy=-280 and opens the window at the end of frame N.
-  // The jump override takes effect in frame N+1 when updateEnemies runs again — deliberate 1-frame delay.
+  // Stomp-jump window: pressing jump within _STOMP_JUMP_WINDOW_S of a stomp grants
+  // the full JUMP_VELOCITY. updatePlayer() runs before updateEnemies() each frame,
+  // so the stomp opens the window at the end of frame N. The jump override takes
+  // effect in frame N+1 — a deliberate one-frame delay.
   if (_stompJumpWindow > 0) {
     _stompJumpWindow -= dt;
     if (keys.jump) {
@@ -157,75 +184,73 @@ function updateEnemies(dt) {
 
   _waspIframe = Math.max(0, _waspIframe - dt);
 
-  let _pawUsed = false; // one paw hit per frame; stomp checks still run for all wasps
+  let _pawUsed = false; // one paw kill per frame; stomp checks still run for all wasps
 
   for (let i = enemies.length - 1; i >= 0; i--) {
     const w = enemies[i];
 
-    // ── Death animation — count down then remove ──
+    // Death animation — count down then remove.
     if (!w.alive) {
       w.dyingTimer += dt;
-      if (w.dyingTimer >= _DEATH_DURATION) {
+      if (w.dyingTimer >= _DEATH_DURATION_SEC) {
         enemies.splice(i, 1);
       }
       continue;
     }
 
-    // ── Animation ────────────────────────────────
+    // Animation.
     w.animTimer += dt;
     if (w.animTimer >= 1 / _WASP_ANIM_FPS) {
       w.animTimer -= 1 / _WASP_ANIM_FPS;
       w.frame = (w.frame + 1) % _WASP_FRAMES;
     }
 
-    // ── Patrol timer — reverse direction on expiry ──
+    // Patrol timer — reverse direction on expiry.
     w.patrolTimer -= dt;
     if (w.patrolTimer <= 0) {
       w.vx          = -w.vx;
       w.flipX       = w.vx < 0;
-      w.patrolTimer = _PATROL_MIN + Math.random() * (_PATROL_MAX - _PATROL_MIN);
+      w.patrolTimer = _PATROL_MIN_SEC + Math.random() * (_PATROL_MAX_SEC - _PATROL_MIN_SEC);
     }
 
-    // ── Move ──────────────────────────────────────
+    // Move.
     w.x        += w.vx * dt;
     w.zigTimer += dt;
-    w.y         = w.baseY + Math.sin(w.zigTimer * _ZIG_FREQ * Math.PI * 2) * _ZIG_AMP;
+    w.y         = w.baseY + Math.sin(w.zigTimer * _ZIG_FREQ_HZ * Math.PI * 2) * _ZIG_AMP_PX;
 
-    // ── Rigid body: canvas left/right walls ──────
+    // Rigid body — canvas left/right walls.
     if (w.x < 0) {
       w.x           = 0;
       w.vx          = Math.abs(w.vx);
       w.flipX       = false;
-      w.patrolTimer = _PATROL_MIN + Math.random() * (_PATROL_MAX - _PATROL_MIN);
-    } else if (w.x + _WASP_DRAW_W > 480) {
-      w.x           = 480 - _WASP_DRAW_W;
+      w.patrolTimer = _PATROL_MIN_SEC + Math.random() * (_PATROL_MAX_SEC - _PATROL_MIN_SEC);
+    } else if (w.x + _WASP_DRAW_W > _CANVAS_W) {
+      w.x           = _CANVAS_W - _WASP_DRAW_W;
       w.vx          = -Math.abs(w.vx);
       w.flipX       = true;
-      w.patrolTimer = _PATROL_MIN + Math.random() * (_PATROL_MAX - _PATROL_MIN);
+      w.patrolTimer = _PATROL_MIN_SEC + Math.random() * (_PATROL_MAX_SEC - _PATROL_MIN_SEC);
     }
 
-    // ── Rigid body: bounce off visible platforms ──
-    // Skip the wasp's home platform — zig-zag can dip into it and cause false side-bounces.
+    // Rigid body — bounce off visible platforms (skip home platform: zig-zag
+    // can dip into it and trigger false side-bounces).
     for (const p of platforms) {
       if (p.invisible || p === w.homePlat) continue;
       const overlapX = w.x < p.x + p.w && w.x + _WASP_DRAW_W > p.x;
-      const overlapY = w.y < p.y + p.h  && w.y + _WASP_DRAW_H  > p.y;
+      const overlapY = w.y < p.y + p.h && w.y + _WASP_DRAW_H > p.y;
       if (overlapX && overlapY) {
         w.vx    = -w.vx;
         w.flipX = w.vx < 0;
-        // Push out of the collider so next frame doesn't re-trigger
+        // Push out of the collider so the next frame doesn't re-trigger.
         if (w.vx > 0) w.x = p.x + p.w;
         else          w.x = p.x - _WASP_DRAW_W;
-        w.patrolTimer = _PATROL_MIN + Math.random() * (_PATROL_MAX - _PATROL_MIN);
+        w.patrolTimer = _PATROL_MIN_SEC + Math.random() * (_PATROL_MAX_SEC - _PATROL_MIN_SEC);
         break;
       }
     }
 
-    // ── Stinger contact → player -1 life ─────────
-    // Natural sprite (flipX=false, facing right): head is on the left, stinger on the right
-    //   → stingOX = _STING_OX_RIGHT (42px — near the right edge of the 63px sprite).
-    // Mirrored sprite (flipX=true, facing left): head is on the right, stinger on the left
-    //   → stingOX = _STING_OX_LEFT  (4px  — near the left  edge of the 63px sprite).
+    // Stinger contact — player loses a life.
+    // Natural sprite (flipX=false, facing right): head left, stinger right → stingOX = _STING_OX_RIGHT.
+    // Mirrored  sprite (flipX=true,  facing left ): head right, stinger left → stingOX = _STING_OX_LEFT.
     if (_waspIframe <= 0 && hazard.iframeTimer <= 0) {
       const stingOX = w.flipX ? _STING_OX_LEFT : _STING_OX_RIGHT;
       const sx      = w.x + stingOX;
@@ -233,58 +258,59 @@ function updateEnemies(dt) {
       const hitX    = sx < player.x + player.w && sx + _STING_W > player.x;
       const hitY    = sy < player.y + player.h && sy + _STING_H > player.y;
       if (hitX && hitY) {
-        takeDamage('wasp');    // -1 life, flash, game-over check; 'wasp' → AYAYAYAY bubble
+        takeDamage('wasp');
         if (typeof playSound === 'function') playSound('wasp_sting');
-        _waspIframe = _WASP_IFRAME;
-        // Wasp survives — knock it away from the player (rigid-body flee)
-        w.vx          = -w.vx * 1.6;  // reverse + speed burst
+        _waspIframe = _WASP_IFRAME_SEC;
+        // Wasp survives — knock it away from the player as a flee burst.
+        w.vx          = -w.vx * _WASP_FLEE_SPEED_MUL;
         w.flipX       = w.vx < 0;
-        w.patrolTimer = _PATROL_MIN + Math.random() * (_PATROL_MAX - _PATROL_MIN);
+        w.patrolTimer = _PATROL_MIN_SEC + Math.random() * (_PATROL_MAX_SEC - _PATROL_MIN_SEC);
       }
     }
 
-    // ── Paw hit → wasp dies ──────────────────────
-    // Z key held while paw AABB overlaps wasp body. Uses getPawZone() (player.js).
-    // _pawUsed prevents multiple kills per frame but allows stomp checks to continue.
+    // Paw hit — Z held while paw AABB overlaps the wasp body. Uses getPawZone()
+    // from player.js. _pawUsed prevents multiple kills per frame, but stomp
+    // checks still run for all remaining wasps in the same frame.
     if (keys.push && !_pawUsed) {
       const paw     = getPawZone();
       const pawHitX = paw.x < w.x + _WASP_DRAW_W && paw.x + paw.w > w.x;
-      const pawHitY = paw.y < w.y + _WASP_DRAW_H  && paw.y + paw.h  > w.y;
+      const pawHitY = paw.y < w.y + _WASP_DRAW_H && paw.y + paw.h > w.y;
       if (pawHitX && pawHitY) {
         w.alive             = false;
         w.dyingTimer        = 0;
-        GameState.killBonus += 50;
+        GameState.killBonus += _KILL_BONUS_POINTS;
         _waspsDefeated      += 1;
         _pawUsed            = true;
         if (typeof playSound === 'function') playSound('wasp_death');
       }
     }
 
-    // ── Stomp → wasp dies ─────────────────────────
-    // One-way check mirrors platform collision: player must have been ABOVE the wasp
-    // center last frame and is now descending onto the top surface.
+    // Stomp — one-way check that mirrors platform collision: the player must
+    // have been ABOVE the wasp last frame and is now descending onto its top.
     const waspTopY  = w.y;
-    const playerBot = player.y    + player.h;
+    const playerBot = player.y     + player.h;
     const prevBot   = player.prevY + player.h;
     const xOverlap  = player.x < w.x + _WASP_DRAW_W && player.x + player.w > w.x;
     const wasAbove  = prevBot <= waspTopY + _STOMP_H;
-    const nowOnTop  = playerBot >= waspTopY && playerBot <= waspTopY + _STOMP_H + 8;
+    const nowOnTop  = playerBot >= waspTopY && playerBot <= waspTopY + _STOMP_H + _STOMP_LAND_TOL_PX;
     const falling   = player.vy > 0;
     if (xOverlap && wasAbove && nowOnTop && falling) {
       w.alive             = false;
       w.dyingTimer        = 0;
-      player.vy           = -280;        // small upward bounce; press jump within 150ms for full jump
+      player.vy           = _STOMP_BOUNCE_VY;
       player.y            = waspTopY - player.h;
-      GameState.killBonus += 50;
-      _stompJumpWindow    = 0.15;
+      GameState.killBonus += _KILL_BONUS_POINTS;
+      _stompJumpWindow    = _STOMP_JUMP_WINDOW_S;
       _waspsDefeated      += 1;
       if (typeof playSound === 'function') playSound('wasp_death');
     }
   }
 }
 
-// ── renderEnemies(ctx) ────────────────────────────────────────────────────────
-// Called inside world-space ctx.save/translate block in main.js render pass.
+// ---------------------------------------------------------------------------
+// renderEnemies(ctx) — draw all alive + dying wasps. Call inside the
+// world-space ctx.save/translate block.
+// ---------------------------------------------------------------------------
 function renderEnemies(ctx) {
   const loaded = _waspSheet.complete && _waspSheet.naturalWidth > 0;
 
@@ -292,9 +318,9 @@ function renderEnemies(ctx) {
     const dx = Math.floor(w.x);
     const dy = Math.floor(w.y);
 
-    // ── Death animation: shrink + fade ───────────
+    // Death animation: shrink + fade.
     if (!w.alive) {
-      const progress = w.dyingTimer / _DEATH_DURATION; // 0 → 1
+      const progress = w.dyingTimer / _DEATH_DURATION_SEC; // 0 → 1
       const scale    = 1 - progress;
       const alpha    = 1 - progress;
       if (alpha <= 0) continue;
@@ -317,10 +343,10 @@ function renderEnemies(ctx) {
       continue;
     }
 
-    // ── Alive: draw with horizontal flip if facing left ──
+    // Alive: draw with horizontal flip if facing left.
     ctx.save();
     if (w.flipX) {
-      // Mirror: translate to right edge, scale x by -1 so origin flips to left edge
+      // Mirror: translate to right edge, scale x by -1 so the origin flips left.
       ctx.translate(dx + _WASP_DRAW_W, dy);
       ctx.scale(-1, 1);
       if (loaded) {
@@ -350,9 +376,9 @@ function renderEnemies(ctx) {
 }
 
 // ---------------------------------------------------------------------------
-// getNearestWaspDist(px, py) — distance in px from point to nearest alive wasp
-// Returns null when no alive wasps exist.
-// Used by audio.js updateWaspBuzz() for proximity volume.
+// getNearestWaspDist(px, py) — returns the px distance from (px, py) to the
+// center of the nearest alive wasp, or null if no alive wasp exists.
+// Used by audio.js updateWaspBuzz() for proximity-driven volume.
 // ---------------------------------------------------------------------------
 function getNearestWaspDist(px, py) {
   if (enemies.length === 0) return null;

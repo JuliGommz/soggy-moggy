@@ -42,9 +42,9 @@
 
 ## Phase 1 — Archive-Infrastruktur
 
-**Intention:** Zentrales `PixelArt/_archive/` anlegen mit erklärendem README, das jedem Betrachter (Dozent) zeigt was archiviert wurde, wann, warum, und wie es wiederherzustellen wäre. Keine Assets verschoben in dieser Phase — nur die Struktur.
+**Intention:** Zentrales `Visuals/_archive/` anlegen mit erklärendem README, das jedem Betrachter (Dozent) zeigt was archiviert wurde, wann, warum, und wie es wiederherzustellen wäre. Keine Assets verschoben in dieser Phase — nur die Struktur.
 
-**Deliverables:** `PixelArt/_archive/README.md` mit Abschnitten (Was, Wann, Warum, Recovery). Zentrales `PixelArt/README.md` das die Top-Level-Ordnerstruktur erklärt (Variante C aus Brainstorming). `PixelArt/NAMING.md` bleibt unberührt.
+**Deliverables:** `Visuals/_archive/README.md` mit Abschnitten (Was, Wann, Warum, Recovery). Zentrales `Visuals/README.md` das die Top-Level-Ordnerstruktur erklärt (Variante C aus Brainstorming). `Visuals/NAMING.md` bleibt unberührt.
 
 ---
 
@@ -53,9 +53,9 @@
 **Intention:** Aktuelle Ordnernamen spiegeln das alte Level-Mapping wider (L2=See, L3=Schacht). Faktisch ist es seit Wochen L2=Schacht, L3=See. Korrektur per `git mv` für saubere Nachvollziehbarkeit.
 
 **Deliverables:**
-- `PixelArt/backgrounds/level2_see/` → `PixelArt/backgrounds/level_3_sea/`
-- `PixelArt/backgrounds/level3_shaft/` → `PixelArt/backgrounds/level_2_shaft/`
-- `PixelArt/platforms/level2_lift/` → `PixelArt/platforms/level_2_lift/` (Präfix-Konsistenz)
+- `Visuals/backgrounds/level2_see/` → `Visuals/backgrounds/level_3_sea/`
+- `Visuals/backgrounds/level3_shaft/` → `Visuals/backgrounds/level_2_shaft/`
+- `Visuals/platforms/level2_lift/` → `Visuals/platforms/level_2_lift/` (Präfix-Konsistenz)
 - Alle Referenzen in `src/background.js`, `src/platforms.js`, `src/enemies.js` angepasst.
 
 **Smoke-Test:** L1/L2/L3 starten, Backgrounds + Platforms + Enemies rendern.
@@ -64,13 +64,13 @@
 
 ## Phase 3 — Neue Asset-Gruppen
 
-**Intention:** Derzeit liegen Cat-Sprites direkt in `PixelArt/`, UI-Elemente (HUD, Lives, Game-Over) verstreut. Eine flache Struktur ist für den Dozenten schwer zu navigieren. Zwei neue Gruppen bringen Ordnung ohne Funktionalität zu ändern.
+**Intention:** Derzeit liegen Cat-Sprites direkt in `Visuals/`, UI-Elemente (HUD, Lives, Game-Over) verstreut. Eine flache Struktur ist für den Dozenten schwer zu navigieren. Zwei neue Gruppen bringen Ordnung ohne Funktionalität zu ändern.
 
 **Deliverables:**
-- `PixelArt/characters/cat/` (aktuelle Cat-Sprites)
-- `PixelArt/characters/wasp/` (wasp_sheet.png + Varianten)
-- `PixelArt/ui/hud/` (Herzen, Score)
-- `PixelArt/ui/screens/` (Start, Game-Over, Level-Complete)
+- `Visuals/characters/cat/` (aktuelle Cat-Sprites)
+- `Visuals/characters/wasp/` (wasp_sheet.png + Varianten)
+- `Visuals/ui/hud/` (Herzen, Score)
+- `Visuals/ui/screens/` (Start, Game-Over, Level-Complete)
 - Alle `src/*.js` Pfad-Referenzen gefixt.
 
 **Smoke-Test:** Cat-Rendering + Wasp-Rendering + HUD + Screens.
@@ -81,7 +81,7 @@
 
 **Intention:** Code lädt nur noch zwei Font-PNGs (`alphabet_pixel_retro_video_game_style.png`, `alphabet_black_230px.png`). Der restliche `fonts/`-Ordner enthält Vecteezy-Quelldateien, alte EPS, PDFs — das ist Arbeitsspur, gehört ins Archiv mit Attribution-Hinweis.
 
-**Deliverables:** `PixelArt/fonts/Archive/` komplett nach `_archive/fonts_source_files/` verschoben. Die zwei aktiven PNGs + `.ai`-Quelldateien bleiben live. README-Eintrag in `_archive/` dokumentiert die Vecteezy-Attribution.
+**Deliverables:** `Visuals/fonts/Archive/` komplett nach `_archive/fonts_source_files/` verschoben. Die zwei aktiven PNGs + `.ai`-Quelldateien bleiben live. README-Eintrag in `_archive/` dokumentiert die Vecteezy-Attribution.
 
 **Smoke-Test:** Dialogue-Titel + Body-Text rendern korrekt.
 
@@ -92,8 +92,8 @@
 **Intention:** `thought-bubbles.png`/`.pxo` war die erste Iteration, wird ersetzt durch 8 individuelle PNGs aus Illustrator (`dialogue_bubbles.ai`). Alte Bubbles archivieren, Code auf neuen PNG-Loader vorbereiten. PNGs selbst werden erst nach Illustrator-Export eingecheckt (nicht Teil dieser Phase).
 
 **Deliverables:**
-- `PixelArt/thought_bubbles/thought-bubbles.{png,pxo}` → `_archive/thought_bubbles_v1/`
-- `PixelArt/thought_bubbles/dialogues/` Ordner angelegt (leer, bereit für Illustrator-Export)
+- `Visuals/thought_bubbles/thought-bubbles.{png,pxo}` → `_archive/thought_bubbles_v1/`
+- `Visuals/thought_bubbles/dialogues/` Ordner angelegt (leer, bereit für Illustrator-Export)
 - `src/dialogue.js` 4 pending Fixes umgesetzt (Font-Dateinamen, Debug-Entfernung)
 
 **Smoke-Test:** Dialogue-System zeigt Text ohne Bubbles (PNGs fehlen noch — erwartet). Keine Console-Errors.

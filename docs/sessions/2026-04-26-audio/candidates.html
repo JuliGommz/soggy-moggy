@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Soggy Moggy – Audio Slots</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: monospace; background: #111827; color: #d1d5db; padding: 24px; max-width: 860px; }
+    h1 { color: #f472b6; font-size: 20px; margin-bottom: 4px; }
+    .sub { color: #6b7280; font-size: 12px; margin-bottom: 32px; }
+    section { margin-bottom: 44px; }
+    .sec-title { font-size: 12px; font-weight: bold; letter-spacing: 1px; padding: 4px 12px; border-radius: 4px; display: inline-block; margin-bottom: 14px; }
+    .t0 { background: #7f1d1d; color: #fca5a5; }
+    .t1 { background: #78350f; color: #fcd34d; }
+    .t2 { background: #1e3a5f; color: #93c5fd; }
+    .slot { background: #1f2937; border: 1px solid #374151; border-radius: 6px; margin-bottom: 10px; overflow: hidden; }
+    .sh { display: flex; align-items: center; gap: 10px; padding: 7px 12px; background: #162032; border-bottom: 1px solid #2d3748; flex-wrap: wrap; }
+    .snum { color: #4b5563; font-size: 11px; min-width: 22px; }
+    .sname { font-size: 13px; font-weight: bold; color: #f9fafb; flex: 1; }
+    .swhen { font-size: 11px; color: #9ca3af; font-style: italic; }
+    .badge { font-size: 10px; padding: 2px 8px; border-radius: 99px; }
+    .b0 { background: #7f1d1d; color: #fca5a5; }
+    .b1 { background: #78350f; color: #fcd34d; }
+    .b2 { background: #1e3a5f; color: #93c5fd; }
+    .saveto { font-size: 11px; color: #6b7280; width: 100%; padding-top: 4px; }
+    .saveto span { color: #a3e635; background: #1a2e05; padding: 2px 9px; border-radius: 3px; font-weight: bold; letter-spacing: 0.3px; }
+    .sb { padding: 8px 12px; display: flex; flex-direction: column; gap: 5px; }
+    .card { display: flex; align-items: center; gap: 10px; background: #111827; border-radius: 4px; padding: 6px 10px; }
+    .cn { font-size: 12px; color: #e5e7eb; flex: 1; }
+    .ct { font-size: 10px; color: #6b7280; margin-left: 4px; }
+    .btn { background: #2563eb; color: #fff; font-family: monospace; font-size: 11px; padding: 5px 12px; border-radius: 4px; text-decoration: none; white-space: nowrap; }
+    .btn:hover { background: #1d4ed8; }
+    .empty { font-size: 11px; color: #4b5563; font-style: italic; padding: 2px 0; }
+    .note { font-size: 11px; color: #6b7280; background: #162032; border-radius: 4px; padding: 5px 10px; }
+    .note a { color: #60a5fa; }
+    .unlocked { font-size: 10px; color: #f59e0b; margin-left: 6px; }
+    .in-folder { font-size: 10px; background: #064e3b; color: #6ee7b7; padding: 2px 8px; border-radius: 99px; margin-left: 8px; white-space: nowrap; }
+    .not-downloaded { font-size: 10px; background: #1c1917; color: #44403c; padding: 2px 8px; border-radius: 99px; margin-left: 8px; white-space: nowrap; }
+    .ready { font-size: 10px; background: #064e3b; color: #34d399; padding: 2px 8px; border-radius: 99px; margin-left: 8px; white-space: nowrap; font-weight: bold; }
+    .rejected { font-size: 10px; background: #1c1917; color: #78716c; padding: 2px 8px; border-radius: 99px; margin-left: 8px; white-space: nowrap; }
+    .trim { font-size: 10px; background: #451a03; color: #fb923c; padding: 2px 8px; border-radius: 99px; margin-left: 8px; white-space: nowrap; }
+    .ts { font-size: 10px; color: #6b7280; margin-left: 10px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+    .tsi { background: #111827; border: 1px solid #374151; color: #d1d5db; font-family: monospace; font-size: 10px; width: 44px; padding: 2px 5px; border-radius: 3px; text-align: center; }
+    .tsi:focus { outline: none; border-color: #f472b6; }
+    .tsi.filled { border-color: #34d399; color: #34d399; }
+    #output-panel { position: sticky; bottom: 16px; background: #0d1117; border: 1px solid #f472b6; border-radius: 6px; margin-top: 32px; padding: 14px 16px; }
+    #output-panel h3 { color: #f472b6; font-size: 12px; margin-bottom: 8px; }
+    #output-code { color: #a3e635; font-size: 11px; white-space: pre; line-height: 1.8; min-height: 20px; }
+    #copy-btn { background: #374151; color: #d1d5db; border: none; font-family: monospace; font-size: 11px; padding: 4px 12px; border-radius: 4px; cursor: pointer; margin-top: 10px; display: block; }
+    #copy-btn:hover { background: #4b5563; }
+    #copy-btn.copied { background: #064e3b; color: #34d399; }
+  </style>
+</head>
+<body>
+
+<h1>Soggy Moggy – Audio Slots</h1>
+<p class="sub">Ein Slot = eine konkrete Spielverwendung. Kandidaten anhören und final entscheiden. Dateien mit Originalnamen speichern — Umbenennung beim Integrations-Schritt.</p>
+
+<!-- ═══════════════════════════════════════════════════════ INDISPENSABLE -->
+<section>
+<div class="sec-title t0">INDISPENSABLE</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">01</span><span class="sname">Jump SFX</span><span class="swhen">Jeder Sprung der Cat</span><span class="badge b0">indispensable</span><div class="saveto">→ <span>audio/sfx/player/jump.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Cartoon Jump <span class="ct">freesound_community-cartoon-jump-6462.mp3</span></span><span class="in-folder">✓ in folder</span><span class="ready">✓ gewählt</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-cartoon-jump-6462/" target="_blank">▶ Anhören</a></div>
+    <div class="card"><span class="cn">Funny Cartoon Jump <span class="ct">koiroylers-funny-cartoon-jump-351929.mp3</span></span><span class="rejected">nicht gewählt</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-funny-cartoon-jump-351929/" target="_blank">▶ Anhören</a></div>
+    <div class="card"><span class="cn">Boing 2 <span class="ct">→ moved to Slot 24 (Stomp Bounce)</span></span><span class="rejected">nicht gewählt hier</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-boing2-418548/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">02</span><span class="sname">Damage / Hit SFX</span><span class="swhen">Hazard oder Wespe trifft den Spieler</span><span class="badge b0">indispensable</span><div class="saveto">→ <span>audio/sfx/player/damage.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Funny Cartoon Drum <span class="ct">universfield-funny-cartoon-drum-250961.mp3</span></span><span class="ready">✓ READY</span><a class="btn" href="https://pixabay.com/sound-effects/musical-funny-cartoon-drum-250961/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">03</span><span class="sname">Game Over Sting</span><span class="swhen">Lives = 0</span><span class="badge b0">indispensable</span><div class="saveto">→ <span>audio/sfx/ui/game_over.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Cartoon Fail Trumpet <span class="ct">universfield-cartoon-fail-trumpet-278822.mp3</span></span><span class="ready">✓ gewählt · READY</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-cartoon-fail-trumpet-278822/" target="_blank">▶ Anhören</a></div>
+    <div class="card"><span class="cn">Cartoon Trombone</span><span class="rejected">nicht gewählt</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-cartoon-trombone-sound-effect-241387/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">04</span><span class="sname">L1 Outro: Windrad SFX</span><span class="swhen">Z-Taste auf Windrad (L1 Dach)</span><span class="badge b0">indispensable</span><div class="saveto">→ <span>audio/sfx/outro/windrad.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Girandola 2 <span class="ct">freesound_community-girandola-2-43940.mp3</span></span><span class="ready">✓ READY</span><a class="btn" href="https://pixabay.com/sound-effects/technology-girandola-2-43940/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">05</span><span class="sname">L2 Outro: Bell SFX</span><span class="swhen">Z-Taste auf Glocke (L2 Ende)</span><span class="badge b0">indispensable</span><div class="saveto">→ <span>audio/sfx/outro/bell.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Ding – Jurij <span class="ct">soundreality-ding-411634.mp3 · sync mit Schwing-Richtungswechsel</span></span><span class="ready">✓ gewählt · READY</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-ding-411634/" target="_blank">▶ Anhören</a></div>
+    <div class="card"><span class="cn">Household Church Bell Chime <span class="ct">Alternative</span></span><a class="btn" href="https://pixabay.com/sound-effects/household-church-bell-chime-494509/" target="_blank">▶ Anhören</a></div>
+    <div class="card"><span class="cn">City Shop Tannoy – Double Tone <span class="ct">Alternative</span></span><a class="btn" href="https://pixabay.com/sound-effects/city-shop-tannoy-announcement-double-tone-508742/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">06</span><span class="sname">L3 Outro: Lever SFX</span><span class="swhen">Z-Taste auf Hebel (L3 Leuchtturm)</span><span class="badge b0">indispensable</span><div class="saveto">→ <span>audio/sfx/outro/freesound_community-lever-action-cocking-2-39680.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Lever Action Cocking 2 <span class="ct">freesound_community-lever-action-cocking-2-39680.mp3</span></span><span class="ready">✓ gewählt · READY</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-lever-action-cocking-2-39680/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">07</span><span class="sname">Level Complete Jingle</span><span class="swhen">LEVEL_COMPLETE Screen erscheint</span><span class="badge b0">indispensable</span><div class="saveto">→ <span>audio/sfx/ui/level_complete.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Arcade Game Achievement Bling <span class="ct">cartoon-music-soundtrack-...-489759.mp3</span></span><span class="ready">✓ READY</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-arcade-game-achievement-bling-489759/" target="_blank">▶ Anhören</a></div>
+    <div class="note">Kenney Music Jingles: <a href="https://kenney.nl/assets/music-jingles" target="_blank">kenney.nl/assets/music-jingles</a> — Download-Pack, kein direktes Embed.</div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">08</span><span class="sname">L1 Hintergrundmusik</span><span class="swhen">Loop während L1 (Stadt / Smog)</span><span class="badge b0">indispensable</span><div class="saveto">→ <span>audio/music/l1_city.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">City Short Pizzicato Song <span class="ct">freesound_community-short-pizzicato-song-27358.mp3</span></span><span class="ready">✓ READY</span><a class="btn" href="https://pixabay.com/sound-effects/city-short-pizzicato-song-27358/" target="_blank">▶ Anhören</a></div>
+    <div class="note">Kenney Music Jingles auch prüfen: <a href="https://kenney.nl/assets/music-jingles" target="_blank">kenney.nl/assets/music-jingles</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">09</span><span class="sname">L2 Hintergrundmusik</span><span class="swhen">Loop während L2 (Aufzugschacht / Elektrizität)</span><span class="badge b0">indispensable</span><div class="saveto">→ <span>audio/music/l2_shaft.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Musical Town of Tranqness <span class="ct">freesound_community-town-of-tranqness-25976.mp3</span></span><span class="ready">✓ READY</span><a class="btn" href="https://pixabay.com/sound-effects/musical-town-of-tranqness-25976/" target="_blank">▶ Anhören</a></div>
+    <div class="note">Kenney Music Jingles: <a href="https://kenney.nl/assets/music-jingles" target="_blank">kenney.nl/assets/music-jingles</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">10</span><span class="sname">L3 Hintergrundmusik</span><span class="swhen">Loop während L3 (Leuchtturm / Flut)</span><span class="badge b0">indispensable</span><div class="saveto">→ <span>audio/music/l3_lighthouse.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Funny Kid <span class="ct">oceanframemusic-funny-kid-481395.mp3</span></span><span class="ready">✓ READY</span><a class="btn" href="https://pixabay.com/sound-effects/musical-funny-kid-481395/" target="_blank">▶ Anhören</a></div>
+    <div class="note">Kenney Music Jingles: <a href="https://kenney.nl/assets/music-jingles" target="_blank">kenney.nl/assets/music-jingles</a></div>
+  </div>
+</div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ IMPORTANT -->
+<section>
+<div class="sec-title t1">IMPORTANT</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">11</span><span class="sname">Landing SFX</span><span class="swhen">Cat landet auf Platform nach Sprung</span><span class="badge b1">important</span><div class="saveto">→ <span>audio/sfx/player/land.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Land <span class="ct">freesound_community-land-81509.mp3</span></span><span class="ready">✓ gewählt · READY</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-land-81509/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">12</span><span class="sname">Balloon Collect SFX</span><span class="swhen">Z-Taste auf Ballon (+1 Leben)</span><span class="badge b1">important</span><div class="saveto">→ <span>audio/sfx/player/balloon_collect.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Retro Video Game Coin Collect <span class="ct">cartoon-music-soundtrack-...-coin-collect-508731.mp3</span></span><span class="ready">✓ gewählt · READY</span><a class="btn" href="https://pixabay.com/sound-effects/technology-retro-video-game-coin-collect-508731/" target="_blank">▶ Anhören</a></div>
+    <div class="card"><span class="cn">Cartoon Yoink 2</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-cartoon-yoink-2-183916/" target="_blank">▶ Anhören</a></div>
+    <div class="card"><span class="cn">KS Motion Metal Hit <span class="ct">alexis_gaming_cam-ks-motion-metal-hit-351564.mp3</span></span><span class="rejected">nicht gewählt</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-ks-motion-metal-hit-351564/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">13</span><span class="sname">Wasp Sting SFX</span><span class="swhen">Wespe trifft den Spieler (Stich)</span><span class="badge b1">important</span><div class="saveto">→ <span>audio/sfx/enemies/wasp_sting.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">80s Orchestral Stab <span class="ct">freesound_community-a-recreation-of-the-clasic-80s-orchestral-stab-89475.mp3</span></span><span class="ready">✓ READY</span><span class="trim">✂ trim needed</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-a-recreation-of-the-clasic-80s-orchestral-stab-89475/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">14</span><span class="sname">Wasp Death SFX</span><span class="swhen">Stomp oder Paw-Kill auf Wespe</span><span class="badge b1">important</span><div class="saveto">→ <span>audio/sfx/enemies/wasp_death.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Cartoon Arrow Hit <span class="ct">freesound_community-cartoon-arrow-hit-6700.mp3</span></span><span class="ready">✓ READY</span><span class="trim">✂ trim needed</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-cartoon-arrow-hit-6700/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">15</span><span class="sname">Start Screen Musik</span><span class="swhen">Loop auf START-Phase</span><span class="badge b1">important</span><div class="saveto">→ <span>audio/music/start_screen.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Muffled Party Music <span class="ct">mccrunchy-muffled-party-music-183774.mp3</span></span><span class="ready">✓ READY</span><a class="btn" href="https://pixabay.com/sound-effects/musical-muffled-party-music-183774/" target="_blank">▶ Anhören</a></div>
+    <div class="note">Kenney Music Jingles: <a href="https://kenney.nl/assets/music-jingles" target="_blank">kenney.nl/assets/music-jingles</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">16</span><span class="sname">L2 Elektrizität Ambient Loop</span><span class="swhen">L2 Hazard sichtbar auf Screen</span><span class="badge b1">important</span><div class="saveto">→ <span>audio/sfx/hazards/electricity_ambient.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Mysterious Electricity <span class="ct">freesound_community-mysterious-electricity-73307.mp3</span></span><span class="ready">✓ gewählt · READY</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-mysterious-electricity-73307/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">17</span><span class="sname">L3 Wasser / Flut Ambient Loop</span><span class="swhen">L3 Hazard sichtbar auf Screen</span><span class="badge b1">important</span><div class="saveto">→ <span>audio/sfx/hazards/flood_ambient.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Flood Ambient <span class="ct">freesound_community-water_flood_enhanced-31196.mp3</span></span><span class="ready">✓ READY</span><a class="btn" href="https://pixabay.com/sound-effects/search/flood/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">18</span><span class="sname">Crumbling Platform SFX</span><span class="swhen">Platform beginnt zu bröckeln</span><span class="badge b1">important</span><div class="saveto">→ <span>audio/sfx/platforms/crumble.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Crumple 03 <span class="ct">freesound_community-crumple-03-40747.mp3</span></span><span class="ready">✓ READY</span><span class="trim">✂ trim needed</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-crumple-03-40747/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">19</span><span class="sname">Crumbling Electrified Cloud SFX</span><span class="swhen">Elektro-Cloud bröckelt (L2 / L3)</span><span class="badge b1">important</span><div class="saveto">→ <span>audio/sfx/platforms/electro_crumble.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Jacob's Ladder Electricity <span class="ct">freesound_community-041109-jacob39s-ladder-electricity-68154.mp3</span></span><span class="ready">✓ gewählt</span><span class="trim">✂ trim needed</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-041109-jacob39s-ladder-electricity-68154/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+</section>
+
+<!-- ══════════════════════════════════════════════════════ NICE TO HAVE -->
+<section>
+<div class="sec-title t2">NICE TO HAVE</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">20</span><span class="sname">Countdown Tick</span><span class="swhen">3-2-1 Banner vor Hazard-Spawn</span><span class="badge b2">nice to have</span><div class="saveto">→ <span>audio/sfx/ui/countdown_tick.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Arcade Countdown <span class="ct">freesound_community-arcade-countdown-7007.mp3</span></span><span class="ready">✓ gewählt · READY</span><span class="trim">✂ trim needed</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-arcade-countdown-7007/" target="_blank">▶ Anhören</a></div>
+    <div class="card"><span class="cn">Countdown 3-2-1 Jump <span class="ct">freesound_community-countdown-3-2-1-jump-100761.mp3</span></span><span class="rejected">nicht gewählt</span><a class="btn" href="https://pixabay.com/sound-effects/people-countdown-3-2-1-jump-100761/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">21</span><span class="sname">Wasp Buzz Loop</span><span class="swhen">Wespe patroulliert in der Nähe</span><span class="badge b2">nice to have</span><div class="saveto">→ <span>audio/sfx/enemies/wasp_buzz.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Nature Bee Wasp <span class="ct">freesound_community-bee_wasp-97053.mp3</span></span><span class="ready">✓ READY</span><a class="btn" href="https://pixabay.com/sound-effects/nature-bee-wasp-97053/" target="_blank">▶ Anhören</a></div>
+    <div class="card"><span class="cn">Nature Buzz Cartoon Bug SFX</span><span class="rejected">nicht gewählt</span><a class="btn" href="https://pixabay.com/sound-effects/nature-buzz-cartoon-bug-sfx-427554/" target="_blank">▶ Anhören</a></div>
+    <div class="card"><span class="cn">Nature Dragonfly</span><span class="rejected">nicht gewählt</span><a class="btn" href="https://pixabay.com/sound-effects/nature-dragonfly-6796/" target="_blank">▶ Anhören</a></div>
+    <div class="card"><span class="cn">Nature Yellow Jacket Buzz</span><span class="rejected">nicht gewählt</span><a class="btn" href="https://pixabay.com/sound-effects/nature-yellow-jacket-buzz-57067/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">22a</span><span class="sname">Menu Click – Start Button</span><span class="swhen">Start-Button only (nicht Continue)</span><span class="badge b2">nice to have</span><div class="saveto">→ <span>audio/sfx/ui/menu_click.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Marimba Bloop 2 <span class="ct">floraphonic-marimba-bloop-2-188149.mp3</span></span><span class="ready">✓ gewählt · READY</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-marimba-bloop-2-188149/" target="_blank">▶ Anhören</a></div>
+    <div class="card"><span class="cn">Cartoon Blinking</span><span class="rejected">nicht gewählt</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-cartoon-blinking-487897/" target="_blank">▶ Anhören</a></div>
+    <div class="card"><span class="cn">Funny Cartoon Sound 2</span><span class="rejected">nicht gewählt</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-funny-cartoon-sound-2-413169/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">22b</span><span class="sname">Menu Navigation Click</span><span class="swhen">Pfeiltasten-Navigation zwischen Menü-Optionen</span><span class="badge b2">nice to have</span><div class="saveto">→ <span>audio/sfx/ui/menu_nav.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Bubble Pop 06 <span class="ct">universfield-bubble-pop-06-351337.mp3</span></span><span class="ready">✓ gewählt · READY</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-bubble-pop-06-351337/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">23</span><span class="sname">L1 Smog Ambient</span><span class="swhen">L1 Hazard sichtbar auf Screen</span><span class="badge b2">nice to have</span><div class="saveto">→ <span>audio/sfx/hazards/smog_ambient.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">City Ambience <span class="ct">guillermoanaya-city-ambience-121693.mp3</span></span><span class="ready">✓ gewählt · READY</span><a class="btn" href="https://pixabay.com/sound-effects/city-city-ambience-121693/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">24</span><span class="sname">Stomp Bounce SFX</span><span class="swhen">Spieler bounced von gestompter Wespe</span><span class="badge b2">nice to have</span><div class="saveto">→ <span>audio/sfx/player/stomp_bounce.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Boing 2 <span class="ct">u_wb4wgxdwxo-boing2-418548.mp3 · extra jump over wasp</span></span><span class="ready">✓ gewählt · READY</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-boing2-418548/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">25</span><span class="sname">Respawn SFX</span><span class="swhen">Cat wird über Hazard teleportiert</span><span class="badge b2">nice to have</span><div class="saveto">→ <span>audio/sfx/player/respawn.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Item Respawn <span class="ct">freesound_community-item_respawn-91422.mp3</span></span><span class="ready">✓ gewählt · READY</span><a class="btn" href="https://pixabay.com/sound-effects/film-special-effects-item-respawn-91422/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">27</span><span class="sname">L2 Outro: Sigh SFX (outro bubble)</span><span class="swhen">LEVEL_OUTRO Phase auf L2 (parallel zur Bubble)</span><span class="badge b1">important</span><div class="saveto">→ <span>audio/sfx/outro/l2_outro_bubble.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Female Sigh – Medium Distance <span class="ct">freesound_community-female-sigh-medium-distance-6853.mp3</span></span><span class="ready">✓ gewählt · READY</span><a class="btn" href="https://pixabay.com/sound-effects/people-female-sigh-medium-distance-6853/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">29</span><span class="sname">Success Screen: Victory Music</span><span class="swhen">Success Screen (L3 LEVEL_COMPLETE) — startet mit mountSuccessScreen</span><span class="badge b0">indispensable</span><div class="saveto">→ <span>audio/sfx/ui/poradovskyi-trap-victory-winner-music-479676.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Trap Victory Winner Music <span class="ct">poradovskyi-trap-victory-winner-music-479676.mp3</span></span><span class="ready">✓ gewählt · READY</span><a class="btn" href="https://pixabay.com/music/trap-trap-victory-winner-music-479676/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+<div class="slot">
+  <div class="sh"><span class="snum">28</span><span class="sname">L3 Outro: Meow SFX (outro bubble)</span><span class="swhen">LEVEL_OUTRO Phase auf L3 (parallel zur Bubble)</span><span class="badge b1">important</span><div class="saveto">→ <span>audio/sfx/outro/l3_outro_bubble.mp3</span></div></div>
+  <div class="sb">
+    <div class="card"><span class="cn">Nature Cute Cat Meow <span class="ct">dragon-studio-cute-cat-meow-472372.mp3</span></span><span class="ready">✓ gewählt · READY</span><a class="btn" href="https://pixabay.com/sound-effects/nature-cute-cat-meow-472372/" target="_blank">▶ Anhören</a></div>
+  </div>
+</div>
+
+</section>
+
+<script>
+// ── Timestamp fields ─────────────────────────────────────────────────────────
+// Adds start / dur inputs to every candidate card (skips rejected cards).
+// Values persist in localStorage so they survive page reloads.
+// Key = Pixabay sound ID from the listen-button URL.
+// Output panel: live-generates SOUNDS map entries for all filled cards.
+
+var cardMap = [];
+
+function makeInput(key, placeholder) {
+  var inp = document.createElement('input');
+  inp.className   = 'tsi';
+  inp.placeholder = placeholder;
+  inp.dataset.key = key;
+  var saved = localStorage.getItem(key);
+  if (saved) { inp.value = saved; inp.classList.add('filled'); }
+  inp.addEventListener('input', function() {
+    localStorage.setItem(key, inp.value);
+    inp.classList.toggle('filled', inp.value.trim() !== '');
+    updateOutput();
+  });
+  return inp;
+}
+
+document.querySelectorAll('.card').forEach(function(card, i) {
+  if (card.querySelector('.rejected')) return;
+
+  var btn      = card.querySelector('.btn');
+  var url      = btn ? btn.href : '';
+  var match    = url.match(/(\d+)\/?$/);
+  var base     = 'ts_' + (match ? match[1] : 'card' + i);
+
+  var slot     = card.closest('.slot');
+  var saveSpan = slot ? slot.querySelector('.saveto span') : null;
+  var savePath = saveSpan ? saveSpan.textContent.trim() : '';
+  var soundKey = savePath ? savePath.split('/').pop().replace('.mp3', '') : '';
+
+  if (match && savePath) {
+    cardMap.push({ base: base, path: savePath, key: soundKey });
+  }
+
+  var ts = document.createElement('span');
+  ts.className = 'ts';
+
+  var lblS = document.createTextNode('start ');
+  var lblD = document.createTextNode(' dur ');
+
+  ts.appendChild(document.createTextNode('start '));
+  ts.appendChild(makeInput(base + '_s', '0.00'));
+  ts.appendChild(document.createTextNode(' dur '));
+  ts.appendChild(makeInput(base + '_d', '0.00'));
+
+  if (btn) card.insertBefore(ts, btn);
+  else card.appendChild(ts);
+});
+
+// Filename-derived key → correct SOUNDS map key (where they differ)
+var KEY_FIX = {
+  'start_screen':  'music_start',
+  'l1_city':       'music_l1',
+  'l2_shaft':      'music_l2',
+  'l3_lighthouse': 'music_l3'
+};
+
+function updateOutput() {
+  var lines = [];
+  cardMap.forEach(function(entry) {
+    var sVal  = (localStorage.getItem(entry.base + '_s') || '').trim();
+    var dVal  = (localStorage.getItem(entry.base + '_d') || '').trim();
+    if (!sVal && !dVal) return;
+    var s     = parseFloat(sVal);
+    var d     = parseFloat(dVal);
+    var hasSt = sVal !== '' && !isNaN(s);
+    var hasDu = dVal !== '' && !isNaN(d);
+    if (!hasSt && !hasDu) return;
+    var key   = KEY_FIX[entry.key] || entry.key;
+    var parts = ["path: '" + entry.path + "'"];
+    if (hasSt) parts.push('start: ' + s);
+    if (hasDu) parts.push('dur: '   + d);
+    lines.push('  ' + key + ': { ' + parts.join(', ') + ' },');
+  });
+  var pre = document.getElementById('output-code');
+  pre.textContent = lines.length ? lines.join('\n') : '// No trim values filled in yet.';
+}
+
+function copyOutput() {
+  var text = document.getElementById('output-code').textContent;
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(function() { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+setTimeout(updateOutput, 0);
+</script>
+
+<div id="output-panel">
+  <h3>SOUNDS map — trim entries (copy into audio.js)</h3>
+  <pre id="output-code">// No trim values filled in yet.</pre>
+  <button id="copy-btn" onclick="copyOutput()">Copy</button>
+</div>
+
+</body>
+</html>

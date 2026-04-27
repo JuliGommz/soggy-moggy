@@ -1,71 +1,42 @@
-/*
-====================================================================
-* water.js - Rising hazard: physics, damage, respawn, level renderers
-====================================================================
-* Project: Soggy Moggy
-* Course: PRG Abschlussprojekt — SRH Fachschulen
-* Developer: Julian Gomez
-* Date: 2026-03-16
-* Version: 1.7 - flood foam system across all three sine layers [LOCKED]
-*
-* HAZARD TYPES (Oberkategorie: hazard) — LEVEL MAPPING (current, post-swap):
-*   Smog        — Level 1 (city)      — creeping urban smog (gradient bands + cosine edge)
-*   Electricity — Level 2 (shaft)     — crackling electric floor (3 bolt layers)
-*   Flood       — Level 3 (lighthouse) — dynamic sea (2 translucent swell layers + stormy surface with foam caps)
-*
-* Historical note: levels 2 and 3 were swapped during production.
-* Earlier versions had Flood on L2 and Electricity on L3; the dispatcher in
-* renderHazard() was updated at swap time, the level-specific renderers stayed
-* intact — only the L3 flood renderer remained a legacy single-sine wave until
-* v1.6 rebuilt it as a proper multi-layer smooth-sine sea (see version history).
-*
-* AUTHORSHIP CLASSIFICATION:
-*
-* [AI-ASSISTED]
-* - respawnAboveWater() algorithm: scans platforms for the lowest intact
-*   platform still above the hazard line, falls back to camera top
-* - iframeTimer + flashTimer pattern: prevents unfair double-hits
-*   while providing clear visual damage feedback to the player
-* - Visibility clamp: hazard.y can never lag more than 10px off screen
-*   bottom when camera scrolls faster than the hazard rises
-* - renderSmog: layered gradient bands + cosine billowing edge (Level 1)
-* - renderElectricity: 3-layer bolt system (back/mid/front) with independent
-*   frequencies, anchor counts, pulsing alpha (Level 2)
-* - renderFlood: 2 translucent smooth-sine swell layers + stormy top surface
-*   (compound sine, depth gradient, foam caps at crests) — Level 3
-* - _buildLayeredEdge() helper: per-pixel interpolated edge table used by
-*   renderElectricity (flood uses direct per-pixel sines instead)
-*
-* NOTES:
-* - resetHazard() is the generic entry point called from game-state.js
-*   on both full reset and level start — dispatch point for level hazards
-* - renderHazard() dispatches to level-specific renderer by GameState.level
-* - HAZARD_LEVEL_SCALE increases base speed per level — tune during playtesting
-*
-* VERSION HISTORY:
-* - v1.0: Basic rising water, GAMEOVER on contact
-* - v1.1: Lives system, iframeTimer, respawnAboveWater(), sine wave rendering
-* - v1.2: Rename water → hazard; level-specific renderers for smog + electricity
-* - v1.3: Constant taxonomy: shared HAZARD_* vs. level-specific FLOOD_WAVE_*
-* - v1.4: 3-layer electricity renderer (back/mid/front bolts, pulsing alpha)
-* - v1.5: Header sync with current level mapping (Smog=L1, Electricity=L2,
-*         Flood=L3). Renamed _buildElecEdge → _buildLayeredEdge.
-*         Initial flood rebuild copied the electricity anchor/glow pattern —
-*         looked like blue lightning, not water. Reverted in v1.6.
-* - v1.6: renderFlood rewritten as smooth-sine sea: 2 translucent swell
-*         layers + compound-sine stormy surface with depth gradient and
-*         foam caps. No anchor interpolation, no pulsing alpha, no glow.
-*         Tuning source: docs/previews/water_variants_preview.html Variant E.
-* - v1.7: Foam system across all three sine layers (Layer 1 navy swell,
-*         Layer 2 whitish band, Surface compound). Three independent phase
-*         speeds (0.8 / 1.3 / compound) keep 1–2 foam elements on screen
-*         at all times — never fully intermittent. Draw-order places each
-*         foam pass before its covering layer for depth-read.
-*         [LOCKED 2026-04-24 — do not re-tune without Julian's explicit
-*         approval. Final balance approved after presence iteration.]
-====================================================================
-*/
-// Depends on: GameState, GamePhase, saveHighScore (game-state.js), player (player.js)
+/**
+ * File:        hazards.js
+ * Project:     Soggy Moggy — SRH Abschlussprojekt (Game & Multimedia Design)
+ * Author:      Julian Gomez
+ * AI support:  Developed with AI assistance (Claude / Anthropic) as a
+ *              pair-programming partner for design, implementation, and debugging.
+ *              All code reviewed and integrated by the author.
+ * Created:     2026-03-16
+ * Updated:     2026-04-27
+ *
+ * Purpose:     Rising hazard system — shared physics + damage + respawn,
+ *              plus a per-level visual renderer dispatched by GameState.level.
+ *              The hazard chases the cat from below; contact decrements lives
+ *              and respawns onto the lowest intact platform still above the
+ *              hazard line.
+ * Depends on:  game-state.js (GameState, GamePhase, saveHighScore, DIFFICULTY),
+ *              player.js (player, JUMP_VELOCITY),
+ *              platforms.js (platforms array, for respawnAboveWater),
+ *              dialogue.js (showLifeLost, optional via typeof guard),
+ *              dev-flags.js (devFlags.godMode / .infiniteLives),
+ *              audio.js (playSound, optional via typeof guard).
+ * Loaded by:   index.html (vanilla <script> tag — see load order in index.html)
+ *
+ * Hazard ↔ level mapping:
+ *   Smog        — Level 1 (city)       — gradient bands + cosine billowing edge
+ *   Electricity — Level 2 (shaft)      — 3-layer bolt system, pulsing alpha
+ *   Flood       — Level 3 (lighthouse) — 2 translucent swell layers + stormy
+ *                                        surface with foam caps on crests
+ *
+ * Historical note: levels 2 and 3 were swapped during production. Earlier
+ * builds had Flood on L2 and Electricity on L3; the dispatcher was updated at
+ * swap time and the renderers were preserved.
+ *
+ * IMPORTANT — locked region:
+ * The renderFlood function (Section 8 below) is wrapped in
+ *   ===== LOCKED 2026-04-24 — DO NOT CHANGE =====
+ * markers and must not be modified without explicit approval. Final balance
+ * was approved after presence iteration; changes may break the foam timing.
+ */
 
 // ---------------------------------------------------------------------------
 // SECTION 1 — Constants (tune-friendly, one declaration per line)
@@ -131,6 +102,7 @@ function takeDamage(cause) {
   const _god = (typeof devFlags !== 'undefined' && devFlags.godMode);
   const _inf = (typeof devFlags !== 'undefined' && devFlags.infiniteLives);
   if (_god) return;
+  if (typeof playSound === 'function') playSound('damage');
   if (!_inf) GameState.lives -= 1;
   hazard.iframeTimer = IFRAME_DURATION;
   hazard.flashTimer  = FLASH_DURATION;
@@ -192,7 +164,7 @@ function updateHazard(dt) {
   if (GameState.levelGoalY !== undefined) {
     const capOffset = GameState.level === 1 ? 22
                     : GameState.level === 2 ? 140
-                    : 4623;  // L3: clamp at world-y 615 (~49 px below LH-G), flood stops at lighthouse base
+                    : 22;  // L3: flood chases player up lighthouse, caps 22px below levelGoalY (same as L1)
     if (hazard.y < GameState.levelGoalY + capOffset) {
       hazard.y = GameState.levelGoalY + capOffset;
     }
@@ -453,7 +425,7 @@ function renderSmog(ctx) {
 }
 
 // ---------------------------------------------------------------------------
-// SECTION 10 — renderElectricity(ctx)  [Level 3 — elevator shaft]
+// SECTION 10 — renderElectricity(ctx)  [Level 2 — elevator shaft]
 // Three independent bolt layers at different speeds, displacements, and alphas.
 // Each layer: anchor-based edge → linear interpolation → fill/stroke.
 // Layer 1 (back):  slow, wide, dark blue, low alpha — deep background crackle

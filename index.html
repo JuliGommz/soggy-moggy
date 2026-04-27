@@ -25,16 +25,21 @@
        viewport while flex centers the canvas, leaving them misaligned. */
     .game-frame { position: relative; width: 480px; height: 640px; }
 
-    /* Start-screen DOM overlay: matches canvas size via inset:0 of the frame.
-       pointer-events:none default — script flips it to 'auto' only during GamePhase.START. */
-    #sm-start-root {
+    /* Overlay shared rules — pointer-events:none by default; script adds .sm-active to enable. */
+    #sm-start-root,
+    #sm-gameover-root,
+    #sm-success-root,
+    #sm-levelcomplete-root {
       position: absolute;
       inset: 0;
       pointer-events: none;
       z-index: 10;
       image-rendering: pixelated;
     }
-    #sm-start-root.sm-active { pointer-events: auto; }
+    #sm-start-root.sm-active,
+    #sm-gameover-root.sm-active,
+    #sm-success-root.sm-active,
+    #sm-levelcomplete-root.sm-active { pointer-events: auto; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(-2px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
@@ -42,41 +47,59 @@
   <div class="game-frame">
     <canvas id="gameCanvas"></canvas>
     <div id="sm-start-root"></div>
+    <div id="sm-gameover-root"></div>
+    <div id="sm-success-root"></div>
+    <div id="sm-levelcomplete-root"></div>
   </div>
 
-  <!-- ──────────────────────────────────────────────────────────────────────
-       Game scripts (classic <script> tags — load order matters)
-       ────────────────────────────────────────────────────────────────────── -->
-  <!-- dev-flags.js FIRST: pure module, no deps; must be defined before resetGame() runs -->
+  <!-- ══════════════════════════════════════════════════════════════════════
+       Game scripts — classic <script> tags. Load order matters.
+
+       Each file declares globals that the following files read; cross-file
+       references are by name (no import/export). Order is:
+
+         1. dev-flags.js          — devFlags object (no dependencies)
+         2. game-state.js         — GamePhase, GameState, resetGame, prefs
+         3. audio.js              — HTMLAudio music + SFX (file:// safe)
+         4. input.js              — keyboard + mouse listeners, keys map
+         5. player.js             — physics + sprite, JUMP_VELOCITY
+         6. platforms.js          — generation + collision + rendering
+         7. hazards.js            — smog / electricity / flood renderers
+         8. background.js         — parallax background layers
+         9. enemies.js            — wasp enemy system
+        10. dialogue.js           — bubble overlay + lifecycle
+        11. main.js               — canvas init, game loop, HUD, outro triggers
+
+       React DOM overlays load last so the globals above are already defined
+       when the overlays' mount functions are called. Babel is intentionally
+       NOT used: browsers block the XHR Babel needs for external src= scripts
+       on file:// (Firefox blocks it for ALL local files), so every overlay
+       file uses plain React.createElement instead of JSX.
+
+        12. React + ReactDOM (UMD bundles via unpkg)
+        13. start-screen.js        — Start menu + Dev tools panel
+        14. gameover-screen.js     — GAMEOVER overlay
+        15. success-screen.js      — L3 LEVEL_COMPLETE overlay
+        16. levelcomplete-screen.js — L1 / L2 LEVEL_COMPLETE overlay
+       ══════════════════════════════════════════════════════════════════════ -->
+
   <script src="src/dev-flags.js"></script>
-  <!-- game-state.js: defines GamePhase, GameState, resetGame, prefs persistence -->
   <script src="src/game-state.js"></script>
-  <!-- audio.js: AudioContext + gain nodes; reads GameState.audio -->
-  <script src="src/audio.js"></script>
-  <!-- input.js: keyboard + mouse listeners -->
+  <script src="src/audio.js?v=20260427a"></script>
   <script src="src/input.js"></script>
-  <!-- player.js: physics + sprite -->
   <script src="src/player.js"></script>
-  <!-- platforms.js: reads player + JUMP_VELOCITY from player.js -->
   <script src="src/platforms.js"></script>
-  <!-- hazards.js: rising hazard (smog/electricity/flood) -->
   <script src="src/hazards.js"></script>
-  <!-- background.js: parallax background layers -->
   <script src="src/background.js"></script>
-  <!-- enemies.js: wasp enemy system -->
   <script src="src/enemies.js"></script>
-  <!-- dialogue.js: bubble PNG overlay + lifecycle -->
   <script src="src/dialogue.js"></script>
-  <!-- main.js: orchestrates canvas init, game loop, mounts the start-screen overlay -->
   <script src="src/main.js"></script>
 
-  <!-- ──────────────────────────────────────────────────────────────────────
-       Start-screen DOM overlay (React + in-browser Babel)
-       Loads LAST so window.GameState and window.devFlags exist by the time
-       it tries to read initial state.
-       ────────────────────────────────────────────────────────────────────── -->
   <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
-  <script src="src/start-screen.js"></script>
+  <script src="src/start-screen.js?v=20260427a"></script>
+  <script src="src/gameover-screen.js"></script>
+  <script src="src/success-screen.js"></script>
+  <script src="src/levelcomplete-screen.js"></script>
 </body>
 </html>

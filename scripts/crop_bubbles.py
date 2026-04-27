@@ -12,7 +12,7 @@ Pipeline:
   7. Write 8 output PNGs per the mapping below.
 
 Run once after placing the source sheet. Output goes to
-PixelArt/thought_bubbles/dialogues/.
+Visuals/thought_bubbles/dialogues/.
 """
 
 import pathlib
@@ -24,8 +24,8 @@ except ImportError:
     sys.exit("Pillow not installed. Run:  py -3 -m pip install pillow")
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SRC = ROOT / "PixelArt/thought_bubbles/thought_bubbles_v1/thought-bubbles.png"
-OUT = ROOT / "PixelArt/thought_bubbles/dialogues"
+SRC = ROOT / "Visuals/thought_bubbles/thought_bubbles_v1/thought-bubbles.png"
+OUT = ROOT / "Visuals/thought_bubbles/dialogues"
 OUT.mkdir(parents=True, exist_ok=True)
 
 # Mapping: output filename -> index into sorted-blob list.

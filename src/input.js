@@ -1,39 +1,35 @@
-/*
-====================================================================
-* input.js - Keyboard and mouse input state map
-====================================================================
-* Project: Soggy Moggy
-* Course: PRG Abschlussprojekt — SRH Fachschulen
-* Developer: Julian Gomez
-* Date: 2026-03-04
-* Version: 1.3 - Left click also fires keys.enter (click-to-start on all menu screens)
-*
-* AUTHORSHIP CLASSIFICATION:
-*
-* [AI-ASSISTED]
-* - Key-state polling architecture: keys object polled per frame
-*   rather than event-driven logic — prevents missed inputs
-* - Mouse dual-mapping: left click = jump, right click = action (Z)
-*
-* NOTES:
-* - keys object is global — polled by updatePlayer() and update() in main.js
-* - keys.jump fires on Space/left-click
-* - contextmenu suppressed so right-click can be used as game input
-*
-* VERSION HISTORY:
-* - v1.0: Initial key map (left, right, jump, enter)
-* - v1.1: Added push key (Z) for Phase 5 prep
-* - v1.2: Added mouse support (left = jump, right = push)
-* - v1.3: Left click fires keys.enter so START / LEVEL_COMPLETE / GAMEOVER screens respond to click
-====================================================================
-*/
-// No import/export — classic script tag; keys is a global.
+/**
+ * File:        input.js
+ * Project:     Soggy Moggy — SRH Abschlussprojekt (Game & Multimedia Design)
+ * Author:      Julian Gomez
+ * AI support:  Developed with AI assistance (Claude / Anthropic) as a
+ *              pair-programming partner for design, implementation, and debugging.
+ *              All code reviewed and integrated by the author.
+ * Created:     2026-03-04
+ * Updated:     2026-04-26
+ *
+ * Purpose:     Keyboard and mouse input state. Exposes a polled `keys` map
+ *              consumed each frame by main.js / player.js, plus mouse position
+ *              tracking for canvas-relative hit-testing on menu screens.
+ * Depends on:  game-state.js (reads GameState.phase / GamePhase for dev-browse gate)
+ * Loaded by:   index.html (vanilla <script> tag — see load order in index.html)
+ *
+ * Bindings:
+ *   ArrowLeft / A         → keys.left
+ *   ArrowRight / D        → keys.right
+ *   Space / left mouse    → keys.jump  (also keys.enter on left mouse)
+ *   Z / right mouse       → keys.push  (action / interact)
+ *   Enter                 → keys.enter
+ *   ArrowUp / ArrowDown   → keys.menuUp / keys.menuDown
+ *   Escape                → keys.escape (pause / resume)
+ *   F2                    → keys.devBrowse (toggle dev free-camera)
+ */
 
 const keys = {
   left:      false,
   right:     false,
   jump:      false,
-  push:      false,   // Phase 5: Z key — push/throw action
+  push:      false,   // Z key — interact / action
   enter:     false,
   menuUp:    false,   // ArrowUp   — menu navigation
   menuDown:  false,   // ArrowDown — menu navigation
@@ -41,52 +37,87 @@ const keys = {
   devBrowse: false,   // F2 — toggle dev free-camera mode
 };
 
-// Accumulated mouse-wheel delta for DEV_BROWSE camera scroll. Consumed each frame.
+// Mouse buttons (DOM MouseEvent.button)
+const _MOUSE_LEFT  = 0;
+const _MOUSE_RIGHT = 2;
+
+// ---------------------------------------------------------------------------
+// Mouse-wheel delta for DEV_BROWSE camera scroll. Consumed each frame by
+// updateCamera() in main.js. The wheel listener is gated to DEV_BROWSE so
+// it does not block native scrolling on DOM overlays (start screen, dev
+// tools panel) at any other time.
+// ---------------------------------------------------------------------------
 let devWheelDelta = 0;
 document.addEventListener('wheel', (e) => {
-  devWheelDelta += e.deltaY;
-  e.preventDefault();
+  if (typeof GameState !== 'undefined' && GameState.phase === GamePhase.DEV_BROWSE) {
+    devWheelDelta += e.deltaY;
+    e.preventDefault();
+  }
 }, { passive: false });
 
+// ---------------------------------------------------------------------------
+// Keyboard
+// ---------------------------------------------------------------------------
+// On German QWERTZ keyboards, the key labeled "Z" sits in the physical position
+// that the US layout calls "KeyY" (Y and Z are swapped). KeyboardEvent.code
+// reports the physical position regardless of layout, so we accept BOTH KeyZ
+// and KeyY for the action key. This makes the action work on QWERTY (US/UK)
+// and QWERTZ (German) keyboards alike.
 document.addEventListener('keydown', (e) => {
   switch (e.code) {
-    case 'ArrowLeft':  case 'KeyA': keys.left  = true;  break;
-    case 'ArrowRight': case 'KeyD': keys.right = true;  break;
-    case 'Space':                   keys.jump     = true;  break;
-    case 'KeyZ':                    keys.push     = true;  break;
-    case 'Enter':                   keys.enter    = true;  break;
-    case 'ArrowUp':                 keys.menuUp   = true;  break;
-    case 'ArrowDown':               keys.menuDown = true;  break;
-    case 'Escape':                  keys.escape    = true;  break;
-    case 'F2':                      keys.devBrowse = true;  e.preventDefault(); break;
+    case 'ArrowLeft':  case 'KeyA':            keys.left      = true; break;
+    case 'ArrowRight': case 'KeyD':            keys.right     = true; break;
+    case 'Space':                              keys.jump      = true; break;
+    case 'KeyZ':       case 'KeyY':            keys.push      = true; break;
+    case 'Enter':                              keys.enter     = true; break;
+    case 'ArrowUp':                            keys.menuUp    = true; break;
+    case 'ArrowDown':                          keys.menuDown  = true; break;
+    case 'Escape':                             keys.escape    = true; break;
+    case 'F2':                                 keys.devBrowse = true; e.preventDefault(); break;
   }
 });
 
 document.addEventListener('keyup', (e) => {
   switch (e.code) {
-    case 'ArrowLeft':  case 'KeyA': keys.left     = false; break;
-    case 'ArrowRight': case 'KeyD': keys.right    = false; break;
-    case 'Space':                   keys.jump     = false; break;
-    case 'KeyZ':                    keys.push     = false; break;
-    case 'Enter':                   keys.enter    = false; break;
-    case 'ArrowUp':                 keys.menuUp   = false; break;
-    case 'ArrowDown':               keys.menuDown = false; break;
-    case 'Escape':                  keys.escape    = false; break;
-    case 'F2':                      keys.devBrowse = false; break;
+    case 'ArrowLeft':  case 'KeyA':            keys.left      = false; break;
+    case 'ArrowRight': case 'KeyD':            keys.right     = false; break;
+    case 'Space':                              keys.jump      = false; break;
+    case 'KeyZ':       case 'KeyY':            keys.push      = false; break;
+    case 'Enter':                              keys.enter     = false; break;
+    case 'ArrowUp':                            keys.menuUp    = false; break;
+    case 'ArrowDown':                          keys.menuDown  = false; break;
+    case 'Escape':                             keys.escape    = false; break;
+    case 'F2':                                 keys.devBrowse = false; break;
   }
 });
 
-// ── Mouse support ─────────────────────────────────────────────────────────────
-// Left click = jump (same as Space), right click = push/action (same as Z)
+// ---------------------------------------------------------------------------
+// Mouse
+// Left click  = jump (same as Space), also fires enter for menu screens.
+// Right click = push/action (same as Z).
+// lastMouseClientX/Y + mouseJustClicked let main.js do canvas-relative
+// hit-testing on START / AUDIO_MENU difficulty rows and the Audio link.
+// ---------------------------------------------------------------------------
+let lastMouseClientX = -1;
+let lastMouseClientY = -1;
+let mouseJustClicked = false; // set true on left mousedown; consumed (set false) in update()
+
 document.addEventListener('contextmenu', (e) => e.preventDefault()); // suppress right-click menu
 
 document.addEventListener('mousedown', (e) => {
-  if (e.button === 0) { keys.jump = true;  keys.enter = true; }  // left: jump + advance menus
-  if (e.button === 2) { keys.push = true; }                                          // right: push/action
+  if (e.button === _MOUSE_LEFT) {
+    lastMouseClientX = e.clientX;
+    lastMouseClientY = e.clientY;
+    mouseJustClicked = true;
+    keys.jump  = true;
+    keys.enter = true;
+  }
+  if (e.button === _MOUSE_RIGHT) {
+    keys.push = true;
+  }
 });
 
 document.addEventListener('mouseup', (e) => {
-  if (e.button === 0) { keys.jump = false; keys.enter = false; }
-  if (e.button === 2) { keys.push = false; }
+  if (e.button === _MOUSE_LEFT)  { keys.jump = false; keys.enter = false; }
+  if (e.button === _MOUSE_RIGHT) { keys.push = false; }
 });
-

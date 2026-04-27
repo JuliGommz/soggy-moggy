@@ -11,16 +11,16 @@
 
 ## Goal
 
-Flache `PixelArt/`-Wurzel aufräumen: Katze + Wespe zu `characters/` gruppieren, HUD-Icons aus `collectibles/` nach `ui/hud/` umziehen. Zweck ist rein Struktur; keine Sprites werden verändert, keine Gameplay-Logik berührt. Der Dozent soll in `PixelArt/` auf einen Blick erkennen: "das sind Figuren, das ist UI, das sind Sammel-Objekte, das sind Level-Backgrounds, das sind Plattformen".
+Flache `Visuals/`-Wurzel aufräumen: Katze + Wespe zu `characters/` gruppieren, HUD-Icons aus `collectibles/` nach `ui/hud/` umziehen. Zweck ist rein Struktur; keine Sprites werden verändert, keine Gameplay-Logik berührt. Der Dozent soll in `Visuals/` auf einen Blick erkennen: "das sind Figuren, das ist UI, das sind Sammel-Objekte, das sind Level-Backgrounds, das sind Plattformen".
 
 Nach dieser Phase sieht die Wurzel so aus:
 
 ```
-PixelArt/
+Visuals/
 ├── backgrounds/          (unverändert)
 ├── characters/           NEU
-│   ├── cat/              ← ehemals PixelArt/cat/
-│   └── wasp/             ← ehemals PixelArt/enemy_wasp/
+│   ├── cat/              ← ehemals Visuals/cat/
+│   └── wasp/             ← ehemals Visuals/enemy_wasp/
 ├── collectibles/         (nur noch balloon.*)
 ├── fonts/                (unverändert — Phase 4)
 ├── platforms/            (unverändert)
@@ -39,7 +39,7 @@ PixelArt/
 ## Mapping Entscheidungen
 
 ### `characters/cat/`
-Vollständig aus `PixelArt/cat/` migriert.
+Vollständig aus `Visuals/cat/` migriert.
 - `cat/animation_sheet.png` → `characters/cat/animation_sheet.png` **(wired)**
 - `cat/animation_sheet.psd` → `characters/cat/animation_sheet.psd`
 - `cat/einzel_sprites/*` (alle 14 Dateien: idle/peak/push_peak/push_rise/rise/walk_1/walk_2 je .png + .pxo) → `characters/cat/einzel_sprites/*`
@@ -47,7 +47,7 @@ Vollständig aus `PixelArt/cat/` migriert.
 Rationale: Der Unterordner `einzel_sprites/` bleibt als Untergruppe erhalten — die Einzeldateien dienen als Reference-Export und werden nicht vom Spiel geladen (nur `animation_sheet.png` ist wired).
 
 ### `characters/wasp/`
-Vollständig aus `PixelArt/enemy_wasp/` migriert.
+Vollständig aus `Visuals/enemy_wasp/` migriert.
 - `enemy_wasp/wasp_sheet.png` → `characters/wasp/wasp_sheet.png` **(wired)**
 - `enemy_wasp/wasp_sheet.psd` → `characters/wasp/wasp_sheet.psd`
 - `enemy_wasp/einzel_sprites/*` (4 Dateien: wasp_body.png bis wasp_body4.png) → `characters/wasp/einzel_sprites/*`
@@ -71,7 +71,7 @@ Rationale (aus Code-Analyse):
 - Kein einziger Sprite existiert für Screens.
 - Einen leeren Ordner per `.gitkeep` einzuchecken schafft Verwirrung statt Klarheit ("wozu der leere Ordner?").
 
-**Vorgehen:** `ui/screens/` wird **nicht** erstellt. Falls später echte Screen-Grafiken kommen, kann der Ordner trivial nachgezogen werden. In `PixelArt/README.md` bleibt `ui/` als Gruppe mit Unterordner `hud/` dokumentiert; `screens/` wird als "reserviert für künftige Assets" nur im Text erwähnt.
+**Vorgehen:** `ui/screens/` wird **nicht** erstellt. Falls später echte Screen-Grafiken kommen, kann der Ordner trivial nachgezogen werden. In `Visuals/README.md` bleibt `ui/` als Gruppe mit Unterordner `hud/` dokumentiert; `screens/` wird als "reserviert für künftige Assets" nur im Text erwähnt.
 
 ### `collectibles/` — bleibt bestehen
 Nach dem Umzug enthält `collectibles/` nur noch:
@@ -95,18 +95,18 @@ Alle Moves per `git mv` in `.claude/run-phase3.ps1`. PowerShell ordnet sie logis
 
 ```
 # characters/cat/
-PixelArt/cat/                        → PixelArt/characters/cat/
+Visuals/cat/                        → Visuals/characters/cat/
   (rekursiv — inkl. animation_sheet.png/.psd und einzel_sprites/)
 
 # characters/wasp/
-PixelArt/enemy_wasp/                 → PixelArt/characters/wasp/
+Visuals/enemy_wasp/                 → Visuals/characters/wasp/
   (rekursiv — inkl. wasp_sheet.png/.psd und einzel_sprites/)
 
 # ui/hud/
-PixelArt/collectibles/life_icon.png  → PixelArt/ui/hud/life_icon.png
-PixelArt/collectibles/life_icon.pxo  → PixelArt/ui/hud/life_icon.pxo
-PixelArt/collectibles/life_plush.png → PixelArt/ui/hud/life_plush.png
-PixelArt/collectibles/life_plush.pxo → PixelArt/ui/hud/life_plush.pxo
+Visuals/collectibles/life_icon.png  → Visuals/ui/hud/life_icon.png
+Visuals/collectibles/life_icon.pxo  → Visuals/ui/hud/life_icon.pxo
+Visuals/collectibles/life_plush.png → Visuals/ui/hud/life_plush.png
+Visuals/collectibles/life_plush.pxo → Visuals/ui/hud/life_plush.pxo
 ```
 
 Verbleibend in `collectibles/`: `balloon.png`, `balloon.pxo`.
@@ -118,13 +118,13 @@ Verbleibend in `collectibles/`: `balloon.png`, `balloon.pxo`.
 Alle Edits werden vor dem `git mv` per Edit-Tool angewendet (sonst läuft der Browser kurz mit 404s). Anschließend fängt der `git add` in der Script-Phase die modifizierten Dateien.
 
 ### `src/player.js` — 1 Edit
-- Zeile 38: `'PixelArt/cat/animation_sheet.png'` → `'PixelArt/characters/cat/animation_sheet.png'`
+- Zeile 38: `'Visuals/cat/animation_sheet.png'` → `'Visuals/characters/cat/animation_sheet.png'`
 
 ### `src/enemies.js` — 1 Edit
-- Zeile 38: `'PixelArt/enemy_wasp/wasp_sheet.png'` → `'PixelArt/characters/wasp/wasp_sheet.png'`
+- Zeile 38: `'Visuals/enemy_wasp/wasp_sheet.png'` → `'Visuals/characters/wasp/wasp_sheet.png'`
 
 ### `src/main.js` — 1 Edit
-- Zeile 40: `'PixelArt/collectibles/life_icon.png'` → `'PixelArt/ui/hud/life_icon.png'`
+- Zeile 40: `'Visuals/collectibles/life_icon.png'` → `'Visuals/ui/hud/life_icon.png'`
 
 *Nicht geändert in main.js:* Zeile 43 `balloon.png` — bleibt in `collectibles/`.
 
@@ -137,35 +137,35 @@ Alle Edits werden vor dem `git mv` per Edit-Tool angewendet (sonst läuft der Br
 
 ### Aktive Dokumentation (wird aktualisiert)
 
-**`PixelArt/NAMING.md`**
+**`Visuals/NAMING.md`**
 - Folder-Structure-Block (Zeilen 22–35): `cat/` → `characters/cat/`; neue Zeile `characters/wasp/`; neue Zeile `ui/hud/`; Hinweis bei `collectibles/` dass life_* in `ui/hud/` liegt.
 - Section "Current Game Assets" (Zeile 83 ff.): Überschrift `### cat/` → `### characters/cat/`; neue Section `### characters/wasp/` mit wasp_sheet.png; neue Section `### ui/hud/`; Section `collectibles/` reduziert auf balloon.
 
-**`PixelArt/README.md`**
+**`Visuals/README.md`**
 - Tabelle: Zeile "characters/" von *(geplant)* auf aktiv ändern — Inhalt "Katze, Wespe". Zeile "ui/" von *(geplant)* auf aktiv — Inhalt "HUD-Elemente (Herzen)". Zeile "enemy_wasp/" entfernen (gemerged in characters/). Collectibles-Beschreibung präzisieren ("Luftballon-Extraleben").
 
 **`docs/ASSET_LIST.md`**
-- Section "Cat Character Sprites" Heading: `PixelArt/cat/` → `PixelArt/characters/cat/`.
-- File-Pfade in Tabelle: `PixelArt/cat/idle.png` etc. — **Vorsicht:** diese Pfade sind bereits falsch (Dateien liegen in `einzel_sprites/`). Das wird in Phase 8 (Doku-Sync) vollständig gefixt. In Phase 3 nur die Heading-Zeile `PixelArt/cat/` → `PixelArt/characters/cat/`, plus alle Tabellen-Zellen mit `PixelArt/cat/` auf `PixelArt/characters/cat/einzel_sprites/` ziehen (gleichzeitig Phase-8-Drift mit-fixen ist out-of-scope — wir fassen die Tabellen-Zellen nur am Pfad-Prefix an und lassen einzel_sprites/ für Phase 8).
+- Section "Cat Character Sprites" Heading: `Visuals/cat/` → `Visuals/characters/cat/`.
+- File-Pfade in Tabelle: `Visuals/cat/idle.png` etc. — **Vorsicht:** diese Pfade sind bereits falsch (Dateien liegen in `einzel_sprites/`). Das wird in Phase 8 (Doku-Sync) vollständig gefixt. In Phase 3 nur die Heading-Zeile `Visuals/cat/` → `Visuals/characters/cat/`, plus alle Tabellen-Zellen mit `Visuals/cat/` auf `Visuals/characters/cat/einzel_sprites/` ziehen (gleichzeitig Phase-8-Drift mit-fixen ist out-of-scope — wir fassen die Tabellen-Zellen nur am Pfad-Prefix an und lassen einzel_sprites/ für Phase 8).
 - Section "Collectibles": `life_icon.png` und `life_plush.png` Zeilen entfernen oder mit Hinweis "(moved to ui/hud/)" versehen; Section bleibt mit balloon allein.
-- Neue Section "UI / HUD Assets (`PixelArt/ui/hud/`)" mit life_icon und life_plush.
+- Neue Section "UI / HUD Assets (`Visuals/ui/hud/`)" mit life_icon und life_plush.
 - Wasp ergänzen: **nicht** in ASSET_LIST eingetragen (Grep bestätigt keine Treffer für enemy_wasp). Kein Edit nötig.
 
 **`docs/praesentation_2026-04-16.html`** — aktuelle Review-Presentation
-- 11 `PixelArt/cat/…` Refs → `PixelArt/characters/cat/…`
-- 5 `PixelArt/enemy_wasp/…` Refs → `PixelArt/characters/wasp/…`
-- 3 `PixelArt/collectibles/life_icon.png`, 1 `life_plush.png` → `PixelArt/ui/hud/…`
-- `PixelArt/collectibles/balloon.png` bleibt.
+- 11 `Visuals/cat/…` Refs → `Visuals/characters/cat/…`
+- 5 `Visuals/enemy_wasp/…` Refs → `Visuals/characters/wasp/…`
+- 3 `Visuals/collectibles/life_icon.png`, 1 `life_plush.png` → `Visuals/ui/hud/…`
+- `Visuals/collectibles/balloon.png` bleibt.
 
 ### Intentionally not updated (historical record)
 
-**`docs/review-presentations/praesentation_2026-03-25.html`** — archivierte Review-Präsentation vom 25.03.2026, historischer Snapshot für Dozenten-Feedback-Kontext. Paths zeigen bereits jetzt auf nicht-existierende `PixelArt/cat/idle.png` (vor dem `einzel_sprites/`-Move). Wird nicht angefasst — das wäre Geschichts-Revision.
+**`docs/review-presentations/praesentation_2026-03-25.html`** — archivierte Review-Präsentation vom 25.03.2026, historischer Snapshot für Dozenten-Feedback-Kontext. Paths zeigen bereits jetzt auf nicht-existierende `Visuals/cat/idle.png` (vor dem `einzel_sprites/`-Move). Wird nicht angefasst — das wäre Geschichts-Revision.
 
 **`docs/plans/2026-04-07-l2-cloud-platforms-design.md`**, **`docs/plans/2026-04-07-l2-cloud-platforms-impl.md`** — alte Plans für abgelöstes L2-Wolkenplattform-Konzept. Superseded. Pfad-Drift akzeptabel.
 
-**`docs/plans/2026-04-18-dialogue-system-design.md`**, **`docs/plans/2026-04-20-dialogue-bubbles-illustrator.md`** — diese referenzieren `PixelArt/fonts/` und `PixelArt/thought_bubbles/`, nicht cat/wasp/collectibles. Keine Edits in Phase 3 nötig.
+**`docs/plans/2026-04-18-dialogue-system-design.md`**, **`docs/plans/2026-04-20-dialogue-bubbles-illustrator.md`** — diese referenzieren `Visuals/fonts/` und `Visuals/thought_bubbles/`, nicht cat/wasp/collectibles. Keine Edits in Phase 3 nötig.
 
-**`docs/plans/2026-04-21-project-cleanup.md`** — Meta-Plan; Referenzen auf `PixelArt/characters/cat/` etc. beschreiben das Ziel dieser Phase. Keine Edits.
+**`docs/plans/2026-04-21-project-cleanup.md`** — Meta-Plan; Referenzen auf `Visuals/characters/cat/` etc. beschreiben das Ziel dieser Phase. Keine Edits.
 
 **`docs/STYLE_GUIDE.md`** — referenziert nur `backgrounds/shared/*`, nichts aus dem Phase-3-Scope.
 
@@ -176,7 +176,7 @@ Alle Edits werden vor dem `git mv` per Edit-Tool angewendet (sonst läuft der Br
 ## Execution order
 
 1. Edit-Tool: `src/player.js`, `src/enemies.js`, `src/main.js` (3 targeted Edits).
-2. Edit-Tool: `PixelArt/NAMING.md`, `PixelArt/README.md`, `docs/ASSET_LIST.md`, `docs/praesentation_2026-04-16.html`.
+2. Edit-Tool: `Visuals/NAMING.md`, `Visuals/README.md`, `docs/ASSET_LIST.md`, `docs/praesentation_2026-04-16.html`.
 3. PowerShell: `.claude/run-phase3.ps1` — `git mv` + `git add` + `git commit` + `git log`.
 4. Browser-Smoke-Test (manuell durch Julian): `index.html` öffnen, L1 starten, Katze + HUD-Herzen sichtbar; L2 starten (Aufzugschacht), Wespe sichtbar; L3 starten, Leuchtturm sichtbar. Keine 404 in DevTools-Console.
 
@@ -190,14 +190,14 @@ Alle Edits werden vor dem `git mv` per Edit-Tool angewendet (sonst läuft der Br
 - [ ] Ballon spawnt in L1 (falls im Spawn-Zyklus) und ist einsammelbar
 - [ ] L2 (Aufzugschacht): Wespen rendern korrekt
 - [ ] Game-Over triggern (z. B. ins Wasser springen) → Herzen im Game-Over-Screen korrekt
-- [ ] DevTools Network-Tab: keine 404 auf `PixelArt/cat/`, `PixelArt/enemy_wasp/`, `PixelArt/collectibles/life_*`
+- [ ] DevTools Network-Tab: keine 404 auf `Visuals/cat/`, `Visuals/enemy_wasp/`, `Visuals/collectibles/life_*`
 
 ---
 
 ## Nicht Teil dieser Phase
 
 - `ui/screens/` Unterordner (siehe Mapping-Entscheidung).
-- Fix der `PixelArt/cat/idle.png`-Drift in ASSET_LIST.md (Phase 8 Doku-Sync).
+- Fix der `Visuals/cat/idle.png`-Drift in ASSET_LIST.md (Phase 8 Doku-Sync).
 - Wasp-Sprite-Scaling (eigenes Ticket, Memory-Known-Issue).
 - Updates an `.planning/**/*.md` Snapshots (Phase 8).
 

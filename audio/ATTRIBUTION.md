@@ -34,6 +34,16 @@ Format is identical for every file. Save files with original Pixabay filename �
 
 ---
 
+### sfx/outro/lever.mp3
+- **Slot:**              06 – L3 Outro: Lever SFX
+- **Original filename:** freesound_community-lever-action-cocking-2-39680.mp3
+- **Source:**            https://pixabay.com/sound-effects/film-special-effects-lever-action-cocking-2-39680/
+- **Author:**            freesound_community via Pixabay
+- **License:**           Pixabay Content License (free use, attribution voluntary)
+- **Modified:**          —
+
+---
+
 ### sfx/outro/windrad.mp3
 - **Slot:**              04 – L1 Outro: Windrad SFX
 - **Original filename:** freesound_community-girandola-2-43940.mp3
@@ -49,6 +59,16 @@ Format is identical for every file. Save files with original Pixabay filename �
 - **Original filename:** soundreality-ding-411634.mp3
 - **Source:**            https://pixabay.com/sound-effects/film-special-effects-ding-411634/
 - **Author:**            soundreality (Jurij) via Pixabay
+- **License:**           Pixabay Content License (free use, attribution voluntary)
+- **Modified:**          —
+
+---
+
+### sfx/ui/victory.mp3
+- **Slot:**              29 – Success Screen: Victory Music
+- **Original filename:** poradovskyi-trap-victory-winner-music-479676.mp3
+- **Source:**            https://pixabay.com/music/trap-trap-victory-winner-music-479676/
+- **Author:**            Andrii Poradovskyi via Pixabay
 - **License:**           Pixabay Content License (free use, attribution voluntary)
 - **Modified:**          —
 

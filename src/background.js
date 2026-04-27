@@ -1,58 +1,54 @@
-/*
-====================================================================
-* background.js - Parallax background: sky, clouds, stars
-====================================================================
-* Project: Soggy Moggy
-* Course: PRG Abschlussprojekt — SRH Fachschulen
-* Developer: Julian Gomez
-* Date: 2026-03-08
-* Version: 1.5 - wall tiles brick-only above ground; stops at roof; cornice raised 95px
-*
-* AUTHORSHIP CLASSIFICATION:
-*
-* [AI-ASSISTED]
-* - 5-layer parallax architecture with independent parallax factors
-*   (day sky 0.30x → night 0.30x → stars 0.10x → clouds 0.60x)
-* - Altitude factor t (0=ground, 1=level top) used for all crossfades
-* - tileH seam-fix: content_height formula + Math.round() to eliminate
-*   sub-pixel gap artifacts between tiling rows
-* - Day/night + cloud bright/dark crossfade via globalAlpha = t
-* - Level 2 t-offset: adds 0.35 so sky starts at dusk using existing assets
-*
-* NOTES:
-* - renderBackground() must run in screen space (before ctx.save/translate)
-* - updateBackground() runs every frame regardless of game phase —
-*   animates the start screen background too
-* - Known issue: faint seam lines still visible at some altitudes
-*
-* VERSION HISTORY:
-* - v1.0: Day sky + static clouds, basic parallax scroll
-* - v1.1: Night sky crossfade, stars fade-in, horizontal cloud drift
-* - v1.2: tileH seam fix (Math.round + content_height), level 2 dusk offset
-====================================================================
-*/
-// Depends on: GameState (game-state.js)
-// Render order: sky (day/night crossfade) → stars → clouds (bright/dark crossfade)
-// updateBackground(dt) must be called each frame from main.js update()
+/**
+ * File:        background.js
+ * Project:     Soggy Moggy — SRH Abschlussprojekt (Game & Multimedia Design)
+ * Author:      Julian Gomez
+ * AI support:  Developed with AI assistance (Claude / Anthropic) as a
+ *              pair-programming partner for design, implementation, and debugging.
+ *              All code reviewed and integrated by the author.
+ * Created:     2026-03-08
+ * Updated:     2026-04-27
+ *
+ * Purpose:     Parallax background system — 5 layers (day sky, night sky,
+ *              stars, bright clouds, dark clouds) with altitude-driven
+ *              crossfades, plus level-specific midground/foreground assets
+ *              (L1 city wall, L2 shaft + pipes, L3 lighthouse).
+ * Depends on:  game-state.js (GameState)
+ * Loaded by:   index.html (vanilla <script> tag — see load order in index.html)
+ *
+ * Notes:
+ *   - renderBackground() must run in screen space, BEFORE the world-space
+ *     ctx.save / ctx.translate(0, -cameraY) block in main.js.
+ *   - updateBackground(dt) runs every frame regardless of game phase so the
+ *     start-screen background animates too.
+ *   - Altitude factor t (0 = ground, 1 = level top) drives all crossfades.
+ *   - L2 adds 0.35 to its t-offset so the sky starts at dusk using the
+ *     existing day/night asset pair.
+ *
+ * IMPORTANT — locked regions:
+ * Two ranges in this file are wrapped in
+ *   ===== EMERGENCY FIX — LOCKED — DO NOT CHANGE =====
+ * markers (lighthouse stone-band overlay, school submission). Do not edit
+ * those ranges without explicit approval — see the inline boxes for context.
+ */
 
 // ── Asset loading ─────────────────────────────────────────────────────────────
-const _bgL1Day    = new Image(); _bgL1Day.src    = 'PixelArt/backgrounds/shared/sky_day.png';
-const _bgL1Night  = new Image(); _bgL1Night.src  = 'PixelArt/backgrounds/shared/sky_night.png';
-const _bgL2Bright = new Image(); _bgL2Bright.src = 'PixelArt/backgrounds/shared/clouds_bright.png';
-const _bgL2Dark   = new Image(); _bgL2Dark.src   = 'PixelArt/backgrounds/shared/clouds_dark.png';
-const _bgStars    = new Image(); _bgStars.src    = 'PixelArt/backgrounds/shared/stars.png';
+const _bgL1Day    = new Image(); _bgL1Day.src    = 'Visuals/backgrounds/shared/sky_day.png';
+const _bgL1Night  = new Image(); _bgL1Night.src  = 'Visuals/backgrounds/shared/sky_night.png';
+const _bgL2Bright = new Image(); _bgL2Bright.src = 'Visuals/backgrounds/shared/clouds_bright.png';
+const _bgL2Dark   = new Image(); _bgL2Dark.src   = 'Visuals/backgrounds/shared/clouds_dark.png';
+const _bgStars    = new Image(); _bgStars.src    = 'Visuals/backgrounds/shared/stars.png';
 
 // ── Level-specific assets ──────────────────────────────────────────────────────
-const _bgL1Wall     = new Image(); _bgL1Wall.src     = 'PixelArt/backgrounds/level_1_city/building_wall.png';
-const _bgL1TrashBin = new Image(); _bgL1TrashBin.src = 'PixelArt/backgrounds/level_1_city/trash_bin.png';
-const _bgL1Door     = new Image(); _bgL1Door.src     = 'PixelArt/backgrounds/level_1_city/building_door.png';
-const _bgL1Cornice  = new Image(); _bgL1Cornice.src  = 'PixelArt/backgrounds/level_1_city/cornice.png';
-const _bgL1Roof     = new Image(); _bgL1Roof.src     = 'PixelArt/backgrounds/level_1_city/building_roof.png';
-const _bgL2Sun      = new Image(); _bgL2Sun.src      = 'PixelArt/backgrounds/level_3_sea/sun.png';
+const _bgL1Wall     = new Image(); _bgL1Wall.src     = 'Visuals/backgrounds/level_1_city/building_wall.png';
+const _bgL1TrashBin = new Image(); _bgL1TrashBin.src = 'Visuals/backgrounds/level_1_city/trash_bin.png';
+const _bgL1Door     = new Image(); _bgL1Door.src     = 'Visuals/backgrounds/level_1_city/building_door.png';
+const _bgL1Cornice  = new Image(); _bgL1Cornice.src  = 'Visuals/backgrounds/level_1_city/cornice.png';
+const _bgL1Roof     = new Image(); _bgL1Roof.src     = 'Visuals/backgrounds/level_1_city/building_roof.png';
+const _bgL2Sun      = new Image(); _bgL2Sun.src      = 'Visuals/backgrounds/level_3_sea/sun.png';
 // Lighthouse (Phase 04.2) — replaces the earlier rocket-tower prototype
 // lighthouse_sheet2.png: [0] base extended to full 480px width (stone edge-to-edge fix).
 // [1] mid1 position unchanged (sx=634). [2]–[8] unaffected.
-const _bgL2LhSheet = new Image(); _bgL2LhSheet.src = 'PixelArt/backgrounds/level_3_sea/lighthouse_sheet2.png';
+const _bgL2LhSheet = new Image(); _bgL2LhSheet.src = 'Visuals/backgrounds/level_3_sea/lighthouse_sheet2.png';
 // L3 lighthouse cap — replaces the cap [8] sprite from lighthouse_sheet2.png with a
 // standalone updated PNG (lh_08.06).
 const _bgL2LhBack = new Image();
@@ -62,7 +58,7 @@ const _bgL2LhBack = new Image();
 // asset change and update this constant.
 // Bbox-anchor: centerX → canvas 240, bottom → topScrY + _LH_TOP_CONTENT_BOT.
 const _LH08_BACK_BBOX = { sx: 3240, sy: 47, sw: 332, sh: 559 };  // lh_08.06.png — 3600x640
-_bgL2LhBack.src = 'PixelArt/backgrounds/level_3_sea/EInzel-Sprites/lh_08.06.png';
+_bgL2LhBack.src = 'Visuals/backgrounds/level_3_sea/einzel_sprites/lh_08.06.png';
 // ╔══════════════════════════════════════════════════════════════════════════╗
 // ║ EMERGENCY FIX — LOCKED — DO NOT CHANGE (school submission 2026-04-24)    ║
 // ║                                                                          ║
@@ -75,20 +71,20 @@ _bgL2LhBack.src = 'PixelArt/backgrounds/level_3_sea/EInzel-Sprites/lh_08.06.png'
 // ║                                                                          ║
 // ║ This overlay ships with the school submission. See GDD §3.4.             ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
-const _bgL2LhStoneFix = new Image(); _bgL2LhStoneFix.src = 'PixelArt/backgrounds/level_3_sea/lh_00_quick-fix.png';
+const _bgL2LhStoneFix = new Image(); _bgL2LhStoneFix.src = 'Visuals/backgrounds/level_3_sea/lh_00_quick-fix.png';
 // Anchor Y for the overlay, relative to the base tile's draw origin.
 // Iteration history: 611 (too high) → 623 (12px deeper) → 633 (10 more) = LOCKED.
 const _LH_STONE_FIX_ANCHOR_Y = 633;
 
 // ── Level 3 assets (bg-back: shaft wall; bg-mid: pipes) ───────────────────────
-const _bgL3Elevator    = new Image(); _bgL3Elevator.src    = 'PixelArt/backgrounds/level_2_shaft/elevator.png';
-const _bgL3ShaftBot    = new Image(); _bgL3ShaftBot.src    = 'PixelArt/backgrounds/level_2_shaft/shaft_bg_bottom.png';
-const _bgL3ShaftMid1   = new Image(); _bgL3ShaftMid1.src   = 'PixelArt/backgrounds/level_2_shaft/shaft_bg_mid1.png';
-const _bgL3ShaftMid2   = new Image(); _bgL3ShaftMid2.src   = 'PixelArt/backgrounds/level_2_shaft/shaft_bg_mid2.png';
-const _bgL3ShaftTop    = new Image(); _bgL3ShaftTop.src    = 'PixelArt/backgrounds/level_2_shaft/shaft_bg_top.png';
-const _bgL3PipesBot    = new Image(); _bgL3PipesBot.src    = 'PixelArt/backgrounds/level_2_shaft/pipes_bottom.png';
-const _bgL3PipesMid    = new Image(); _bgL3PipesMid.src    = 'PixelArt/backgrounds/level_2_shaft/pipes_mid.png';
-const _bgL3PipesTop    = new Image(); _bgL3PipesTop.src    = 'PixelArt/backgrounds/level_2_shaft/pipes_top.png';
+const _bgL3Elevator    = new Image(); _bgL3Elevator.src    = 'Visuals/backgrounds/level_2_shaft/elevator.png';
+const _bgL3ShaftBot    = new Image(); _bgL3ShaftBot.src    = 'Visuals/backgrounds/level_2_shaft/shaft_bg_bottom.png';
+const _bgL3ShaftMid1   = new Image(); _bgL3ShaftMid1.src   = 'Visuals/backgrounds/level_2_shaft/shaft_bg_mid1.png';
+const _bgL3ShaftMid2   = new Image(); _bgL3ShaftMid2.src   = 'Visuals/backgrounds/level_2_shaft/shaft_bg_mid2.png';
+const _bgL3ShaftTop    = new Image(); _bgL3ShaftTop.src    = 'Visuals/backgrounds/level_2_shaft/shaft_bg_top.png';
+const _bgL3PipesBot    = new Image(); _bgL3PipesBot.src    = 'Visuals/backgrounds/level_2_shaft/pipes_bottom.png';
+const _bgL3PipesMid    = new Image(); _bgL3PipesMid.src    = 'Visuals/backgrounds/level_2_shaft/pipes_mid.png';
+const _bgL3PipesTop    = new Image(); _bgL3PipesTop.src    = 'Visuals/backgrounds/level_2_shaft/pipes_top.png';
 
 const _LH_MID_H   = 577; // lighthouse mid tile content height (rows 30–607 = 578px, step=577)
 // dyo = draw-Y offset in px: shifts each tile down to close art-side seam gaps.

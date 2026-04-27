@@ -14,7 +14,7 @@ from PIL import Image
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-L3_DIR    = ROOT / "PixelArt" / "backgrounds" / "level_3_sea"
+L3_DIR    = ROOT / "Visuals" / "backgrounds" / "level_3_sea"
 SPRITES_DIR = L3_DIR / "EInzel-Sprites"
 
 # (label, path)

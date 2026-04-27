@@ -117,7 +117,7 @@ Colored `fillRect` blocks distinguish cloud types visually during development:
 
 ### Phase 2 (after art): cloud_sheet.png
 
-Sprite sheet at `PixelArt/platforms/level2_see/cloud_sheet.png`. Rows:
+Sprite sheet at `Visuals/platforms/level2_see/cloud_sheet.png`. Rows:
 
 | Row | Type | Visual description |
 |---|---|---|

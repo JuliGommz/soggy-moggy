@@ -1,36 +1,41 @@
-/*
-====================================================================
-* game-state.js - Shared game state, phase enum, score & high score
-====================================================================
-* Project: Soggy Moggy
-* Course: PRG Abschlussprojekt — SRH Fachschulen
-* Developer: Julian Gomez
-* Date: 2026-03-04
-* Version: 1.4 - AUDIO_MENU phase + GameState.audio (music/sfx vol+mute)
-*
-* AUTHORSHIP CLASSIFICATION:
-*
-* [AI-ASSISTED]
-* - Object.freeze enum pattern for GamePhase state machine
-* - localStorage high score with try/catch — graceful fallback
-*   for Firefox file:// and private-mode environments
-* - startNextLevel() structure: lives persist across levels,
-*   score/camera reset, hazard speed scaling per level
-*
-* NOTES:
-* - Must be loaded FIRST in index.html (all symbols are global)
-* - No import/export — classic script tag pattern
-* - levelGoalY is NOT reset in resetGame() — set by generateLevelPlatforms()
-*
-* VERSION HISTORY:
-* - v1.0: Initial state object, GamePhase enum, resetGame()
-* - v1.1: Added lives system, level field, score tracking
-* - v1.2: Added startNextLevel(), localStorage high score (loadHighScore / saveHighScore)
-* - v1.3: Added countdownTimer — 3s pre-hazard countdown banner; hazard gated in main.js update()
-====================================================================
-*/
-// No import/export — classic script tag; all symbols are global.
+/**
+ * File:        game-state.js
+ * Project:     Soggy Moggy — SRH Abschlussprojekt (Game & Multimedia Design)
+ * Author:      Julian Gomez
+ * AI support:  Developed with AI assistance (Claude / Anthropic) as a
+ *              pair-programming partner for design, implementation, and debugging.
+ *              All code reviewed and integrated by the author.
+ * Created:     2026-03-04
+ * Updated:     2026-04-26
+ *
+ * Purpose:     Central GameState object, GamePhase enum, difficulty table,
+ *              level lifecycle helpers (resetGame / startNextLevel / restartLevel),
+ *              and localStorage persistence for high score + start-screen prefs.
+ * Depends on:  dev-flags.js (read indirectly via resetPlayer/resetPlatforms),
+ *              and forward-declares resetPlayer / resetPlatforms / resetEnemies /
+ *              resetHazard which are defined in later-loaded files. Those are
+ *              only called at runtime, never at load, so the order is safe.
+ * Loaded by:   index.html (vanilla <script> tag — see load order in index.html)
+ *
+ * Notes:
+ *   - levelGoalY is NOT reset in resetGame() — it is set by
+ *     generateLevelPlatforms() inside resetPlatforms() during init.
+ *   - GameState.lives is reset only when the difficulty changes (full reset),
+ *     never on startNextLevel() or restartLevel().
+ *   - High score persists across page reloads via localStorage. Falls back to
+ *     0 silently if storage is unavailable (Firefox file:// private mode).
+ */
 
+// Frame-1 sentinel for maxHeightReached. Any value larger than the cat's spawn
+// y guarantees the first update tick captures the real position.
+const _MAX_HEIGHT_SENTINEL = 9999;
+
+// Free-play seconds at the start of each level before the hazard activates.
+const _HAZARD_COUNTDOWN_SEC = 2;
+
+// ---------------------------------------------------------------------------
+// Phases — each value drives a different update + render path in main.js.
+// ---------------------------------------------------------------------------
 const GamePhase = Object.freeze({
   START:          'start',
   DEV_SELECT:     'dev_select',
@@ -44,9 +49,14 @@ const GamePhase = Object.freeze({
   GAMEOVER:       'gameover',
 });
 
-// Global difficulty multipliers — read once at run start in resetGame, frozen per run.
-// hazardMul scales hazard.speed in resetHazard; waspMul scales _WASP_COUNT[level] in spawnEnemies;
-// cloudDriftMul scales CLOUD_DRIFT_BASE_PXS in updatePlatforms (L3 only). 0 disables drift entirely.
+// ---------------------------------------------------------------------------
+// Difficulty table — read once at run start, frozen per run.
+// hazardMul     scales hazard.speed in resetHazard.
+// waspMul       scales _WASP_COUNT[level] in spawnEnemies.
+// cloudDriftMul scales CLOUD_DRIFT_BASE_PXS in updatePlatforms (L3 only).
+//               0 disables cloud drift entirely.
+// lives         starting life count for a fresh run.
+// ---------------------------------------------------------------------------
 const DIFFICULTY = Object.freeze({
   explorer:    { hazardMul: 0.80, waspMul: 0.60, cloudDriftMul: 0.00, lives: 5, label: 'Explorer'    },
   adventurer:  { hazardMul: 1.00, waspMul: 1.00, cloudDriftMul: 0.80, lives: 3, label: 'Adventurer'  },
@@ -54,29 +64,39 @@ const DIFFICULTY = Object.freeze({
 });
 const DIFFICULTY_ORDER = ['explorer', 'adventurer', 'enlightened'];
 
+// ---------------------------------------------------------------------------
+// GameState — the single source of truth for everything that changes per run.
+// ---------------------------------------------------------------------------
 const GameState = {
   phase:            GamePhase.START,
-  difficulty:       'adventurer',   // 'explorer' | 'adventurer' | 'enlightened' — selected on START screen
+  difficulty:       'adventurer',   // 'explorer' | 'adventurer' | 'enlightened'
   score:            0,
   lives:            3,
   cameraY:          0,
   maxHeightReached: 0,
   level:            1,
-  devCursor:        1, // dev level selector cursor (1–3)
+  devCursor:        1,              // dev level selector cursor (1–3)
   highScore:        0,
+  lastWasNewBest:   false,          // set by saveHighScore — true only on strictly-higher score
   levelGoalY:       undefined,
-  killBonus:        0,    // accumulated points from stomping wasps (+50 per kill)
-  clearBonus:       0,    // +200 if all wasps in the level were defeated; 0 otherwise
-  countdownTimer:   0,    // seconds remaining before hazard activates; 0 = hazard active
-  introTimer:       0,    // counts down 3→0 on the LEVEL_INTRO bubble screen; auto-advances at 0
-  menuCursor:       0,    // selected option index on PAUSED / AUDIO_MENU / LEVEL_COMPLETE screens
-  pausedGame:       false, // true when player navigated PAUSED → START; drives "▶ CONTINUE" vs "▶ START"
+  killBonus:        0,              // +50 per stomped wasp, accumulated within a level
+  clearBonus:       0,              // +200 if all wasps in the level were defeated; 0 otherwise
+  countdownTimer:   0,              // seconds remaining before hazard activates; 0 = active
+  introTimer:       0,              // counts down to 0 on LEVEL_INTRO; auto-advances at 0
+  menuCursor:       0,              // selected option index on PAUSED / AUDIO_MENU / LEVEL_COMPLETE
+  pausedGame:       false,          // true after navigating PAUSED → START; drives "▶ CONTINUE"
   audio: {
-    music: { vol: 0.7, muted: false },  // music volume 0–1; muted = silence without losing vol level
+    music: { vol: 0.7, muted: false },  // music volume 0–1
     sfx:   { vol: 0.8, muted: false },  // sfx volume 0–1
   },
 };
 
+// ---------------------------------------------------------------------------
+// Level lifecycle helpers
+// ---------------------------------------------------------------------------
+
+// Full reset for a fresh run. Restores lives, clears score, jumps to startLevel.
+// High score is intentionally preserved.
 function resetGame(startLevel = 1) {
   GameState.phase            = GamePhase.PLAYING;
   GameState.score            = 0;
@@ -84,54 +104,54 @@ function resetGame(startLevel = 1) {
   GameState.clearBonus       = 0;
   GameState.lives            = DIFFICULTY[GameState.difficulty].lives;
   GameState.cameraY          = 0;
-  GameState.maxHeightReached = 9999; // sentinel: first frame will capture actual player.y
+  GameState.maxHeightReached = _MAX_HEIGHT_SENTINEL;
   GameState.level            = startLevel;
-  GameState.countdownTimer   = 2;   // 2s free play after LEVEL_INTRO ends before hazard activates
+  GameState.countdownTimer   = _HAZARD_COUNTDOWN_SEC;
   GameState.menuCursor       = 0;
-  GameState.pausedGame       = false; // fresh run — start screen shows "▶ START" again
-  // highScore is intentionally NOT reset — it persists across full game resets
-  // levelGoalY is NOT reset here — set by generateLevelPlatforms() inside resetPlatforms()
-  if (typeof resetRng === 'function') resetRng(); // re-seed PRNG for reproducible runs (dev-flags.js)
+  GameState.pausedGame       = false;
   resetPlayer();
-  resetPlatforms(); // Phase 2: defined in platforms.js (loaded after game-state.js — safe at runtime)
-  resetEnemies();   // clear enemy state before spawnEnemies() runs in main.js
+  resetPlatforms();
+  resetEnemies();
   resetHazard(startLevel);
 }
 
+// Advance to the next level. Lives persist; score and camera reset.
 function startNextLevel() {
   GameState.level           += 1;
   GameState.score            = 0;
   GameState.killBonus        = 0;
   GameState.clearBonus       = 0;
   GameState.cameraY          = 0;
-  GameState.maxHeightReached = 9999;
+  GameState.maxHeightReached = _MAX_HEIGHT_SENTINEL;
   GameState.phase            = GamePhase.PLAYING;
-  GameState.countdownTimer   = 2;   // fresh hazard delay for each new level
+  GameState.countdownTimer   = _HAZARD_COUNTDOWN_SEC;
   GameState.menuCursor       = 0;
-  // GameState.lives is intentionally NOT reset — lives persist across levels
-  resetPlayer();
-  resetPlatforms(); // also sets GameState.levelGoalY for the new level
-  resetEnemies();
-  resetHazard(GameState.level); // reset hazard for new level; higher level = faster/harder
-}
-
-// Retry the current level — lives are preserved, score and camera reset.
-function restartLevel() {
-  GameState.score            = 0;
-  GameState.killBonus        = 0;
-  GameState.clearBonus       = 0;
-  GameState.cameraY          = 0;
-  GameState.maxHeightReached = 9999;
-  GameState.phase            = GamePhase.PLAYING;
-  GameState.countdownTimer   = 2;
-  GameState.menuCursor       = 0;
-  // GameState.level and GameState.lives intentionally NOT changed
   resetPlayer();
   resetPlatforms();
   resetEnemies();
   resetHazard(GameState.level);
 }
 
+// Retry the current level. Lives and level number are preserved, everything
+// else resets.
+function restartLevel() {
+  GameState.score            = 0;
+  GameState.killBonus        = 0;
+  GameState.clearBonus       = 0;
+  GameState.cameraY          = 0;
+  GameState.maxHeightReached = _MAX_HEIGHT_SENTINEL;
+  GameState.phase            = GamePhase.PLAYING;
+  GameState.countdownTimer   = _HAZARD_COUNTDOWN_SEC;
+  GameState.menuCursor       = 0;
+  resetPlayer();
+  resetPlatforms();
+  resetEnemies();
+  resetHazard(GameState.level);
+}
+
+// ---------------------------------------------------------------------------
+// High-score persistence
+// ---------------------------------------------------------------------------
 const HS_KEY = 'soggymoggy_highscore';
 
 function loadHighScore() {
@@ -140,25 +160,31 @@ function loadHighScore() {
     GameState.highScore = raw !== null ? parseInt(raw, 10) : 0;
     if (isNaN(GameState.highScore)) GameState.highScore = 0;
   } catch (e) {
-    GameState.highScore = 0; // graceful fallback for Firefox file:// and private mode
+    GameState.highScore = 0; // graceful fallback for Firefox file:// + private mode
   }
 }
 
 function saveHighScore(score) {
   if (score > GameState.highScore) {
-    GameState.highScore = score;
+    GameState.highScore      = score;
+    GameState.lastWasNewBest = true;
     try {
       localStorage.setItem(HS_KEY, String(score));
     } catch (e) {
-      // Storage unavailable — silent fallback
+      // Storage unavailable — silent
     }
+  } else {
+    GameState.lastWasNewBest = false;  // ties or lower scores never qualify as "new best"
   }
 }
 
 loadHighScore();
 
-// ── Start-screen preferences (difficulty + audio) ─────────────────────────
-// Persisted across reloads. Devflags are intentionally NOT persisted (session-only).
+// ---------------------------------------------------------------------------
+// Start-screen preferences (difficulty + audio sliders/mutes)
+// Persisted across reloads. Devflags are intentionally NOT persisted —
+// they are session-only by design.
+// ---------------------------------------------------------------------------
 const SM_PREFS_KEY = 'soggymoggy_prefs';
 
 function loadStartScreenPrefs() {

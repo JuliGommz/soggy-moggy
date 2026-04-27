@@ -1,44 +1,82 @@
-/*
-====================================================================
-* player.js - Stuffed cat: physics, animation, sprite rendering
-====================================================================
-* Project: Soggy Moggy
-* Course: PRG Abschlussprojekt — SRH Fachschulen
-* Developer: Julian Gomez
-* Date: 2026-03-05
-* Version: 1.3 - Walk animation + per-sprite Y offsets (PIL alpha-scan)
-*
-* AUTHORSHIP CLASSIFICATION:
-*
-* [AI-ASSISTED]
-* - Frame priority selection logic: push > bounce sequence > ground > airborne
-* - Per-sprite Y offset calculation: transparent_pixels × scale_factor
-*   based on PIL alpha-scan results (bottom-alignment of drawn vs. hitbox)
-* - Hitbox / drawbox separation: 32×32 collision, 96×96 drawn sprite
-* - Horizontal flip via ctx.scale(-1, 1) with translate trick
-* - iframeTimer blink at 5Hz: water.iframeTimer reference in renderPlayer()
-*
-* NOTES:
-* - Hitbox stays 32×32 regardless of drawn size — collision uses hitbox only
-* - bounceTimer drives jump frame sequence (idle → rise → peak)
-* - pushTimer latches Z animation for 250ms even after key release
-*
-* VERSION HISTORY:
-* - v1.0: Basic player object, gravity, jump, screen wrap
-* - v1.1: Manual jump (Space while onGround), removed auto-bounce
-* - v1.2: Sprite loading, 5-frame animation, horizontal flip, push sprite
-* - v1.3: Walk animation (walk_1/walk_2), per-sprite Y offsets via alpha-scan
-====================================================================
-*/
-// Depends on: GameState (game-state.js), keys (input.js)
+/**
+ * File:        player.js
+ * Project:     Soggy Moggy — SRH Abschlussprojekt (Game & Multimedia Design)
+ * Author:      Julian Gomez
+ * AI support:  Developed with AI assistance (Claude / Anthropic) as a
+ *              pair-programming partner for design, implementation, and debugging.
+ *              All code reviewed and integrated by the author.
+ * Created:     2026-03-05
+ * Updated:     2026-04-26
+ *
+ * Purpose:     Stuffed-cat player: physics (gravity, variable jump), 7-frame
+ *              animation with horizontal flip, and sprite rendering. Hitbox
+ *              (32×32) stays separate from drawn sprite (96×128) so collision
+ *              math is independent of visual scale.
+ * Depends on:  game-state.js (GameState.level / .levelGoalY),
+ *              input.js (keys),
+ *              dev-flags.js (devFlags.dropHeightPct, devFlags.gravityMul),
+ *              hazards.js (hazard.iframeTimer for blink during i-frames),
+ *              audio.js (playSound, optional via typeof guard).
+ * Loaded by:   index.html (vanilla <script> tag — see load order in index.html)
+ *
+ * Design notes:
+ *   - Frame priority: push > bounce sequence > on-ground (idle/walk) > airborne.
+ *   - bounceTimer drives the jump-frame sequence (idle → rise → peak).
+ *   - pushTimer latches the Z-key animation for 0.25 s even after release.
+ *   - jumpLocked prevents auto-rejump while the jump key stays held.
+ *   - On L2, the cat is confined to physical walls (elevator interior + shaft
+ *     cavity); see the L2 confinement block inside updatePlayer().
+ */
 
-// ── Sprite loading ───────────────────────────────────────────────────────────
-// Paths relative to index.html (project root)
-// Cat animation spritesheet (animation_sheet.png: 7 sprites left→right)
-const _catSheet = new Image(); _catSheet.src = 'Visuals/characters/cat/animation_sheet.png';
-// dy = transparent_rows_at_bottom × 2.0 (DH/sh scale) — aligns visual feet to hitbox bottom
-// idle/rise/walk/pushRise: content y=19–52 → 11 transparent rows below → dy = 11×2 = 22
-// pushPeak/peak:           content y=8–55  →  8 transparent rows below → dy =  8×2 = 16
+// ---------------------------------------------------------------------------
+// Tunables — physics
+// ---------------------------------------------------------------------------
+const PLAYER_SPEED        = 300;   // px/s — multiplied by dt
+const GRAVITY             = 980;   // px/s² — downward acceleration
+const JUMP_MIN_VELOCITY   = -523;  // px/s — tap height (~138 px, 55% of full jump)
+const JUMP_BOOST_ACCEL    = 905;   // px/s² — hold bonus accel; full hold adds ~181 px/s
+const JUMP_BOOST_DURATION = 0.20;  // s — boost window length
+const JUMP_VELOCITY       = -700;  // px/s — full-power forced bounce (water respawn etc.)
+
+// Frame-timing thresholds for the jump-bounce sprite sequence (seconds).
+const _BOUNCE_TIMER_INIT     = 0.24; // bounceTimer set on jump; counts down
+const _BOUNCE_THRESH_IDLE    = 0.20; // > → idle frame (just left ground)
+const _BOUNCE_THRESH_RISE    = 0.05; // > → rise  frame
+const _BOUNCE_PUSH_HIGH      = 0.10; // pushTimer split between rise vs peak
+const _PUSH_LATCH_DURATION   = 0.25; // pushTimer set on Z; latches sprite
+
+const _FALL_FAST_VY = 600;           // px/s — switch to rise frame when falling this fast
+const _WALK_FRAME_MS = 150;          // ms per walk frame swap (walk_1 ↔ walk_2)
+const _IFRAME_BLINK_HZ = 5;          // blink frequency during invincibility
+
+// Spawn positions (screen coordinates).
+const _SPAWN_X        = 224;         // (CANVAS_W − player.w) / 2 = (480 − 32) / 2
+const _SPAWN_Y_GROUND = 596;         // L1 / L3: 32 px above invisible ground at y=628
+const _SPAWN_Y_L2     = 528;         // L2: 32 px above jalousie starter at y=560
+
+// Canvas + L2 confinement.
+const _CANVAS_W      = 480;
+const _L2_CEILING_Y  = 96;           // feet < this → cat is in the shaft (above elevator)
+const _L2_SHAFT_MIN_X = 62;          // opaque-pixel edges of orange tubes in pipes_mid.png
+const _L2_SHAFT_MAX_X = 417;
+
+// Paw-zone offsets (Z-key action AABB).
+const _PAW_OX = -4;
+const _PAW_OY = -28;
+const _PAW_OW =  8;
+const _PAW_H  = 40;
+
+// ---------------------------------------------------------------------------
+// Sprite sheet
+// Source: animation_sheet.png — 7 frames left→right at 64 px source height.
+// dy values are derived from a PIL alpha-scan: dy = transparent_rows_at_bottom × 2
+// (the DH/sh draw scale is 2.0). They align visual feet to the hitbox bottom.
+//   idle / rise / walk / pushRise: content y=19–52 → 11 transparent rows → dy = 22
+//   pushPeak / peak             : content y=8–55  →  8 transparent rows → dy = 16
+// ---------------------------------------------------------------------------
+const _catSheet = new Image();
+_catSheet.src = 'Visuals/characters/cat/animation_sheet.png';
+
 const _CAT_SPRITES = [
   { sx:   4, sw: 46, dy: 22 }, // 0: idle
   { sx:  69, sw: 50, dy: 22 }, // 1: rise
@@ -50,45 +88,47 @@ const _CAT_SPRITES = [
 ];
 const _CAT_IDX = { idle: 0, rise: 1, walk1: 2, walk2: 3, pushRise: 4, pushPeak: 5, peak: 6 };
 
-const PLAYER_SPEED       = 300;   // pixels per second — multiplied by dt, not per-frame
-const GRAVITY            = 980;   // px/s² — downward acceleration (Y increases downward in Canvas)
-const JUMP_MIN_VELOCITY  = -523;  // px/s — tap height: ~138 px (55% of full jump)
-const JUMP_BOOST_ACCEL   =  905;  // px/s² — hold bonus; full 0.20s adds 181 px/s → -704 total
-const JUMP_BOOST_DURATION = 0.20; // s — hold window; full hold = same height as old flat -700
-const JUMP_VELOCITY      = -700;  // px/s — full-power forced bounce (water respawn, etc.)
+const _CAT_SHEET_FRAME_H = 64;       // source frame height in animation_sheet.png
+const _CAT_DRAW_W_MUL    = 3;        // drawn width  = player.w × 3 (96 px)
+const _CAT_DRAW_H        = 128;      // drawn height = source 64 × 2 — preserves aspect
 
-// Paw zone — the hitbox for the Z-key action (balloon catch, wasp hit).
-// Shared so enemies.js and main.js always use the same AABB.
+// ---------------------------------------------------------------------------
+// Paw zone — the AABB used by the Z-key action (balloon catch, wasp paw kill).
+// Shared so enemies.js and main.js always read the same rectangle.
+// ---------------------------------------------------------------------------
 function getPawZone() {
   return {
-    x: player.x - 4,
-    y: player.y - 28,
-    w: player.w + 8,
-    h: 40,
+    x: player.x + _PAW_OX,
+    y: player.y + _PAW_OY,
+    w: player.w + _PAW_OW,
+    h: _PAW_H,
   };
 }
 
+// ---------------------------------------------------------------------------
+// player — single mutable object holding live cat state.
+// ---------------------------------------------------------------------------
 const player = {
-  x:     224, // (480 - 32) / 2 — horizontally centered
-  y:     528, // 32px above starting platform top at y=560
-  w:      32,
-  h:      32,
-  vx:      0,
-  vy:      0,
-  prevY:       528,   // y position before this frame's physics — used by one-way collision
-  onGround:      false, // true when standing on a platform — set by checkPlatformCollisions()
-  onPlatform:    null,  // reference to platform object under feet (null if airborne) — used for finish-trigger identity check
-  flipped:       false, // true = sprite mirrored via ctx.scale(-1,1) to face right
-  bounceTimer:   0,     // seconds remaining to show jump animation frames after a jump
-  pushTimer:     0,     // seconds remaining to show push sprite after Z press
-  jumpLocked:    false, // true while jump key held after a jump — prevents re-jump on landing
-  jumpBoostTimer: 0,    // counts down during held-jump boost window
+  x:               _SPAWN_X,
+  y:               _SPAWN_Y_L2,   // overwritten by resetPlayer() per level
+  w:               32,
+  h:               32,
+  vx:              0,
+  vy:              0,
+  prevY:           _SPAWN_Y_L2,   // y before this frame's physics — used by one-way collision
+  prevOnGround:    false,         // onGround from previous frame — used for land-sound detection
+  onGround:        false,         // set by checkPlatformCollisions()
+  onPlatform:      null,          // platform object under feet (null if airborne) — used for finish-trigger identity
+  flipped:         false,         // true → sprite mirrored to face right
+  bounceTimer:     0,             // counts down jump-frame sequence
+  pushTimer:       0,             // counts down Z-action sprite latch
+  jumpLocked:      false,         // true while jump key held after a jump — prevents auto-rejump
+  jumpBoostTimer:  0,             // counts down during held-jump boost window
 };
 
 function resetPlayer() {
-  // L1 + L3: invisible ground at y=628, player stands at y=596 (628 - player.h=32)
-  // L2: jalousie starter at y=560, player stands at y=528 (560 - 32)
-  const baseSpawnY = (GameState.level === 1 || GameState.level === 3) ? 596 : 528;
+  const baseSpawnY = (GameState.level === 1 || GameState.level === 3) ? _SPAWN_Y_GROUND : _SPAWN_Y_L2;
+
   // Dev: DROP HEIGHT % offsets the spawn upward by a fraction of the level height.
   // 0% = ground spawn (default), 100% = near the level goal. Guarded on
   // levelGoalY because resetPlayer can run before resetPlatforms sets it.
@@ -97,50 +137,51 @@ function resetPlayer() {
     const totalH = baseSpawnY - GameState.levelGoalY;
     spawnY = Math.round(baseSpawnY - totalH * (devFlags.dropHeightPct / 100));
   }
-  player.x     = 224;
-  player.y     = spawnY;
-  player.vx    = 0;
-  player.vy    = 0;
-  player.prevY      = spawnY;
-  player.onGround      = false;
-  player.onPlatform    = null;
-  player.flipped    = false;
-  player.bounceTimer   = 0;
-  player.pushTimer     = 0;
-  player.jumpLocked    = false;
+  player.x              = _SPAWN_X;
+  player.y              = spawnY;
+  player.vx             = 0;
+  player.vy             = 0;
+  player.prevY          = spawnY;
+  player.prevOnGround   = false;
+  player.onGround       = false;
+  player.onPlatform     = null;
+  player.flipped        = false;
+  player.bounceTimer    = 0;
+  player.pushTimer      = 0;
+  player.jumpLocked     = false;
   player.jumpBoostTimer = 0;
 }
 
 function updatePlayer(dt) {
-  // ── Vertical physics ────────────────────────────────────────────────────
-  // devFlags.gravityMul lets the dev-tools panel scale gravity at runtime;
-  // defaults to 1.0 (no change). dev-flags.js loads first so this is always defined.
-  const _gMul = (typeof devFlags !== 'undefined' ? devFlags.gravityMul : 1.0);
-  player.prevY  = player.y;           // save position BEFORE physics (used by collision)
-  player.vy    += GRAVITY * _gMul * dt;       // gravity: accelerate downward each frame
+  // Vertical physics. devFlags.gravityMul lets the dev panel scale gravity at
+  // runtime; defaults to 1.0. dev-flags.js loads first so it's always defined.
+  const gMul = (typeof devFlags !== 'undefined' ? devFlags.gravityMul : 1.0);
+  player.prevOnGround = player.onGround;          // save for land-sound detection in main.js
+  player.prevY        = player.y;                 // save position BEFORE physics (used by collision)
+  player.vy          += GRAVITY * gMul * dt;
 
-  // Variable jump: tap = small hop, hold = full jump
-  // jumpLocked prevents re-jump while key stays held after landing
+  // Variable jump: tap = small hop, hold = full jump.
+  // jumpLocked prevents auto-rejump while the jump key stays held.
   if (!keys.jump) player.jumpLocked = false;
   if (keys.jump && player.onGround && !player.jumpLocked) {
-    player.vy             = JUMP_MIN_VELOCITY; // tap: -520 px/s minimum hop
+    player.vy             = JUMP_MIN_VELOCITY;
     player.onGround       = false;
-    player.bounceTimer    = 0.24;
+    player.bounceTimer    = _BOUNCE_TIMER_INIT;
     player.jumpBoostTimer = JUMP_BOOST_DURATION;
     player.jumpLocked     = true;
+    if (typeof playSound === 'function') playSound('jump');
   }
-  // Boost phase: adds upward velocity while key held and still rising
+  // Boost phase: extra upward accel while jump is held and the cat is still rising.
   if (player.jumpBoostTimer > 0) {
     player.jumpBoostTimer -= dt;
     if (keys.jump && player.vy < 0) {
-      player.vy -= JUMP_BOOST_ACCEL * dt; // extra upward push; full hold → -700 px/s
+      player.vy -= JUMP_BOOST_ACCEL * dt;
     }
   }
 
   player.y += player.vy * dt;
 
-  // ── Horizontal movement ──────────────────────────────────────────────────
-  // Sprites face left by default; flipped=true applies ctx.scale(-1,1) to face right
+  // Horizontal movement. Sprites face left by default; flipped=true mirrors.
   if (keys.left  && !keys.right) player.flipped = false;
   if (keys.right && !keys.left)  player.flipped = true;
 
@@ -150,98 +191,83 @@ function updatePlayer(dt) {
 
   player.x += player.vx * dt;
 
-  // Level 2: confine cat to physical walls (elevator interior + shaft cavity).
-  // Must run BEFORE the screen-wrap below so wrap becomes unreachable on L2
-  // (wrap still works on L1 / L3 because this block is L2-gated).
-  //   feet = player.y + player.h.
-  //   feet < 96  → entire cat above the elevator ceiling (C1) → shaft rules
-  //                clamp x to inner shaft cavity [62, 417 − player.w].
-  //                (62 / 417 are the opaque-pixel edges of the orange tubes
-  //                 in pipes_mid.png, measured via PIL.)
-  //   feet ≥ 96  → cat is standing in the elevator interior → elevator rules
-  //                clamp x to canvas edges [0, 480 − player.w].
-  // Zero vx on contact so the wall feels solid instead of sliding the cat.
+  // L2 confinement — keep the cat inside the elevator interior or the shaft
+  // cavity, depending on vertical position. Must run BEFORE the screen-wrap
+  // below, so wrap is unreachable on L2.
+  //   feet < _L2_CEILING_Y → entire cat above elevator ceiling → shaft rules
+  //                          (clamp x to inner cavity [_L2_SHAFT_MIN_X, _L2_SHAFT_MAX_X − player.w])
+  //   feet ≥ _L2_CEILING_Y → cat is in the elevator interior → elevator rules
+  //                          (clamp x to canvas edges [0, _CANVAS_W − player.w])
   if (GameState.level === 2) {
-    const inShaft = (player.y + player.h) < 96;
-    const minX    = inShaft ? 62  : 0;
-    const maxX    = inShaft ? 417 : 480;
-    if (player.x < minX)                { player.x = minX;            if (player.vx < 0) player.vx = 0; }
-    if (player.x + player.w > maxX)     { player.x = maxX - player.w; if (player.vx > 0) player.vx = 0; }
+    const inShaft = (player.y + player.h) < _L2_CEILING_Y;
+    const minX    = inShaft ? _L2_SHAFT_MIN_X : 0;
+    const maxX    = inShaft ? _L2_SHAFT_MAX_X : _CANVAS_W;
+    if (player.x < minX)            { player.x = minX;            if (player.vx < 0) player.vx = 0; }
+    if (player.x + player.w > maxX) { player.x = maxX - player.w; if (player.vx > 0) player.vx = 0; }
   }
 
-  // Push key (Z): latch pushTimer so animation holds for 250ms
-  if (keys.push && player.pushTimer <= 0) player.pushTimer = 0.25;
-  if (player.pushTimer > 0) player.pushTimer -= dt;
+  // Push key (Z): latch pushTimer so the sprite holds for _PUSH_LATCH_DURATION.
+  if (keys.push && player.pushTimer <= 0) player.pushTimer = _PUSH_LATCH_DURATION;
+  if (player.pushTimer > 0)               player.pushTimer -= dt;
 
-  // Count down bounce flash window
+  // Count down the bounce-flash window.
   if (player.bounceTimer > 0) player.bounceTimer -= dt;
 
-  // Screen wrap: exit right → appear left; exit left → appear right
-  if (player.x + player.w < 0)  player.x = 480;
-  if (player.x > 480)           player.x = -player.w;
+  // Screen wrap: exit right → appear left, exit left → appear right (L1 / L3 only).
+  if (player.x + player.w < 0) player.x = _CANVAS_W;
+  if (player.x > _CANVAS_W)    player.x = -player.w;
 }
 
 function renderPlayer(ctx) {
-  // Blink during invincibility frames: 5Hz alternation, starts hidden on first tick (hit feedback)
-  if (hazard.iframeTimer > 0 && Math.floor(hazard.iframeTimer * 5) % 2 === 1) return;
+  // Blink during invincibility frames at _IFRAME_BLINK_HZ; starts hidden on the
+  // first tick to give clear hit feedback.
+  if (hazard.iframeTimer > 0 && Math.floor(hazard.iframeTimer * _IFRAME_BLINK_HZ) % 2 === 1) return;
 
-  // ── Frame selection ───────────────────────────────────────────────────────
-  // Priority: push > bounce sequence > peak
-  //
-  // Push (Z held, 250ms window):
-  //   bounceTimer > 0.10 = cat still low/mid after bounce → push_rise
-  //   else               = cat is high                    → push_peak
-  //
-  // Bounce sequence (240ms): idle(40ms) → rise(200ms) → peak
-  //   >0.20s:  idle      — contact pose (just bounced)
-  //   0–0.20s: rise      — ascending stretch
-  //   vy > 600 px/s: rise — pre-landing (falling fast)
-  //   else:    peak      — peak / neutral airborne
+  // Frame selection — priority: push > bounce sequence > on-ground > airborne.
   let frameIdx;
   if (player.pushTimer > 0) {
-    frameIdx = (player.onGround || player.bounceTimer > 0.10) ? _CAT_IDX.pushRise : _CAT_IDX.pushPeak;
+    // Z-action: low/mid → push_rise, high → push_peak.
+    frameIdx = (player.onGround || player.bounceTimer > _BOUNCE_PUSH_HIGH) ? _CAT_IDX.pushRise : _CAT_IDX.pushPeak;
   } else if (player.onGround) {
     if (player.vx !== 0) {
-      frameIdx = Math.floor(performance.now() / 150) % 2 === 0 ? _CAT_IDX.walk1 : _CAT_IDX.walk2;
+      // Walk: alternate walk_1 / walk_2 every _WALK_FRAME_MS.
+      frameIdx = Math.floor(performance.now() / _WALK_FRAME_MS) % 2 === 0 ? _CAT_IDX.walk1 : _CAT_IDX.walk2;
     } else {
       frameIdx = _CAT_IDX.idle;
     }
-  } else if (player.bounceTimer > 0.20) {
-    frameIdx = _CAT_IDX.idle;  // just left the ground (first 40ms of jump)
-  } else if (player.bounceTimer > 0.05) {
+  } else if (player.bounceTimer > _BOUNCE_THRESH_IDLE) {
+    frameIdx = _CAT_IDX.idle;          // just left the ground (early jump)
+  } else if (player.bounceTimer > _BOUNCE_THRESH_RISE) {
     frameIdx = _CAT_IDX.rise;
-  } else if (player.vy > 600) {
-    frameIdx = _CAT_IDX.rise;  // pre-landing: falling fast
+  } else if (player.vy > _FALL_FAST_VY) {
+    frameIdx = _CAT_IDX.rise;          // pre-landing — falling fast
   } else {
     frameIdx = _CAT_IDX.peak;
   }
 
-  // ── Fallback: draw red rectangle if spritesheet not yet loaded ────────────
+  // Fallback: red rectangle if the spritesheet hasn't loaded yet.
   if (!_catSheet.complete || _catSheet.naturalWidth === 0) {
     ctx.fillStyle = '#e74c3c';
     ctx.fillRect(Math.floor(player.x), Math.floor(player.y), player.w, player.h);
     return;
   }
 
-  // ── Draw sprite with direction mirroring ─────────────────────────────────
-  // DW = 3× hitbox width (96px). DH = 2× source sheet height (128px) to preserve
-  // aspect ratio — source is 64px tall, not square like the hitbox.
-  // Hitbox (32×32) stays unchanged for collision.
-  const DW  = player.w * 3; // drawn width  96px
-  const DH  = 128;          // drawn height 128px (= source height 64 × 2)
-  const sx  = Math.floor(player.x - (DW - player.w) / 2); // screen x, centered on hitbox
+  // Draw with horizontal flip when facing right. Hitbox stays unchanged.
+  const DW  = player.w * _CAT_DRAW_W_MUL;
+  const DH  = _CAT_DRAW_H;
+  const sx  = Math.floor(player.x - (DW - player.w) / 2);
   const spr = _CAT_SPRITES[frameIdx];
   const sy  = Math.floor(player.y - (DH - player.h)) + spr.dy;
 
   if (player.flipped) {
     ctx.save();
-    ctx.translate(sx + DW, sy);        // origin at right edge of drawn sprite
+    ctx.translate(sx + DW, sy);
     ctx.scale(-1, 1);
-    ctx.imageSmoothingEnabled = false; // re-assert: some browsers reset on save()
-    ctx.drawImage(_catSheet, spr.sx, 0, spr.sw, 64, 0, 0, DW, DH);
+    ctx.imageSmoothingEnabled = false; // some browsers reset this on save()
+    ctx.drawImage(_catSheet, spr.sx, 0, spr.sw, _CAT_SHEET_FRAME_H, 0, 0, DW, DH);
     ctx.restore();
     ctx.imageSmoothingEnabled = false; // re-assert after restore()
   } else {
-    ctx.drawImage(_catSheet, spr.sx, 0, spr.sw, 64, sx, sy, DW, DH);
+    ctx.drawImage(_catSheet, spr.sx, 0, spr.sw, _CAT_SHEET_FRAME_H, sx, sy, DW, DH);
   }
 }

@@ -1,37 +1,41 @@
-/*
-====================================================================
-* main.js - Entry point: canvas, game loop, update, render
-====================================================================
-* Project: Soggy Moggy
-* Course: PRG Abschlussprojekt — SRH Fachschulen
-* Developer: Julian Gomez
-* Date: 2026-03-04
-* Version: 1.4 - Banner moved to top of screen (y=0–140)
-*
-* AUTHORSHIP CLASSIFICATION:
-*
-* [AI-ASSISTED]
-* - Semi-fixed timestep with 50ms cap: prevents physics explosion
-*   on tab-switch or frame skips (dt = Math.min(raw, 0.05))
-* - Update call order: physics → platforms → collision → camera is load-bearing;
-*   swapping order breaks one-way collision (prevY must be set before check)
-* - World-space / screen-space render separation:
-*   ctx.save → ctx.translate(0, -cameraY) → world objects → ctx.restore → HUD
-* - HUD drawn after ctx.restore() — ensures it stays in screen coordinates
-*
-* NOTES:
-* - canvas width/height set via JS attributes — NEVER via CSS (avoids blur)
-* - imageSmoothingEnabled = false set once here at init
-* - Game loop starts on window load event to ensure all assets are registered
-*
-* VERSION HISTORY:
-* - v1.0: Canvas init, basic game loop, update/render skeleton
-* - v1.1: Camera, score tracking, level goal check
-* - v1.2: Full multi-screen HUD (START, LEVEL_COMPLETE, GAMEOVER), fall-off-bottom
-* - v1.3: Click-to-start (left mouse fires keys.enter), danger countdown banner (3s pre-hazard)
-* - v1.4: Banner anchor moved to screen top (y=0–140) — was incorrectly centered at 65% down
-====================================================================
-*/
+/**
+ * File:        main.js
+ * Project:     Soggy Moggy — SRH Abschlussprojekt (Game & Multimedia Design)
+ * Author:      Julian Gomez
+ * AI support:  Developed with AI assistance (Claude / Anthropic) as a
+ *              pair-programming partner for design, implementation, and debugging.
+ *              All code reviewed and integrated by the author.
+ * Created:     2026-03-04
+ * Updated:     2026-04-27
+ *
+ * Purpose:     Entry point. Initializes the canvas, runs the semi-fixed
+ *              timestep game loop, dispatches per-phase update/render paths,
+ *              draws the HUD, and orchestrates phase transitions (start →
+ *              intro → playing → outro → complete / gameover).
+ * Depends on:  every other src/*.js — this file is the integration point.
+ *              Globals read: GameState, GamePhase, keys, player, hazard,
+ *              platforms, enemies, devFlags, audio API (playSound / playMusic /
+ *              fadeOutMusic / stopMusic / stopAllSfx / updateWaspBuzz /
+ *              stopWaspBuzz / updateHazardAmbient / stopHazardAmbient),
+ *              dialogue API (showLevelStart / showLevelEnd / showLifeLost /
+ *              advanceDialogue / updateDialogue / isDialogueBlocking /
+ *              renderDialogue), end-screen mounters.
+ * Loaded by:   index.html (vanilla <script> tag — LAST in load order).
+ *
+ * Loop architecture:
+ *   - Semi-fixed timestep with a 50 ms cap so a tab-switch or stutter cannot
+ *     blow up the physics (dt = Math.min(raw, 0.05)).
+ *   - Update order is load-bearing: physics → platforms → collision → camera.
+ *     Swapping breaks one-way collision (prevY must be set before the check).
+ *   - World vs. screen space: ctx.save → translate(0, -cameraY) → world
+ *     objects → ctx.restore → HUD. The HUD is drawn AFTER restore so it
+ *     stays in screen coordinates.
+ *
+ * Canvas rules:
+ *   - Width/height are set via JS attributes only — never via CSS, which
+ *     causes blur on canvases.
+ *   - imageSmoothingEnabled is set to false once at init for crisp pixel art.
+ */
 // Depends on: GamePhase, GameState, resetGame (game-state.js)
 //             keys (input.js)
 //             player, updatePlayer, renderPlayer, resetPlayer (player.js)
@@ -138,7 +142,9 @@ const _bellSheet  = new Image(); _bellSheet.src  = 'Visuals/backgrounds/level_2_
 const _leverLeft  = new Image(); _leverLeft.src  = 'Visuals/backgrounds/level_3_sea/end_triggers/lever_left.png';
 const _leverMid   = new Image(); _leverMid.src   = 'Visuals/backgrounds/level_3_sea/end_triggers/lever_mid.png';
 const _leverRight = new Image(); _leverRight.src = 'Visuals/backgrounds/level_3_sea/end_triggers/lever_right.png';
-const _LEVER_FRAMES = () => [_leverLeft, _leverMid, _leverRight, _leverMid]; // ping-pong cycle
+// Ping-pong cycle (left → mid → right → mid). Image objects are mutable
+// references, so this array is built once even before the PNGs finish loading.
+const _LEVER_FRAMES = [_leverLeft, _leverMid, _leverRight, _leverMid];
 
 const _OUTRO_REACH_PAD   = 35;            // px around hitbox; paw must overlap (hb + pad)
 const _OUTRO_GLOW_COLOR  = '#ff00ff';     // magenta — same shadowColor technique as HUD lives
@@ -156,6 +162,8 @@ let   _bellLastSign       = 0;            // last Math.sign of sin — detects d
 function resetOutroTrigger() {
   _outroActivated     = false;
   _outroActivateTimer = 0;
+  _outroTime          = 0;   // glow-pulse accumulator — reset so animations start clean
+  _windradAngle       = 0;   // L1 pinwheel angle — reset so the wheel always spins from 0
   _bellSwingTime      = 0;
   _bellLastSign       = 0;
 }
@@ -278,10 +286,17 @@ function updateOutroTrigger(dt) {
   // All levels: 2.5s activation delay before LEVEL_OUTRO
   _outroActivated     = true;
   _outroActivateTimer = 2.5;
-  // Per-level outro trigger SFX (L2 bell rings via swing sync above, not here)
+  // Per-level outro trigger SFX. The L2 bell rings via the swing-sync block
+  // above, not from here. L3 plays the lever clunk and the water-drain rush
+  // simultaneously on activation; the L3 outro bubble fires later when the
+  // 2.5 s activation delay expires and the phase flips to LEVEL_OUTRO.
   if (typeof playSound === 'function') {
-    if (GameState.level === 1) playSound('windrad');
-    else if (GameState.level === 3) playSound('water_drain');
+    if (GameState.level === 1) {
+      playSound('windrad');
+    } else if (GameState.level === 3) {
+      playSound('l3_lever');
+      playSound('water_drain');
+    }
   }
 }
 
@@ -358,7 +373,7 @@ function renderOutroTrigger(ctx) {
       }, inReach || _outroActivated);
     }
   } else if (cfg.kind === 'lever') {
-    const frames   = _LEVER_FRAMES();
+    const frames   = _LEVER_FRAMES;
     const frameIdx = _outroActivated ? Math.floor(_outroTime / 0.12) % frames.length : 1;
     const leverImg = frames[frameIdx];
     if (leverImg.complete && leverImg.naturalWidth > 0) {
@@ -415,10 +430,19 @@ function _onPhaseChange(prev, next) {
       const total = Math.floor(GameState.score) + Math.floor(GameState.killBonus) + GameState.clearBonus;
       if (typeof saveHighScore === 'function') saveHighScore(total);
       if (typeof window.mountSuccessScreen === 'function') window.mountSuccessScreen();
+      if (typeof playMusic === 'function') playMusic('music_victory');
+    } else {
+      if (typeof window.mountLevelCompleteScreen === 'function') window.mountLevelCompleteScreen();
     }
   }
   if (prev === GamePhase.LEVEL_COMPLETE) {
-    if (typeof window.unmountSuccessScreen === 'function') window.unmountSuccessScreen();
+    if (typeof window.unmountSuccessScreen       === 'function') window.unmountSuccessScreen();
+    if (typeof window.unmountLevelCompleteScreen === 'function') window.unmountLevelCompleteScreen();
+    // Stop any music that was playing on the LEVEL_COMPLETE screen (notably
+    // music_victory after L3) before the next phase begins. Without this,
+    // pressing "Play Again" would carry music_victory into the L1 LEVEL_INTRO
+    // countdown and overlap with the new level's music.
+    if (typeof stopMusic === 'function') stopMusic();
   }
   if (next === GamePhase.LEVEL_OUTRO) {
     if (typeof fadeOutMusic  === 'function') fadeOutMusic(1200);
@@ -428,6 +452,7 @@ function _onPhaseChange(prev, next) {
   }
   if (prev === GamePhase.PLAYING) {
     if (typeof stopWaspBuzz === 'function') stopWaspBuzz();
+    if (typeof stopHazardAmbient === 'function') stopHazardAmbient();
   }
 }
 
@@ -584,6 +609,9 @@ function update(dt) {
           : null;
         updateWaspBuzz(_nd);
       }
+      if (typeof updateHazardAmbient === 'function') {
+        updateHazardAmbient(GameState.level, GameState.audio.sfx);
+      }
       updateOutroTrigger(dt);
 
       // Score: height climbed this level (pixels above spawn point)
@@ -613,23 +641,30 @@ function update(dt) {
       if (keys.escape) { keys.escape = false; GameState.phase = GamePhase.PLAYING; break; }
       if (keys.menuUp)   { keys.menuUp   = false; GameState.menuCursor = (GameState.menuCursor + 5) % 6; if (typeof playSound === 'function') playSound('menu_click'); }
       if (keys.menuDown) { keys.menuDown = false; GameState.menuCursor = (GameState.menuCursor + 1) % 6; if (typeof playSound === 'function') playSound('menu_click'); }
-      // Rows 4 (Music) and 5 (SFX): ←→ adjust volume, Space toggle mute
+      // Rows 4 (Music) and 5 (SFX): ←→ adjust volume, Space toggles mute.
+      // Mute is gated on !mouseJustClicked so a left-click on the canvas (which
+      // also fires keys.jump for the cat's jump action) does not unintentionally
+      // toggle mute when the cursor happens to be on a music/SFX row.
       if (GameState.menuCursor >= 4) {
         const track = GameState.menuCursor === 4 ? GameState.audio.music : GameState.audio.sfx;
         if (keys.left)  { keys.left  = false; track.vol = Math.max(0, +(track.vol - 0.05).toFixed(2)); }
         if (keys.right) { keys.right = false; track.vol = Math.min(1, +(track.vol + 0.05).toFixed(2)); }
-        if (keys.jump)  { keys.jump  = false; track.muted = !track.muted; } // Space = mute toggle
+        if (keys.jump && !mouseJustClicked) { keys.jump = false; track.muted = !track.muted; }
       }
       if (keys.enter) {
         keys.enter = false;
         switch (GameState.menuCursor) {
-          case 0: GameState.phase = GamePhase.PLAYING; break;                              // Continue
+          case 0: GameState.phase = GamePhase.PLAYING; break;                                 // Continue
           case 1: restartLevel(); resetBalloon(); resetOutroTrigger(); spawnEnemies();
                   GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Restart level
           case 2: resetGame();    resetBalloon(); resetOutroTrigger(); spawnEnemies();
                   GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Restart game
-          case 3: GameState.pausedGame = true; GameState.phase = GamePhase.START; break;  // Main menu — overlay reads pausedGame to show CONTINUE
-          case 4: case 5: break;                                                           // audio rows: ←→/Space only
+          case 3:                                                                              // Main menu
+            GameState.pausedGame = true;
+            GameState.cameraY    = 0;   // reset camera so the START screen redraws cleanly
+            GameState.phase      = GamePhase.START;
+            break;
+          case 4: case 5: break;                                                               // audio rows: ←→/Space only
         }
       }
       break;
@@ -639,12 +674,13 @@ function update(dt) {
       if (keys.escape) { keys.escape = false; GameState.menuCursor = 0; GameState.phase = GamePhase.START; break; }
       if (keys.menuUp)   { keys.menuUp   = false; GameState.menuCursor = (GameState.menuCursor + 2) % 3; if (typeof playSound === 'function') playSound('menu_click'); }
       if (keys.menuDown) { keys.menuDown = false; GameState.menuCursor = (GameState.menuCursor + 1) % 3; if (typeof playSound === 'function') playSound('menu_click'); }
-      // Rows 0 (Music) and 1 (SFX): ←→ adjust volume, Space toggle mute
+      // Rows 0 (Music) and 1 (SFX): ←→ adjust volume, Space toggles mute.
+      // !mouseJustClicked gate: see PAUSED branch — same reasoning applies here.
       if (GameState.menuCursor <= 1) {
         const track = GameState.menuCursor === 0 ? GameState.audio.music : GameState.audio.sfx;
         if (keys.left)  { keys.left  = false; track.vol = Math.max(0, +(track.vol - 0.05).toFixed(2)); }
         if (keys.right) { keys.right = false; track.vol = Math.min(1, +(track.vol + 0.05).toFixed(2)); }
-        if (keys.jump)  { keys.jump  = false; track.muted = !track.muted; } // Space = mute toggle
+        if (keys.jump && !mouseJustClicked) { keys.jump = false; track.muted = !track.muted; }
       }
       if (keys.enter) {
         keys.enter = false;
@@ -653,26 +689,7 @@ function update(dt) {
       break;
 
     case GamePhase.LEVEL_COMPLETE:
-      if (GameState.level === 3) break; // handled by success-screen.js React overlay
-      if (keys.menuUp)   { keys.menuUp   = false; GameState.menuCursor = (GameState.menuCursor + 3) % 4; if (typeof playSound === 'function') playSound('menu_click'); }
-      if (keys.menuDown) { keys.menuDown = false; GameState.menuCursor = (GameState.menuCursor + 1) % 4; if (typeof playSound === 'function') playSound('menu_click'); }
-      if (keys.enter) {
-        keys.enter = false;
-        switch (GameState.menuCursor) {
-          case 0: // Next level — if on last level, go to start
-            if (GameState.level < 3) {
-              startNextLevel(); resetBalloon(); resetOutroTrigger(); spawnEnemies();
-              GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level);
-            }
-            else { GameState.pausedGame = false; GameState.phase = GamePhase.START; }
-            break;
-          case 1: restartLevel(); resetBalloon(); resetOutroTrigger(); spawnEnemies();
-                  GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Restart level
-          case 2: resetGame();    resetBalloon(); resetOutroTrigger(); spawnEnemies();
-                  GameState.phase = GamePhase.LEVEL_INTRO; showLevelStart(GameState.level); break; // Restart game
-          case 3: GameState.pausedGame = false; GameState.phase = GamePhase.START; break; // Main menu — fresh run, overlay shows START
-        }
-      }
+      // All level-complete screens are React overlays — buttons handle all navigation.
       break;
 
     case GamePhase.GAMEOVER:
@@ -795,10 +812,6 @@ function renderHUD() {
 
   // ── PLAYING: real-time score in top-left ─────────────────────────────────
   if (GameState.phase === GamePhase.PLAYING) {
-    // HUD background banner
-    ctx.fillStyle = 'rgba(0,0,0,0.50)';
-    ctx.fillRect(0, 0, canvas.width, 68);
-
     // Score — top-left
     ctx.font      = '16px monospace';
     ctx.textAlign = 'left';
@@ -882,7 +895,8 @@ function renderHUD() {
   }
 
   // ── LEVEL COMPLETE screen (L1 + L2 only — L3 handled by success-screen.js) ─
-  if (GameState.phase === GamePhase.LEVEL_COMPLETE && GameState.level < 3) {
+  // LEVEL_COMPLETE screens are React overlays — levelcomplete-screen.js / success-screen.js
+  if (false && GameState.phase === GamePhase.LEVEL_COMPLETE && GameState.level < 3) { // dead — kept for reference
     const LEVEL_NAMES = ['', 'City', 'Elevator Shaft', 'Open Sea', 'Amusement Park'];
     const cx = canvas.width / 2;
 

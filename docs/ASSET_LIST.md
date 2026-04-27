@@ -15,39 +15,39 @@
 
 ---
 
-## Cat Character Sprites (`PixelArt/characters/cat/`)
+## Cat Character Sprites (`Visuals/characters/cat/`)
 
 All frames loaded in `src/player.js` and wired to the frame selection logic.
 
 | Frame | File | Size | Status |
 |-------|------|------|--------|
-| Idle (standing) | `PixelArt/characters/cat/idle.png` | 64x64 | wired |
-| Rise (ascending) | `PixelArt/characters/cat/rise.png` | 64x64 | wired |
-| Peak (airborne) | `PixelArt/characters/cat/peak.png` | 64x64 | wired |
-| Push rise (Z, low) | `PixelArt/characters/cat/push_rise.png` | 64x64 | wired |
-| Push peak (Z, high) | `PixelArt/characters/cat/push_peak.png` | 64x64 | wired |
-| Walk frame 1 | `PixelArt/characters/cat/walk_1.png` | 64x64 | wired |
-| Walk frame 2 | `PixelArt/characters/cat/walk_2.png` | 64x64 | wired |
+| Idle (standing) | `Visuals/characters/cat/idle.png` | 64x64 | wired |
+| Rise (ascending) | `Visuals/characters/cat/rise.png` | 64x64 | wired |
+| Peak (airborne) | `Visuals/characters/cat/peak.png` | 64x64 | wired |
+| Push rise (Z, low) | `Visuals/characters/cat/push_rise.png` | 64x64 | wired |
+| Push peak (Z, high) | `Visuals/characters/cat/push_peak.png` | 64x64 | wired |
+| Walk frame 1 | `Visuals/characters/cat/walk_1.png` | 64x64 | wired |
+| Walk frame 2 | `Visuals/characters/cat/walk_2.png` | 64x64 | wired |
 
 Rendering: 96x96 display (3x hitbox 32x32), bottom-aligned, `player.flipped` triggers ctx.scale(-1,1) for right-facing.
 
 ---
 
-## Background Layers — Shared (`PixelArt/backgrounds/shared/`)
+## Background Layers — Shared (`Visuals/backgrounds/shared/`)
 
 All layers loaded in `src/background.js`. 5-layer parallax system with day/night crossfade.
 
 | Layer | File | Size | Status |
 |-------|------|------|--------|
-| Day sky | `PixelArt/backgrounds/shared/sky_day.png` | 480x640 | wired |
-| Night sky | `PixelArt/backgrounds/shared/sky_night.png` | 480x640 | wired |
-| Stars | `PixelArt/backgrounds/shared/stars.png` | 480x640, tileH=363 | wired |
-| Clouds bright | `PixelArt/backgrounds/shared/clouds_bright.png` | 480x220, tileH=186 | wired |
-| Clouds dark | `PixelArt/backgrounds/shared/clouds_dark.png` | 480x640, tileH=210 | wired |
+| Day sky | `Visuals/backgrounds/shared/sky_day.png` | 480x640 | wired |
+| Night sky | `Visuals/backgrounds/shared/sky_night.png` | 480x640 | wired |
+| Stars | `Visuals/backgrounds/shared/stars.png` | 480x640, tileH=363 | wired |
+| Clouds bright | `Visuals/backgrounds/shared/clouds_bright.png` | 480x220, tileH=186 | wired |
+| Clouds dark | `Visuals/backgrounds/shared/clouds_dark.png` | 480x640, tileH=210 | wired |
 
 ---
 
-## Level 1 — Stadt / City (`PixelArt/backgrounds/level1_city/`)
+## Level 1 — Stadt / City (`Visuals/backgrounds/level1_city/`)
 
 Building composition sprites loaded in `src/background.js` for L1 background rendering.
 
@@ -64,7 +64,7 @@ Building composition sprites loaded in `src/background.js` for L1 background ren
 
 ---
 
-## Level 2 — Aufzugschacht / Elevator Shaft (`PixelArt/backgrounds/level_2_shaft/`)
+## Level 2 — Aufzugschacht / Elevator Shaft (`Visuals/backgrounds/level_2_shaft/`)
 
 > **Hinweis (2026-04-21):** L2 und L3 wurden im Cleanup getauscht. Früher war L2=Offener See, L3=Aufzugschacht. Jetzt: L2=Aufzug, L3=Offener See.
 
@@ -81,7 +81,7 @@ Building composition sprites loaded in `src/background.js` for L1 background ren
 
 ---
 
-## Level 3 — Offener See / Leuchtturm (`PixelArt/backgrounds/level_3_sea/`)
+## Level 3 — Offener See / Leuchtturm (`Visuals/backgrounds/level_3_sea/`)
 
 | Asset | File | Status | Notes |
 |-------|------|--------|-------|
@@ -92,7 +92,7 @@ Building composition sprites loaded in `src/background.js` for L1 background ren
 
 ---
 
-## Platforms (`PixelArt/platforms/`)
+## Platforms (`Visuals/platforms/`)
 
 | Asset | File | Status | Notes |
 |-------|------|--------|-------|
@@ -103,20 +103,20 @@ Building composition sprites loaded in `src/background.js` for L1 background ren
 
 ---
 
-## Collectibles (`PixelArt/collectibles/`)
+## Collectibles (`Visuals/collectibles/`)
 
 | Asset | File | Status | Notes |
 |-------|------|--------|-------|
 | Balloon extra-life | `balloon.png` | wired | 150x220 source, drawn 70x106; Lissajous bob pattern |
 
-## UI / HUD Assets (`PixelArt/ui/hud/`)
+## UI / HUD Assets (`Visuals/ui/hud/`)
 
 | Asset | File | Status | Notes |
 |-------|------|--------|-------|
 | HUD lives icon | `life_icon.png` | wired | 20x16 per life in HUD (top-right + game-over screen) |
 | Plush cat reference | `life_plush.png` | exists | Reference for balloon sub-zone (not loaded by game) |
 
-## Wasp Enemy Sprites (`PixelArt/characters/wasp/`)
+## Wasp Enemy Sprites (`Visuals/characters/wasp/`)
 
 | Asset | File | Status | Notes |
 |-------|------|--------|-------|
@@ -164,7 +164,7 @@ Building composition sprites loaded in `src/background.js` for L1 background ren
 
 | Asset | Priority | Notes |
 |-------|----------|-------|
-| Dialogue bubble PNGs (8 stk) | Blocker vor Abgabe | `PixelArt/thought_bubbles/dialogues/` — l1_intro.png … life_wasp.png; Text in Illustrator gebacken |
+| Dialogue bubble PNGs (8 stk) | Blocker vor Abgabe | `Visuals/thought_bubbles/dialogues/` — l1_intro.png … life_wasp.png; Text in Illustrator gebacken |
 | Pushable object sprites | Post-deadline | 3 types (score, bonus, cultural) — nicht im MVP |
 | Cultural element sprites | TBD | Latin American/Colombian themed |
 | Title screen art | TBD | Custom artwork for start screen |
@@ -174,4 +174,4 @@ Building composition sprites loaded in `src/background.js` for L1 background ren
 ## Palette Reference
 
 Full palette in `docs/STYLE_GUIDE.md`.
-Importable as `PixelArt/_dev/_palette/soggy_moggy.gpl` (16 colors).
+Importable as `Visuals/_dev/_palette/soggy_moggy.gpl` (16 colors).

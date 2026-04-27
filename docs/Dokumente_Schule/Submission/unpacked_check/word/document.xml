@@ -1,0 +1,993 @@
+<?xml version="1.0" encoding="UTF-8"?><w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:cx="http://schemas.microsoft.com/office/drawing/2014/chartex" xmlns:cx1="http://schemas.microsoft.com/office/drawing/2015/9/8/chartex" xmlns:cx2="http://schemas.microsoft.com/office/drawing/2015/10/21/chartex" xmlns:cx3="http://schemas.microsoft.com/office/drawing/2016/5/9/chartex" xmlns:cx4="http://schemas.microsoft.com/office/drawing/2016/5/10/chartex" xmlns:cx5="http://schemas.microsoft.com/office/drawing/2016/5/11/chartex" xmlns:cx6="http://schemas.microsoft.com/office/drawing/2016/5/12/chartex" xmlns:cx7="http://schemas.microsoft.com/office/drawing/2016/5/13/chartex" xmlns:cx8="http://schemas.microsoft.com/office/drawing/2016/5/14/chartex" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:aink="http://schemas.microsoft.com/office/drawing/2016/ink" xmlns:am3d="http://schemas.microsoft.com/office/drawing/2017/model3d" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:oel="http://schemas.microsoft.com/office/2019/extlst" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml" xmlns:w16cex="http://schemas.microsoft.com/office/word/2018/wordml/cex" xmlns:w16cid="http://schemas.microsoft.com/office/word/2016/wordml/cid" xmlns:w16="http://schemas.microsoft.com/office/word/2018/wordml" xmlns:w16du="http://schemas.microsoft.com/office/word/2023/wordml/word16du" xmlns:w16sdtdh="http://schemas.microsoft.com/office/word/2020/wordml/sdtdatahash" xmlns:w16sdtfl="http://schemas.microsoft.com/office/word/2024/wordml/sdtformatlock" xmlns:w16se="http://schemas.microsoft.com/office/word/2015/wordml/symex" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 w15 w16se w16cid w16 w16cex w16sdtdh w16sdtfl w16du wp14">
+  <w:body>
+    <w:p w14:paraId="2A3F8038" w14:textId="7868CF76" w:rsidR="007D3713" w:rsidRPr="00BF045D" w:rsidRDefault="007D3713" w:rsidP="00BF1B4E">
+      <w:pPr>
+        <w:pStyle w:val="SRHberschrift2"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+          <w:lang w:val="de-DE"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+          <w:lang w:val="de-DE"/>
+        </w:rPr>
+        <w:t>Themeneinreichung - Abschlussarbeit - 2026</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6126BBC9" w14:textId="77777777" w:rsidR="00BF1B4E" w:rsidRPr="00BF045D" w:rsidRDefault="00BF1B4E" w:rsidP="00694AEB">
+      <w:pPr>
+        <w:pStyle w:val="SRHFlietext"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+          <w:lang w:val="de-DE"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:tbl>
+      <w:tblPr>
+        <w:tblStyle w:val="TableGrid"/>
+        <w:tblW w:w="0" w:type="auto"/>
+        <w:tblBorders>
+          <w:top w:val="none" w:sz="0" w:space="0" w:color="auto"/>
+          <w:left w:val="none" w:sz="0" w:space="0" w:color="auto"/>
+          <w:bottom w:val="single" w:sz="4" w:space="0" w:color="AAA39D" w:themeColor="accent2"/>
+          <w:right w:val="none" w:sz="0" w:space="0" w:color="auto"/>
+          <w:insideH w:val="single" w:sz="4" w:space="0" w:color="AAA39D" w:themeColor="accent2"/>
+          <w:insideV w:val="none" w:sz="0" w:space="0" w:color="auto"/>
+        </w:tblBorders>
+        <w:tblLook w:val="04A0" w:firstRow="1" w:lastRow="0" w:firstColumn="1" w:lastColumn="0" w:noHBand="0" w:noVBand="1"/>
+      </w:tblPr>
+      <w:tblGrid>
+        <w:gridCol w:w="3828"/>
+        <w:gridCol w:w="850"/>
+        <w:gridCol w:w="4111"/>
+      </w:tblGrid>
+      <w:tr w:rsidR="008F1C93" w:rsidRPr="00BF045D" w14:paraId="78BF9042" w14:textId="77777777" w:rsidTr="3FA7D5A3">
+        <w:trPr>
+          <w:trHeight w:val="397"/>
+        </w:trPr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="3828" w:type="dxa"/>
+            <w:tcBorders>
+              <w:top w:val="nil"/>
+              <w:bottom w:val="nil"/>
+            </w:tcBorders>
+            <w:vAlign w:val="bottom"/>
+          </w:tcPr>
+          <w:p w14:paraId="25FEE6E3" w14:textId="77777777" w:rsidR="008F1C93" w:rsidRPr="00BF045D" w:rsidRDefault="007D6C74" w:rsidP="00CA593D">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Webdings" w:eastAsia="Webdings" w:hAnsi="Webdings" w:cs="Webdings"/>
+                <w:b/>
+                <w:bCs/>
+                <w:color w:val="DDDAD7" w:themeColor="background2" w:themeTint="66"/>
+                <w:sz w:val="24"/>
+                <w:szCs w:val="24"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t>c</w:t>
+            </w:r>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:b/>
+                <w:bCs/>
+                <w:color w:val="DDDAD7" w:themeColor="background2" w:themeTint="66"/>
+                <w:sz w:val="24"/>
+                <w:szCs w:val="24"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t xml:space="preserve">  </w:t>
+            </w:r>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t>3D-Entwicklung</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="850" w:type="dxa"/>
+            <w:tcBorders>
+              <w:top w:val="nil"/>
+              <w:bottom w:val="nil"/>
+            </w:tcBorders>
+            <w:vAlign w:val="bottom"/>
+          </w:tcPr>
+          <w:p w14:paraId="3EEC5646" w14:textId="77777777" w:rsidR="008F1C93" w:rsidRPr="00BF045D" w:rsidRDefault="008F1C93" w:rsidP="00CA593D">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="4111" w:type="dxa"/>
+            <w:tcBorders>
+              <w:top w:val="nil"/>
+              <w:bottom w:val="single" w:sz="4" w:space="0" w:color="AAA39D" w:themeColor="accent2"/>
+            </w:tcBorders>
+            <w:vAlign w:val="bottom"/>
+          </w:tcPr>
+          <w:p w14:paraId="0BB6A408" w14:textId="77777777" w:rsidR="008F1C93" w:rsidRPr="00BF045D" w:rsidRDefault="007D6C74" w:rsidP="00CA593D">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t>Nachname: Gomez</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr w:rsidR="007D6C74" w:rsidRPr="00BF045D" w14:paraId="5827223C" w14:textId="77777777" w:rsidTr="3FA7D5A3">
+        <w:trPr>
+          <w:trHeight w:val="397"/>
+        </w:trPr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="3828" w:type="dxa"/>
+            <w:tcBorders>
+              <w:top w:val="nil"/>
+              <w:bottom w:val="nil"/>
+            </w:tcBorders>
+            <w:vAlign w:val="bottom"/>
+          </w:tcPr>
+          <w:p w14:paraId="680E2D82" w14:textId="77777777" w:rsidR="007D6C74" w:rsidRPr="00BF045D" w:rsidRDefault="007D6C74" w:rsidP="00495571">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Webdings" w:eastAsia="Webdings" w:hAnsi="Webdings" w:cs="Webdings"/>
+                <w:b/>
+                <w:bCs/>
+                <w:color w:val="DDDAD7" w:themeColor="background2" w:themeTint="66"/>
+                <w:sz w:val="24"/>
+                <w:szCs w:val="24"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t>c</w:t>
+            </w:r>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:b/>
+                <w:bCs/>
+                <w:color w:val="DDDAD7" w:themeColor="background2" w:themeTint="66"/>
+                <w:sz w:val="24"/>
+                <w:szCs w:val="24"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t xml:space="preserve"> </w:t>
+            </w:r>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t xml:space="preserve"> CrossMediaDesign</w:t>
+            </w:r>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:b/>
+                <w:bCs/>
+                <w:sz w:val="24"/>
+                <w:szCs w:val="24"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t xml:space="preserve">       </w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="850" w:type="dxa"/>
+            <w:tcBorders>
+              <w:top w:val="nil"/>
+              <w:bottom w:val="nil"/>
+            </w:tcBorders>
+            <w:vAlign w:val="bottom"/>
+          </w:tcPr>
+          <w:p w14:paraId="02F4C60C" w14:textId="77777777" w:rsidR="007D6C74" w:rsidRPr="00BF045D" w:rsidRDefault="007D6C74" w:rsidP="00495571">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="4111" w:type="dxa"/>
+            <w:tcBorders>
+              <w:top w:val="single" w:sz="4" w:space="0" w:color="AAA39D" w:themeColor="accent2"/>
+              <w:bottom w:val="single" w:sz="4" w:space="0" w:color="AAA39D" w:themeColor="accent2"/>
+            </w:tcBorders>
+            <w:vAlign w:val="bottom"/>
+          </w:tcPr>
+          <w:p w14:paraId="035E6A78" w14:textId="77777777" w:rsidR="007D6C74" w:rsidRPr="00BF045D" w:rsidRDefault="007D6C74" w:rsidP="00495571">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t>Vorname: Julian</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr w:rsidR="008F1C93" w:rsidRPr="00BF045D" w14:paraId="12B10597" w14:textId="77777777" w:rsidTr="3FA7D5A3">
+        <w:trPr>
+          <w:trHeight w:val="397"/>
+        </w:trPr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="3828" w:type="dxa"/>
+            <w:tcBorders>
+              <w:top w:val="nil"/>
+              <w:bottom w:val="nil"/>
+            </w:tcBorders>
+            <w:vAlign w:val="bottom"/>
+          </w:tcPr>
+          <w:p w14:paraId="705941CF" w14:textId="77777777" w:rsidR="008F1C93" w:rsidRPr="00BF045D" w:rsidRDefault="007D6C74" w:rsidP="00CA593D">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Webdings" w:eastAsia="Webdings" w:hAnsi="Webdings" w:cs="Webdings"/>
+                <w:b/>
+                <w:bCs/>
+                <w:color w:val="1F4E79"/>
+                <w:sz w:val="24"/>
+                <w:szCs w:val="24"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t>c</w:t>
+            </w:r>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:b/>
+                <w:bCs/>
+                <w:color w:val="1F4E79"/>
+                <w:sz w:val="24"/>
+                <w:szCs w:val="24"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t xml:space="preserve">  </w:t>
+            </w:r>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t>Informatik</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="850" w:type="dxa"/>
+            <w:tcBorders>
+              <w:top w:val="nil"/>
+              <w:bottom w:val="nil"/>
+            </w:tcBorders>
+            <w:vAlign w:val="bottom"/>
+          </w:tcPr>
+          <w:p w14:paraId="2B3E93F1" w14:textId="77777777" w:rsidR="008F1C93" w:rsidRPr="00BF045D" w:rsidRDefault="008F1C93" w:rsidP="00CA593D">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="4111" w:type="dxa"/>
+            <w:tcBorders>
+              <w:top w:val="single" w:sz="4" w:space="0" w:color="AAA39D" w:themeColor="accent2"/>
+              <w:bottom w:val="single" w:sz="4" w:space="0" w:color="AAA39D" w:themeColor="accent2"/>
+            </w:tcBorders>
+            <w:vAlign w:val="bottom"/>
+          </w:tcPr>
+          <w:p w14:paraId="1ABE5434" w14:textId="77777777" w:rsidR="008F1C93" w:rsidRPr="00BF045D" w:rsidRDefault="007D6C74" w:rsidP="00CA593D">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t>Gruppe: GME-24.01</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr w:rsidR="007D3713" w:rsidRPr="00BF045D" w14:paraId="4C096B01" w14:textId="77777777" w:rsidTr="3FA7D5A3">
+        <w:trPr>
+          <w:trHeight w:val="57"/>
+        </w:trPr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="3828" w:type="dxa"/>
+            <w:tcBorders>
+              <w:top w:val="nil"/>
+              <w:bottom w:val="single" w:sz="4" w:space="0" w:color="AAA39D" w:themeColor="accent2"/>
+            </w:tcBorders>
+            <w:vAlign w:val="bottom"/>
+          </w:tcPr>
+          <w:p w14:paraId="2C303C43" w14:textId="77777777" w:rsidR="007D3713" w:rsidRPr="00BF045D" w:rsidRDefault="007D3713" w:rsidP="00495571">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:color w:val="06639E" w:themeColor="accent6" w:themeTint="BF"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+          </w:p>
+          <w:p w14:paraId="518497FA" w14:textId="77777777" w:rsidR="007D6C74" w:rsidRPr="00BF045D" w:rsidRDefault="007D6C74" w:rsidP="00495571">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:color w:val="06639E" w:themeColor="accent6" w:themeTint="BF"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="850" w:type="dxa"/>
+            <w:tcBorders>
+              <w:top w:val="nil"/>
+              <w:bottom w:val="single" w:sz="4" w:space="0" w:color="AAA39D" w:themeColor="accent2"/>
+            </w:tcBorders>
+            <w:vAlign w:val="bottom"/>
+          </w:tcPr>
+          <w:p w14:paraId="66C73027" w14:textId="77777777" w:rsidR="007D3713" w:rsidRPr="00BF045D" w:rsidRDefault="007D3713" w:rsidP="00495571">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:color w:val="06639E" w:themeColor="accent6" w:themeTint="BF"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="4111" w:type="dxa"/>
+            <w:tcBorders>
+              <w:top w:val="single" w:sz="4" w:space="0" w:color="AAA39D" w:themeColor="accent2"/>
+              <w:bottom w:val="single" w:sz="4" w:space="0" w:color="AAA39D" w:themeColor="accent2"/>
+            </w:tcBorders>
+            <w:vAlign w:val="bottom"/>
+          </w:tcPr>
+          <w:p w14:paraId="028F3C50" w14:textId="77777777" w:rsidR="007D3713" w:rsidRPr="00BF045D" w:rsidRDefault="007D3713" w:rsidP="00495571">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:color w:val="06639E" w:themeColor="accent6" w:themeTint="BF"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr w:rsidR="007D3713" w:rsidRPr="004C7A5B" w14:paraId="7ADAA172" w14:textId="77777777" w:rsidTr="3FA7D5A3">
+        <w:trPr>
+          <w:trHeight w:val="170"/>
+        </w:trPr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="8789" w:type="dxa"/>
+            <w:gridSpan w:val="3"/>
+            <w:tcBorders>
+              <w:top w:val="single" w:sz="4" w:space="0" w:color="AAA39D" w:themeColor="accent2"/>
+              <w:bottom w:val="single" w:sz="4" w:space="0" w:color="AAA39D" w:themeColor="accent2"/>
+            </w:tcBorders>
+            <w:vAlign w:val="bottom"/>
+          </w:tcPr>
+          <w:p w14:paraId="205AEA12" w14:textId="77777777" w:rsidR="007D3713" w:rsidRPr="00BF045D" w:rsidRDefault="007D3713" w:rsidP="00CA593D">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t>Gewähltes Rahmenthema (Nr. + Bezeichnung):</w:t>
+            </w:r>
+          </w:p>
+          <w:p w14:paraId="5AD283D0" w14:textId="77777777" w:rsidR="007D3713" w:rsidRPr="00BF045D" w:rsidRDefault="007D3713" w:rsidP="00CA593D">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t>3 - Casual Webgame: Plush Toy Combat - Kampf der Stofftiere</w:t>
+            </w:r>
+          </w:p>
+          <w:p w14:paraId="5917A325" w14:textId="77777777" w:rsidR="007D3713" w:rsidRPr="00BF045D" w:rsidRDefault="007D3713" w:rsidP="00CA593D">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr w:rsidR="007D3713" w:rsidRPr="004C7A5B" w14:paraId="197706DF" w14:textId="77777777" w:rsidTr="3FA7D5A3">
+        <w:trPr>
+          <w:trHeight w:val="113"/>
+        </w:trPr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="8789" w:type="dxa"/>
+            <w:gridSpan w:val="3"/>
+            <w:tcBorders>
+              <w:top w:val="nil"/>
+              <w:bottom w:val="single" w:sz="4" w:space="0" w:color="AAA39D" w:themeColor="accent2"/>
+            </w:tcBorders>
+            <w:vAlign w:val="bottom"/>
+          </w:tcPr>
+          <w:p w14:paraId="30709EE8" w14:textId="77777777" w:rsidR="007D3713" w:rsidRPr="00BF045D" w:rsidRDefault="007D3713" w:rsidP="007D3713">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t>Arbeitstitel Ihres Themas:</w:t>
+              <w:br/>
+            </w:r>
+          </w:p>
+          <w:p w14:paraId="6B8CF3EF" w14:textId="77777777" w:rsidR="007D3713" w:rsidRPr="00BF045D" w:rsidRDefault="007D3713" w:rsidP="00495571">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t/>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr w:rsidR="008F1C93" w:rsidRPr="004C7A5B" w14:paraId="4BCC2CA6" w14:textId="77777777" w:rsidTr="3FA7D5A3">
+        <w:trPr>
+          <w:trHeight w:val="397"/>
+        </w:trPr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="8789" w:type="dxa"/>
+            <w:gridSpan w:val="3"/>
+            <w:tcBorders>
+              <w:top w:val="nil"/>
+              <w:bottom w:val="nil"/>
+            </w:tcBorders>
+            <w:vAlign w:val="bottom"/>
+          </w:tcPr>
+          <w:p w14:paraId="064F53FC" w14:textId="77777777" w:rsidR="008F1C93" w:rsidRPr="00BF045D" w:rsidRDefault="008F1C93" w:rsidP="00CA593D">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+          </w:p>
+          <w:p w14:paraId="2C559C27" w14:textId="77777777" w:rsidR="007D3713" w:rsidRPr="00BF045D" w:rsidRDefault="007D3713" w:rsidP="007D3713">
+            <w:pPr>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t xml:space="preserve">Kurzabriss des Projekts: </w:t>
+            </w:r>
+          </w:p>
+          <w:p w14:paraId="6B544115" w14:textId="77777777" w:rsidR="007D3713" w:rsidRPr="00BF045D" w:rsidRDefault="007D3713" w:rsidP="007D3713">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t>(Überblick über Inhalte und zu erstellende Medien)</w:t>
+            </w:r>
+          </w:p>
+          <w:p w14:paraId="1A51B652" w14:textId="5D886F98" w:rsidR="000B4063" w:rsidRPr="00A606F9" w:rsidRDefault="000B4063">
+            <w:pPr>
+              <w:rPr>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+          </w:p>
+        </w:tc>
+      </w:tr>
+    </w:tbl>
+    <w:p w14:paraId="72D9B35E" w14:textId="77777777" w:rsidR="00F14F66" w:rsidRPr="00BF045D" w:rsidRDefault="00F14F66" w:rsidP="00694AEB">
+      <w:pPr>
+        <w:pStyle w:val="SRHFlietext"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+          <w:lang w:val="de-DE"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:tbl>
+      <w:tblPr>
+        <w:tblStyle w:val="TableGrid"/>
+        <w:tblW w:w="0" w:type="auto"/>
+        <w:tblBorders>
+          <w:top w:val="single" w:sz="4" w:space="0" w:color="DDDAD7" w:themeColor="background2" w:themeTint="66"/>
+          <w:left w:val="single" w:sz="4" w:space="0" w:color="DDDAD7" w:themeColor="background2" w:themeTint="66"/>
+          <w:bottom w:val="single" w:sz="4" w:space="0" w:color="DDDAD7" w:themeColor="background2" w:themeTint="66"/>
+          <w:right w:val="single" w:sz="4" w:space="0" w:color="DDDAD7" w:themeColor="background2" w:themeTint="66"/>
+          <w:insideH w:val="single" w:sz="4" w:space="0" w:color="DDDAD7" w:themeColor="background2" w:themeTint="66"/>
+          <w:insideV w:val="single" w:sz="4" w:space="0" w:color="DDDAD7" w:themeColor="background2" w:themeTint="66"/>
+        </w:tblBorders>
+        <w:tblLook w:val="04A0" w:firstRow="1" w:lastRow="0" w:firstColumn="1" w:lastColumn="0" w:noHBand="0" w:noVBand="1"/>
+      </w:tblPr>
+      <w:tblGrid>
+        <w:gridCol w:w="9060"/>
+      </w:tblGrid>
+      <w:tr w:rsidR="00FD31FA" w:rsidRPr="004C7A5B" w14:paraId="6CAB930B" w14:textId="77777777" w:rsidTr="00631F6B">
+        <w:trPr>
+          <w:trHeight w:val="5688"/>
+        </w:trPr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="9060" w:type="dxa"/>
+          </w:tcPr>
+          <w:p w14:paraId="364FBD4B" w14:textId="77777777" w:rsidR="00A606F9" w:rsidRDefault="00A606F9" w:rsidP="00A606F9">
+            <w:pPr>
+              <w:spacing w:line="276" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t xml:space="preserve">Vertikales Platformer-Webgame mit Levelstruktur, realisiert in HTML5-Canvas und Vanilla JavaScript mit einer handgezeichneten 2D-Optik.</w:t>
+            </w:r>
+          </w:p>
+          <w:p w14:paraId="0CBAD987" w14:textId="77777777" w:rsidR="00A606F9" w:rsidRDefault="00A606F9" w:rsidP="00A606F9">
+            <w:pPr>
+              <w:spacing w:line="276" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+          </w:p>
+          <w:p w14:paraId="347F3285" w14:textId="39F301C8" w:rsidR="00A606F9" w:rsidRDefault="00A606F9" w:rsidP="00A606F9">
+            <w:pPr>
+              <w:spacing w:line="276" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t xml:space="preserve">Das Spiel ist zeitbasiert: Der Spieler steuert eine Katze, die automatisch auf Plattformen springt und dabei einem steigenden Wasserstand nach oben ausweicht. Plattformen werden prozedural generiert. Das Spiel ist in Level unterteilt: Jedes Level hat ein definiertes Höhenziel – wird es erreicht, folgt ein Score-Screen und das nächste Level beginnt.</w:t>
+            </w:r>
+          </w:p>
+          <w:p w14:paraId="3FB34E61" w14:textId="77777777" w:rsidR="00A606F9" w:rsidRDefault="00A606F9" w:rsidP="00A606F9">
+            <w:pPr>
+              <w:spacing w:line="276" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+          </w:p>
+          <w:p w14:paraId="199D56C1" w14:textId="1B53621E" w:rsidR="00A606F9" w:rsidRDefault="00A606F9" w:rsidP="00A606F9">
+            <w:pPr>
+              <w:spacing w:line="276" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t xml:space="preserve">Das Spiel verfügt über ein Lebenssystem mit drei Herzen. Berührt der Spieler das Wasser, verliert er ein Leben. Als aktive Fähigkeit kann die Katze Objekte nach unten werfen, um mit dem Wasser zu interagieren. Der erreichte Höchststand wird als Punktzahl gewertet und lokal im Browser gespeichert.</w:t>
+            </w:r>
+          </w:p>
+          <w:p w14:paraId="159DBEA2" w14:textId="77777777" w:rsidR="00A606F9" w:rsidRDefault="00A606F9" w:rsidP="00A606F9">
+            <w:pPr>
+              <w:spacing w:line="276" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+          </w:p>
+          <w:p w14:paraId="24C31FE6" w14:textId="23894328" w:rsidR="00FD31FA" w:rsidRPr="00BF045D" w:rsidRDefault="00A606F9" w:rsidP="00A606F9">
+            <w:pPr>
+              <w:spacing w:line="276" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:b/>
+                <w:sz w:val="24"/>
+                <w:szCs w:val="24"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t>Zum Lieferumfang gehören das spielbare Webgame (gehostet über GitHub Pages), ein Game Design Document sowie eine Gameplay-Videosequenz.</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+    </w:tbl>
+    <w:p w14:paraId="0D34FAB2" w14:textId="77777777" w:rsidR="00F14F66" w:rsidRPr="00BF045D" w:rsidRDefault="00F14F66" w:rsidP="00694AEB">
+      <w:pPr>
+        <w:pStyle w:val="SRHFlietext"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+          <w:lang w:val="de-DE"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:tbl>
+      <w:tblPr>
+        <w:tblStyle w:val="TableGrid"/>
+        <w:tblW w:w="9072" w:type="dxa"/>
+        <w:tblBorders>
+          <w:top w:val="none" w:sz="0" w:space="0" w:color="auto"/>
+          <w:left w:val="none" w:sz="0" w:space="0" w:color="auto"/>
+          <w:bottom w:val="single" w:sz="4" w:space="0" w:color="AAA39D" w:themeColor="accent2"/>
+          <w:right w:val="none" w:sz="0" w:space="0" w:color="auto"/>
+          <w:insideH w:val="single" w:sz="4" w:space="0" w:color="AAA39D" w:themeColor="accent2"/>
+          <w:insideV w:val="none" w:sz="0" w:space="0" w:color="auto"/>
+        </w:tblBorders>
+        <w:tblLook w:val="04A0" w:firstRow="1" w:lastRow="0" w:firstColumn="1" w:lastColumn="0" w:noHBand="0" w:noVBand="1"/>
+      </w:tblPr>
+      <w:tblGrid>
+        <w:gridCol w:w="9072"/>
+      </w:tblGrid>
+      <w:tr w:rsidR="007D6C74" w:rsidRPr="00BF045D" w14:paraId="63A3CE31" w14:textId="77777777" w:rsidTr="00FD31FA">
+        <w:trPr>
+          <w:trHeight w:val="794"/>
+        </w:trPr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="9072" w:type="dxa"/>
+            <w:tcBorders>
+              <w:top w:val="nil"/>
+              <w:bottom w:val="nil"/>
+            </w:tcBorders>
+            <w:vAlign w:val="bottom"/>
+          </w:tcPr>
+          <w:p w14:paraId="44822F25" w14:textId="77777777" w:rsidR="007D6C74" w:rsidRPr="00BF045D" w:rsidRDefault="007D6C74" w:rsidP="0914DAA3">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t>Ort, Datum, Unterschrift - Teilnehmer:</w:t>
+            </w:r>
+          </w:p>
+          <w:p w14:paraId="515765EC" w14:textId="77777777" w:rsidR="007D6C74" w:rsidRPr="00BF045D" w:rsidRDefault="007D6C74" w:rsidP="0914DAA3">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+          </w:p>
+          <w:p w14:paraId="20EDF384" w14:textId="77777777" w:rsidR="007D6C74" w:rsidRPr="00BF045D" w:rsidRDefault="007D6C74" w:rsidP="0076214F">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr w:rsidR="00FD31FA" w:rsidRPr="00BF045D" w14:paraId="41A4616F" w14:textId="77777777" w:rsidTr="00FD31FA">
+        <w:tblPrEx>
+          <w:tblBorders>
+            <w:top w:val="single" w:sz="4" w:space="0" w:color="auto"/>
+            <w:left w:val="single" w:sz="4" w:space="0" w:color="auto"/>
+            <w:bottom w:val="single" w:sz="4" w:space="0" w:color="auto"/>
+            <w:right w:val="single" w:sz="4" w:space="0" w:color="auto"/>
+            <w:insideH w:val="single" w:sz="4" w:space="0" w:color="auto"/>
+            <w:insideV w:val="single" w:sz="4" w:space="0" w:color="auto"/>
+          </w:tblBorders>
+        </w:tblPrEx>
+        <w:trPr>
+          <w:trHeight w:val="794"/>
+        </w:trPr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="9072" w:type="dxa"/>
+            <w:tcBorders>
+              <w:top w:val="nil"/>
+              <w:left w:val="nil"/>
+              <w:bottom w:val="nil"/>
+              <w:right w:val="nil"/>
+            </w:tcBorders>
+          </w:tcPr>
+          <w:p w14:paraId="26BD2796" w14:textId="63E213DF" w:rsidR="00FD31FA" w:rsidRPr="00BF045D" w:rsidRDefault="00FD31FA" w:rsidP="005D2E38">
+            <w:pPr>
+              <w:pStyle w:val="SRHFlietext"/>
+              <w:spacing w:line="240" w:lineRule="auto"/>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+                <w:sz w:val="22"/>
+                <w:szCs w:val="22"/>
+                <w:lang w:val="de-DE"/>
+              </w:rPr>
+              <w:t>Ort, Datum, Unterschrift - Dozent:</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+    </w:tbl>
+    <w:p w14:paraId="5A3AC527" w14:textId="77777777" w:rsidR="00E12895" w:rsidRPr="00BF045D" w:rsidRDefault="00E12895" w:rsidP="00BF1B4E">
+      <w:pPr>
+        <w:rPr>
+          <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+          <w:w w:val="90"/>
+          <w:lang w:val="de-DE"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:sectPr w:rsidR="00E12895" w:rsidRPr="00BF045D" w:rsidSect="00E8752A">
+      <w:headerReference w:type="default" r:id="rId11"/>
+      <w:footerReference w:type="default" r:id="rId12"/>
+      <w:headerReference w:type="first" r:id="rId13"/>
+      <w:pgSz w:w="11906" w:h="16838" w:code="9"/>
+      <w:pgMar w:top="2835" w:right="1134" w:bottom="1134" w:left="1418" w:header="0" w:footer="561" w:gutter="0"/>
+      <w:cols w:space="708"/>
+      <w:docGrid w:linePitch="360"/>
+    </w:sectPr>
+  </w:body>
+</w:document>

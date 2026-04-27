@@ -57,10 +57,10 @@
 ### Visual & Audio
 
 - [x] **VIS-01**: Cat character is a simple hand-drawn static sprite (not a colored rectangle)
-- [ ] **VIS-02**: Jump sound plays on every platform bounce (Phase 6 — nicht implementiert)
-- [ ] **VIS-03**: Damage sound plays when player takes water damage (Phase 6 — nicht implementiert)
-- [ ] **VIS-04**: Game over audio sting plays when all lives are lost (Phase 6 — nicht implementiert)
-- [ ] **VIS-05**: Background music loop plays during gameplay (Phase 6 — nicht implementiert)
+- [ ] **VIS-02**: Jump sound plays on every platform bounce (Phase 6 — infrastructure ready; SFX call audit pass pending)
+- [ ] **VIS-03**: Damage sound plays when player takes water damage (Phase 6 — infrastructure ready; SFX call audit pass pending)
+- [x] **VIS-04**: Game over audio sting plays when all lives are lost (Phase 6 — wired in _onPhaseChange 2026-04-26)
+- [x] **VIS-05**: Background music loop plays during gameplay (Phase 6 — wired in _onPhaseChange per level 2026-04-26)
 
 ### Hosting
 
@@ -131,7 +131,7 @@
 | PUSH-01 | Mechanics branch | Complete |
 | PUSH-02 | — | DROPPED (MVP) |
 | PUSH-03 | — | DROPPED (MVP) |
-| PUSH-04 | Phase 5 | Pending |
+| PUSH-04 | — | DROPPED (Kletter-Kiste static prop only) |
 | PLAT-01 | Phase 3 | Complete |
 | PLAT-02 | Phase 3 | Complete |
 | PLAT-03 | Phase 3 | Complete |
@@ -151,3 +151,5 @@
 ---
 *Requirements defined: 2026-03-03*
 *Last updated: 2026-04-21 — Drift-Fix: LOOP-04/05, LEVEL-04, FLOOD-01..04, LIFE-01..03 auf Complete gesetzt (waren fälschlich Pending). VIS-02..05 auf Pending zurückgesetzt (waren fälschlich Complete — Phase 6 Audio nicht implementiert). HOST-01/02 Mapping Phase 6 → Phase 7 korrigiert.*
+*Updated 2026-04-26: Phase 5 partial — outro triggers (L1 pinwheel + L2 bell + L3 lever) and difficulty system shipped. ACTION-01/HUD-01/HUD-02/VIS-06/VIS-08 already marked complete in upstream traceability. HUD-03 (Soggy Moggy title on start/gameover) to be verified during Start-Menu work.*
+*Updated 2026-04-26 (audio session): VIS-04 + VIS-05 marked complete — both wired via _onPhaseChange in main.js. VIS-02 + VIS-03 notes updated: HTMLAudio infrastructure ready; SFX calls need audit pass in gameplay files (player.js, hazards.js) to complete.*

@@ -1,4 +1,4 @@
-"""Measure cloud bounding boxes in PixelArt/platforms/level_3_sea/clouds_spritesheet.png.
+"""Measure cloud bounding boxes in Visuals/platforms/level_3_sea/clouds_spritesheet.png.
 
 Run: python scripts/measure_clouds.py
 Output: prints 6 entries (sx, sy, sw, sh, landingY) for the cloud variants dict.
@@ -10,7 +10,7 @@ Tweak by hand afterwards if a specific cloud needs the cat higher or lower.
 from PIL import Image
 from pathlib import Path
 
-ATLAS = Path(__file__).resolve().parent.parent / "PixelArt" / "platforms" / "level_3_sea" / "clouds_spritesheet.png"
+ATLAS = Path(__file__).resolve().parent.parent / "Visuals" / "platforms" / "level_3_sea" / "clouds_spritesheet.png"
 
 def main():
     img = Image.open(ATLAS).convert("RGBA")

@@ -1,21 +1,24 @@
-/*
-====================================================================
-* dialogue.js - Bubble overlay + lifecycle
-====================================================================
-* Project: Soggy Moggy
-* Course: PRG Abschlussprojekt — SRH Fachschulen
-* Developer: Julian Gomez
-*
-* Bubbles are static PNGs with text already rendered inside them by Julian
-* in Illustrator. No automatic text generation, no bitmap font, no atlas.
-* This file only:
-*   - loads the 8 dialogue bubble PNGs
-*   - draws them centered on screen
-*   - shows a clearly marked placeholder when a PNG is missing
-*   - manages the overlay lifecycle (show / dismiss / auto-clear)
-====================================================================
-*/
-// No runtime dependencies — pure screen-space overlay module.
+/**
+ * File:        dialogue.js
+ * Project:     Soggy Moggy — SRH Abschlussprojekt (Game & Multimedia Design)
+ * Author:      Julian Gomez
+ * AI support:  Developed with AI assistance (Claude / Anthropic) as a
+ *              pair-programming partner for design, implementation, and debugging.
+ *              All code reviewed and integrated by the author.
+ * Created:     2026-03-18
+ * Updated:     2026-04-26
+ *
+ * Purpose:     Dialogue bubble overlay + lifecycle. Loads the 8 bubble PNGs
+ *              (intro, outro, life-lost), draws them centered in screen space
+ *              with title (yellow bitmap font) and body (BlockCraft OTF), and
+ *              manages show / dismiss / auto-clear timing.
+ * Depends on:  game-state.js (reads GameState.level / introTimer)
+ * Loaded by:   index.html (vanilla <script> tag — see load order in index.html)
+ *
+ * Independence rule: every dialogue key (l1_intro, l1_outro, …) is tuned
+ * independently via the override tables below. Never change a shared default
+ * to fix one key — always add or update that key's row in the override map.
+ */
 
 // ════════════════════════════════════════════════════════════════════════════
 // SECTION 1 — DIALOGUE BUBBLE PNG LOADER
@@ -30,33 +33,28 @@ const _BUBBLE_KEYS = [
 const _bubbleSprites = {};
 for (const key of _BUBBLE_KEYS) {
   const img = new Image();
-  img.src = `PixelArt/thought_bubbles/dialogues/${key}.png`;
+  img.src = `Visuals/thought_bubbles/dialogues/${key}.png`;
   _bubbleSprites[key] = img;
 }
 
 // ════════════════════════════════════════════════════════════════════════════
 // SECTION 1.5 — TITLE + BODY TEXT RENDERING (hybrid font stack)
 // ════════════════════════════════════════════════════════════════════════════
-// Two fonts, two delivery methods — picked after iterating through several
-// failed approaches (see .planning/logs/ + docs/plans/2026-04-18*.md history):
+// Two fonts, two delivery methods:
 //
-//   TITLE  — YELLOW_FONT: yellow-red pixel-art bitmap atlas.
-//     Atlas data is inlined as a JS object (mirror of the generated JSON)
-//     so no runtime fetch is needed — works on file:// without CORS. The
-//     source PNG is loaded as a regular <img>. drawYellowText() uses
-//     per-glyph x/y/w/h/xadv for proportional-width rendering.
+//   TITLE — YELLOW_FONT: yellow-red pixel-art bitmap atlas. Atlas data is
+//     inlined as a JS object so no runtime fetch is needed (works on file://
+//     without CORS). The source PNG is loaded as a regular <img>.
+//     drawYellowText() uses per-glyph x/y/w/h/xadv for proportional rendering.
 //
-//   BODY   — BlockCraft.otf loaded via @font-face declaration in index.html.
+//   BODY  — BlockCraft.otf loaded via @font-face declaration in index.html.
 //     drawBodyText() uses native ctx.fillText with the 'BlockCraft' family
-//     (monospace fallback while the OTF loads). No bitmap atlas, no cell
-//     math. Chosen because an earlier attempt at a second bitmap atlas
-//     (alphabet_black_230px.png, 7x4 grid) gave inconsistent spacing and
-//     row-bleed artifacts — archived under PixelArt/fonts/Archive/.
+//     (monospace fallback while the OTF loads). No bitmap atlas.
 //
 // Both renderers are additive — callers draw text AFTER the bubble background.
 
 const YELLOW_FONT = {
-  img: (() => { const i = new Image(); i.src = 'PixelArt/fonts/alphabet_pixel_retro_video_game_style.png'; return i; })(),
+  img: (() => { const i = new Image(); i.src = 'Visuals/fonts/alphabet_pixel_retro_video_game_style.png'; return i; })(),
   lineHeight: 171,
   chars: {
     '0': {x:    0, y: 863, w: 147, h: 147, xoff: 0, yoff:  0, xadv: 149},
@@ -339,6 +337,7 @@ function _pickLifeLostTitle(cause, level) {
 let _active = null;
 
 function showLevelStart(level) {
+  GameState.introTimer = 3;
   const bubbleKey = _TRIGGER.levelStart[level];
   if (!bubbleKey) return;
   _active = {
@@ -490,9 +489,8 @@ function renderDialogue(ctx) {
     ctx.drawImage(img, -(bx + bw), -(by + bh), bw, bh);
     ctx.restore();
   } else if (isOutro) {
-    // Outro: vertical flip (tail at top-left of PNG → bottom-left after V-flip,
-    // since the prior horizontal flip was removed). Mirroring in both axes from
-    // the previous H-flipped state collapses to a pure V-flip of the source PNG.
+    // Outro: pure vertical flip — the source PNG's tail (top of image) ends up
+    // at the bottom of the drawn bubble, pointing down toward the cat.
     ctx.save();
     ctx.transform(1, 0, 0, -1, 0, 0);
     ctx.drawImage(img, bx, -(by + bh), bw, bh);
@@ -559,11 +557,11 @@ function renderDialogue(ctx) {
       // Always center text on the bubble's own horizontal center.
       const bodyCenterX = bx + bw / 2;
       const bodyX       = Math.round(bodyCenterX - bodyMaxW / 2);
-      // Intro: vertical flip → tail at top → interior starts 32px down.
-      // Outro: bubble is now flipped in BOTH axes (tail at upper-right corner).
-      //   Old offsets removed — body text centered across full bubble height.
-      // Burst: centered layout with wide padding.
-      // tail-down intro: tail at bottom → interior from top border (~6px); reserve ~20px for tail+border at bottom.
+      // Interior bounds depend on bubble orientation:
+      //   intro          (vertical flip, tail on top)    → start 32 px down, height bh-36
+      //   outro          (vertical flip, tail on bottom) → full bubble height (bh)
+      //   tail-down intro                                → start 6 px down, height bh-20
+      //   burst (lifeLost / l3_outro)                    → centered with wide padding
       const interiorTop = isBurst ? by + 52 : (isOutro ? by      : (tailDown ? by + 6 : by + 32));
       const interiorH   = isBurst ? bh - 80 : (isOutro ? bh      : (tailDown ? bh - 20 : bh - 36));
       const lineH       = Math.round(BODY_PX * 1.2);

@@ -3,8 +3,8 @@
 Run: python scripts/measure_bell.py
 
 Reads:
-  PixelArt/backgrounds/level_2_shaft/outro_trigger/bell_stand.png
-  PixelArt/backgrounds/level_2_shaft/outro_trigger/bell_spritesheet.png
+  Visuals/backgrounds/level_2_shaft/outro_trigger/bell_stand.png
+  Visuals/backgrounds/level_2_shaft/outro_trigger/bell_spritesheet.png
 
 Prints:
   - dimensions of both sheets
@@ -24,8 +24,8 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 
 ROOT  = Path(__file__).resolve().parent.parent
-STAND = ROOT / "PixelArt" / "backgrounds" / "level_2_shaft" / "outro_trigger" / "bell_stand.png"
-SHEET = ROOT / "PixelArt" / "backgrounds" / "level_2_shaft" / "outro_trigger" / "bell_spritesheet.png"
+STAND = ROOT / "Visuals" / "backgrounds" / "level_2_shaft" / "outro_trigger" / "bell_stand.png"
+SHEET = ROOT / "Visuals" / "backgrounds" / "level_2_shaft" / "outro_trigger" / "bell_spritesheet.png"
 
 ALPHA_THRESHOLD = 8     # treat alpha <= this as transparent
 UPSCALE         = 8     # overlay zoom factor

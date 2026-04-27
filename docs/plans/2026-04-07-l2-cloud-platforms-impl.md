@@ -311,7 +311,7 @@ git commit -m "feat(l2-clouds): placeholder render colors for L2 cloud types"
 
 ## After Art is Ready (deferred)
 
-When `PixelArt/platforms/level2_see/cloud_sheet.png` is drawn and exported:
+When `Visuals/platforms/level2_see/cloud_sheet.png` is drawn and exported:
 
 1. Run PIL alpha-scan to measure row Y positions and cap/mid/capR x-positions
 2. Add `_cloudSheet` Image object at top of `platforms.js`

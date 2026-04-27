@@ -4,7 +4,7 @@
 > - **Title text:** YELLOW_FONT bitmap atlas, data inlined in `src/dialogue.js` (mirror of `alphabet_yellow_red.json`).
 > - **Body text:** BlockCraft.otf via `@font-face` (declared in `index.html`) + native `ctx.fillText`.
 >
-> Open: the 8 bubble SHAPES (empty bubble backgrounds without text) may still be exported from `PixelArt/thought_bubbles/dialogue_bubbles.ai` as PNGs to provide shaped speech-bubble backgrounds underneath the dynamic text. Decision pending. If not exported, simple rectangle backgrounds will be used.
+> Open: the 8 bubble SHAPES (empty bubble backgrounds without text) may still be exported from `Visuals/thought_bubbles/dialogue_bubbles.ai` as PNGs to provide shaped speech-bubble backgrounds underneath the dynamic text. Decision pending. If not exported, simple rectangle backgrounds will be used.
 >
 > The language note below is obsolete too — English dialogue texts will be authored directly in code (SECTION 1.5 call sites), not baked into PNGs.
 
@@ -22,9 +22,9 @@
 
 Before starting, have these open/accessible:
 
-- `PixelArt/thought_bubbles/thought-bubbles.png` — bubble shapes (reference + source)
-- `PixelArt/fonts/alphabet_pixel_retro_video_game_style.ai` — title font glyphs
-- `PixelArt/fonts/alphabet_black.ai` — body font glyphs
+- `Visuals/thought_bubbles/thought-bubbles.png` — bubble shapes (reference + source)
+- `Visuals/fonts/alphabet_pixel_retro_video_game_style.ai` — title font glyphs
+- `Visuals/fonts/alphabet_black.ai` — body font glyphs
 
 ---
 
@@ -74,7 +74,7 @@ Calculated positions per bubble type:
 
 **Step 1: Import thought-bubbles.png**
 
-File > Platzieren → `PixelArt/thought_bubbles/thought-bubbles.png`
+File > Platzieren → `Visuals/thought_bubbles/thought-bubbles.png`
 
 **Step 2: Crop to the right bubble region**
 
@@ -220,7 +220,7 @@ Datei > Exportieren > Exportieren als:
 - Resolution: **72 ppi**
 - Kantenglättung: **Keine**
 - Hintergrundfarbe: **Transparent**
-- Output folder: `PixelArt/thought_bubbles/dialogues/`
+- Output folder: `Visuals/thought_bubbles/dialogues/`
 
 Result: 8 files named `l1_intro.png` through `life_wasp.png`.
 
@@ -249,14 +249,14 @@ Add this block after the existing `_sprBubbles` loader:
 // Pre-rendered dialogue images (bubble + text baked in, 480×640)
 const _DIALOGUE_IMGS = {};
 const _dialogueImgSrcs = {
-  l1_intro:    'PixelArt/thought_bubbles/dialogues/l1_intro.png',
-  l2_intro:    'PixelArt/thought_bubbles/dialogues/l2_intro.png',
-  l3_intro:    'PixelArt/thought_bubbles/dialogues/l3_intro.png',
-  l1_outro:    'PixelArt/thought_bubbles/dialogues/l1_outro.png',
-  l2_outro:    'PixelArt/thought_bubbles/dialogues/l2_outro.png',
-  l3_outro:    'PixelArt/thought_bubbles/dialogues/l3_outro.png',
-  life_hazard: 'PixelArt/thought_bubbles/dialogues/life_hazard.png',
-  life_wasp:   'PixelArt/thought_bubbles/dialogues/life_wasp.png',
+  l1_intro:    'Visuals/thought_bubbles/dialogues/l1_intro.png',
+  l2_intro:    'Visuals/thought_bubbles/dialogues/l2_intro.png',
+  l3_intro:    'Visuals/thought_bubbles/dialogues/l3_intro.png',
+  l1_outro:    'Visuals/thought_bubbles/dialogues/l1_outro.png',
+  l2_outro:    'Visuals/thought_bubbles/dialogues/l2_outro.png',
+  l3_outro:    'Visuals/thought_bubbles/dialogues/l3_outro.png',
+  life_hazard: 'Visuals/thought_bubbles/dialogues/life_hazard.png',
+  life_wasp:   'Visuals/thought_bubbles/dialogues/life_wasp.png',
 };
 for (const [key, src] of Object.entries(_dialogueImgSrcs)) {
   const img = new Image();
@@ -319,7 +319,7 @@ Check `index.html` — if `font.js` is only used by `dialogue.js`, remove the `<
 
 ## Completion checklist
 
-- [ ] All 8 PNGs exported to `PixelArt/thought_bubbles/dialogues/`
+- [ ] All 8 PNGs exported to `Visuals/thought_bubbles/dialogues/`
 - [ ] Each PNG verified in browser: bubble visible, text readable, transparency correct
 - [ ] `dialogue.js` updated with image preloads + imgKey entries + simplified renderDialogue
 - [ ] Unused font code removed from `dialogue.js`

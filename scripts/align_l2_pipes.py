@@ -18,7 +18,7 @@ import shutil
 import sys
 
 ROOT = Path(__file__).resolve().parent.parent
-BG_DIR = ROOT / "PixelArt" / "backgrounds" / "level_2_shaft"
+BG_DIR = ROOT / "Visuals" / "backgrounds" / "level_2_shaft"
 PATHS = {
     "mid": BG_DIR / "pipes_mid.png",
     "top": BG_DIR / "pipes_top.png",

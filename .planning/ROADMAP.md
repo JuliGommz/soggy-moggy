@@ -2,7 +2,7 @@
 
 **Project:** Soggy Moggy
 **Created:** 2026-03-03
-**Updated:** 2026-04-25 — Push mechanic fully dropped (PUSH-02/03/04); Kletter-Kiste static prop only; Z-action renamed ACTION-01. Phase 5 renamed to HUD + UI Screens.
+**Updated:** 2026-04-26 — Phase 5 partial: bell/lever outro triggers live, difficulty system implemented, intro-flow done (3-2-1 countdown in LEVEL_INTRO bubble screen, auto-advance, no click needed); remaining: start-menu (WIP), end-screen, score-animation. Earlier 2026-04-25: Push mechanic fully dropped (PUSH-02/03/04); Kletter-Kiste static prop only; Z-action renamed ACTION-01. Phase 5 renamed to HUD + UI Screens.
 **Depth:** Standard (7 phases + 04.1)
 **Coverage:** 45/45 v1 requirements mapped
 
@@ -18,8 +18,8 @@
 - [x] **Phase 04.2: L2 Lighthouse Redesign** - Lighthouse background, parallax layers, cloud mechanics, L2 level redesign — shipped on branch, merged to master (completed ~2026-04-07)
 - [x] **Phase 04.3: L2 Elevator Interior** - Elevator sprite, invisible colliders (C1/C2/C404/CHR), 404 display platform, Shaft-Platform-Atlas + Zigzag-Generation, Horizontal-Wall-Confinement, Dialogue-System-Code — merged to master via PR #1 (2026-04-22).
 - [x] **Phase 05-e: Wasp Enemy System** - Patrol + stomp mechanics, 10/15/20 wasps per level (bumped 2026-04-20 von 5/7/10), stinger/stomp interactions, scoring — merged to master (completed 2026-04-07). Known Issues: Sprite zu klein (~2× scale nötig), L2 Top-Sprite fehlt.
-- [ ] **Phase 5: HUD + UI Screens** - Start menu, end screen, score display between levels (animated), countdown + title combined, L2/L3 end-of-level objects (bell, lever)
-- [ ] **Phase 6: Audio** - Jump SFX, damage SFX, game over sting, background music loop
+- [~] **Phase 5: HUD + UI Screens** - In Progress: L1 pinwheel + L2 bell + L3 lever outro triggers ✅, difficulty system ✅, intro-flow ✅; Start-Menu WIP; End-Screen + animated score offen
+- [~] **Phase 6: Audio** - audio.js v2.0 shipped (SOUNDS map 27 entries, HTMLAudio, all _onPhaseChange hooks); pending: menu_nav/click, hazard ambient proximity, file downloads
 - [ ] **Phase 7: Hosting** - GitHub Pages deployment, shareable URL, final browser smoke test
 
 ---
@@ -36,8 +36,8 @@
 | 04.2 L2 Lighthouse | — (shipped outside GSD) | Complete | ~2026-04-07 |
 | 04.3 L2 Elevator Interior | — (shipped outside GSD) | Complete — merged PR #1 | 2026-04-22 |
 | 05-e Wasp Enemy System | — (shipped outside GSD) | Complete | 2026-04-07 |
-| 5. HUD + UI Screens | 0/? | Not started | - |
-| 6. Audio | 0/? | Not started | - |
+| 5. HUD + UI Screens | partial | In Progress | partial 2026-04-26 |
+| 6. Audio | 0/? | In Progress | partial 2026-04-26 |
 | 7. Hosting | 0/? | Not started | - |
 
 ---
@@ -143,18 +143,19 @@ Plans:
 **Note:** Push mechanic fully dropped (2026-04-25). Kletter-Kiste appears as static prop in L2 outro only. Z-action animation (push_rise/push_peak frames) stays in code for balloon catch, wasp defense, and end-trigger.
 
 **Success Criteria:**
-  1. Start menu shown before first play session
-  2. Countdown and title combined into one harmonious visual sequence (no extra click after menu)
-  3. Animated score breakdown shown between levels
-  4. End screen shown after Level 3 outro
-  5. L2 end-of-level bell and L3 lever trigger level-complete event when Z is pressed
+  1. Start menu shown before first play session — *in Arbeit*
+  2. Countdown and title combined into one harmonious visual sequence (no extra click after menu) — ✅ DONE 2026-04-26
+  3. Animated score breakdown shown between levels — *open* (Prio 3 / nice-to-have)
+  4. End screen shown after Level 3 outro — *open*
+  5. L2 end-of-level bell and L3 lever trigger level-complete event when Z is pressed — ✅ DONE 2026-04-26
+**Status (2026-04-26):** Outro triggers (L1/L2/L3) live with 2.5s activation animation delay — L1 windrad accelerates (1.4→13 rad/s), L2 bell pivot-swings (mid-frame locked, canvas rotation), L3 lever cycles left/mid/right/mid frames. Difficulty system done 2026-04-25. Intro-flow done 2026-04-26. Remaining: Start-Menu, End-Screen, animated score breakdown.
 **Plans:** TBD
 
 ### Phase 6: Audio
 **Goal:** Sound accompanies every key player action — the game has audio presence from jump through game over.
 **Depends on:** Phase 5 (all gameplay events defined before audio binds to them)
 **Requirements:** AUDIO-01, AUDIO-02, AUDIO-03, AUDIO-04
-**Note:** Audio was explicitly separated from the original "Throw + Audio" scope — it is its own cohesive concern (Web Audio API, asset pipeline, browser autoplay policy).
+**Note:** Audio was explicitly separated from the original "Throw + Audio" scope — it is its own cohesive concern (HTMLAudio API chosen over Web Audio API for file:// compatibility, asset pipeline, browser autoplay policy).
 
 **Success Criteria:**
   1. Jump sound plays immediately on Space press (no perceptible lag)
@@ -208,15 +209,15 @@ Plans:
 | VIS-03 | Mood/atmosphere statement | Phase 04.1 ✓ |
 | VIS-04 | Key asset list (ASSET_LIST.md) | Phase 04.1 ✓ |
 | VIS-05 | Style guide (docs/STYLE_GUIDE.md) | Phase 04.1 ✓ |
-| VIS-06 | Cat sprite frames (action paw, walk, jump) | Phase 5 |
+| VIS-06 | Cat sprite frames (action paw, walk, jump) | Phase 5 ✓ |
 | ~~VIS-07~~ | ~~Item sprites~~ | DROPPED |
-| VIS-08 | Speech bubble shapes (canvas-drawn) | Phase 5 |
+| VIS-08 | Speech bubble shapes (canvas-drawn) | Phase 5 ✓ |
 | ACTION-01 | Z / right-click triggers action animation (push_rise/push_peak, 250ms) | Phase 5 ✓ |
 | ~~PUSH-02~~ | ~~Push mechanic + item physics~~ | DROPPED |
 | ~~PUSH-03~~ | ~~Push score feedback + hazard interaction~~ | DROPPED |
-| HUD-01 | English speech bubble system (shapes, lifecycle, positioning) | Phase 5 |
-| HUD-02 | Event-to-bubble mapping (damage, level complete, game over) | Phase 5 |
-| HUD-03 | Game title: Soggy Moggy on start/gameover screens | Phase 5 |
+| HUD-01 | English speech bubble system (shapes, lifecycle, positioning) | Phase 5 ✓ |
+| HUD-02 | Event-to-bubble mapping (damage, level complete, game over) | Phase 5 ✓ |
+| HUD-03 | Game title: Soggy Moggy on start/gameover screens | Phase 5 (verify in start-menu work) |
 | AUDIO-01 | Jump sound effect | Phase 6 |
 | AUDIO-02 | Damage sound effect (water contact) | Phase 6 |
 | AUDIO-03 | Game over audio sting | Phase 6 |
@@ -230,3 +231,5 @@ Plans:
 ---
 *Roadmap created: 2026-03-03*
 *Updated 2026-03-12: "Throw + Audio" dissolved — "throw" renamed "push" throughout. Phase 5 = Push + HUD. Phase 6 = Audio (new, separated). Phase 7 = Hosting (renumbered from 6). Requirements: 34 → 45 (added PUSH, HUD, AUDIO, VIS-06/07/08).*
+*Updated 2026-04-26: Phase 5 outro triggers (L1 pinwheel, L2 bell, L3 lever) and difficulty system shipped to master. Phase 5 status: In Progress. Remaining work scoped via backlog priorities (Audio-Prep Prio 1, Start-Menu Prio 2, End-Screen Prio 2.5, Score-Anim Prio 3).*
+*Updated 2026-04-26 (audio session): Phase 6 Audio started. audio.js v2.0 shipped with HTMLAudio implementation (SOUNDS map 27 entries, playSound/playMusic/fadeOutMusic, wasp buzz proximity). All phase-transition audio hooks wired in main.js. Pending: menu_nav/click wiring, hazard ambient proximity volumes, 2 file downloads (Jacob's Ladder + cough).*

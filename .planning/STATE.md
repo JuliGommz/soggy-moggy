@@ -50,7 +50,7 @@ progress:
 
 Wasp enemy system, L2 lighthouse, L2 elevator interior all shipped to master.
 
-**Stack:** Vanilla JavaScript ES2022+ + HTML Canvas 2D (480x640) + Web Audio API + GitHub Pages
+**Stack:** Vanilla JavaScript ES2022+ + HTML Canvas 2D (480x640) + HTMLAudio API + GitHub Pages
 
 ---
 
@@ -61,9 +61,9 @@ Wasp enemy system, L2 lighthouse, L2 elevator interior all shipped to master.
 **Phase Status:** Phases 1–4, 04.1, 04.2, 04.3, 05-e complete. Phase 5 partial — Bell/Lever ✅, Difficulty ✅, Intro-Flow ✅, Start-Menu ✅ (2026-04-26); End-Screen, Score-Anim offen.
 
 ```
-Progress: [x][x][x][x][x][x][x][~][~][ ][ ]
+Progress: [x][x][x][x][x][x][x][~][~][~][ ]
            P1  P2  P3  P4 04.1 04.2 04.3  P5   P6  P7
-           04.2 + 04.3 shipped outside GSD; 05-enemies merged to master; P5 partial
+           04.2 + 04.3 shipped outside GSD; 05-enemies merged to master; P5 partial; P6 in progress
 ```
 
 ---
@@ -81,7 +81,7 @@ Progress: [x][x][x][x][x][x][x][~][~][ ][ ]
 | 04.3 | L2 Elevator Interior | Complete — merged PR #1 | 0/0 | Merged to master 2026-04-22; dialogue system included |
 | 05-e | Wasp Enemy System | Shipped (no GSD plan) | 0/0 | Merged to master 07.04.2026 |
 | 5 | HUD + UI Screens | In Progress | partial | Bell/Lever ✅, Difficulty ✅; Start-Menu WIP; Intro/End/Score-Anim offen |
-| 6 | Audio | Not started | 0/? | |
+| 6 | Audio | In Progress | 0/? | audio.js v2.0 shipped: SOUNDS map (27), all _onPhaseChange hooks wired; menu_nav/click + hazard ambients pending |
 | 7 | Hosting | Not started | 0/? | |
 
 ---
@@ -247,3 +247,4 @@ None.
 *Updated: 2026-04-23 (session 2) — Damage dialogue variant system added to src/dialogue.js: _HAZARD_TITLE_POOLS (4 titles per level, level-flavored: COUGH COUGH! / ZAP! / GLURP GLURP!), _WASP_TITLE_POOL (OUCH OUCH! / YEOWCH! / YIHAA!), _pickLifeLostTitle() with one-step repeat-guard. showLifeLost() reads GameState.level and stores pick in titleOverride. Bubble PNGs unchanged.*
 *Updated: 2026-04-24 — L3 Stone Overlay EMERGENCY FIX LOCKED for school submission. src/background.js: overlay PNG `lh_00_quick-fix.png` masks the ~20px transparent margin on each side of the lighthouse base cell (Illustrator sheet-export trims base from 480px → 439px). Anchor constant `_LH_STONE_FIX_ANCHOR_Y = 633` (final, iteration 611→623→633). Loader + draw block wrapped in `EMERGENCY FIX — LOCKED — DO NOT CHANGE` markers. Documentation added to GDD §3.4.1 (Notfall-Fix: Steinboden-Overlay) explaining root cause, clean fix, pragmatic overlay decision. Clean pipeline fix deferred post-submission.*
 *Updated: 2026-04-26 — Phase 5 in progress. Outro trigger system live: L1 pinwheel (JS-drawn placeholder, fixed save-stack-leak bug), L2 bell on stand (self-pixelled), L3 lever (placeholder, scaled 0.68). All triggered via Z/right-click with magenta reach-glow. Difficulty system (Explorer/Adventurer/Enlightened) implemented 2026-04-25. Backlog re-prioritised: Audio prep (SFX/Music/Sound-selection) is Prio 1; Start-Menu/Intro-Flow Prio 2; End-Screen Prio 2.5; Phase 5 doc-hygiene Prio 3; GitHub Pages Prio 4 (not required for Casual Webgame USB submission); L3 crumble timer Prio 5. Commit `d6bcee2`.*
+*Updated: 2026-04-26 (audio session) — Phase 6 Audio in progress. src/audio.js v2.0 shipped: HTMLAudio-based SOUNDS map (27 entries, all trim values), playSound/playMusic/fadeOutMusic/stopMusic/updateAudioGains/unlockAudio. Wasp buzz proximity: updateWaspBuzz + stopWaspBuzz (audio.js), getNearestWaspDist (enemies.js). All _onPhaseChange hooks wired in main.js (music per level, countdown_tick once on LEVEL_INTRO, game_over, level_complete, L1-cough on outro, stopWaspBuzz on PLAYING exit). Pending: menu_nav/menu_click in start-screen.js, hazard ambient proximity volumes, download Jacob's Ladder + cough files.*

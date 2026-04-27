@@ -26,18 +26,17 @@ Final project at SRH Fachschule, Game & Multimedia Design (GME-24.01). Developer
 
 ## Controls
 
-| Action | Keyboard | Mouse |
-|---|---|---|
-| Move left | Arrow left or A | — |
-| Move right | Arrow right or D | — |
-| Jump | Space | Left click |
-| Action / Push | Z | Right click |
-| Confirm menu | Enter | Left click |
-| Menu up | Arrow up | — |
-| Menu down | Arrow down | — |
-| Pause | Escape | — |
+| Action | Input |
+|:---|:---|
+| Move left | `A` or `←` |
+| Move right | `D` or `→` |
+| Jump | `Space` or left-click |
+| Action | `Z` or right-click |
+| Pause | `Escape` |
+| Confirm menu | `Enter` or left-click |
+| Navigate menu | `↑` / `↓` |
 
-Source: `src/input.js` (verified 2026-04-21).
+Source: `src/input.js` (verified 2026-04-27). On German QWERTZ keyboards both the labeled Z key (physical position `KeyY`) and the labeled Y key (`KeyZ`) trigger the action — the action key works regardless of layout.
 
 ---
 
@@ -57,8 +56,9 @@ A local web server is recommended (e.g. `python -m http.server`) so all PNG asse
 
 - JavaScript (ES2022+), HTML5, CSS for page layout only.
 - HTML Canvas 2D API, 480 x 640 px resolution, portrait.
-- Web Audio API (prepared for Phase 6).
-- No frameworks, no bundlers, no external libraries.
+- HTMLAudio for music + SFX (file:// compatible on Firefox + Chromium). Web Audio API was evaluated and rejected because Firefox blocks the XHR / fetch needed to load buffers from `file://`.
+- React + ReactDOM (UMD bundles via unpkg) for the Start, Pause, Game Over, Level Complete and Success screen overlays. JSX is intentionally not used: Babel-standalone needs XHR for external `<script src=>` files, which `file://` blocks. All overlay components use plain `React.createElement`.
+- No build step, no bundler, no other external libraries.
 - Pixel art: Pixelorama (`.pxo` sources), Adobe Photoshop for spritesheet composition.
 
 ---
@@ -67,7 +67,7 @@ A local web server is recommended (e.g. `python -m http.server`) so all PNG asse
 
 ```
 src/                  Game source code (JavaScript)
-PixelArt/             All sprites and source files
+Visuals/             All sprites and source files
 docs/                 Plans, style guide, asset list
 Dokumente_Schule/     School documents, templates, completed forms
 Screenshots/          Gameplay screenshots
@@ -78,15 +78,23 @@ Full planning index: [`docs/plans/README.md`](docs/plans/README.md)
 
 ---
 
+## AI assistance disclosure
+
+Author: Julian Gomez. Developed with AI assistance (Claude / Anthropic) as a pair-programming partner for design, implementation, and debugging. All code was reviewed and integrated by the author.
+
+The same wording appears as a header block in every `src/*.js` file and must match the corresponding declaration in `Dokumente_Schule/Ausgefuellt/Selbstständigkeitserklärung_Julian_Gomez.docx`.
+
+---
+
 ## Credits
 
 **Fonts**
 
-Title font (bitmap): `PixelArt/fonts/alphabet_pixel_retro_video_game_style.png`, derived from Vecteezy.com (Free License, attribution required). Used as YELLOW_FONT atlas in `src/dialogue.js` for dialogue titles.
+Title font (bitmap): `Visuals/fonts/alphabet_pixel_retro_video_game_style.png`, derived from Vecteezy.com (Free License, attribution required). Used as YELLOW_FONT atlas in `src/dialogue.js` for dialogue titles.
 
-Body font: `PixelArt/fonts/BlockCraft.otf`, loaded via `@font-face` in `index.html`, used by `drawBodyText()` for dialogue body text. (Source + license: see `Dokumente_Schule/Completed/Medienkatalog.md`.)
+Body font: `Visuals/fonts/BlockCraft.otf`, loaded via `@font-face` in `index.html`, used by `drawBodyText()` for dialogue body text. (Source + license: see `Dokumente_Schule/Completed/Medienkatalog.md`.)
 
-Older and experimental fonts (black-LCD attempt, Vecteezy source files) are archived in `PixelArt/fonts/Archive/`.
+Older and experimental fonts (black-LCD attempt, Vecteezy source files) are archived in `Visuals/fonts/Archive/`.
 
 **Pixel Art**
 
@@ -94,11 +102,11 @@ All sprites, backgrounds, UI elements, enemies and platforms: original work by J
 
 **Dialogue Bubbles**
 
-Vector source: `PixelArt/thought_bubbles/dialogue_bubbles.ai` (Adobe Illustrator), original work. 8 bubble PNGs cropped to `PixelArt/thought_bubbles/dialogues/` via `scripts/crop_bubbles.py`.
+Vector source: `Visuals/thought_bubbles/dialogue_bubbles.ai` (Adobe Illustrator), original work. 8 bubble PNGs cropped to `Visuals/thought_bubbles/dialogues/` via `scripts/crop_bubbles.py`.
 
 **Inspiration Material**
 
-`PixelArt/_dev/Inspiration/` contains reference images used as style studies only. None are used in the game.
+`Visuals/_dev/Inspiration/` contains reference images used as style studies only. None are used in the game.
 
 Full media catalog: [`Dokumente_Schule/Medienkatalog.md`](Dokumente_Schule/Medienkatalog.md)
 

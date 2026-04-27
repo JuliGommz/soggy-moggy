@@ -123,7 +123,7 @@ const titleScale = titleTargetPx / _TITLE_CONFIG.cellH;   // e.g. 20 / cellH
 const bodyScale  = bodyTargetPx  / _BODY_CONFIG.cellH;    // e.g. 14 / cellH
 ```
 
-**Title font** — `PixelArt/fonts/alphabet_pixel_retro_video_game_style.png`
+**Title font** — `Visuals/fonts/alphabet_pixel_retro_video_game_style.png`
 - Exported from Illustrator: transparent bg, Kantenglättung: Keine, uniform 10-col × 4-row grid
 - Row 0: A B C D E F G H I _ (9 glyphs + 1 empty at col 9)
 - Row 1: J K L M N O P Q R _ (9 glyphs + 1 empty at col 9)
@@ -132,7 +132,7 @@ const bodyScale  = bodyTargetPx  / _BODY_CONFIG.cellH;    // e.g. 14 / cellH
 - Order string: `'ABCDEFGHI JKLMNOPQR STUVWXYZ?!1234567890'`
 - If glyphs misalign: check cols (10) and rows (4) match the actual export
 
-**Body font** — `PixelArt/fonts/alphabet_black_230px.png`
+**Body font** — `Visuals/fonts/alphabet_black_230px.png`
 - Exported from Illustrator: transparent bg, black glyphs, top-left quadrant only
 - 7 cols × 4 rows; last cell of rows 2 and 3 is empty
 - Row 0: A B C D E F G
@@ -140,7 +140,7 @@ const bodyScale  = bodyTargetPx  / _BODY_CONFIG.cellH;    // e.g. 14 / cellH
 - Row 2: O P Q R S T _ (col 6 empty)
 - Row 3: U V W X Y Z _ (col 6 empty)
 - Order string: `'ABCDEFGHIJKLMNOPQRST UVWXYZ '`
-- Original multi-variant source archived to `PixelArt/fonts/Archive/`
+- Original multi-variant source archived to `Visuals/fonts/Archive/`
 
 If glyphs clip or misalign: check that the export has exactly 7 × 4 cells with uniform spacing. The auto-compute will be correct if the grid is correct.
 
@@ -156,7 +156,7 @@ If glyphs clip or misalign: check that the export has exactly 7 × 4 cells with 
 | wide2  | 240 | 130 | 240 | 110 |
 | burst  | 8 | 270 | full width | remaining height |
 
-Source: `PixelArt/thought_bubbles/thought-bubbles.png`
+Source: `Visuals/thought_bubbles/thought-bubbles.png`
 
 Burst bubble uses `naturalWidth` and `naturalHeight - sy` as source rect to capture the full spiky shape.
 

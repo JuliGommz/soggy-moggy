@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Soggy Moggy — Start Menu Mockup</title>
+  <style>
+    body { background: #000; display: flex; flex-direction: column; align-items: center;
+           justify-content: center; min-height: 100vh; margin: 0; gap: 12px; }
+    canvas { image-rendering: pixelated; }
+    p { color: #555; font: 12px monospace; }
+  </style>
+</head>
+<body>
+<canvas id="c" width="480" height="640"></canvas>
+<p>↑↓ or click row to change difficulty &nbsp;·&nbsp; ENTER to simulate start</p>
+<script>
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+
+let t = 0;
+let difficulty = 1; // 0=Explorer 1=Adventurer 2=Enlightened
+const DIFFS  = ['Explorer', 'Adventurer', 'Enlightened'];
+const COLORS = ['#2ecc71',  '#f1c40f',    '#e74c3c'];
+const DESC   = ['Relaxed pace · 5 lives', 'Normal · 3 lives', 'Fast hazard · 2 lives'];
+
+// ── background ──────────────────────────────────────────────────────────────
+function drawBg() {
+  const g = ctx.createLinearGradient(0, 0, 0, 640);
+  g.addColorStop(0, '#05050f');
+  g.addColorStop(1, '#0d1a30');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 480, 640);
+
+  const STARS = [40,25,85,75,160,18,215,58,305,12,355,88,425,38,462,65,105,108,258,98,190,145,330,55];
+  for (let i = 0; i < STARS.length; i += 2) {
+    const twinkle = 0.3 + 0.7 * Math.abs(Math.sin(t * 1.4 + STARS[i] * 0.09));
+    ctx.globalAlpha = twinkle;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(STARS[i], STARS[i+1], 2, 2);
+  }
+  ctx.globalAlpha = 1;
+}
+
+// ── rising water at bottom ───────────────────────────────────────────────────
+function drawWater() {
+  [[10,40,90, 0.60, 618, 0.8], [30,60,130, 0.45, 626, 1.3]].forEach(([r,g,b,a,baseY,spd]) => {
+    ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
+    ctx.beginPath();
+    for (let x = 0; x <= 480; x += 4) {
+      const y = baseY + Math.sin(x * 0.04 + t * spd) * 5 + Math.sin(x * 0.07 + t * 1.9) * 3;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.lineTo(480, 640); ctx.lineTo(0, 640); ctx.fill();
+  });
+}
+
+// ── pixel cat (drawn shapes, no image) ─────────────────────────────────────
+function drawCat(cx, cy) {
+  const wag = Math.sin(t * 2.2) * 5;
+  ctx.fillStyle = '#3a2a1e';
+  // body
+  ctx.fillRect(cx - 18, cy - 12, 36, 22);
+  // head
+  ctx.fillRect(cx - 14, cy - 28, 28, 18);
+  // ears
+  ctx.fillRect(cx - 16, cy - 38, 9, 12);
+  ctx.fillRect(cx + 7,  cy - 38, 9, 12);
+  // inner ears
+  ctx.fillStyle = '#7a4a4a';
+  ctx.fillRect(cx - 14, cy - 36, 5, 8);
+  ctx.fillRect(cx + 9,  cy - 36, 5, 8);
+  // eyes — teal glow
+  ctx.fillStyle = '#00ddaa';
+  ctx.fillRect(cx - 8, cy - 22, 5, 5);
+  ctx.fillRect(cx + 3, cy - 22, 5, 5);
+  // nose
+  ctx.fillStyle = '#e07070';
+  ctx.fillRect(cx - 1, cy - 16, 3, 2);
+  // tail
+  ctx.fillStyle = '#3a2a1e';
+  ctx.fillRect(cx + 18, cy + 2, 16, 6);
+  ctx.fillRect(cx + 30, cy - 4 + wag, 7, 14);
+  // rain drops on fur
+  ctx.fillStyle = 'rgba(140,200,255,0.55)';
+  ctx.fillRect(cx - 6, cy - 16, 2, 5);
+  ctx.fillRect(cx + 5, cy - 20, 2, 5);
+  ctx.fillRect(cx - 14, cy - 8, 2, 4);
+}
+
+// ── title ───────────────────────────────────────────────────────────────────
+function drawTitle() {
+  ctx.textAlign = 'center';
+  ctx.shadowColor = '#5dade2';
+  ctx.shadowBlur  = 10 + Math.sin(t * 1.1) * 5;
+  ctx.fillStyle   = '#ffffff';
+  ctx.font        = 'bold 44px monospace';
+  ctx.fillText('SOGGY MOGGY', 240, 108);
+  ctx.shadowBlur  = 0;
+  ctx.fillStyle   = '#5dade2';
+  ctx.font        = '13px monospace';
+  ctx.fillText('a soggy cat adventure', 240, 132);
+}
+
+// ── menu ────────────────────────────────────────────────────────────────────
+function drawMenu() {
+  const cx = 240;
+
+  ctx.fillStyle = '#777777';
+  ctx.font      = '13px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('DIFFICULTY', cx, 290);
+
+  const optY0 = 320, optH = 44;
+  for (let i = 0; i < 3; i++) {
+    const y   = optY0 + i * optH;
+    const sel = i === difficulty;
+    if (sel) {
+      ctx.fillStyle = 'rgba(255,255,255,0.07)';
+      ctx.fillRect(cx - 148, y - 24, 296, optH - 2);
+      ctx.fillStyle = COLORS[i];
+      ctx.font      = 'bold 18px monospace';
+      ctx.fillText(DIFFS[i], cx, y);
+      ctx.fillStyle = COLORS[i];
+      ctx.globalAlpha = 0.6;
+      ctx.font = '12px monospace';
+      ctx.fillText(DESC[i], cx, y + 17);
+      ctx.globalAlpha = 1;
+    } else {
+      ctx.fillStyle = '#444444';
+      ctx.font      = '16px monospace';
+      ctx.fillText(DIFFS[i], cx, y + 5);
+    }
+  }
+
+  // PLAY button
+  const pulse = 0.88 + 0.12 * Math.sin(t * 2.8);
+  ctx.globalAlpha = pulse;
+  ctx.fillStyle = '#f1c40f';
+  ctx.fillRect(cx - 110, 464, 220, 42);
+  ctx.fillStyle = '#000000';
+  ctx.font      = 'bold 20px monospace';
+  ctx.fillText('PLAY', cx, 491);
+  ctx.globalAlpha = 1;
+
+  // hints
+  ctx.fillStyle = '#3a3a3a';
+  ctx.font      = '11px monospace';
+  ctx.fillText('↑↓ select   ENTER play', cx, 528);
+
+  ctx.fillStyle = '#5dade2';
+  ctx.font      = '14px monospace';
+  ctx.fillText('Audio', cx, 562);
+
+  ctx.fillStyle = '#2a2a2a';
+  ctx.font      = '11px monospace';
+  ctx.fillText('Z — dev', cx, 592);
+}
+
+// ── main loop ────────────────────────────────────────────────────────────────
+function draw() {
+  drawBg();
+  drawWater();
+  drawCat(240, 210);
+  drawTitle();
+  drawMenu();
+  ctx.textAlign = 'left';
+}
+
+function loop(now) {
+  t = now / 1000;
+  draw();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+// ── input ────────────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowUp'   || e.key === 'w') difficulty = (difficulty + 2) % 3;
+  if (e.key === 'ArrowDown' || e.key === 's') difficulty = (difficulty + 1) % 3;
+  if (e.key === 'Enter') alert('→ Game would start now on difficulty: ' + DIFFS[difficulty]);
+});
+
+canvas.addEventListener('click', e => {
+  const rect = canvas.getBoundingClientRect();
+  const my   = e.clientY - rect.top;
+  const optY0 = 320, optH = 44;
+  for (let i = 0; i < 3; i++) {
+    const y = optY0 + i * optH;
+    if (my >= y - 24 && my <= y + 20) { difficulty = i; break; }
+  }
+  if (my >= 464 && my <= 506) alert('→ Game would start now on difficulty: ' + DIFFS[difficulty]);
+});
+</script>
+</body>
+</html>

@@ -149,10 +149,10 @@ The top and bottom pixel rows of every strip must match for seamless vertical ti
 
 | File | Confirmed Size | Status |
 |------|----------------|--------|
-| PixelArt/backgrounds/shared/sky_day.png | 480x640 | Ready to use |
-| PixelArt/backgrounds/shared/sky_night.png | 480x640 | Ready to use |
-| PixelArt/backgrounds/shared/clouds_bright.png | 480x220 | Ready to use |
-| PixelArt/backgrounds/shared/clouds_dark.png | 480x640 | Ready to use |
+| Visuals/backgrounds/shared/sky_day.png | 480x640 | Ready to use |
+| Visuals/backgrounds/shared/sky_night.png | 480x640 | Ready to use |
+| Visuals/backgrounds/shared/clouds_bright.png | 480x220 | Ready to use |
+| Visuals/backgrounds/shared/clouds_dark.png | 480x640 | Ready to use |
 
 ---
 

@@ -1,31 +1,31 @@
-/*
-====================================================================
-* success-screen.js - React DOM overlay for LEVEL_COMPLETE on L3
-====================================================================
-* Project: Soggy Moggy
-* Course: PRG Abschlussprojekt — SRH Fachschulen
-* Developer: Julian Gomez
-* Date: 2026-04-26
-* Version: 1.0
-*
-* AUTHORSHIP CLASSIFICATION: [AI-ASSISTED]
-*
-* NOTES:
-* - Plain <script src="..."> tag — no Babel / no XHR required
-* - Loaded after start-screen.js; reuses PAL, PIXEL, PIXEL_BLOCK,
-*   PixelBtn, MoggyTitle from that file (globals in the same scope)
-* - Depends on: GameState, GamePhase, resetGame, resetBalloon,
-*   resetOutroTrigger, spawnEnemies, showLevelStart
-* - Triggered only when LEVEL_COMPLETE + level === 3
-* - Mount via window.mountSuccessScreen()
-* - Unmount via window.unmountSuccessScreen()
-*
-* SECTION MAP:
-*   § 1  StatRow primitive
-*   § 2  SuccessScreen root component
-*   § 3  Mount / unmount lifecycle
-====================================================================
-*/
+/**
+ * File:        success-screen.js
+ * Project:     Soggy Moggy — SRH Abschlussprojekt (Game & Multimedia Design)
+ * Author:      Julian Gomez
+ * AI support:  Developed with AI assistance (Claude / Anthropic) as a
+ *              pair-programming partner for design, implementation, and debugging.
+ *              All code reviewed and integrated by the author.
+ * Created:     2026-04-26
+ * Updated:     2026-04-27
+ *
+ * Purpose:     React DOM overlay shown after LEVEL_COMPLETE on Level 3 — the
+ *              full-game success / congratulations screen. Shows the final
+ *              score breakdown, kill bonus, all-clear bonus, and high score,
+ *              with a confetti animation. Mounted only when GameState.level
+ *              === 3 and the phase becomes LEVEL_COMPLETE.
+ * Depends on:  React + ReactDOM (loaded via <script> before this file),
+ *              start-screen.js (PAL, PIXEL, PIXEL_BLOCK, PixelBtn, MoggyTitle — globals),
+ *              game-state.js (GameState, GamePhase, resetGame),
+ *              player.js / enemies.js (resetBalloon, spawnEnemies),
+ *              dialogue.js (showLevelStart),
+ *              main.js (resetOutroTrigger).
+ * Loaded by:   index.html (vanilla <script> tag — see load order in index.html)
+ *
+ * Section map:
+ *   § 1  StatRow primitive
+ *   § 2  SuccessScreen root component
+ *   § 3  Mount / unmount lifecycle
+ */
 
 /* global React, ReactDOM, PAL, PIXEL, PIXEL_BLOCK, PixelBtn, MoggyTitle,
    GameState, GamePhase, resetGame, resetBalloon, resetOutroTrigger,
@@ -68,6 +68,10 @@ function CongratsOverlay({ onDone }) {
       const cv = canvasRef.current;
       if (!cv) { raf = requestAnimationFrame(draw); return; }
       const ctx = cv.getContext('2d');
+      // Pixel-art canvas: disable browser bilinear filtering. Without this,
+      // drawImage scaling clips the bottom row of opaque pixels on letters
+      // rendered through drawYellowText (e.g. "CONGRATS!" outline).
+      ctx.imageSmoothingEnabled = false;
       const W = 480, H = 640;
 
       const fadeAlpha = elapsed >= _CONGRATS_FADE_AT
@@ -205,7 +209,10 @@ function SuccessScreen() {
   const clear      = GameState.clearBonus;
   const total      = score + kills + clear;
   const highScore  = Math.floor(GameState.highScore);
-  const isNewBest  = total > 0 && total === highScore;
+  // GameState.lastWasNewBest is set by saveHighScore() and is true only for
+  // strictly-higher scores. Using `total === highScore` would incorrectly fire
+  // on ties because saveHighScore leaves highScore unchanged on a tie.
+  const isNewBest  = total > 0 && GameState.lastWasNewBest;
 
   const onPlayAgain = () => {
     window.unmountSuccessScreen();

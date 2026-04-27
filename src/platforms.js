@@ -1,42 +1,28 @@
-/*
-====================================================================
-* platforms.js - Platform system: generation, collision, rendering
-====================================================================
-* Project: Soggy Moggy
-* Course: PRG Abschlussprojekt — SRH Fachschulen
-* Developer: Julian Gomez
-* Date: 2026-03-06
-* Version: 2.0 - L1 colliders updated for separate element sprites (building_wall feature heights)
-*
-* AUTHORSHIP CLASSIFICATION:
-*
-* [AI-ASSISTED]
-* - PIL alpha-scan approach for precise sprite sheet coordinate measurement
-*   (capL/mid/capR x-positions and row y-positions)
-* - Procedural generation algorithm: slot-based upward distribution
-*   with horizontal margin constraints and CRUMBLE_CHANCE selection
-* - 2-landing crumble state machine: intact → cracked → crumbling → removed
-* - One-way AABB collision: 3-condition check (overlapX + wasAbove + movingDown)
-* - 3-part sprite tiling: left cap + clipped middle tiles + right cap
-*
-* NOTES:
-* - One-way collision reads player.prevY — updatePlayer() must run first each frame
-* - levelGoalY stored in GameState so main.js can draw the finish line
-* - GAP_PX must stay below 200px — otherwise jump cannot reach next platform
-*
-* VERSION HISTORY:
-* - v1.0: Static platform array, one-way collision
-* - v1.1: Procedural generation, crumble state machine
-* - v1.2: Jalousie sprite sheet rendering (3-part tiling)
-* - v1.3: Level 2 row restriction (blue-stripe only), LEVEL_BASE_HEIGHT scaling
-* - v1.7: Per-window randomised variants, platforms snap to window column center
-* - v1.8: windowFloors array (write-once) decouples windows from platform lifecycle;
-*         renderWindowFloors() replaces per-platform window draw so crumble splice
-*         no longer removes window sprites from the building
-====================================================================
-*/
-// Depends on: player (player.js — must load before this file), JUMP_VELOCITY (player.js)
-//             GameState (game-state.js — must load before this file)
+/**
+ * File:        platforms.js
+ * Project:     Soggy Moggy — SRH Abschlussprojekt (Game & Multimedia Design)
+ * Author:      Julian Gomez
+ * AI support:  Developed with AI assistance (Claude / Anthropic) as a
+ *              pair-programming partner for design, implementation, and debugging.
+ *              All code reviewed and integrated by the author.
+ * Created:     2026-03-06
+ * Updated:     2026-04-27
+ *
+ * Purpose:     Platform system — procedural generation per level, one-way
+ *              AABB collision, sprite rendering (jalousie 3-part tiling for
+ *              L1, jump-platform sheet for L2, cloud sheet for L3), the
+ *              crumble state machine, and structural colliders for the L2
+ *              elevator + L3 lighthouse.
+ * Depends on:  player.js (player, JUMP_VELOCITY),
+ *              game-state.js (GameState).
+ * Loaded by:   index.html (vanilla <script> tag — see load order in index.html)
+ *
+ * Notes:
+ *   - One-way collision reads player.prevY → updatePlayer() must run first each frame.
+ *   - levelGoalY is stored in GameState so main.js can draw the finish line.
+ *   - GAP_PX must stay below 200 px — otherwise the jump cannot reach the next platform.
+ *   - Crumble lifecycle: intact → cracked (one landing) → crumbling → removed.
+ */
 
 // ── Platform sprite sheet ─────────────────────────────────────────────────────
 // jalousie_sheet.png: 3 cols (A=left cap, B=middle, C=right cap) × 7 rows
@@ -56,19 +42,19 @@
 //   Row 7 (y=230): red    — crumble CRUMBLING (urgent)
 // Normal + crumble-intact platforms pick a random row at generation time.
 const _platSheet = new Image();
-_platSheet.src = 'PixelArt/platforms/level_1_city/jalousie_sheet.png';
+_platSheet.src = 'Visuals/platforms/level_1_city/jalousie_sheet.png';
 
 // ── Window sprite sheet (Level 1 only) ───────────────────────────────────────
 // windows.png: 2×2 grid of window variants (clean A/B, dirty A/B)
 // Coordinates measured via PIL alpha-scan:
 const _winSheet = new Image();
-_winSheet.src = 'PixelArt/backgrounds/level_1_city/windows.png';
+_winSheet.src = 'Visuals/backgrounds/level_1_city/windows.png';
 
 // ── Level 2 shaft platform sprites ───────────────────────────────────────────
 // Atlas coords measured via PIL connected-component scan on 2026-04-20.
 // Sheet: jump_plattforms.png, 480 × 258 px. 9 opaque regions found, all sh=24.
 const _l2PlatSheet = new Image();
-_l2PlatSheet.src = 'PixelArt/platforms/level_2_lift/jump_plattforms.png';
+_l2PlatSheet.src = 'Visuals/platforms/level_2_lift/jump_plattforms.png';
 
 // 9-variant atlas: 3 positions (l/c/r) × 3 sizes (L/M/S).
 //   l = left   (anchored to left shaft wall, depth faces right)
@@ -135,7 +121,7 @@ function _l2WrapReachable(prevEnd, nextStart) {
 //                   appears nestled in the cloud instead of floating above a
 //                   hard rectangle.
 const _cloudSheet = new Image();
-_cloudSheet.src = 'PixelArt/platforms/level_3_sea/clouds_spritesheet.png';
+_cloudSheet.src = 'Visuals/platforms/level_3_sea/clouds_spritesheet.png';
 const _CLOUD_VARIANTS = [
   { sx:  22, sy:  23, sw: 208, sh:  62, landingY:  27 }, // cloud #1
   { sx:  22, sy: 115, sw: 208, sh:  64, landingY:  28 }, // cloud #2
@@ -276,10 +262,9 @@ function generateLevelPlatforms(level) {
   GameState.levelGoalY = PLAYER_START_Y - levelHeight;
 
   // Camera-end Y: upward scroll stops here so the level-end sprite stays fully visible.
-  // Tuned per screenshot reference (2026-04-25):
-  //   L1/L2: roof-rest position at canvas-y ~320 → cameraEndY = levelGoalY − 320.
-  //   L3:    bottom-of-frame at lighthouse white-stripe band (yellow-line ref) → cameraEndY = −4801.
-  // Cat can jump briefly above this; gravity returns it without a hard snap.
+  //   L1 / L2: roof-rest position at canvas-y ~320 → cameraEndY = levelGoalY − 320.
+  //   L3:      bottom-of-frame at lighthouse white-stripe band → cameraEndY = -4700.
+  // The cat can jump briefly above this point; gravity returns it without a hard snap.
   GameState.cameraEndY = (level === 3) ? -4700 : (GameState.levelGoalY - 320);
 
   // Level 3: invisible structural colliders on the lighthouse cap (background.js cap sprite).
@@ -336,9 +321,7 @@ function generateLevelPlatforms(level) {
     // Speed scales with DIFFICULTY[..].cloudDriftMul; Explorer = 0 keeps bridges static.
     platforms.push({ x: 330, y: -4032, w: 100, h: PLATFORM_H, type: 'cloud-sink', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false, cloudVariant: _bridgeVariant(), driftDir: -1, catOnTop: false });
     platforms.push({ x:  50, y: -4152, w: 100, h: PLATFORM_H, type: 'cloud-sink', state: 'intact', crumbleTimer: 0, row: activeRows[0], winVariants: undefined, invisible: false, cloudVariant: _bridgeVariant(), driftDir: +1, catOnTop: false });
-    // Bridge 3 (was at y=-4272, x=320) removed — too close to the saucer collider.
-    // Bridge 4 (was at y=-4392) removed — sat above the saucer collider.
-    // Cat reaches saucer directly from Bridge 2 / procedural clouds below.
+    // The cat reaches the saucer from Bridge 2 + procedural clouds below.
 
     // LH-Top / finish — Lantern roof deck where cat stands with lever (cap row 80).
     // Pink-marked outro pos #1 (topmost). Narrow (w=50) so cat lands precisely on the
@@ -493,30 +476,13 @@ function generateLevelPlatforms(level) {
     }
 
     // Level 1: pick a random window column and center platform over it.
-    // On a left↔right outer-column transition, insert a small bridge at center first.
+    // Direct left↔right outer-column transitions (col 0↔2) are too wide to jump;
+    // re-route through center (col 1) instead of using an invisible bridge collider.
     let x;
     if (level === 1) {
-      const colIdx    = Math.floor(Math.random() * _WIN_POS.length);
+      let colIdx = Math.floor(Math.random() * _WIN_POS.length);
+      if (_l1LastColIdx !== -1 && Math.abs(colIdx - _l1LastColIdx) === 2) colIdx = 1;
       const winCenter = _WIN_POS[colIdx] + _WIN_W / 2;  // 90, 240, or 390
-
-      const outerTransition = _l1LastColIdx !== -1
-        && ((colIdx === 0 && _l1LastColIdx === 2) || (colIdx === 2 && _l1LastColIdx === 0));
-      if (outerTransition) {
-        const bw  = Math.floor(PLATFORM_MIN_W);
-        const bCx = _WIN_POS[1] + _WIN_W / 2; // center column x
-        const bx  = Math.max(0, Math.min(480 - bw, bCx - bw / 2));
-        const by  = Math.floor(worldY + GAP_PX / 2);
-        platforms.push({
-          x: Math.floor(bx), y: by, w: bw, h: PLATFORM_H,
-          type: 'normal', state: 'intact', crumbleTimer: 0,
-          row: activeRows[Math.floor(Math.random() * activeRows.length)],
-          winVariants: undefined,
-          invisible: true, // bridge collider only — no backing window, no jalousie drawn
-        });
-        // Bridge platforms do NOT push to windowFloors — they sit mid-gap and have no
-        // backing window column. Pushing here would create a second window row 60px
-        // above the regular slot's row, producing the visible double-row stacking bug.
-      }
       _l1LastColIdx = colIdx;
 
       x = Math.max(0, Math.min(480 - w, winCenter - w / 2));
@@ -607,8 +573,17 @@ function checkPlatformCollisions() {
 
       // Crumble state machine: only advance on a FRESH landing (not continuous contact)
       if (p.type === 'crumble' && prevOnPlatform !== p) {
-        if      (p.state === 'intact')  { p.state = 'cracked';   p.crumbleTimer = 0; }
-        else if (p.state === 'cracked') { p.state = 'crumbling'; p.crumbleTimer = 0; }
+        if (p.state === 'intact') {
+          p.state = 'cracked'; p.crumbleTimer = 0;
+          if (typeof playSound === 'function') {
+            playSound(GameState.level === 3 ? 'electro_crumble' : 'crumble');
+          }
+        } else if (p.state === 'cracked') {
+          p.state = 'crumbling'; p.crumbleTimer = 0;
+          if (typeof playSound === 'function') {
+            playSound(GameState.level === 3 ? 'electro_crumble' : 'crumble');
+          }
+        }
       }
 
       // Sinking cloud (baseY) OR drifting cloud (driftDir): mark as loaded this frame.
@@ -704,19 +679,6 @@ function renderPlatforms(ctx) {
 // Sprite is drawn at native height (17px), top-aligned to platform.y (collision surface).
 // Transparent slat gaps show the canvas/background through — no base fill added.
 function _renderPlatformSprite(ctx, p) {
-  // DEBUG: L3 lighthouse colliders rendered as magenta semi-transparent boxes for placement verification.
-  // Remove `debugLH: true` from the L3 collider blocks once positions are confirmed.
-  if (p.debugLH) {
-    const dx = Math.floor(p.x), dy = Math.floor(p.y);
-    ctx.fillStyle = 'rgba(255, 0, 255, 0.45)';
-    ctx.fillRect(dx, dy, p.w, PLATFORM_H);
-    ctx.strokeStyle = '#ff00ff';
-    ctx.lineWidth   = 2;
-    ctx.strokeRect(dx + 1, dy + 1, p.w - 2, PLATFORM_H - 2);
-    ctx.lineWidth   = 1;
-    return;
-  }
-
   if (p.invisible) return;  // decoration-backed platforms: visual is handled by the background asset
 
   // Level 2 shaft platforms: fixed-position sprites from jump_plattforms.png
