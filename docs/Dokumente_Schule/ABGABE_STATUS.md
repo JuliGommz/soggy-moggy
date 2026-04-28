@@ -12,15 +12,15 @@
 | Document | Path | Status | Notes |
 |---|---|---|---|
 | Topic submission | `Dokumente_Schule/Einreichung/Themeneinreichung_Julian_Gomez.pdf` | Done | Submitted and stamped |
-| Project plan | `Dokumente_Schule/Ausgefuellt/Projektplan_Julian_Gomez.docx` | Done | State at project start |
-| Work log | `Dokumente_Schule/Ausgefuellt/Arbeitsprotokoll_Julian_Gomez.docx` | Update daily | Must be kept current up to submission day |
-| GDD (Word) | `Dokumente_Schule/Ausgefuellt/GDD_Julian_Gomez.docx` | Done | Synced with current game state |
-| GDD (Markdown) | `Dokumente_Schule/Ausgefuellt/GDD_Julian_Gomez.md` | Done | Phase 8 synced |
+| Project plan | `Dokumente_Schule/Completed/Projektplan_Julian_Gomez.docx` | Done | State at project start |
+| Work log | `Dokumente_Schule/Completed/Arbeitsprotokoll_Julian_Gomez.docx` | Done 2026-04-27 | Updated bis Tag der Abgabe (04.03.–27.04.2026), Krankschreibung 07.–16.04. markiert |
+| GDD (Word) | `Dokumente_Schule/Completed/GDD_Julian_Gomez.docx` | Done | Synced with current game state |
+| GDD (Markdown) | `Dokumente_Schule/Completed/GDD_Julian_Gomez.md` | Done | Phase 8 synced |
 | Media catalogue | `Dokumente_Schule/Medienkatalog.md` | Needs review | Verify it reflects current asset state |
 | USB submission structure | `Dokumente_Schule/USB-Abgabe-Struktur.md` | Done | Checklist for the final stick |
 | README | `README.md` | Done | Updated 2026-04-27 with AI disclosure + HTMLAudio note |
 | Video script | `docs/video_script.md` | Done | 7 scenes, ~2:35 min planned |
-| **Declaration of independence** (Selbstständigkeitserklärung) | not in repo | **TODO — handwritten signature required** | See `Dokumente_Schule/SELBSTSTAENDIGKEIT_AI_KLAUSEL.md` for the AI-attribution paragraph that must be included. Print SRH form, fill out, sign, scan to PDF, save in `Ausgefuellt/`. |
+| **Declaration of independence** (Selbstständigkeitserklärung) | not in repo | **TODO — handwritten signature required** | See `Dokumente_Schule/SELBSTSTAENDIGKEIT_AI_KLAUSEL.md` for the AI-attribution paragraph that must be included. Print SRH form, fill out, sign, scan to PDF, save in `Completed/`. |
 | **Gameplay video** | not in repo | **TODO** | Script ready in `docs/video_script.md`. Record once smoke test passes. |
 
 ---

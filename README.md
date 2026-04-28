@@ -8,9 +8,7 @@ Final project at SRH Fachschule, Game & Multimedia Design (GME-24.01). Developer
 
 ## Screenshot
 
-![Level 1 Stadt](Screenshots/Levels/Level1.1.png)
-
-> Placeholder: this image shows Level 1 (La Ciudad). For the final submission this can be swapped with another screenshot from `Screenshots/Levels/`.
+![Level 1 City](docs/Screenshots/Levels/Level1.1.png)
 
 ---
 
@@ -26,17 +24,15 @@ Final project at SRH Fachschule, Game & Multimedia Design (GME-24.01). Developer
 
 ## Controls
 
-| Action | Input |
-|:---|:---|
-| Move left | `A` or `←` |
-| Move right | `D` or `→` |
-| Jump | `Space` or left-click |
-| Action | `Z` or right-click |
-| Pause | `Escape` |
-| Confirm menu | `Enter` or left-click |
-| Navigate menu | `↑` / `↓` |
-
-Source: `src/input.js` (verified 2026-04-27). On German QWERTZ keyboards both the labeled Z key (physical position `KeyY`) and the labeled Y key (`KeyZ`) trigger the action — the action key works regardless of layout.
+| Action        | Input                 |
+|:---           |:---                   |
+| Move left     | `A` or `←`            |
+| Move right    | `D` or `→`            |
+| Jump          | `Space` or left-click |
+| Action        | `Z` or right-click    |
+| Pause         | `Escape`              |
+| Confirm menu  | `Enter` or left-click |
+| Navigate menu | `↑` / `↓`             |
 
 ---
 
@@ -46,7 +42,6 @@ No installation, no build step.
 
 1. Clone or unzip the repository.
 2. Open `index.html` in a browser (tested in Chrome, Firefox, Edge).
-3. Alternatively: the game will be hosted on GitHub Pages (Phase 7 of project planning).
 
 A local web server is recommended (e.g. `python -m http.server`) so all PNG assets load without `file://` restrictions.
 
@@ -66,12 +61,17 @@ A local web server is recommended (e.g. `python -m http.server`) so all PNG asse
 ## Project Structure
 
 ```
-src/                  Game source code (JavaScript)
-Visuals/             All sprites and source files
-docs/                 Plans, style guide, asset list
-Dokumente_Schule/     School documents, templates, completed forms
-Screenshots/          Gameplay screenshots
-index.html            Entry point
+src/                          game JS (15 modules, flat)
+Visuals/                      pixel art — backgrounds, characters, fonts, etc.
+audio/                        music + sfx (organized by category)
+docs/
+  plans/                      design + implementation plans
+  Screenshots/                gameplay + debug screenshots
+  Dokumente_Schule/           school documents + completed forms
+  ASSET_LIST.md / STYLE_GUIDE.md / video_script.md
+scripts/                      Python helper scripts
+tools/                        utility scripts (PowerShell)
+index.html                    entry point
 ```
 
 Full planning index: [`docs/plans/README.md`](docs/plans/README.md)
@@ -82,7 +82,7 @@ Full planning index: [`docs/plans/README.md`](docs/plans/README.md)
 
 Author: Julian Gomez. Developed with AI assistance (Claude / Anthropic) as a pair-programming partner for design, implementation, and debugging. All code was reviewed and integrated by the author.
 
-The same wording appears as a header block in every `src/*.js` file and must match the corresponding declaration in `Dokumente_Schule/Ausgefuellt/Selbstständigkeitserklärung_Julian_Gomez.docx`.
+The same wording appears as a header block in every `src/*.js` file. The methodology behind the AI workflow is documented in [`docs/prompting-strategy/prompting-strategy-final-2026.md`](docs/prompting-strategy/prompting-strategy-final-2026.md).
 
 ---
 
@@ -92,7 +92,7 @@ The same wording appears as a header block in every `src/*.js` file and must mat
 
 Title font (bitmap): `Visuals/fonts/alphabet_pixel_retro_video_game_style.png`, derived from Vecteezy.com (Free License, attribution required). Used as YELLOW_FONT atlas in `src/dialogue.js` for dialogue titles.
 
-Body font: `Visuals/fonts/BlockCraft.otf`, loaded via `@font-face` in `index.html`, used by `drawBodyText()` for dialogue body text. (Source + license: see `Dokumente_Schule/Completed/Medienkatalog.md`.)
+Body font: `Visuals/fonts/BlockCraft.otf`, loaded via `@font-face` in `index.html`, used by `drawBodyText()` for dialogue body text. (Source + license: see `docs/Dokumente_Schule/Medienkatalog.md`.)
 
 Older and experimental fonts (black-LCD attempt, Vecteezy source files) are archived in `Visuals/fonts/Archive/`.
 
@@ -108,7 +108,7 @@ Vector source: `Visuals/thought_bubbles/dialogue_bubbles.ai` (Adobe Illustrator)
 
 `Visuals/_dev/Inspiration/` contains reference images used as style studies only. None are used in the game.
 
-Full media catalog: [`Dokumente_Schule/Medienkatalog.md`](Dokumente_Schule/Medienkatalog.md)
+Full media catalog: [`docs/Dokumente_Schule/Medienkatalog.md`](docs/Dokumente_Schule/Medienkatalog.md)
 
 ---
 
@@ -120,11 +120,12 @@ School project, internal use only. No commercial use. No LICENSE file is include
 
 ## Status and Related Documents
 
-- Submission status for all school artifacts: [`Dokumente_Schule/ABGABE_STATUS.md`](Dokumente_Schule/ABGABE_STATUS.md)
+- Submission status for all school artifacts: [`docs/Dokumente_Schule/ABGABE_STATUS.md`](docs/Dokumente_Schule/ABGABE_STATUS.md)
 - Planning index: [`docs/plans/README.md`](docs/plans/README.md)
-- Game Design Document: [`Dokumente_Schule/Ausgefuellt/GDD_Julian_Gomez.md`](Dokumente_Schule/Ausgefuellt/GDD_Julian_Gomez.md)
+- Game Design Document: [`docs/Dokumente_Schule/Completed/GDD_Julian_Gomez.md`](docs/Dokumente_Schule/Completed/GDD_Julian_Gomez.md)
 - Asset list (code view): [`docs/ASSET_LIST.md`](docs/ASSET_LIST.md)
-- Media catalog (submission view): [`Dokumente_Schule/Medienkatalog.md`](Dokumente_Schule/Medienkatalog.md)
-- USB submission structure: [`Dokumente_Schule/USB-Abgabe-Struktur.md`](Dokumente_Schule/USB-Abgabe-Struktur.md)
+- Media catalog (submission view): [`docs/Dokumente_Schule/Medienkatalog.md`](docs/Dokumente_Schule/Medienkatalog.md)
+- USB submission structure: [`docs/Dokumente_Schule/USB-Abgabe-Struktur.md`](docs/Dokumente_Schule/USB-Abgabe-Struktur.md)
+- Prompting strategy: [`docs/prompting-strategy/prompting-strategy-final-2026.md`](docs/prompting-strategy/prompting-strategy-final-2026.md)
 
 Deadline: postponed, new date pending (as of 2026-04-22).

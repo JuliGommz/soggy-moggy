@@ -1,0 +1,751 @@
+======================================================================
+ABSAETZE (Body)
+======================================================================
+[P000] Arbeitsprotokoll – Abschlussarbeit 2026
+[P001] Projekt: Soggy Moggy  |  Rahmenthema 3: Casual Webgame
+[P002] Zeitraum: 04.03.2026 – 22.04.2026  |  Gruppe: GME-24.01  |  Name: Julian Gomez
+[P004] Dieses Protokoll wird täglich fortgeführt. geplant/in Bearb./erledigt markiert mit "x". Fortschritte im Git-Repository dokumentiert (Commits mit Zeitstempel).
+
+======================================================================
+TABELLEN
+======================================================================
+
+--- TABELLE 0 (123 Zeilen x 6 Spalten) ---
+T0 R00 C0: Tag
+T0 R00 C1: Datum
+T0 R00 C2: Aufgabe
+T0 R00 C3: geplant
+T0 R00 C4: in Bearb.
+T0 R00 C5: erledigt
+T0 R01 C0: 
+T0 R01 C1: 
+T0 R01 C2: KW 10   02.03. – 08.03.
+T0 R01 C3: 
+T0 R01 C4: 
+T0 R01 C5: 
+T0 R02 C0: Mi
+T0 R02 C1: 04.03.2026
+T0 R02 C2: Spielkonzept definieren, Themeneinreichung
+T0 R02 C3: x
+T0 R02 C4: x
+T0 R02 C5: x
+T0 R03 C0: Mi
+T0 R03 C1: 04.03.2026
+T0 R03 C2: Technische Recherche (Canvas, Gameloop, State)
+T0 R03 C3: x
+T0 R03 C4: x
+T0 R03 C5: x
+T0 R04 C0: Do
+T0 R04 C1: 05.03.2026
+T0 R04 C2: GSD Roadmap: Requirements + Phasenplanung
+T0 R04 C3: x
+T0 R04 C4: x
+T0 R04 C5: x
+T0 R05 C0: Do
+T0 R05 C1: 05.03.2026
+T0 R05 C2: Phase 1: HTML-Shell, Canvas-Setup, GamePhase Enum
+T0 R05 C3: x
+T0 R05 C4: x
+T0 R05 C5: x
+T0 R06 C0: Do
+T0 R06 C1: 05.03.2026
+T0 R06 C2: Phase 1: Gameloop mit Delta Time, Spieler-Stub
+T0 R06 C3: x
+T0 R06 C4: x
+T0 R06 C5: x
+T0 R07 C0: Fr
+T0 R07 C1: 06.03.2026
+T0 R07 C2: Phase 2: Gravity, Auto-Bounce, AABB-Kollision
+T0 R07 C3: x
+T0 R07 C4: x
+T0 R07 C5: x
+T0 R08 C0: Fr
+T0 R08 C1: 06.03.2026
+T0 R08 C2: Phase 2: Kamera-Scrolling, Fall-Erkennung
+T0 R08 C3: x
+T0 R08 C4: x
+T0 R08 C5: x
+T0 R09 C0: Fr
+T0 R09 C1: 06.03.2026
+T0 R09 C2: Phase 3: LEVEL_COMPLETE, High Score, LocalStorage
+T0 R09 C3: x
+T0 R09 C4: x
+T0 R09 C5: x
+T0 R10 C0: Fr
+T0 R10 C1: 06.03.2026
+T0 R10 C2: Phase 3: Prozedurale Plattformen, Crumble-Zustand
+T0 R10 C3: x
+T0 R10 C4: x
+T0 R10 C5: x
+T0 R11 C0: Fr
+T0 R11 C1: 06.03.2026
+T0 R11 C2: Phase 3: Start-/GameOver-Screens, HUD, Ziellinie
+T0 R11 C3: x
+T0 R11 C4: x
+T0 R11 C5: x
+T0 R12 C0: Fr
+T0 R12 C1: 06.03.2026
+T0 R12 C2: Phase 4: Wassermodul, Sinus-Welle, Flutanstieg
+T0 R12 C3: x
+T0 R12 C4: x
+T0 R12 C5: x
+T0 R13 C0: Fr
+T0 R13 C1: 06.03.2026
+T0 R13 C2: Phase 4: Lebenssystem, Schaden-Flash, Respawn
+T0 R13 C3: x
+T0 R13 C4: x
+T0 R13 C5: x
+T0 R14 C0: Sa
+T0 R14 C1: 07.03.2026
+T0 R14 C2: Phase 04.1: Recherche, 16-Farb-Palette entwickeln
+T0 R14 C3: x
+T0 R14 C4: x
+T0 R14 C5: x
+T0 R15 C0: Sa
+T0 R15 C1: 07.03.2026
+T0 R15 C2: Phase 04.1: PLAN.md erstellt und verifiziert
+T0 R15 C3: x
+T0 R15 C4: x
+T0 R15 C5: x
+T0 R16 C0: So
+T0 R16 C1: 08.03.2026
+T0 R16 C2: Phase 04.1: STYLE_GUIDE.md (Palette, Stilregeln)
+T0 R16 C3: x
+T0 R16 C4: x
+T0 R16 C5: x
+T0 R17 C0: So
+T0 R17 C1: 08.03.2026
+T0 R17 C2: Phase 04.1: Palette-Datei + Plattform-Farben
+T0 R17 C3: x
+T0 R17 C4: x
+T0 R17 C5: x
+T0 R18 C0: So
+T0 R18 C1: 08.03.2026
+T0 R18 C2: Phase 04.1: palette_preview.html (Designreferenz)
+T0 R18 C3: x
+T0 R18 C4: x
+T0 R18 C5: x
+T0 R19 C0: So
+T0 R19 C1: 08.03.2026
+T0 R19 C2: Schulformalitaeten: Projektplan + Arbeitsprotokoll
+T0 R19 C3: x
+T0 R19 C4: x
+T0 R19 C5: x
+T0 R20 C0: 
+T0 R20 C1: 
+T0 R20 C2: KW 11   09.03. – 15.03.
+T0 R20 C3: 
+T0 R20 C4: 
+T0 R20 C5: 
+T0 R21 C0: Mo
+T0 R21 C1: 09.03.2026
+T0 R21 C2: Phase 04.1: Design-Entscheidungen (Spanisch, 4 Level)
+T0 R21 C3: x
+T0 R21 C4: x
+T0 R21 C5: x
+T0 R22 C0: Mo
+T0 R22 C1: 09.03.2026
+T0 R22 C2: Phase 04.1: ASSET_LIST.md + Levelstruktur dokumentiert
+T0 R22 C3: x
+T0 R22 C4: x
+T0 R22 C5: x
+T0 R23 C0: Mo
+T0 R23 C1: 09.03.2026
+T0 R23 C2: PixelArt-Ordner umstrukturiert (Naming Convention)
+T0 R23 C3: x
+T0 R23 C4: x
+T0 R23 C5: x
+T0 R24 C0: Mo
+T0 R24 C1: 09.03.2026
+T0 R24 C2: Sprite-Pfade in player.js, background.js, platforms.js
+T0 R24 C3: x
+T0 R24 C4: x
+T0 R24 C5: x
+T0 R25 C0: Mo
+T0 R25 C1: 09.03.2026
+T0 R25 C2: Phase 05 initialisiert (Wurfmechanik + Sound)
+T0 R25 C3: x
+T0 R25 C4: x
+T0 R25 C5: x
+T0 R26 C0: Di
+T0 R26 C1: 10.03.2026
+T0 R26 C2: Sprites umbenannt: idle/rise/peak/push_rise/push_peak
+T0 R26 C3: x
+T0 R26 C4: x
+T0 R26 C5: x
+T0 R27 C0: Di
+T0 R27 C1: 10.03.2026
+T0 R27 C2: Feature-Branch asset-restructure-mechanics erstellt
+T0 R27 C3: x
+T0 R27 C4: x
+T0 R27 C5: x
+T0 R28 C0: Di
+T0 R28 C1: 10.03.2026
+T0 R28 C2: Scope-Evolution: Titel, Steuerung WASD+Maus, HUD-Fix
+T0 R28 C3: x
+T0 R28 C4: x
+T0 R28 C5: x
+T0 R29 C0: Di
+T0 R29 C1: 10.03.2026
+T0 R29 C2: Hazard-Rename: resetWater zu resetHazard generalisiert
+T0 R29 C3: x
+T0 R29 C4: x
+T0 R29 C5: x
+T0 R30 C0: Di
+T0 R30 C1: 10.03.2026
+T0 R30 C2: Maus-Eingabe: Left-Click=Jump, Right-Click=Action
+T0 R30 C3: x
+T0 R30 C4: x
+T0 R30 C5: x
+T0 R31 C0: Mi
+T0 R31 C1: 11.03.2026
+T0 R31 C2: Auto-Bounce entfernt: manuelle Sprung-Mechanik
+T0 R31 C3: x
+T0 R31 C4: x
+T0 R31 C5: x
+T0 R32 C0: Mi
+T0 R32 C1: 11.03.2026
+T0 R32 C2: Walk-Animation integriert (walk_1/2, 150ms-Zyklus)
+T0 R32 C3: x
+T0 R32 C4: x
+T0 R32 C5: x
+T0 R33 C0: Mi
+T0 R33 C1: 11.03.2026
+T0 R33 C2: Sprite Y-Offsets: PIL alpha-scan, per-Frame-System
+T0 R33 C3: x
+T0 R33 C4: x
+T0 R33 C5: x
+T0 R34 C0: Do
+T0 R34 C1: 12.03.2026
+T0 R34 C2: Paralax-Fix: Gebaeude + Fenster scrollen 1:1
+T0 R34 C3: x
+T0 R34 C4: x
+T0 R34 C5: x
+T0 R35 C0: Do
+T0 R35 C1: 12.03.2026
+T0 R35 C2: Unsichtbare Plattform: Gebaeude-Gesims (y=342)
+T0 R35 C3: x
+T0 R35 C4: x
+T0 R35 C5: x
+T0 R36 C0: Do
+T0 R36 C1: 12.03.2026
+T0 R36 C2: Platform-Fix: nur Slots mit Fenstern generieren
+T0 R36 C3: x
+T0 R36 C4: x
+T0 R36 C5: x
+T0 R37 C0: Do
+T0 R37 C1: 12.03.2026
+T0 R37 C2: GamePhase PAUSED + restartLevel() hinzugefuegt
+T0 R37 C3: x
+T0 R37 C4: x
+T0 R37 C5: x
+T0 R38 C0: Do
+T0 R38 C1: 12.03.2026
+T0 R38 C2: ESC-Pause: menuCursor + ArrowUp/Down Navigation
+T0 R38 C3: x
+T0 R38 C4: x
+T0 R38 C5: x
+T0 R39 C0: Do
+T0 R39 C1: 12.03.2026
+T0 R39 C2: LEVEL_COMPLETE-Screen: 4 Optionen mit Cursor
+T0 R39 C3: x
+T0 R39 C4: x
+T0 R39 C5: x
+T0 R40 C0: Do
+T0 R40 C1: 12.03.2026
+T0 R40 C2: Key-Blocking: Enter/Jump beim Phasenuebergang
+T0 R40 C3: x
+T0 R40 C4: x
+T0 R40 C5: x
+T0 R41 C0: Do
+T0 R41 C1: 12.03.2026
+T0 R41 C2: Variabler Sprung: Antippen kurz, Halten voll
+T0 R41 C3: x
+T0 R41 C4: x
+T0 R41 C5: x
+T0 R42 C0: Do
+T0 R42 C1: 12.03.2026
+T0 R42 C2: Bugfix: JUMP_VELOCITY fuer Wasser-Respawn
+T0 R42 C3: x
+T0 R42 C4: x
+T0 R42 C5: x
+T0 R43 C0: Do
+T0 R43 C1: 12.03.2026
+T0 R43 C2: Sprung-Tuning: Min -520 px/s, Boost 900/0.20s
+T0 R43 C3: x
+T0 R43 C4: x
+T0 R43 C5: x
+T0 R44 C0: Fr
+T0 R44 C1: 13.03.2026
+T0 R44 C2: –
+T0 R44 C3: 
+T0 R44 C4: 
+T0 R44 C5: 
+T0 R45 C0: Sa
+T0 R45 C1: 14.03.2026
+T0 R45 C2: Wochenende
+T0 R45 C3: 
+T0 R45 C4: 
+T0 R45 C5: 
+T0 R46 C0: So
+T0 R46 C1: 15.03.2026
+T0 R46 C2: Wochenende
+T0 R46 C3: 
+T0 R46 C4: 
+T0 R46 C5: 
+T0 R47 C0: 
+T0 R47 C1: 
+T0 R47 C2: KW 12   16.03. – 22.03.
+T0 R47 C3: 
+T0 R47 C4: 
+T0 R47 C5: 
+T0 R48 C0: Mo
+T0 R48 C1: 16.03.2026
+T0 R48 C2: Hazard-Rename: water-Objekt zu hazard + Eigenschaftsnamen
+T0 R48 C3: x
+T0 R48 C4: x
+T0 R48 C5: x
+T0 R49 C0: Mo
+T0 R49 C1: 16.03.2026
+T0 R49 C2: Hazard-Renderer: Smog (L1), Flut (L2), Elektrizitaet (L3)
+T0 R49 C3: x
+T0 R49 C4: x
+T0 R49 C5: x
+T0 R50 C0: Mo
+T0 R50 C1: 16.03.2026
+T0 R50 C2: Konstanten-Taxonomie: HAZARD_* (shared) vs FLOOD_WAVE_*
+T0 R50 C3: x
+T0 R50 C4: x
+T0 R50 C5: x
+T0 R51 C0: Mo
+T0 R51 C1: 16.03.2026
+T0 R51 C2: Variabler Sprung +0.5%: Min -523, Boost 905 px/s²
+T0 R51 C3: x
+T0 R51 C4: x
+T0 R51 C5: x
+T0 R52 C0: Mo
+T0 R52 C1: 16.03.2026
+T0 R52 C2: L1 unsichtbare Plattformen: Boden, Muelltonnen, Tuer
+T0 R52 C3: x
+T0 R52 C4: x
+T0 R52 C5: x
+T0 R53 C0: Mo
+T0 R53 C1: 16.03.2026
+T0 R53 C2: PIL Alpha-Scan: exakte Koordinaten fuer L1-Collider
+T0 R53 C3: x
+T0 R53 C4: x
+T0 R53 C5: x
+T0 R54 C0: Mo
+T0 R54 C1: 16.03.2026
+T0 R54 C2: Starter-Plattform nur L2; L1+L3 unsichtbarer Boden
+T0 R54 C3: x
+T0 R54 C4: x
+T0 R54 C5: x
+T0 R55 C0: Mo
+T0 R55 C1: 16.03.2026
+T0 R55 C2: Crumble-Farbe: Zerbroeckelnd gelb statt rot (Zeile 4)
+T0 R55 C3: x
+T0 R55 C4: x
+T0 R55 C5: x
+T0 R56 C0: Mo
+T0 R56 C1: 16.03.2026
+T0 R56 C2: Level-abhaengiger Spawn: L1+L3 y=596, L2 y=528
+T0 R56 C3: x
+T0 R56 C4: x
+T0 R56 C5: x
+T0 R57 C0: Mo
+T0 R57 C1: 16.03.2026
+T0 R57 C2: 3-Schicht-Elektrizitaet: unabhaengige Frequenzen+Alpha
+T0 R57 C3: x
+T0 R57 C4: x
+T0 R57 C5: x
+T0 R58 C0: Mo
+T0 R58 C1: 16.03.2026
+T0 R58 C2: Scope-Reduktion: 4 Level auf 3 (L4 Freizeitpark gestrichen)
+T0 R58 C3: x
+T0 R58 C4: x
+T0 R58 C5: x
+T0 R59 C0: Mo
+T0 R59 C1: 16.03.2026
+T0 R59 C2: GDD + Arbeitsprotokoll aktualisiert (alle Aenderungen)
+T0 R59 C3: x
+T0 R59 C4: x
+T0 R59 C5: x
+T0 R60 C0: Di
+T0 R60 C1: 17.03.2026
+T0 R60 C2: L2 Hintergrund: Rocket-Sprite als 3-Layer-Parallax
+T0 R60 C3: x
+T0 R60 C4: x
+T0 R60 C5: x
+T0 R61 C0: Di
+T0 R61 C1: 17.03.2026
+T0 R61 C2: Finish-Trigger: Z-Taste auf Zielplattform loest Levelende aus
+T0 R61 C3: x
+T0 R61 C4: x
+T0 R61 C5: x
+T0 R62 C0: Di
+T0 R62 C1: 17.03.2026
+T0 R62 C2: Finish-Animationen: Windrad (L1), Glocke (L2), Hebel (L3)
+T0 R62 C3: x
+T0 R62 C4: x
+T0 R62 C5: x
+T0 R63 C0: Di
+T0 R63 C1: 17.03.2026
+T0 R63 C2: Hazard-Fade: 1.2s Alpha-Ausblenden bei Levelende
+T0 R63 C3: x
+T0 R63 C4: x
+T0 R63 C5: x
+T0 R64 C0: Di
+T0 R64 C1: 17.03.2026
+T0 R64 C2: Ballon-Sammelobjekt: Spawn, Lissajous, Z-Fang-Mechanik
+T0 R64 C3: x
+T0 R64 C4: x
+T0 R64 C5: x
+T0 R65 C0: Di
+T0 R65 C1: 17.03.2026
+T0 R65 C2: Walk-Animation: walk_1/walk_2 Sprites integriert
+T0 R65 C3: x
+T0 R65 C4: x
+T0 R65 C5: x
+T0 R66 C0: Mi
+T0 R66 C1: 18.03.2026
+T0 R66 C2: –
+T0 R66 C3: 
+T0 R66 C4: 
+T0 R66 C5: 
+T0 R67 C0: Do
+T0 R67 C1: 19.03.2026
+T0 R67 C2: –
+T0 R67 C3: 
+T0 R67 C4: 
+T0 R67 C5: 
+T0 R68 C0: Fr
+T0 R68 C1: 20.03.2026
+T0 R68 C2: –
+T0 R68 C3: 
+T0 R68 C4: 
+T0 R68 C5: 
+T0 R69 C0: Sa
+T0 R69 C1: 21.03.2026
+T0 R69 C2: Smog L1: Obergrenze bei levelGoalY+22 nach Sichtbarkeits-Clamp
+T0 R69 C3: x
+T0 R69 C4: x
+T0 R69 C5: x
+T0 R70 C0: Sa
+T0 R70 C1: 21.03.2026
+T0 R70 C2: Ballon: Spawn bei player.y-90 (Weltkoordinaten) statt Bildschirmrand
+T0 R70 C3: x
+T0 R70 C4: x
+T0 R70 C5: x
+T0 R71 C0: Sa
+T0 R71 C1: 21.03.2026
+T0 R71 C2: Ballon: Steiggeschwindigkeit 60px/s, Amplitude 150px, Periode 1.8s
+T0 R71 C3: x
+T0 R71 C4: x
+T0 R71 C5: x
+T0 R72 C0: So
+T0 R72 C1: 22.03.2026
+T0 R72 C2: Wochenende
+T0 R72 C3: 
+T0 R72 C4: 
+T0 R72 C5: 
+T0 R73 C0: 
+T0 R73 C1: 
+T0 R73 C2: KW 13   23.03. – 29.03.
+T0 R73 C3: 
+T0 R73 C4: 
+T0 R73 C5: 
+T0 R74 C0: Mo
+T0 R74 C1: 23.03.2026
+T0 R74 C2: L2 Hintergrund: Geruest-Assets integriert (Tiling, 529px-Schritt)
+T0 R74 C3: x
+T0 R74 C4: x
+T0 R74 C5: x
+T0 R75 C0: Mo
+T0 R75 C1: 23.03.2026
+T0 R75 C2: L2 Rakete: Top-Sprite an letzten Mid-Tile gesnappt (kein Overlap)
+T0 R75 C3: x
+T0 R75 C4: x
+T0 R75 C5: x
+T0 R76 C0: Mo
+T0 R76 C1: 23.03.2026
+T0 R76 C2: L3 Hintergrund: ShaftBot-Offset korrigiert (nahtloser Uebergang)
+T0 R76 C3: x
+T0 R76 C4: x
+T0 R76 C5: x
+T0 R77 C0: Mo
+T0 R77 C1: 23.03.2026
+T0 R77 C2: L3 Hintergrund: Mid-Kachel-Loop-Start angepasst (268px-Gap)
+T0 R77 C3: x
+T0 R77 C4: x
+T0 R77 C5: x
+T0 R78 C0: Mo
+T0 R78 C1: 23.03.2026
+T0 R78 C2: L3 Hintergrund: ShaftTop + Pipes auf 175px-Offset korrigiert
+T0 R78 C3: x
+T0 R78 C4: x
+T0 R78 C5: x
+T0 R79 C0: Mo
+T0 R79 C1: 23.03.2026
+T0 R79 C2: L3 Collider: Fahrstuhldecke, Schachtboden, Dachausgang
+T0 R79 C3: x
+T0 R79 C4: x
+T0 R79 C5: x
+T0 R80 C0: Mo
+T0 R80 C1: 23.03.2026
+T0 R80 C2: Hazard: Obergrenze L2/L3 auf levelGoalY gesetzt (war +300px)
+T0 R80 C3: x
+T0 R80 C4: x
+T0 R80 C5: x
+T0 R81 C0: Mo
+T0 R81 C1: 23.03.2026
+T0 R81 C2: Ballon: 2x Steiggeschwindigkeit, 1/3 Seitenamplitude
+T0 R81 C3: x
+T0 R81 C4: x
+T0 R81 C5: x
+T0 R82 C0: Mo
+T0 R82 C1: 23.03.2026
+T0 R82 C2: water.js umbenannt zu hazards.js (korrekte Benennung)
+T0 R82 C3: x
+T0 R82 C4: x
+T0 R82 C5: x
+T0 R83 C0: Di
+T0 R83 C1: 24.03.2026
+T0 R83 C2: –
+T0 R83 C3: 
+T0 R83 C4: 
+T0 R83 C5: 
+T0 R84 C0: Mi
+T0 R84 C1: 25.03.2026
+T0 R84 C2: PixelArt: snake_case Benennung alle Assets erzwungen
+T0 R84 C3: x
+T0 R84 C4: x
+T0 R84 C5: x
+T0 R85 C0: Mi
+T0 R85 C1: 25.03.2026
+T0 R85 C2: Sprite-Pfade in player.js + background.js aktualisiert
+T0 R85 C3: x
+T0 R85 C4: x
+T0 R85 C5: x
+T0 R86 C0: Do
+T0 R86 C1: 26.03.2026
+T0 R86 C2: –
+T0 R86 C3: 
+T0 R86 C4: 
+T0 R86 C5: 
+T0 R87 C0: Fr
+T0 R87 C1: 27.03.2026
+T0 R87 C2: –
+T0 R87 C3: 
+T0 R87 C4: 
+T0 R87 C5: 
+T0 R88 C0: Sa
+T0 R88 C1: 28.03.2026
+T0 R88 C2: Wochenende
+T0 R88 C3: 
+T0 R88 C4: 
+T0 R88 C5: 
+T0 R89 C0: So
+T0 R89 C1: 29.03.2026
+T0 R89 C2: Wochenende
+T0 R89 C3: 
+T0 R89 C4: 
+T0 R89 C5: 
+T0 R90 C0: 
+T0 R90 C1: 
+T0 R90 C2: KW 14   30.03. – 05.04.
+T0 R90 C3: 
+T0 R90 C4: 
+T0 R90 C5: 
+T0 R91 C0: Mo
+T0 R91 C1: 30.03.2026
+T0 R91 C2: Merge: feature/asset-restructure-mechanics → master
+T0 R91 C3: x
+T0 R91 C4: x
+T0 R91 C5: x
+T0 R92 C0: Mo
+T0 R92 C1: 30.03.2026
+T0 R92 C2: GDD: Scope-Entscheidungen (Push-Mechanik, L2 Leuchtturm)
+T0 R92 C3: x
+T0 R92 C4: x
+T0 R92 C5: x
+T0 R93 C0: Mo
+T0 R93 C1: 30.03.2026
+T0 R93 C2: Phase 04.2 initialisiert: Recherche L2-Leuchtturm-Redesign
+T0 R93 C3: x
+T0 R93 C4: x
+T0 R93 C5: x
+T0 R94 C0: Di
+T0 R94 C1: 31.03.2026
+T0 R94 C2: –
+T0 R94 C3: 
+T0 R94 C4: 
+T0 R94 C5: 
+T0 R95 C0: Mi
+T0 R95 C1: 01.04.2026
+T0 R95 C2: –
+T0 R95 C3: 
+T0 R95 C4: 
+T0 R95 C5: 
+T0 R96 C0: Do
+T0 R96 C1: 02.04.2026
+T0 R96 C2: –
+T0 R96 C3: 
+T0 R96 C4: 
+T0 R96 C5: 
+T0 R97 C0: Fr
+T0 R97 C1: 03.04.2026
+T0 R97 C2: –
+T0 R97 C3: 
+T0 R97 C4: 
+T0 R97 C5: 
+T0 R98 C0: Sa
+T0 R98 C1: 04.04.2026
+T0 R98 C2: Wochenende
+T0 R98 C3: 
+T0 R98 C4: 
+T0 R98 C5: 
+T0 R99 C0: So
+T0 R99 C1: 05.04.2026
+T0 R99 C2: Wochenende
+T0 R99 C3: 
+T0 R99 C4: 
+T0 R99 C5: 
+T0 R100 C0: 
+T0 R100 C1: 
+T0 R100 C2: KW 15   06.04. – 12.04.
+T0 R100 C3: 
+T0 R100 C4: 
+T0 R100 C5: 
+T0 R101 C0: Mo
+T0 R101 C1: 06.04.2026
+T0 R101 C2: Katzen-Sprites: 7 Einzeldateien zu animation_sheet.png konsolidiert
+T0 R101 C3: x
+T0 R101 C4: x
+T0 R101 C5: x
+T0 R102 C0: Mo
+T0 R102 C1: 06.04.2026
+T0 R102 C2: player.js: Spritesheet-System mit Index-Array (_CAT_SPRITES)
+T0 R102 C3: x
+T0 R102 C4: x
+T0 R102 C5: x
+T0 R103 C0: Mo
+T0 R103 C1: 06.04.2026
+T0 R103 C2: background.js: Leuchtturm-Renderer (_drawL2Lighthouse) implementiert
+T0 R103 C3: x
+T0 R103 C4: x
+T0 R103 C5: x
+T0 R104 C0: Mo
+T0 R104 C1: 06.04.2026
+T0 R104 C2: Branch feature/04.2-l2-lighthouse erstellt, Doku aktualisiert
+T0 R104 C3: x
+T0 R104 C4: x
+T0 R104 C5: x
+T0 R105 C0: Di
+T0 R105 C1: 07.04.2026
+T0 R105 C2: –
+T0 R105 C3: 
+T0 R105 C4: 
+T0 R105 C5: 
+T0 R106 C0: Mi
+T0 R106 C1: 08.04.2026
+T0 R106 C2: –
+T0 R106 C3: 
+T0 R106 C4: 
+T0 R106 C5: 
+T0 R107 C0: Do
+T0 R107 C1: 09.04.2026
+T0 R107 C2: –
+T0 R107 C3: 
+T0 R107 C4: 
+T0 R107 C5: 
+T0 R108 C0: Fr
+T0 R108 C1: 10.04.2026
+T0 R108 C2: –
+T0 R108 C3: 
+T0 R108 C4: 
+T0 R108 C5: 
+T0 R109 C0: Sa
+T0 R109 C1: 11.04.2026
+T0 R109 C2: Wochenende
+T0 R109 C3: 
+T0 R109 C4: 
+T0 R109 C5: 
+T0 R110 C0: So
+T0 R110 C1: 12.04.2026
+T0 R110 C2: Wochenende
+T0 R110 C3: 
+T0 R110 C4: 
+T0 R110 C5: 
+T0 R111 C0: 
+T0 R111 C1: 
+T0 R111 C2: KW 16   13.04. – 19.04.
+T0 R111 C3: 
+T0 R111 C4: 
+T0 R111 C5: 
+T0 R112 C0: Mo
+T0 R112 C1: 13.04.2026
+T0 R112 C2: –
+T0 R112 C3: 
+T0 R112 C4: 
+T0 R112 C5: 
+T0 R113 C0: Di
+T0 R113 C1: 14.04.2026
+T0 R113 C2: –
+T0 R113 C3: 
+T0 R113 C4: 
+T0 R113 C5: 
+T0 R114 C0: Mi
+T0 R114 C1: 15.04.2026
+T0 R114 C2: –
+T0 R114 C3: 
+T0 R114 C4: 
+T0 R114 C5: 
+T0 R115 C0: Do
+T0 R115 C1: 16.04.2026
+T0 R115 C2: –
+T0 R115 C3: 
+T0 R115 C4: 
+T0 R115 C5: 
+T0 R116 C0: Fr
+T0 R116 C1: 17.04.2026
+T0 R116 C2: –
+T0 R116 C3: 
+T0 R116 C4: 
+T0 R116 C5: 
+T0 R117 C0: Sa
+T0 R117 C1: 18.04.2026
+T0 R117 C2: Wochenende
+T0 R117 C3: 
+T0 R117 C4: 
+T0 R117 C5: 
+T0 R118 C0: So
+T0 R118 C1: 19.04.2026
+T0 R118 C2: Wochenende
+T0 R118 C3: 
+T0 R118 C4: 
+T0 R118 C5: 
+T0 R119 C0: 
+T0 R119 C1: 
+T0 R119 C2: KW 17   20.04. – 26.04.
+T0 R119 C3: 
+T0 R119 C4: 
+T0 R119 C5: 
+T0 R120 C0: Mo
+T0 R120 C1: 20.04.2026
+T0 R120 C2: –
+T0 R120 C3: 
+T0 R120 C4: 
+T0 R120 C5: 
+T0 R121 C0: Di
+T0 R121 C1: 21.04.2026
+T0 R121 C2: –
+T0 R121 C3: 
+T0 R121 C4: 
+T0 R121 C5: 
+T0 R122 C0: Mi
+T0 R122 C1: 22.04.2026
+T0 R122 C2: –
+T0 R122 C3: 
+T0 R122 C4: 
+T0 R122 C5: 

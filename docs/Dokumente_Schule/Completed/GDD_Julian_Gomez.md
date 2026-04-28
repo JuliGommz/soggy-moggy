@@ -608,5 +608,15 @@ src/
 
 ---
 
+## Anhang: KI-Assistenz und Prompting-Strategie
+
+Dieses Projekt wurde mit Claude Code (Anthropic) als strukturiertem Pair-Programming-Werkzeug entwickelt. KI-generierter Code entstand immer nach einem verifizierten Plan; was gebaut, geändert oder verworfen wurde, war durchgehend die Entscheidung des Autors. Jede Phase folgte dem Ablauf Recherche → Annahmen prüfen → Plan ausführen → Ergebnis verifizieren, nie direkt "schreib mir Code für X".
+
+Entscheidende Eingriffe durch den Autor: MVP-Grenze klar gesetzt und gehalten (Level 4 gestrichen, Push-Mechanismus verworfen), Dozenten-Feedback direkt ins Planungssystem eingearbeitet, technische Browseranforderungen (file://, kein Build-Tool, Firefox-kompatibel) als feste Rahmenbedingung von Anfang an definiert. Zwei konkrete KI-Korrekturen nach eigenem Testen: Web Audio API (Chromium-only, nicht geeignet) wurde durch HTMLAudio ersetzt; Babel/JSX (XHR-Abhängigkeit auf file://) wurde durch React.createElement ohne Transpiler ersetzt.
+
+Vollständige Dokumentation inkl. GSD-Kommandos, konkreter Beispiele und Phasenprotokoll: [`docs/prompting-strategy/prompting-strategy-final-2026.md`](docs/prompting-strategy/prompting-strategy-final-2026.md)
+
+---
+
 *Dokument erstellt: März 2026*
 *Letzte Aktualisierung: 27.04.2026*
