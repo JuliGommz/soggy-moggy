@@ -57,3 +57,13 @@ desktop.ini
 .vscode/
 *.swp
 *~
+
+# ─── Repo-Polish Cleanup (2026-04-29) ────────────────────────────────────────
+.claude/
+Visuals/_archive/
+Visuals/_dev/Inspiration/
+Visuals/fonts/Archive/
+docs/Screenshots/Screenshot*.png
+# Wir behalten zwei .ai Sources die als Quellen aktiv im Game/README referenziert sind:
+#   Visuals/fonts/alphabet_pixel_retro_video_game_style.ai (YELLOW_FONT atlas)
+#   Visuals/thought_bubbles/dialogue_bubbles.ai            (8 bubble PNGs)
