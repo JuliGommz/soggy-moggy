@@ -13,12 +13,6 @@ Final project at SRH Fachschule, Game & Multimedia Design (GME-24.01). Developer
 
 ---
 
-## Screenshot
-
-![Level 1 City](docs/Screenshots/Levels/Level1.1.png)
-
----
-
 ## Gameplay
 
 - Manual jump, no auto-bounce. Every platform is a deliberate decision.
@@ -101,8 +95,6 @@ Title font (bitmap): `Visuals/fonts/alphabet_pixel_retro_video_game_style.png`, 
 
 Body font: `Visuals/fonts/BlockCraft.otf`, loaded via `@font-face` in `index.html`, used by `drawBodyText()` for dialogue body text. (Source + license: see `docs/Dokumente_Schule/Medienkatalog.md`.)
 
-Older and experimental fonts (black-LCD attempt, Vecteezy source files) are archived in `Visuals/fonts/Archive/`.
-
 **Pixel Art**
 
 All sprites, backgrounds, UI elements, enemies and platforms: original work by Julian Gomez, created in Pixelorama. Spritesheets assembled in Adobe Photoshop where noted.
@@ -111,17 +103,15 @@ All sprites, backgrounds, UI elements, enemies and platforms: original work by J
 
 Vector source: `Visuals/thought_bubbles/dialogue_bubbles.ai` (Adobe Illustrator), original work. 8 bubble PNGs cropped to `Visuals/thought_bubbles/dialogues/` via `scripts/crop_bubbles.py`.
 
-**Inspiration Material**
-
-`Visuals/_dev/Inspiration/` contains reference images used as style studies only. None are used in the game.
-
 Full media catalog: [`docs/Dokumente_Schule/Medienkatalog.md`](docs/Dokumente_Schule/Medienkatalog.md)
 
 ---
 
 ## License
 
-School project, internal use only. No commercial use. No LICENSE file is included in the repository.
+All Rights Reserved. See [`LICENSE`](LICENSE).
+
+Published for portfolio and academic assessment purposes only. Not licensed for reuse without written permission.
 
 ---
 
