@@ -1,5 +1,12 @@
 # Soggy Moggy
 
+[![Play Now](https://img.shields.io/badge/%E2%96%B6%20Play%20Now-FF6B6B?style=for-the-badge&logo=googlechrome&logoColor=white)](https://juligommz.github.io/soggy-moggy/)
+
+[![JavaScript](https://img.shields.io/badge/JavaScript-ES2022%2B-F7DF1E?style=flat-square&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![HTML5 Canvas](https://img.shields.io/badge/HTML5-Canvas-E34F26?style=flat-square&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
+[![Pixelorama](https://img.shields.io/badge/pixel%20art-Pixelorama-9E62D8?style=flat-square)](https://www.orama-interactive.com/Pixelorama)
+[![License](https://img.shields.io/badge/license-All%20Rights%20Reserved-blue?style=flat-square)](LICENSE)
+
 A vertical platformer in the browser. A stuffed cat jumps from platform to platform, fleeing a rising threat from below. Three levels, three hazards: smog in the city, electricity in the elevator shaft, flooding at the lighthouse.
 
 Final project at SRH Fachschule, Game & Multimedia Design (GME-24.01). Developer: Julian Gomez.
